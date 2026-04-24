@@ -89,12 +89,14 @@ Page({
 
         let result = null
         try {
-          await businessApi.createBooking({
+          const cloudResult = await businessApi.createBooking({
             userId: app.globalData.userProfile.id,
             scheduleId,
             remark: '小程序预约',
           })
-          result = app.createBooking(scheduleId)
+          result = app.applyCloudBookingSuccess(scheduleId, {
+            bookingId: cloudResult.bookingId,
+          })
         } catch (error) {
           // 云端未部署或集合未初始化时，先回退到本地内存态，避免当前演示链路中断。
           result = app.createBooking(scheduleId)

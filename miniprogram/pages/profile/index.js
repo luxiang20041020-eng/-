@@ -92,7 +92,7 @@ Page({
         operatorId: app.globalData.userProfile.id,
         remark: '小程序取消预约',
       })
-      result = app.cancelBooking(bookingId)
+      result = app.applyCloudCancelSuccess(bookingId)
     } catch (error) {
       result = app.cancelBooking(bookingId)
       if (result.ok) {

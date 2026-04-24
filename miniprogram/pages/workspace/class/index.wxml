@@ -34,10 +34,11 @@
         <view class="status-chip">{{item.status}}</view>
       </view>
       <view class="card-desc">{{item.phone}}</view>
-      <view class="button-row" style="margin-top: 16rpx;">
-        <button class="primary-button" size="mini" data-booking-id="{{item.bookingId}}" data-status="已核销" bindtap="onUpdateStatus">确认到场</button>
-        <button class="secondary-button" size="mini" data-booking-id="{{item.bookingId}}" data-status="已缺席" bindtap="onUpdateStatus">标记缺席</button>
+      <view wx:if="{{item.status === '待核销'}}" class="button-row" style="margin-top: 16rpx;">
+        <button class="primary-button" size="mini" loading="{{submittingBookingId === item.bookingId}}" disabled="{{submittingBookingId === item.bookingId}}" data-booking-id="{{item.bookingId}}" data-status="已核销" bindtap="onUpdateStatus">确认到场</button>
+        <button class="secondary-button" size="mini" loading="{{submittingBookingId === item.bookingId}}" disabled="{{submittingBookingId === item.bookingId}}" data-booking-id="{{item.bookingId}}" data-status="已缺席" bindtap="onUpdateStatus">标记缺席</button>
       </view>
+      <view wx:else class="card-desc" style="margin-top: 16rpx;">当前状态已确认，无需重复操作。</view>
     </view>
   </view>
 </view>

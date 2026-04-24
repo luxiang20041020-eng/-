@@ -179,6 +179,7 @@ App({
 
   getBookingPageData(filters) {
     const state = this.getRuntimeSnapshot()
+    const currentUserId = this.globalData.userProfile.id
     const query = Object.assign(
       {
         type: 'group',
@@ -203,7 +204,9 @@ App({
       }
       return item.status !== '已取消'
     }).map((item) => {
-      const isBooked = this.globalData.myBookings.some((booking) => booking.scheduleId === item.id && booking.status === '待上课')
+      const isBooked = this.globalData.myBookings.some(
+        (booking) => booking.userId === currentUserId && booking.scheduleId === item.id && booking.status === '待上课'
+      )
       return Object.assign({}, item, {
         typeLabel: getAssetLabelByType(item.type),
         progressText: item.bookedCount + '/' + item.capacity + ' 人',
@@ -279,6 +282,65 @@ App({
     return { ok: true, message: '预约成功，已扣减 1 节' + assetLabel }
   },
 
+  applyCloudBookingSuccess(scheduleId, options = {}) {
+    const targetSchedule = this.globalData.schedules.find((item) => item.id === scheduleId)
+    if (!targetSchedule) {
+      return { ok: true, message: '预约成功' }
+    }
+
+    const assetKey = getAssetKeyByType(targetSchedule.type)
+    const assetLabel = getAssetLabelByType(targetSchedule.type)
+    const userId = this.globalData.userProfile.id
+    const existingBooking = this.globalData.myBookings.find(
+      (item) => item.userId === userId && item.scheduleId === scheduleId && item.status === '待上课'
+    )
+    const bookingId = options.bookingId || (existingBooking ? existingBooking.id : ('booking_' + Date.now()))
+
+    if (!existingBooking) {
+      const bookingRecord = {
+        id: bookingId,
+        scheduleId: targetSchedule.id,
+        userId,
+        userName: this.globalData.userProfile.nickname,
+        title: targetSchedule.title,
+        type: targetSchedule.type,
+        dateLabel: targetSchedule.dateLabel,
+        timeRange: targetSchedule.timeRange,
+        status: '待上课',
+      }
+      this.globalData.myBookings.unshift(bookingRecord)
+    }
+
+    if (!this.globalData.classRosterMap[targetSchedule.id]) {
+      this.globalData.classRosterMap[targetSchedule.id] = []
+    }
+    const existsInRoster = this.globalData.classRosterMap[targetSchedule.id].some((item) => item.bookingId === bookingId)
+    if (!existsInRoster) {
+      this.globalData.classRosterMap[targetSchedule.id].push({
+        bookingId,
+        userId,
+        userName: this.globalData.userProfile.nickname,
+        phone: this.globalData.userProfile.phone,
+        status: '待核销',
+      })
+    }
+
+    const currentUser = this.getCurrentUserMember()
+    const shouldDecreaseAsset = !existingBooking && this.globalData.assets[assetKey] > 0
+    if (shouldDecreaseAsset) {
+      this.globalData.assets[assetKey] -= 1
+      if (currentUser) {
+        currentUser[assetKey] = this.globalData.assets[assetKey]
+      }
+    }
+
+    if (!existingBooking && targetSchedule.bookedCount < targetSchedule.capacity) {
+      targetSchedule.bookedCount += 1
+    }
+
+    return { ok: true, message: '预约成功，已扣减 1 节' + assetLabel }
+  },
+
   cancelBooking(bookingId) {
     const booking = this.globalData.myBookings.find((item) => item.id === bookingId)
     if (!booking || booking.status !== '待上课') {
@@ -309,9 +371,44 @@ App({
     return { ok: true, message: '取消成功，已退回 1 节' + assetLabel }
   },
 
+  applyCloudCancelSuccess(bookingId) {
+    const booking = this.globalData.myBookings.find((item) => item.id === bookingId)
+    if (!booking) {
+      return { ok: true, message: '取消成功' }
+    }
+
+    if (booking.status === '已取消') {
+      return { ok: true, message: '取消成功' }
+    }
+
+    const schedule = this.globalData.schedules.find((item) => item.id === booking.scheduleId)
+    const assetKey = getAssetKeyByType(booking.type)
+    const assetLabel = getAssetLabelByType(booking.type)
+    booking.status = '已取消'
+    this.globalData.assets[assetKey] += 1
+
+    const currentUser = this.getCurrentUserMember()
+    if (currentUser) {
+      currentUser[assetKey] = this.globalData.assets[assetKey]
+    }
+
+    if (schedule && schedule.bookedCount > 0) {
+      schedule.bookedCount -= 1
+    }
+
+    const roster = this.globalData.classRosterMap[booking.scheduleId] || []
+    const targetRoster = roster.find((item) => item.bookingId === bookingId)
+    if (targetRoster) {
+      targetRoster.status = '已取消'
+    }
+
+    return { ok: true, message: '取消成功，已退回 1 节' + assetLabel }
+  },
+
   getProfilePageData() {
+    const currentUserId = this.globalData.userProfile.id
     return {
-      myBookings: deepClone(this.globalData.myBookings),
+      myBookings: deepClone(this.globalData.myBookings.filter((item) => item.userId === currentUserId)),
       trainingStats: deepClone(this.globalData.trainingStats),
       currentStore: this.getCurrentStore(),
     }
@@ -410,6 +507,25 @@ App({
     }
 
     target.status = nextStatus
+
+    const myBooking = this.globalData.myBookings.find((item) => item.id === bookingId)
+    if (myBooking) {
+      myBooking.status = nextStatus === '已核销' ? '已完成' : '已缺席'
+    }
+
+    if (nextStatus === '已核销') {
+      this.globalData.auditOverview.writeOffCount += 1
+    }
+
+    return { ok: true, message: nextStatus === '已核销' ? '核销完成' : '已标记缺席' }
+  },
+
+  applyCloudCheckinStatus(classId, bookingId, nextStatus) {
+    const roster = this.globalData.classRosterMap[classId] || []
+    const target = roster.find((item) => item.bookingId === bookingId)
+    if (target) {
+      target.status = nextStatus
+    }
 
     const myBooking = this.globalData.myBookings.find((item) => item.id === bookingId)
     if (myBooking) {

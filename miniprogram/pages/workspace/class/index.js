@@ -5,6 +5,7 @@ Page({
     runtime: {},
     pageData: {},
     classId: '',
+    submittingBookingId: '',
   },
 
   onLoad(options) {
@@ -41,13 +42,19 @@ Page({
     const app = getApp()
     let result = null
 
+    if (this.data.submittingBookingId === bookingId) {
+      return
+    }
+
+    this.setData({ submittingBookingId: bookingId })
+
     try {
       await businessApi.writeOffBooking({
         bookingId,
         operatorId: app.globalData.userProfile.id,
         status: status === '已核销' ? 2 : 5,
       })
-      result = app.updateCheckinStatus(this.data.pageData.classInfo.id, bookingId, status)
+      result = app.applyCloudCheckinStatus(this.data.pageData.classInfo.id, bookingId, status)
     } catch (error) {
       result = app.updateCheckinStatus(this.data.pageData.classInfo.id, bookingId, status)
       if (result.ok) {
@@ -59,7 +66,32 @@ Page({
 
     wx.showToast({ title: result.message, icon: result.ok ? 'success' : 'none' })
     if (result.ok) {
+      this.applyLocalRosterStatus(bookingId, status)
       this.syncPageData()
     }
+    this.setData({ submittingBookingId: '' })
+  },
+
+  applyLocalRosterStatus(bookingId, nextStatus) {
+    const roster = (this.data.pageData.roster || []).map((item) => {
+      if (item.bookingId !== bookingId) {
+        return item
+      }
+      return Object.assign({}, item, {
+        status: nextStatus,
+      })
+    })
+
+    const classInfo = Object.assign({}, this.data.pageData.classInfo || {})
+    classInfo.checkedCount = roster.filter((item) => item.status === '已核销').length
+    classInfo.absentCount = roster.filter((item) => item.status === '已缺席').length
+    classInfo.bookedCount = roster.filter((item) => item.status !== '已取消' && item.status !== '教练取消').length
+
+    this.setData({
+      pageData: Object.assign({}, this.data.pageData, {
+        roster,
+        classInfo,
+      }),
+    })
   },
 })
