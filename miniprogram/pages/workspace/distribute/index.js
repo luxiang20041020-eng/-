@@ -1,3 +1,5 @@
+const businessApi = require('../../../utils/business-api')
+
 Page({
   data: {
     runtime: {},
@@ -72,19 +74,41 @@ Page({
     wx.showModal({
       title: '确认派发',
       content: '即将为 ' + member.nickname + ' 派发【' + targetPackage.name + '】并记录审计流水，是否确认？',
-      success: (res) => {
+      success: async (res) => {
         if (!res.confirm) {
           return
         }
 
         const app = getApp()
-        const result = app.submitDistribution({
+        const localPayload = {
           memberId: this.data.selectedMemberId,
           packageId: this.data.selectedPackageId,
           amount: Number(this.data.amount || 0),
           payType: this.data.payType || '微信转账',
           remark: this.data.remark,
-        })
+        }
+        let result = null
+
+        try {
+          await businessApi.distributeAsset({
+            userId: localPayload.memberId,
+            packageId: localPayload.packageId,
+            operatorId: 'coach_li',
+            offlineAmount: localPayload.amount,
+            payType: localPayload.payType,
+            remark: localPayload.remark,
+          })
+          result = app.submitDistribution(localPayload)
+        } catch (error) {
+          // 云端未部署或初始化未完成时，先走本地态，保证工作台链路可持续验收。
+          result = app.submitDistribution(localPayload)
+          if (result.ok) {
+            result.message = result.message + '（当前使用本地演示数据）'
+          } else if (error && error.message) {
+            result.message = result.message + '；云端返回：' + error.message
+          }
+        }
+
         wx.showToast({ title: result.message, icon: result.ok ? 'success' : 'none' })
         if (result.ok) {
           this.setData({

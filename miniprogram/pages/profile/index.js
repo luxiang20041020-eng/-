@@ -1,3 +1,5 @@
+const businessApi = require('../../utils/business-api')
+
 Page({
   data: {
     runtime: {},
@@ -18,12 +20,23 @@ Page({
     this.stopDynamicCodeTicker()
   },
 
-  syncPageData() {
+  async syncPageData() {
     const app = getApp()
-    this.setData({
-      runtime: app.getRuntimeSnapshot(),
-      pageData: app.getProfilePageData(),
-    })
+    const runtime = app.getRuntimeSnapshot()
+    try {
+      const pageData = await businessApi.getProfileViewData({
+        userId: app.globalData.userProfile.id,
+      })
+      this.setData({
+        runtime,
+        pageData,
+      })
+    } catch (error) {
+      this.setData({
+        runtime,
+        pageData: app.getProfilePageData(),
+      })
+    }
     this.refreshDynamicCode()
     const tabbar = this.selectComponent('#tabbar')
     if (tabbar) {
@@ -65,9 +78,27 @@ Page({
     this.syncPageData()
   },
 
-  onCancelBooking(event) {
+  async onCancelBooking(event) {
     const app = getApp()
-    const result = app.cancelBooking(event.currentTarget.dataset.bookingId)
+    const bookingId = event.currentTarget.dataset.bookingId
+    let result = null
+
+    try {
+      await businessApi.cancelBooking({
+        bookingId,
+        operatorId: app.globalData.userProfile.id,
+        remark: '小程序取消预约',
+      })
+      result = app.cancelBooking(bookingId)
+    } catch (error) {
+      result = app.cancelBooking(bookingId)
+      if (result.ok) {
+        result.message = result.message + '（当前使用本地演示数据）'
+      } else if (error && error.message) {
+        result.message = result.message + '；云端返回：' + error.message
+      }
+    }
+
     wx.showToast({
       title: result.message,
       icon: result.ok ? 'success' : 'none',

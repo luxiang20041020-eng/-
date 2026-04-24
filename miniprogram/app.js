@@ -208,7 +208,7 @@ App({
     }
   },
 
-  createBooking(scheduleId) {
+  createBooking(scheduleId, options = {}) {
     const targetSchedule = this.globalData.schedules.find((item) => item.id === scheduleId)
     if (!targetSchedule) {
       return { ok: false, message: '课程不存在' }
@@ -239,7 +239,7 @@ App({
     }
 
     const bookingRecord = {
-      id: 'booking_' + Date.now(),
+      id: options.bookingId || ('booking_' + Date.now()),
       scheduleId: targetSchedule.id,
       userId: this.globalData.userProfile.id,
       userName: this.globalData.userProfile.nickname,
@@ -418,7 +418,7 @@ App({
 
   createCoachSchedule(payload) {
     const plan = {
-      id: 'plan_' + Date.now(),
+      id: payload.planId || ('plan_' + Date.now()),
       weekLabel: payload.weekLabel,
       dateLabel: payload.dateLabel,
       timeRange: payload.timeRange,

@@ -1,19 +1,36 @@
+const businessApi = require('../../utils/business-api')
+
 Page({
   data: {
     runtime: {},
     pageData: {},
+    pageLoading: false,
   },
 
   onShow() {
     this.syncPageData()
   },
 
-  syncPageData() {
+  async syncPageData() {
     const app = getApp()
-    this.setData({
-      runtime: app.getRuntimeSnapshot(),
-      pageData: app.getHomePageData(),
-    })
+    const runtime = app.getRuntimeSnapshot()
+    this.setData({ pageLoading: true })
+    try {
+      const pageData = await businessApi.getHomeViewData({
+        storeId: runtime.currentStore.id,
+      })
+      this.setData({
+        runtime: Object.assign({}, runtime, { stores: pageData.stores || runtime.stores }),
+        pageData,
+      })
+    } catch (error) {
+      this.setData({
+        runtime,
+        pageData: app.getHomePageData(),
+      })
+    } finally {
+      this.setData({ pageLoading: false })
+    }
   },
 
   onSwitchStore(event) {

@@ -1,4 +1,5 @@
 <view class="page-shell">
+  <view wx:if="{{pageLoading}}" class="page-loading">正在加载工作台数据...</view>
   <view class="page-header">
     <view>
       <view class="page-title">教练工作台</view>

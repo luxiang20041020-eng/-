@@ -12,11 +12,11 @@
     <view class="metric-grid">
       <view class="metric-item">
         <view class="metric-label">私教余额</view>
-        <view class="metric-value">{{runtime.assets.privateCount}}</view>
+        <view class="metric-value">{{pageData.assets.privateCount}}</view>
       </view>
       <view class="metric-item">
         <view class="metric-label">团课余额</view>
-        <view class="metric-value">{{runtime.assets.groupCount}}</view>
+        <view class="metric-value">{{pageData.assets.groupCount}}</view>
       </view>
     </view>
   </view>

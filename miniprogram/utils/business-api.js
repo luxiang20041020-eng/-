@@ -21,6 +21,41 @@ async function bootstrapCollections() {
   return unwrapResult(response)
 }
 
+async function getHomeViewData(payload) {
+  const response = await callBusinessCore('getHomeViewData', payload)
+  return unwrapResult(response)
+}
+
+async function getBookingViewData(payload) {
+  const response = await callBusinessCore('getBookingViewData', payload)
+  return unwrapResult(response)
+}
+
+async function getProfileViewData(payload) {
+  const response = await callBusinessCore('getProfileViewData', payload)
+  return unwrapResult(response)
+}
+
+async function getWorkspaceViewData(payload) {
+  const response = await callBusinessCore('getWorkspaceViewData', payload)
+  return unwrapResult(response)
+}
+
+async function getAdminDashboardData(payload) {
+  const response = await callBusinessCore('getAdminDashboardData', payload)
+  return unwrapResult(response)
+}
+
+async function getCoachClassViewData(payload) {
+  const response = await callBusinessCore('getCoachClassViewData', payload)
+  return unwrapResult(response)
+}
+
+async function getCoachScheduleViewData(payload) {
+  const response = await callBusinessCore('getCoachScheduleViewData', payload)
+  return unwrapResult(response)
+}
+
 async function distributeAsset(payload) {
   const response = await callBusinessCore('distributeAsset', payload)
   return unwrapResult(response)
@@ -48,6 +83,13 @@ async function createCoachSchedule(payload) {
 
 module.exports = {
   bootstrapCollections,
+  getHomeViewData,
+  getBookingViewData,
+  getProfileViewData,
+  getWorkspaceViewData,
+  getAdminDashboardData,
+  getCoachClassViewData,
+  getCoachScheduleViewData,
   distributeAsset,
   createBooking,
   cancelBooking,

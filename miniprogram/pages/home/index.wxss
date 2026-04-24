@@ -1,3 +1,13 @@
+.page-loading {
+  margin-bottom: 20rpx;
+  padding: 18rpx 20rpx;
+  border-radius: 14rpx;
+  background: #1a1a1a;
+  border: 1rpx solid #2f2f2f;
+  color: #facc15;
+  font-size: 24rpx;
+}
+
 .home-store-row {
   margin-top: 18rpx;
 }

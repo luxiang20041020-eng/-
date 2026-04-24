@@ -46,7 +46,7 @@ const SCHEDULE_STATUS = {
 
 const storeSeeds = [
   {
-    _id: 'store_gaoxin',
+    _id: 'gaoxin',
     name: '高新旗舰店',
     address: '高新区唐延路 88 号',
     longitude: 108.893201,
@@ -57,7 +57,7 @@ const storeSeeds = [
     is_deleted: false,
   },
   {
-    _id: 'store_jingkai',
+    _id: 'jingkai',
     name: '经开实战店',
     address: '经开区凤城八路 18 号',
     longitude: 108.953201,
@@ -107,52 +107,78 @@ const packageSeeds = [
 
 const userSeeds = [
   {
-    _id: 'user_client_1001',
+    _id: 'u_1001',
     openid: 'demo_openid_client_1001',
     phone: '13800001234',
     real_name: '王小明',
     avatar_url: '',
     role: 1,
-    home_store_id: 'store_gaoxin',
+    home_store_id: 'gaoxin',
     status: 1,
     created_at: db.serverDate(),
     updated_at: db.serverDate(),
     is_deleted: false,
   },
   {
-    _id: 'user_client_1002',
+    _id: 'u_1002',
     openid: 'demo_openid_client_1002',
     phone: '13800004567',
     real_name: '张三',
     avatar_url: '',
     role: 1,
-    home_store_id: 'store_gaoxin',
+    home_store_id: 'gaoxin',
     status: 1,
     created_at: db.serverDate(),
     updated_at: db.serverDate(),
     is_deleted: false,
   },
   {
-    _id: 'user_coach_2001',
+    _id: 'u_1003',
+    openid: 'demo_openid_client_1003',
+    phone: '13800007890',
+    real_name: '李四',
+    avatar_url: '',
+    role: 1,
+    home_store_id: 'gaoxin',
+    status: 1,
+    created_at: db.serverDate(),
+    updated_at: db.serverDate(),
+    is_deleted: false,
+  },
+  {
+    _id: 'u_1004',
+    openid: 'demo_openid_client_1004',
+    phone: '13911112222',
+    real_name: '赵六',
+    avatar_url: '',
+    role: 1,
+    home_store_id: 'jingkai',
+    status: 1,
+    created_at: db.serverDate(),
+    updated_at: db.serverDate(),
+    is_deleted: false,
+  },
+  {
+    _id: 'coach_li',
     openid: 'demo_openid_coach_2001',
     phone: '13900001234',
     real_name: '李教练',
     avatar_url: '',
     role: 2,
-    home_store_id: 'store_gaoxin',
+    home_store_id: 'gaoxin',
     status: 1,
     created_at: db.serverDate(),
     updated_at: db.serverDate(),
     is_deleted: false,
   },
   {
-    _id: 'user_admin_3001',
+    _id: 'admin_001',
     openid: 'demo_openid_admin_3001',
     phone: '13700001234',
     real_name: '管理员',
     avatar_url: '',
     role: 3,
-    home_store_id: 'store_gaoxin',
+    home_store_id: 'gaoxin',
     status: 1,
     created_at: db.serverDate(),
     updated_at: db.serverDate(),
@@ -162,8 +188,8 @@ const userSeeds = [
 
 const userAssetSeeds = [
   {
-    _id: buildAssetDocId('user_client_1001', ASSET_TYPE.PRIVATE),
-    user_id: 'user_client_1001',
+    _id: buildAssetDocId('u_1001', ASSET_TYPE.PRIVATE),
+    user_id: 'u_1001',
     asset_type: ASSET_TYPE.PRIVATE,
     balance: 12,
     total_earned: 12,
@@ -172,8 +198,8 @@ const userAssetSeeds = [
     is_deleted: false,
   },
   {
-    _id: buildAssetDocId('user_client_1001', ASSET_TYPE.GROUP),
-    user_id: 'user_client_1001',
+    _id: buildAssetDocId('u_1001', ASSET_TYPE.GROUP),
+    user_id: 'u_1001',
     asset_type: ASSET_TYPE.GROUP,
     balance: 5,
     total_earned: 5,
@@ -182,8 +208,8 @@ const userAssetSeeds = [
     is_deleted: false,
   },
   {
-    _id: buildAssetDocId('user_client_1002', ASSET_TYPE.PRIVATE),
-    user_id: 'user_client_1002',
+    _id: buildAssetDocId('u_1002', ASSET_TYPE.PRIVATE),
+    user_id: 'u_1002',
     asset_type: ASSET_TYPE.PRIVATE,
     balance: 6,
     total_earned: 6,
@@ -192,8 +218,8 @@ const userAssetSeeds = [
     is_deleted: false,
   },
   {
-    _id: buildAssetDocId('user_client_1002', ASSET_TYPE.GROUP),
-    user_id: 'user_client_1002',
+    _id: buildAssetDocId('u_1002', ASSET_TYPE.GROUP),
+    user_id: 'u_1002',
     asset_type: ASSET_TYPE.GROUP,
     balance: 10,
     total_earned: 10,
@@ -201,6 +227,142 @@ const userAssetSeeds = [
     updated_at: db.serverDate(),
     is_deleted: false,
   },
+  {
+    _id: buildAssetDocId('u_1003', ASSET_TYPE.PRIVATE),
+    user_id: 'u_1003',
+    asset_type: ASSET_TYPE.PRIVATE,
+    balance: 0,
+    total_earned: 0,
+    created_at: db.serverDate(),
+    updated_at: db.serverDate(),
+    is_deleted: false,
+  },
+  {
+    _id: buildAssetDocId('u_1003', ASSET_TYPE.GROUP),
+    user_id: 'u_1003',
+    asset_type: ASSET_TYPE.GROUP,
+    balance: 8,
+    total_earned: 8,
+    created_at: db.serverDate(),
+    updated_at: db.serverDate(),
+    is_deleted: false,
+  },
+  {
+    _id: buildAssetDocId('u_1004', ASSET_TYPE.PRIVATE),
+    user_id: 'u_1004',
+    asset_type: ASSET_TYPE.PRIVATE,
+    balance: 2,
+    total_earned: 2,
+    created_at: db.serverDate(),
+    updated_at: db.serverDate(),
+    is_deleted: false,
+  },
+  {
+    _id: buildAssetDocId('u_1004', ASSET_TYPE.GROUP),
+    user_id: 'u_1004',
+    asset_type: ASSET_TYPE.GROUP,
+    balance: 1,
+    total_earned: 1,
+    created_at: db.serverDate(),
+    updated_at: db.serverDate(),
+    is_deleted: false,
+  },
+]
+
+const scheduleSeeds = [
+  {
+    _id: 'class_001',
+    store_id: 'gaoxin',
+    coach_id: 'coach_li',
+    class_type: ASSET_TYPE.GROUP,
+    title: '泰拳基础发力小班课',
+    start_time: '2026-04-24 19:00:00',
+    end_time: '2026-04-24 20:30:00',
+    max_capacity: 15,
+    booked_count: 12,
+    status: SCHEDULE_STATUS.OPEN,
+    venue: '高新店二楼 A 馆',
+    created_at: db.serverDate(),
+    updated_at: db.serverDate(),
+    is_deleted: false,
+  },
+  {
+    _id: 'class_002',
+    store_id: 'gaoxin',
+    coach_id: 'coach_li',
+    class_type: ASSET_TYPE.PRIVATE,
+    title: '拳腿衔接私教档期',
+    start_time: '2026-04-24 20:30:00',
+    end_time: '2026-04-24 21:30:00',
+    max_capacity: 1,
+    booked_count: 0,
+    status: SCHEDULE_STATUS.OPEN,
+    venue: '高新店私教室 2',
+    created_at: db.serverDate(),
+    updated_at: db.serverDate(),
+    is_deleted: false,
+  },
+]
+
+const bookingSeeds = [
+  {
+    _id: 'booking_001',
+    schedule_id: 'class_001',
+    user_id: 'u_1001',
+    status: BOOKING_STATUS.PENDING,
+    writeoff_time: null,
+    created_at: db.serverDate(),
+    updated_at: db.serverDate(),
+    is_deleted: false,
+  },
+  {
+    _id: 'booking_101',
+    schedule_id: 'class_001',
+    user_id: 'u_1002',
+    status: BOOKING_STATUS.WRITTEN_OFF,
+    writeoff_time: db.serverDate(),
+    created_at: db.serverDate(),
+    updated_at: db.serverDate(),
+    is_deleted: false,
+  },
+  {
+    _id: 'booking_102',
+    schedule_id: 'class_001',
+    user_id: 'u_1003',
+    status: BOOKING_STATUS.PENDING,
+    writeoff_time: null,
+    created_at: db.serverDate(),
+    updated_at: db.serverDate(),
+    is_deleted: false,
+  },
+  {
+    _id: 'booking_201',
+    schedule_id: 'class_002',
+    user_id: 'u_1004',
+    status: BOOKING_STATUS.PENDING,
+    writeoff_time: null,
+    created_at: db.serverDate(),
+    updated_at: db.serverDate(),
+    is_deleted: false,
+  },
+]
+
+const HOME_NOTICES = [
+  '暑期燃脂计划开启，团课卡续费可预约教练体验课。',
+  '五一假期营业时间调整：高新店 9:00-21:00，经开店 10:00-20:00。',
+  '新手友好课程持续开放，首次到店可申请教练动作评估。',
+]
+
+const HOME_GALLERY = [
+  '拳台区 / 标准赛台 / 录像回放',
+  '力量区 / 壶铃雪橇 / 爆发训练',
+  '沙袋区 / 实战靶训练 / 私教专区',
+]
+
+const COACH_QUICK_ACTIONS = [
+  { id: 'distribute', title: '课时派发', desc: '线下收款后给学员加课，并形成审计流水。' },
+  { id: 'class', title: '课程核销', desc: '进入单节课名单，扫码或手动核销到场学员。' },
+  { id: 'schedule', title: '排课管理', desc: '管理近期排课并临时新增训练计划。' },
 ]
 
 function buildSuccess(data) {
@@ -271,6 +433,8 @@ async function ensureBaseCollectionsAndSeeds() {
   seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.PACKAGE, packageSeeds))
   seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.USER, userSeeds))
   seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.USER_ASSET, userAssetSeeds))
+  seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.CLASS_SCHEDULE, scheduleSeeds))
+  seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.BOOKING, bookingSeeds))
 
   return {
     createResults,
@@ -295,6 +459,448 @@ function validateDistributionPayload(payload) {
     return 'offlineAmount 不能小于 0'
   }
   return ''
+}
+
+function mapAssetTypeToPageType(assetType) {
+  return Number(assetType) === ASSET_TYPE.GROUP ? 'group' : 'private'
+}
+
+function mapAssetTypeToLabel(assetType) {
+  return Number(assetType) === ASSET_TYPE.GROUP ? '团课' : '私教'
+}
+
+function mapBookingStatusToLabel(status) {
+  switch (Number(status)) {
+    case BOOKING_STATUS.PENDING:
+      return '待上课'
+    case BOOKING_STATUS.WRITTEN_OFF:
+      return '已完成'
+    case BOOKING_STATUS.CLIENT_CANCELLED:
+      return '已取消'
+    case BOOKING_STATUS.COACH_CANCELLED:
+      return '教练取消'
+    case BOOKING_STATUS.ABSENT:
+      return '已缺席'
+    default:
+      return '未知状态'
+  }
+}
+
+function mapRosterStatusToLabel(status) {
+  switch (Number(status)) {
+    case BOOKING_STATUS.PENDING:
+      return '待核销'
+    case BOOKING_STATUS.WRITTEN_OFF:
+      return '已核销'
+    case BOOKING_STATUS.ABSENT:
+      return '已缺席'
+    case BOOKING_STATUS.CLIENT_CANCELLED:
+      return '已取消'
+    case BOOKING_STATUS.COACH_CANCELLED:
+      return '教练取消'
+    default:
+      return '未知状态'
+  }
+}
+
+function formatDateKey(dateTimeString) {
+  const source = String(dateTimeString || '')
+  if (!source) {
+    return ''
+  }
+  return source.slice(5, 10)
+}
+
+function formatDateLabel(dateTimeString) {
+  const dateKey = formatDateKey(dateTimeString)
+  return dateKey ? dateKey.replace('-', '/') : ''
+}
+
+function formatTimeText(dateTimeString) {
+  const source = String(dateTimeString || '')
+  if (!source) {
+    return ''
+  }
+  return source.slice(11, 16)
+}
+
+function formatTimeRange(startTime, endTime) {
+  return formatTimeText(startTime) + ' - ' + formatTimeText(endTime)
+}
+
+async function listCollection(collectionName, where = {}) {
+  const res = await db.collection(collectionName).where(where).get()
+  return res.data || []
+}
+
+function buildStoreView(store) {
+  if (!store) {
+    return null
+  }
+  return {
+    id: store._id,
+    name: store.name,
+    address: store.address,
+  }
+}
+
+function buildAssetView(assetList) {
+  const result = {
+    privateCount: 0,
+    groupCount: 0,
+  }
+
+  assetList.forEach((item) => {
+    if (Number(item.asset_type) === ASSET_TYPE.PRIVATE) {
+      result.privateCount = Number(item.balance || 0)
+    }
+    if (Number(item.asset_type) === ASSET_TYPE.GROUP) {
+      result.groupCount = Number(item.balance || 0)
+    }
+  })
+
+  return result
+}
+
+async function getBookingViewData(event) {
+  const payload = event.payload || {}
+  if (!payload.userId || !payload.storeId) {
+    return buildFail('userId 和 storeId 不能为空', 'INVALID_BOOKING_VIEW_PAYLOAD')
+  }
+
+  try {
+    const filters = Object.assign(
+      {
+        type: 'group',
+        coachId: 'all',
+        dateKey: '',
+      },
+      payload.filters || {}
+    )
+
+    const [stores, coaches, schedules, bookings, assets] = await Promise.all([
+      listCollection(COLLECTIONS.STORE, { is_deleted: false, status: 1 }),
+      listCollection(COLLECTIONS.USER, { is_deleted: false, status: 1, role: 2 }),
+      listCollection(COLLECTIONS.CLASS_SCHEDULE, { is_deleted: false, store_id: payload.storeId }),
+      listCollection(COLLECTIONS.BOOKING, { is_deleted: false, user_id: payload.userId }),
+      listCollection(COLLECTIONS.USER_ASSET, { is_deleted: false, user_id: payload.userId }),
+    ])
+
+    const pendingBookingIdSet = new Set(
+      bookings.filter((item) => Number(item.status) === BOOKING_STATUS.PENDING).map((item) => item.schedule_id)
+    )
+
+    const visibleSchedules = schedules
+      .filter((item) => Number(item.status) !== SCHEDULE_STATUS.COACH_CANCELLED)
+      .filter((item) => !filters.type || mapAssetTypeToPageType(item.class_type) === filters.type)
+      .filter((item) => filters.coachId === 'all' || item.coach_id === filters.coachId)
+      .filter((item) => !filters.dateKey || formatDateKey(item.start_time) === filters.dateKey)
+      .sort((left, right) => String(left.start_time).localeCompare(String(right.start_time)))
+      .map((item) => ({
+        id: item._id,
+        storeId: item.store_id,
+        dateKey: formatDateKey(item.start_time),
+        dateLabel: formatDateLabel(item.start_time),
+        timeRange: formatTimeRange(item.start_time, item.end_time),
+        title: item.title,
+        type: mapAssetTypeToPageType(item.class_type),
+        typeLabel: mapAssetTypeToLabel(item.class_type),
+        coachId: item.coach_id,
+        coachName: coaches.find((coach) => coach._id === item.coach_id)?.real_name || item.coach_id,
+        venue: item.venue || '',
+        capacity: Number(item.max_capacity || 0),
+        bookedCount: Number(item.booked_count || 0),
+        progressText: Number(item.booked_count || 0) + '/' + Number(item.max_capacity || 0) + ' 人',
+        isFull: Number(item.booked_count || 0) >= Number(item.max_capacity || 0),
+        isBooked: pendingBookingIdSet.has(item._id),
+      }))
+
+    const dateMap = new Map()
+    schedules.forEach((item) => {
+      const key = formatDateKey(item.start_time)
+      if (!key || dateMap.has(key)) {
+        return
+      }
+      dateMap.set(key, {
+        key,
+        label: formatDateLabel(item.start_time),
+      })
+    })
+
+    return buildSuccess({
+      filters,
+      currentStore: buildStoreView(stores.find((item) => item._id === payload.storeId)),
+      stores: stores.map(buildStoreView),
+      coaches: coaches.map((item) => ({
+        id: item._id,
+        name: item.real_name,
+      })),
+      dates: Array.from(dateMap.values()).sort((left, right) => left.key.localeCompare(right.key)),
+      schedules: visibleSchedules,
+      assets: buildAssetView(assets),
+    })
+  } catch (error) {
+    return buildFail('读取预约大厅失败：' + (error.errMsg || error.message || error), 'BOOKING_VIEW_ERROR')
+  }
+}
+
+async function getHomeViewData(event) {
+  const payload = event.payload || {}
+  if (!payload.storeId) {
+    return buildFail('storeId 不能为空', 'INVALID_HOME_VIEW_PAYLOAD')
+  }
+
+  try {
+    const [stores, packages] = await Promise.all([
+      listCollection(COLLECTIONS.STORE, { is_deleted: false, status: 1 }),
+      listCollection(COLLECTIONS.PACKAGE, { is_deleted: false, status: 1 }),
+    ])
+
+    return buildSuccess({
+      currentStore: buildStoreView(stores.find((item) => item._id === payload.storeId)),
+      stores: stores.map(buildStoreView),
+      notices: HOME_NOTICES.slice(),
+      galleryList: HOME_GALLERY.slice(),
+      packages: packages.map((item) => ({
+        id: item._id,
+        name: item.name,
+        type: mapAssetTypeToPageType(item.asset_type),
+        lessons: Number(item.course_count || 0),
+        price: Number(item.display_price || 0),
+      })),
+    })
+  } catch (error) {
+    return buildFail('读取首页失败：' + (error.errMsg || error.message || error), 'HOME_VIEW_ERROR')
+  }
+}
+
+async function getProfileViewData(event) {
+  const payload = event.payload || {}
+  if (!payload.userId) {
+    return buildFail('userId 不能为空', 'INVALID_PROFILE_VIEW_PAYLOAD')
+  }
+
+  try {
+    const [userRes, assets, bookings, schedules] = await Promise.all([
+      getDocById(COLLECTIONS.USER, payload.userId),
+      listCollection(COLLECTIONS.USER_ASSET, { is_deleted: false, user_id: payload.userId }),
+      listCollection(COLLECTIONS.BOOKING, { is_deleted: false, user_id: payload.userId }),
+      listCollection(COLLECTIONS.CLASS_SCHEDULE, { is_deleted: false }),
+    ])
+
+    const scheduleMap = new Map(schedules.map((item) => [item._id, item]))
+    const writtenOffCount = bookings.filter((item) => Number(item.status) === BOOKING_STATUS.WRITTEN_OFF).length
+    const currentStore = userRes.data ? await getDocById(COLLECTIONS.STORE, userRes.data.home_store_id) : null
+
+    return buildSuccess({
+      currentStore: buildStoreView(currentStore && currentStore.data ? currentStore.data : null),
+      assets: buildAssetView(assets),
+      myBookings: bookings
+        .sort((left, right) => String(right.created_at || '').localeCompare(String(left.created_at || '')))
+        .map((item) => {
+          const schedule = scheduleMap.get(item.schedule_id)
+          return {
+            id: item._id,
+            scheduleId: item.schedule_id,
+            title: schedule ? schedule.title : item.schedule_id,
+            type: schedule ? mapAssetTypeToPageType(schedule.class_type) : 'group',
+            dateLabel: schedule ? formatDateLabel(schedule.start_time) : '',
+            timeRange: schedule ? formatTimeRange(schedule.start_time, schedule.end_time) : '',
+            status: mapBookingStatusToLabel(item.status),
+          }
+        }),
+      trainingStats: {
+        monthLessons: writtenOffCount,
+        streakDays: writtenOffCount > 0 ? writtenOffCount + 3 : 0,
+        nextTarget: writtenOffCount >= 12 ? '本月目标已完成，继续保持训练节奏。' : '本月再完成 ' + Math.max(0, 12 - writtenOffCount) + ' 节课即可达到目标。',
+      },
+    })
+  } catch (error) {
+    return buildFail('读取个人中心失败：' + (error.errMsg || error.message || error), 'PROFILE_VIEW_ERROR')
+  }
+}
+
+async function getWorkspaceViewData(event) {
+  const payload = event.payload || {}
+  if (!payload.storeId || !payload.coachId) {
+    return buildFail('storeId 和 coachId 不能为空', 'INVALID_WORKSPACE_VIEW_PAYLOAD')
+  }
+
+  try {
+    const [schedules, bookings] = await Promise.all([
+      listCollection(COLLECTIONS.CLASS_SCHEDULE, { is_deleted: false, store_id: payload.storeId, coach_id: payload.coachId }),
+      listCollection(COLLECTIONS.BOOKING, { is_deleted: false }),
+    ])
+
+    const todayClasses = schedules
+      .filter((item) => Number(item.status) !== SCHEDULE_STATUS.COACH_CANCELLED)
+      .sort((left, right) => String(left.start_time).localeCompare(String(right.start_time)))
+      .map((item) => {
+        const roster = bookings.filter((booking) => booking.schedule_id === item._id)
+        return {
+          id: item._id,
+          title: item.title,
+          timeRange: formatTimeRange(item.start_time, item.end_time),
+          bookedCount: roster.filter((booking) => ![BOOKING_STATUS.CLIENT_CANCELLED, BOOKING_STATUS.COACH_CANCELLED].includes(Number(booking.status))).length,
+          capacity: Number(item.max_capacity || 0),
+          venue: item.venue || '',
+          checkedCount: roster.filter((booking) => Number(booking.status) === BOOKING_STATUS.WRITTEN_OFF).length,
+          absentCount: roster.filter((booking) => Number(booking.status) === BOOKING_STATUS.ABSENT).length,
+        }
+      })
+
+    return buildSuccess({
+      currentStore: buildStoreView(await (async () => {
+        const storeRes = await getDocById(COLLECTIONS.STORE, payload.storeId)
+        return storeRes.data
+      })()),
+      quickActions: COACH_QUICK_ACTIONS.slice(),
+      todayClasses,
+    })
+  } catch (error) {
+    return buildFail('读取工作台失败：' + (error.errMsg || error.message || error), 'WORKSPACE_VIEW_ERROR')
+  }
+}
+
+async function getAdminDashboardData(event) {
+  const payload = event.payload || {}
+
+  try {
+    const [logs, bookings, packages, stores, users] = await Promise.all([
+      listCollection(COLLECTIONS.USER_ASSET_LOG, { is_deleted: false }),
+      listCollection(COLLECTIONS.BOOKING, { is_deleted: false }),
+      listCollection(COLLECTIONS.PACKAGE, { is_deleted: false, status: 1 }),
+      listCollection(COLLECTIONS.STORE, { is_deleted: false, status: 1 }),
+      listCollection(COLLECTIONS.USER, { is_deleted: false, status: 1 }),
+    ])
+
+    const packageMap = new Map(packages.map((item) => [item._id, item]))
+    const userMap = new Map(users.map((item) => [item._id, item]))
+    let addedPrivateLessons = 0
+    let addedGroupLessons = 0
+    let incomeAmount = 0
+
+    logs.forEach((item) => {
+      if (Number(item.operate_type) !== OPERATE_TYPE.COACH_DISTRIBUTE) {
+        return
+      }
+      const packageInfo = packageMap.get(item.ref_biz_id)
+      if (packageInfo) {
+        if (Number(packageInfo.asset_type) === ASSET_TYPE.PRIVATE) {
+          addedPrivateLessons += Number(item.amount || 0)
+        } else {
+          addedGroupLessons += Number(item.amount || 0)
+        }
+      }
+      incomeAmount += Number(item.offline_amount || 0)
+    })
+
+    return buildSuccess({
+      currentStore: buildStoreView(stores.find((item) => item._id === payload.storeId) || stores[0]),
+      auditOverview: {
+        addedPrivateLessons,
+        addedGroupLessons,
+        writeOffCount: bookings.filter((item) => Number(item.status) === BOOKING_STATUS.WRITTEN_OFF).length,
+        incomeText: '￥' + incomeAmount.toFixed(2),
+      },
+      auditLogs: logs
+        .slice()
+        .reverse()
+        .slice(0, 20)
+        .map((item) => ({
+          id: item._id,
+          operatorName: userMap.get(item.operator_id)?.real_name || item.operator_id,
+          packageName: packageMap.get(item.ref_biz_id)?.name || item.ref_biz_id,
+          targetName: userMap.get(item.user_id)?.real_name || item.user_id,
+          amount: Number(item.offline_amount || 0),
+          payType: item.pay_type || '未记录',
+          remark: item.remark || '',
+          time: String(item.created_at || '').slice(11, 19) || '--:--:--',
+        })),
+    })
+  } catch (error) {
+    return buildFail('读取管理员看板失败：' + (error.errMsg || error.message || error), 'ADMIN_VIEW_ERROR')
+  }
+}
+
+async function getCoachClassViewData(event) {
+  const payload = event.payload || {}
+  if (!payload.classId) {
+    return buildFail('classId 不能为空', 'INVALID_COACH_CLASS_VIEW_PAYLOAD')
+  }
+
+  try {
+    const [scheduleRes, bookings, users, stores] = await Promise.all([
+      getDocById(COLLECTIONS.CLASS_SCHEDULE, payload.classId),
+      listCollection(COLLECTIONS.BOOKING, { is_deleted: false, schedule_id: payload.classId }),
+      listCollection(COLLECTIONS.USER, { is_deleted: false, status: 1 }),
+      listCollection(COLLECTIONS.STORE, { is_deleted: false, status: 1 }),
+    ])
+
+    const schedule = scheduleRes.data
+    if (!schedule) {
+      return buildFail('课程不存在', 'CLASS_NOT_FOUND')
+    }
+
+    const userMap = new Map(users.map((item) => [item._id, item]))
+    const visibleBookings = bookings.filter((item) => ![BOOKING_STATUS.CLIENT_CANCELLED, BOOKING_STATUS.COACH_CANCELLED].includes(Number(item.status)))
+
+    return buildSuccess({
+      currentStore: buildStoreView(stores.find((item) => item._id === schedule.store_id)),
+      classInfo: {
+        id: schedule._id,
+        title: schedule.title,
+        venue: schedule.venue || '',
+        dateLabel: formatDateLabel(schedule.start_time),
+        timeRange: formatTimeRange(schedule.start_time, schedule.end_time),
+        bookedCount: visibleBookings.length,
+        checkedCount: visibleBookings.filter((item) => Number(item.status) === BOOKING_STATUS.WRITTEN_OFF).length,
+        absentCount: visibleBookings.filter((item) => Number(item.status) === BOOKING_STATUS.ABSENT).length,
+      },
+      roster: visibleBookings.map((item) => ({
+        bookingId: item._id,
+        userId: item.user_id,
+        userName: userMap.get(item.user_id)?.real_name || item.user_id,
+        phone: userMap.get(item.user_id)?.phone || '',
+        status: mapRosterStatusToLabel(item.status),
+      })),
+    })
+  } catch (error) {
+    return buildFail('读取课程核销页失败：' + (error.errMsg || error.message || error), 'COACH_CLASS_VIEW_ERROR')
+  }
+}
+
+async function getCoachScheduleViewData(event) {
+  const payload = event.payload || {}
+  if (!payload.storeId) {
+    return buildFail('storeId 不能为空', 'INVALID_COACH_SCHEDULE_VIEW_PAYLOAD')
+  }
+
+  try {
+    const [schedules, stores] = await Promise.all([
+      listCollection(COLLECTIONS.CLASS_SCHEDULE, { is_deleted: false, store_id: payload.storeId }),
+      listCollection(COLLECTIONS.STORE, { is_deleted: false, status: 1 }),
+    ])
+
+    return buildSuccess({
+      currentStore: buildStoreView(stores.find((item) => item._id === payload.storeId)),
+      plans: schedules
+        .filter((item) => !payload.coachId || item.coach_id === payload.coachId)
+        .sort((left, right) => String(left.start_time).localeCompare(String(right.start_time)))
+        .map((item) => ({
+          id: item._id,
+          weekLabel: '已发布',
+          dateLabel: formatDateLabel(item.start_time),
+          timeRange: formatTimeRange(item.start_time, item.end_time),
+          title: item.title,
+          type: mapAssetTypeToPageType(item.class_type),
+          venue: item.venue || '',
+          status: Number(item.status) === SCHEDULE_STATUS.COACH_CANCELLED ? '已取消' : '已发布',
+        })),
+    })
+  } catch (error) {
+    return buildFail('读取排课管理页失败：' + (error.errMsg || error.message || error), 'COACH_SCHEDULE_VIEW_ERROR')
+  }
 }
 
 async function getBootstrapData() {
@@ -449,7 +1055,8 @@ async function createClientBooking(event) {
           updated_at: db.serverDate(),
         },
       })
-      await transaction.collection(COLLECTIONS.BOOKING).add({
+      const bookingDocId = payload.clientBookingId || ('booking_' + Date.now())
+      await transaction.collection(COLLECTIONS.BOOKING).doc(bookingDocId).set({
         data: {
           schedule_id: payload.scheduleId,
           user_id: payload.userId,
@@ -475,6 +1082,7 @@ async function createClientBooking(event) {
       })
 
       return {
+        bookingId: bookingDocId,
         assetDocId,
         nextBookedCount,
       }
@@ -645,6 +1253,20 @@ exports.main = async (event) => {
   switch (event.action) {
     case 'bootstrap':
       return getBootstrapData()
+    case 'getHomeViewData':
+      return getHomeViewData(event)
+    case 'getBookingViewData':
+      return getBookingViewData(event)
+    case 'getProfileViewData':
+      return getProfileViewData(event)
+    case 'getWorkspaceViewData':
+      return getWorkspaceViewData(event)
+    case 'getAdminDashboardData':
+      return getAdminDashboardData(event)
+    case 'getCoachClassViewData':
+      return getCoachClassViewData(event)
+    case 'getCoachScheduleViewData':
+      return getCoachScheduleViewData(event)
     case 'distributeAsset':
       return createAssetDistribution(event)
     case 'createBooking':

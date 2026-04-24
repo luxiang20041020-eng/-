@@ -12,14 +12,25 @@ Page({
     this.syncPageData()
   },
 
-  syncPageData() {
+  async syncPageData() {
     const app = getApp()
     const runtime = app.getRuntimeSnapshot()
-    this.setData({
-      runtime,
-      pageData: app.getAdminPageData(),
-      hasPermission: runtime.role === 'admin',
-    })
+    try {
+      const pageData = await businessApi.getAdminDashboardData({
+        storeId: runtime.currentStore.id,
+      })
+      this.setData({
+        runtime,
+        pageData,
+        hasPermission: runtime.role === 'admin',
+      })
+    } catch (error) {
+      this.setData({
+        runtime,
+        pageData: app.getAdminPageData(),
+        hasPermission: runtime.role === 'admin',
+      })
+    }
   },
 
   onExport() {
