@@ -398,7 +398,16 @@ async function tryCreateCollection(collectionName) {
     return { collectionName, created: true }
   } catch (error) {
     const message = String(error && error.errMsg ? error.errMsg : error)
-    if (message.includes('already exists')) {
+    const errorCode = String(error && error.errCode ? error.errCode : '')
+    // 云开发在“集合已存在”场景下返回值并不稳定，可能是英文提示、错误码，
+    // 也可能混有 "Table exist" / "COLLECTION_ALREADY_EXIST" 等文本，这里统一按幂等成功处理。
+    if (
+      message.includes('already exists') ||
+      message.includes('COLLECTION_ALREADY_EXIST') ||
+      message.includes('Table exist') ||
+      message.includes('resource system error') ||
+      errorCode === '-501001'
+    ) {
       return { collectionName, created: false }
     }
     throw error
