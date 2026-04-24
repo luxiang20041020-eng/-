@@ -48,13 +48,26 @@ Page({
     this.setData({ bootstrapLoading: true })
     try {
       const result = await businessApi.bootstrapCollections()
-      const createdCollectionNames = (result.createResults || []).map((item) => item.collectionName)
+      const createSummary = (result.createResults || []).map((item) => {
+        if (item.status === 'created') {
+          return item.collectionName + '（新建）'
+        }
+        if (item.status === 'exists') {
+          return item.collectionName + '（已存在）'
+        }
+        return item.collectionName
+      })
       const seededCollectionNames = (result.seedResults || []).filter((item) => item.seeded).map((item) => item.collectionName)
+      const inspectSummary = (result.inspectResults || []).map((item) => {
+        return item.collectionName + '：' + (item.ok ? ('可访问，记录数 ' + item.total) : ('校验失败 ' + (item.error || '未知错误')))
+      })
       wx.showModal({
         title: '初始化完成',
         content:
-          '已检查集合：' + createdCollectionNames.join('、') +
-          '\n已写入种子：' + (seededCollectionNames.length ? seededCollectionNames.join('、') : '无新增种子'),
+          '当前云环境：' + (result.envId || '未知') +
+          '\n集合结果：' + createSummary.join('、') +
+          '\n已写入种子：' + (seededCollectionNames.length ? seededCollectionNames.join('、') : '无新增种子') +
+          '\n校验结果：' + inspectSummary.join('；'),
         showCancel: false,
       })
     } catch (error) {

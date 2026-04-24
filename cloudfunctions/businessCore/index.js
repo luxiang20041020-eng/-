@@ -8,7 +8,7 @@ const db = cloud.database()
 const _ = db.command
 
 const COLLECTIONS = {
-  USER: 'sys_user',
+  USER: 'app_user',
   STORE: 'biz_store',
   PACKAGE: 'biz_package',
   USER_ASSET: 'user_asset',
@@ -437,7 +437,7 @@ function mapClassTypeToAssetType(classType) {
 async function tryCreateCollection(collectionName) {
   try {
     await db.createCollection(collectionName)
-    return { collectionName, created: true }
+    return { collectionName, created: true, status: 'created' }
   } catch (error) {
     const message = String(error && error.errMsg ? error.errMsg : error)
     const errorCode = String(error && error.errCode ? error.errCode : '')
@@ -450,9 +450,28 @@ async function tryCreateCollection(collectionName) {
       message.includes('resource system error') ||
       errorCode === '-501001'
     ) {
-      return { collectionName, created: false }
+      return { collectionName, created: false, status: 'exists', rawError: message, rawErrorCode: errorCode }
     }
     throw error
+  }
+}
+
+async function inspectCollection(collectionName) {
+  try {
+    const countResult = await db.collection(collectionName).count()
+    return {
+      collectionName,
+      ok: true,
+      total: countResult.total,
+    }
+  } catch (error) {
+    return {
+      collectionName,
+      ok: false,
+      total: null,
+      error: String(error && error.errMsg ? error.errMsg : error),
+      errorCode: String(error && error.errCode ? error.errCode : ''),
+    }
   }
 }
 
@@ -514,9 +533,22 @@ async function ensureBaseCollectionsAndSeeds() {
   seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.CLASS_SCHEDULE, scheduleSeeds))
   seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.BOOKING, bookingSeeds))
 
+  const inspectResults = []
+  for (const collectionName of Object.values(COLLECTIONS)) {
+    inspectResults.push(await inspectCollection(collectionName))
+  }
+
+  const failedCollections = inspectResults.filter((item) => !item.ok)
+  if (failedCollections.length) {
+    throw new Error(
+      '集合校验失败：' + failedCollections.map((item) => item.collectionName + '（' + (item.error || '未知错误') + '）').join('；')
+    )
+  }
+
   return {
     createResults,
     seedResults,
+    inspectResults,
   }
 }
 
@@ -1016,7 +1048,9 @@ async function getCoachScheduleViewData(event) {
 
 async function getBootstrapData() {
   const result = await ensureBaseCollectionsAndSeeds()
+  const wxContext = cloud.getWXContext()
   return buildSuccess({
+    envId: wxContext.ENV || cloud.DYNAMIC_CURRENT_ENV,
     collections: COLLECTIONS,
     ...result,
   })
