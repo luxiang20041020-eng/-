@@ -1,27 +1,121 @@
-.code-box {
-  margin-top: 20rpx;
-  padding: 36rpx 24rpx;
-  border-radius: 14rpx;
-  border: 1rpx dashed #facc15;
-  background: #101010;
-  text-align: center;
-  font-size: 34rpx;
+.profile-hero {
+  display: flex;
+  gap: 20rpx;
+  align-items: center;
+}
+
+.profile-hero-main {
+  flex: 1;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.profile-name {
+  font-size: 36rpx;
+  color: #ffffff;
   font-weight: 700;
-  color: #facc15;
-  letter-spacing: 4rpx;
+}
+
+.mini-role-tag {
+  padding: 6rpx 10rpx;
+  border: 1rpx solid #ff3434;
+  color: #ff3434;
+  font-size: 18rpx;
+}
+
+.profile-meta {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #8f8f8f;
+}
+
+.qr-frame {
+  margin-top: 16rpx;
+  border: 1rpx solid #242424;
+  background: #050505;
+}
+
+.qr-inner {
+  padding: 26rpx;
+}
+
+.qr-code-box {
+  padding: 56rpx 18rpx;
+  border: 2rpx solid #ff3434;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 50%, transparent 50%),
+    linear-gradient(rgba(255, 255, 255, 0.04) 50%, transparent 50%),
+    #ffffff;
+  background-size: 20rpx 20rpx;
+  text-align: center;
+  word-break: break-all;
+  font-size: 24rpx;
+  line-height: 1.8;
+  color: #0b0b0b;
+  font-weight: 700;
 }
 
 .booking-item {
-  margin-top: 20rpx;
-  padding: 20rpx;
-  border-radius: 14rpx;
-  background: #101010;
-  border: 1rpx solid #27272a;
+  display: flex;
+  gap: 18rpx;
+  margin-top: 18rpx;
+  padding-top: 18rpx;
+  border-top: 1rpx solid #1d1d1d;
 }
 
-.role-switch-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16rpx;
+.booking-item:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.booking-date-block {
+  width: 88rpx;
+  text-align: center;
+}
+
+.booking-date-day {
+  font-size: 50rpx;
+  line-height: 1;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.booking-date-month {
+  margin-top: 8rpx;
+  font-size: 18rpx;
+  letter-spacing: 2rpx;
+  color: #8d8d8d;
+}
+
+.booking-main-block {
+  flex: 1;
+}
+
+.booking-title-text {
+  flex: 1;
+  padding-right: 14rpx;
+  font-size: 30rpx;
+  line-height: 1.35;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.booking-cancel-btn {
+  margin-top: 14rpx;
+}
+
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-top: 18rpx;
+  border: 1rpx solid #242424;
+}
+
+.profile-stats-grid .stats-item {
+  min-height: 116rpx;
+  text-align: center;
 }

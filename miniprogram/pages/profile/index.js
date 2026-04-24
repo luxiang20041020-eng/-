@@ -1,10 +1,26 @@
 const businessApi = require('../../utils/business-api')
 
+function decorateProfilePageData(pageData) {
+  const safeData = pageData || {}
+  return Object.assign({}, safeData, {
+    myBookings: (safeData.myBookings || []).map((item) => {
+      const rawDateText = String(item.dateLabel || '')
+      const dateText = rawDateText.split(' ')[0] || rawDateText
+      const dateParts = dateText.split('/')
+      return Object.assign({}, item, {
+        dateText,
+        dateDay: dateParts[1] || dateText,
+      })
+    }),
+  })
+}
+
 Page({
   data: {
     runtime: {},
     pageData: {},
     dynamicCode: '',
+    avatarText: '',
   },
 
   onShow() {
@@ -29,12 +45,14 @@ Page({
       })
       this.setData({
         runtime,
-        pageData,
+        pageData: decorateProfilePageData(pageData),
+        avatarText: runtime.userProfile.nickname ? runtime.userProfile.nickname.slice(0, 1) : '人',
       })
     } catch (error) {
       this.setData({
         runtime,
-        pageData: app.getProfilePageData(),
+        pageData: decorateProfilePageData(app.getProfilePageData()),
+        avatarText: runtime.userProfile.nickname ? runtime.userProfile.nickname.slice(0, 1) : '人',
       })
     }
     this.refreshDynamicCode()

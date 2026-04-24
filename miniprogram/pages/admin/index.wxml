@@ -1,59 +1,102 @@
 <view class="page-shell">
-  <view class="page-header">
-    <view>
-      <view class="page-title">管理员看板</view>
-      <view class="page-subtitle">{{pageData.currentStore.name}} · 财务对账与课时审计总览。</view>
+  <view class="brand-bar">
+    <view class="brand-left">
+      <view class="brand-logo">IF</view>
+      <view class="brand-text">
+        <view class="brand-name">IRONFIST</view>
+        <view class="brand-demo">/ DEMO</view>
+      </view>
     </view>
-    <view class="role-badge">{{runtime.roleLabel}}</view>
+    <view class="role-strip">
+      <view wx:for="{{runtime.roleList}}" wx:key="value" class="role-chip {{runtime.role === item.value ? 'active' : ''}}">{{item.label}}</view>
+    </view>
+  </view>
+
+  <view class="page-header">
+    <view class="eyebrow">AUDIT · 对账 · 全馆统计</view>
+    <view class="page-title">数据看板</view>
   </view>
 
   <view wx:if="{{!hasPermission}}" class="card">
-    <view class="card-title">无访问权限</view>
-    <view class="card-desc">当前身份不是管理员，按文档要求此页面仅 Role=3 可见。你可以先去“我的”页切换角色进行验收。</view>
+    <view class="section-title">ACCESS DENIED</view>
+    <view class="card-desc">当前身份不是管理员，此页面仅 Role=3 可见。请去“我的”页切换角色后再验收。</view>
   </view>
 
   <block wx:else>
-    <view class="card">
-      <view class="card-title">云端初始化</view>
-      <view class="card-desc">首次接入真实云数据库前，先执行一次集合与基础数据初始化。</view>
-      <button class="primary-button" style="margin-top: 18rpx;" loading="{{bootstrapLoading}}" bindtap="onBootstrap">初始化业务集合</button>
+    <view class="card admin-toolbar-card">
+      <view class="admin-toolbar-left">
+        <view class="admin-tool-label">DATE</view>
+        <view class="admin-tool-value">2026-04-24</view>
+      </view>
+      <view class="admin-toolbar-mid">至</view>
+      <view class="admin-toolbar-left">
+        <view class="admin-tool-label">STORE</view>
+        <view class="admin-tool-value">{{pageData.currentStore.name}}</view>
+      </view>
+      <button class="secondary-button admin-mini-btn" loading="{{bootstrapLoading}}" bindtap="onBootstrap">初始化</button>
     </view>
 
     <view class="card">
-      <view class="card-title">今日概览</view>
+      <view class="section-title">OVERVIEW · 今日概览</view>
       <view class="metric-grid">
         <view class="metric-item">
-          <view class="metric-label">新增私教课时</view>
-          <view class="metric-value">{{pageData.auditOverview.addedPrivateLessons}}</view>
-        </view>
-        <view class="metric-item">
-          <view class="metric-label">新增团课课时</view>
-          <view class="metric-value">{{pageData.auditOverview.addedGroupLessons}}</view>
-        </view>
-        <view class="metric-item">
-          <view class="metric-label">今日核销</view>
-          <view class="metric-value">{{pageData.auditOverview.writeOffCount}}</view>
-        </view>
-        <view class="metric-item">
-          <view class="metric-label">收款上报</view>
+          <view class="metric-label">OFFLINE AMOUNT</view>
           <view class="metric-value">{{pageData.auditOverview.incomeText}}</view>
+          <view class="metric-note">线下收款总额</view>
+        </view>
+        <view class="metric-item">
+          <view class="metric-label">CHECK-IN</view>
+          <view class="metric-value">{{pageData.auditOverview.writeOffCount}}</view>
+          <view class="metric-note">今日核销</view>
+        </view>
+        <view class="metric-item">
+          <view class="metric-label">GROUP</view>
+          <view class="metric-value">{{pageData.auditOverview.addedGroupLessons}}<text class="metric-unit">节</text></view>
+          <view class="metric-note">新增团课课时</view>
+        </view>
+        <view class="metric-item">
+          <view class="metric-label">PRIVATE</view>
+          <view class="metric-value">{{pageData.auditOverview.addedPrivateLessons}}<text class="metric-unit">节</text></view>
+          <view class="metric-note">新增私教课时</view>
         </view>
       </view>
     </view>
 
     <view class="card">
-      <view class="row-between">
-        <view class="card-title">课时派发审计日志</view>
-        <button class="secondary-button export-button" bindtap="onExport">导出 Excel</button>
+      <view class="headline-row">
+        <view class="section-title">AUDIT LOG · 课时派发审计</view>
+        <button class="secondary-button export-button" bindtap="onExport">导出</button>
       </view>
       <view wx:for="{{pageData.auditLogs}}" wx:key="id" class="audit-item">
-        <view class="row-between">
-          <view class="schedule-title">{{item.operatorName}}</view>
-          <view class="status-chip">{{item.time}}</view>
+        <view class="audit-top-row">
+          <view class="audit-time">{{item.time}}</view>
+          <view class="audit-paytype">{{item.payType}}</view>
         </view>
-        <view class="card-desc">派发 {{item.packageName}} 给 {{item.targetName}}</view>
-        <view class="card-desc">实收 ￥{{item.amount}} · {{item.payType}}</view>
-        <view class="card-desc">备注：{{item.remark}}</view>
+        <view class="audit-main-text">操作人 {{item.operatorName}} 为学员 {{item.targetName}} 派发 {{item.packageName}}</view>
+        <view class="audit-remark">备注：{{item.remark}}</view>
+        <view class="audit-amount">￥{{item.amount}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">TOOLS · 运营工具</view>
+      <view class="admin-tools-grid">
+        <view class="admin-tool-card primary" bindtap="onBootstrap">
+          <view class="admin-card-title">发布系统公告</view>
+          <view class="admin-card-desc">云端初始化与基础播报</view>
+        </view>
+        <view class="admin-tool-card">
+          <view class="admin-card-title">人员权限管理</view>
+          <view class="admin-card-desc">用户 / 角色矩阵</view>
+        </view>
+        <view class="admin-tool-card">
+          <view class="admin-card-title">套餐上下架</view>
+          <view class="admin-card-desc">面向价目板配置</view>
+        </view>
+        <view class="admin-tool-card">
+          <view class="admin-card-title">门店管理</view>
+          <view class="admin-card-desc">班次 / 场地池</view>
+        </view>
       </view>
     </view>
   </block>

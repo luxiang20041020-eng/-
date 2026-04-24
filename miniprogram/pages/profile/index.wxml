@@ -1,67 +1,106 @@
 <view class="page-shell">
+  <view class="brand-bar">
+    <view class="brand-left">
+      <view class="brand-logo">IF</view>
+      <view class="brand-text">
+        <view class="brand-name">IRONFIST</view>
+        <view class="brand-demo">/ DEMO</view>
+      </view>
+    </view>
+    <view class="role-strip">
+      <view wx:for="{{runtime.roleList}}" wx:key="value" class="role-chip {{runtime.role === item.value ? 'active' : ''}}" data-role="{{item.value}}" data-label="{{item.label}}" bindtap="onSwitchRole">{{item.label}}</view>
+    </view>
+  </view>
+
   <view class="page-header">
-    <view>
-      <view class="page-title">我的</view>
-      <view class="page-subtitle">{{runtime.userProfile.nickname}} · {{runtime.userProfile.phone}} · {{pageData.currentStore.name}}</view>
+    <view class="eyebrow">PROFILE · 资产 · 身份码</view>
+    <view class="page-title">我的</view>
+  </view>
+
+  <view class="card profile-hero">
+    <view class="avatar-square">{{avatarText}}</view>
+    <view class="profile-hero-main">
+      <view class="profile-name-row">
+        <view class="profile-name">{{runtime.userProfile.nickname}}</view>
+        <view class="mini-role-tag">{{runtime.roleLabel}}</view>
+      </view>
+      <view class="profile-meta">{{runtime.userProfile.phone}} · {{pageData.currentStore.name}}</view>
+      <view class="profile-meta">{{runtime.userProfile.levelText}}</view>
     </view>
-    <view class="role-badge">{{runtime.roleLabel}}</view>
   </view>
 
   <view class="card">
-    <view class="card-title">课时资产</view>
+    <view class="section-title">MY ASSETS · 我的课时资产</view>
     <view class="metric-grid">
       <view class="metric-item">
-        <view class="metric-label">私教余额</view>
-        <view class="metric-value">{{pageData.assets.privateCount}}</view>
+        <view class="metric-label">PRIVATE</view>
+        <view class="metric-value">{{pageData.assets.privateCount}}<text class="metric-unit">节</text></view>
+        <view class="metric-note">私教余额</view>
       </view>
       <view class="metric-item">
-        <view class="metric-label">团课余额</view>
-        <view class="metric-value">{{pageData.assets.groupCount}}</view>
+        <view class="metric-label">GROUP</view>
+        <view class="metric-value">{{pageData.assets.groupCount}}<text class="metric-unit">节</text></view>
+        <view class="metric-note">团课余额</view>
       </view>
+    </view>
+    <view class="card-desc">课时预约前 365 天、跨门店通用。缺席前组开课前 2 小时内不可取消。</view>
+  </view>
+
+  <view class="card">
+    <view class="headline-row">
+      <view class="section-title">IDENTITY QR</view>
+      <view class="card-desc">AUTO 60S</view>
+    </view>
+    <view class="qr-frame">
+      <view class="qr-inner">
+        <view class="qr-code-box">{{dynamicCode}}</view>
+      </view>
+      <view class="card-desc">馆内核验演示态字段，校验后动态刷新。</view>
     </view>
   </view>
 
   <view class="card">
-    <view class="card-title">动态身份码</view>
-    <view class="card-desc">当前为演示态动态口令，后续接入云函数后替换为可扫码识别的短时二维码。</view>
-    <view class="code-box">{{dynamicCode}}</view>
-    <view class="card-desc">每 60 秒自动刷新一次，避免截图复用。</view>
-  </view>
-
-  <view class="card">
-    <view class="card-title">训练统计</view>
-    <view class="metric-grid">
-      <view class="metric-item">
-        <view class="metric-label">本月上课</view>
-        <view class="metric-value">{{pageData.trainingStats.monthLessons}}</view>
-      </view>
-      <view class="metric-item">
-        <view class="metric-label">连续坚持</view>
-        <view class="metric-value">{{pageData.trainingStats.streakDays}}</view>
-      </view>
+    <view class="headline-row">
+      <view class="section-title">MY BOOKINGS · 我的预约</view>
+      <view class="card-desc">近 30 天</view>
     </view>
-    <view class="card-desc">{{pageData.trainingStats.nextTarget}}</view>
-  </view>
-
-  <view class="card">
-    <view class="card-title">我的预约</view>
     <view wx:for="{{pageData.myBookings}}" wx:key="id" class="booking-item">
-      <view class="row-between">
-        <view class="schedule-title">{{item.title}}</view>
-        <view class="status-chip">{{item.status}}</view>
+      <view class="booking-date-block">
+        <view class="booking-date-day">{{item.dateDay}}</view>
+        <view class="booking-date-month">{{item.dateText}}</view>
       </view>
-      <view class="card-desc">{{item.dateLabel}} · {{item.timeRange}}</view>
-      <button wx:if="{{item.status === '待上课'}}" class="secondary-button" style="margin-top: 16rpx;" data-booking-id="{{item.id}}" bindtap="onCancelBooking">取消预约</button>
+      <view class="booking-main-block">
+        <view class="headline-row">
+          <view class="booking-title-text">{{item.title}}</view>
+          <view class="status-chip">{{item.status}}</view>
+        </view>
+        <view class="card-desc">{{item.timeRange}}</view>
+        <button wx:if="{{item.status === '待上课'}}" class="secondary-button booking-cancel-btn" data-booking-id="{{item.id}}" bindtap="onCancelBooking">取消预约</button>
+      </view>
     </view>
   </view>
 
   <view class="card">
-    <view class="card-title">演示角色切换</view>
-    <view class="card-desc">当前仅用于原型联调，后续会由登录态和后台权限替换。</view>
-    <view class="role-switch-row">
-      <view wx:for="{{runtime.roleList}}" wx:key="value" class="scroll-chip">
-        <view class="outline-chip {{runtime.role === item.value ? 'active' : ''}}" data-role="{{item.value}}" data-label="{{item.label}}" bindtap="onSwitchRole">{{item.label}}</view>
+    <view class="section-title">STATS · 训练统计</view>
+    <view class="profile-stats-grid">
+      <view class="stats-item">
+        <view class="stats-value">{{pageData.trainingStats.monthLessons}}</view>
+        <view class="stats-note">本月课数</view>
       </view>
+      <view class="stats-item">
+        <view class="stats-value">{{pageData.trainingStats.streakDays}}</view>
+        <view class="stats-note">坚持天数</view>
+      </view>
+      <view class="stats-item">
+        <view class="stats-value">{{pageData.trainingStats.monthLessons + pageData.trainingStats.streakDays}}</view>
+        <view class="stats-note">累计活跃</view>
+      </view>
+    </view>
+    <view class="menu-list">
+      <view class="menu-item"><text>预约与核销规则</text><text class="menu-arrow">></text></view>
+      <view class="menu-item"><text>我的训练趋势</text><text class="menu-arrow">></text></view>
+      <view class="menu-item"><text>消息与公告</text><text class="menu-arrow">></text></view>
+      <view class="menu-item"><text>帮助与客服</text><text class="menu-arrow">></text></view>
     </view>
   </view>
 

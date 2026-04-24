@@ -124,9 +124,9 @@ const GALLERY_LIST = [
 ]
 
 const COACH_LIST = [
-  { id: 'coach_li', name: '李教练' },
-  { id: 'coach_wang', name: '王教练' },
-  { id: 'coach_zhao', name: '赵教练' },
+  { id: 'coach_li', name: '李教练', title: '泰拳主教练', specialties: ['步法', '膝法', '燃脂'], levelLabel: '资深' },
+  { id: 'coach_wang', name: '王教练', title: '自由搏击教练', specialties: ['拳法', '实战', '对练'], levelLabel: '资深' },
+  { id: 'coach_zhao', name: '赵教练', title: '体能与私教教练', specialties: ['减脂', '私教', '体能'], levelLabel: '核心' },
 ]
 
 const BOOKING_DATES = [

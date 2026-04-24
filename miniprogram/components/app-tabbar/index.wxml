@@ -7,6 +7,7 @@
       data-path="{{item.path}}"
       bindtap="onTap"
     >
+      <view class="tab-icon">{{item.iconText}}</view>
       <text class="tab-label">{{item.label}}</text>
     </view>
   </view>

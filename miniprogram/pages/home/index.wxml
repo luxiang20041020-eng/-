@@ -1,58 +1,108 @@
 <view class="page-shell">
-  <view wx:if="{{pageLoading}}" class="page-loading">正在加载首页数据...</view>
-  <view class="page-header">
-    <view>
-      <view class="page-title">铁拳泰拳</view>
-      <view class="page-subtitle">{{pageData.currentStore.address}} · {{pageData.currentStore.notice}}</view>
+  <view class="brand-bar">
+    <view class="brand-left">
+      <view class="brand-logo">IF</view>
+      <view class="brand-text">
+        <view class="brand-name">IRONFIST</view>
+        <view class="brand-demo">/ DEMO</view>
+      </view>
     </view>
-    <view class="role-badge">{{runtime.roleLabel}}</view>
+    <view class="role-strip">
+      <view wx:for="{{runtime.roleList}}" wx:key="value" class="role-chip {{runtime.role === item.value ? 'active' : ''}}">{{item.label}}</view>
+    </view>
   </view>
 
-  <view class="card">
-    <view class="row-between">
-      <view class="card-title">门店切换</view>
-      <view class="store-badge">当前：{{pageData.currentStore.name}}</view>
+  <view wx:if="{{pageLoading}}" class="page-loading">LOADING HOME DATA...</view>
+
+  <view class="page-header">
+    <view class="headline-row">
+      <view class="store-anchor">{{pageData.currentStore.name}}</view>
+      <view class="bell-mark">01</view>
     </view>
-    <scroll-view class="scroll-row home-store-row" scroll-x="true" show-scrollbar="false">
+    <view class="eyebrow">EST. 2019 · CHENGDU</view>
+    <view class="home-hero-row">
+      <view>
+        <view class="section-main-title">IRONFIST</view>
+        <view class="hero-subtitle">铁拳 · 泰拳搏击馆</view>
+      </view>
+      <view class="hero-side-stat">
+        <view class="hero-side-value">{{pageData.coachCount}}</view>
+        <view class="hero-side-label">COACHES</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card notice-banner">
+    <view class="card-title">EVENT</view>
+    <view class="notice-title">{{pageData.heroNotice}}</view>
+    <view class="card-desc">3 级别赛事活动奖金池 10,000Y，门店联动推广中。</view>
+  </view>
+
+  <view class="home-store-switch">
+    <scroll-view class="scroll-row" scroll-x="true" show-scrollbar="false">
       <view class="scroll-chip" wx:for="{{runtime.stores}}" wx:key="id">
-        <view
-          class="outline-chip {{item.id === runtime.currentStore.id ? 'active' : ''}}"
-          data-store-id="{{item.id}}"
-          bindtap="onSwitchStore"
-        >
-          {{item.name}}
-        </view>
+        <view class="outline-chip {{item.id === runtime.currentStore.id ? 'active' : ''}}" data-store-id="{{item.id}}" bindtap="onSwitchStore">{{item.name}}</view>
       </view>
     </scroll-view>
   </view>
 
   <view class="card">
-    <view class="card-title">公告与推荐</view>
-    <view class="card-desc" wx:for="{{pageData.notices}}" wx:key="*this">- {{item}}</view>
-  </view>
-
-  <view class="card">
-    <view class="card-title">快捷入口</view>
-    <view class="button-row" style="margin-top: 20rpx;">
-      <button class="primary-button" bindtap="goBooking">去预约</button>
-      <button class="secondary-button" bindtap="goProfile">看资产</button>
+    <view class="section-title">QUICK ACCESS</view>
+    <view class="home-action-grid">
+      <view class="home-action-card primary" bindtap="goBooking">
+        <view class="home-action-kicker">GROUP</view>
+        <view class="home-action-title">团课预约</view>
+      </view>
+      <view class="home-action-card" bindtap="goBooking">
+        <view class="home-action-kicker">PT</view>
+        <view class="home-action-title">私教预约</view>
+      </view>
+      <view class="home-action-card" bindtap="goProfile">
+        <view class="home-action-kicker">MINE</view>
+        <view class="home-action-title">我的资产</view>
+      </view>
+      <view class="home-action-card" bindtap="goRolePage">
+        <view class="home-action-kicker">ROLE</view>
+        <view class="home-action-title">当前工作区</view>
+      </view>
     </view>
-    <button class="secondary-button" style="margin-top: 16rpx;" bindtap="goRolePage">进入当前角色工作区</button>
   </view>
 
   <view class="card">
-    <view class="card-title">馆内分区</view>
-    <view class="card-desc" wx:for="{{pageData.galleryList}}" wx:key="*this">{{index + 1}}. {{item}}</view>
+    <view class="headline-row">
+      <view>
+        <view class="eyebrow">FACILITY</view>
+        <view class="home-section-name">馆内实景</view>
+      </view>
+      <view class="section-link">VIEW ALL</view>
+    </view>
+    <view class="facility-grid">
+      <view wx:for="{{pageData.galleryList}}" wx:key="*this" class="facility-card {{index === 0 ? 'facility-card-main' : ''}}">
+        <view class="facility-index">0{{index + 1}}</view>
+        <view class="facility-name">{{item}}</view>
+      </view>
+    </view>
   </view>
 
   <view class="card">
-    <view class="card-title">价格公示</view>
-    <view class="card-desc">仅作展示，引导客户线下成交，符合当前业务约束。</view>
-    <view class="metric-grid">
-      <view class="metric-item" wx:for="{{pageData.packages}}" wx:key="id">
-        <view class="metric-label">{{item.name}}</view>
-        <view class="card-desc">{{item.type === 'group' ? '团课' : '私教'}} · {{item.lessons}} 节</view>
-        <view class="metric-value">￥{{item.price}}</view>
+    <view class="headline-row">
+      <view>
+        <view class="eyebrow">PRICING</view>
+        <view class="home-section-name">课程价目表</view>
+      </view>
+      <view class="card-desc">线下了解</view>
+    </view>
+    <view class="pricing-list">
+      <view wx:for="{{pageData.packages}}" wx:key="id" class="pricing-item">
+        <view>
+          <view class="pricing-tag {{item.type === 'private' ? 'is-private' : 'is-group'}}">{{item.type === 'private' ? 'PRIVATE' : 'GROUP'}}</view>
+          <view class="pricing-name">{{item.name}}</view>
+          <view class="pricing-meta">{{item.lessons}} CLASSES · CODE-00{{index + 1}}</view>
+        </view>
+        <view class="pricing-price-wrap">
+          <view class="pricing-price">￥{{item.price}}</view>
+          <view class="pricing-note">仅线下</view>
+        </view>
       </view>
     </view>
   </view>

@@ -1,5 +1,13 @@
 const businessApi = require('../../utils/business-api')
 
+function decorateHomePageData(pageData) {
+  const safeData = pageData || {}
+  return Object.assign({}, safeData, {
+    heroNotice: safeData.notices && safeData.notices.length ? safeData.notices[0] : '门店活动信息待发布',
+    coachCount: (safeData.packages || []).length + 4,
+  })
+}
+
 Page({
   data: {
     runtime: {},
@@ -21,12 +29,12 @@ Page({
       })
       this.setData({
         runtime: Object.assign({}, runtime, { stores: pageData.stores || runtime.stores }),
-        pageData,
+        pageData: decorateHomePageData(pageData),
       })
     } catch (error) {
       this.setData({
         runtime,
-        pageData: app.getHomePageData(),
+        pageData: decorateHomePageData(app.getHomePageData()),
       })
     } finally {
       this.setData({ pageLoading: false })

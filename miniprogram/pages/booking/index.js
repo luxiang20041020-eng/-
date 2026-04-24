@@ -1,5 +1,74 @@
 const businessApi = require('../../utils/business-api')
 
+const WEEKDAY_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+
+function pad2(value) {
+  return String(value).padStart(2, '0')
+}
+
+function getDateKey(date) {
+  return pad2(date.getMonth() + 1) + '-' + pad2(date.getDate())
+}
+
+function buildNextSevenDays() {
+  const today = new Date()
+  const dates = []
+  for (let index = 0; index < 7; index += 1) {
+    const current = new Date(today)
+    current.setDate(today.getDate() + index)
+    dates.push({
+      key: getDateKey(current),
+      label: index === 0 ? pad2(current.getMonth() + 1) + '/' + pad2(current.getDate()) + ' 今日' : pad2(current.getMonth() + 1) + '/' + pad2(current.getDate()) + ' ' + WEEKDAY_LABELS[current.getDay()],
+      displayMonthDay: pad2(current.getMonth() + 1) + '/' + pad2(current.getDate()),
+      displayWeekday: index === 0 ? '今日' : WEEKDAY_LABELS[current.getDay()],
+    })
+  }
+  return dates
+}
+
+const DEFAULT_DATE_KEY = buildNextSevenDays()[0].key
+
+function decorateSchedule(schedule) {
+  const timeParts = String(schedule.timeRange || '').split(' - ')
+  const bookedCount = Number(schedule.bookedCount || 0)
+  const capacity = Number(schedule.capacity || 0)
+  return Object.assign({}, schedule, {
+    timeStart: timeParts[0] || '--:--',
+    timeEnd: timeParts[1] || '--:--',
+    progressPercent: capacity > 0 ? Math.min(100, Math.round((bookedCount / capacity) * 100)) : 0,
+  })
+}
+
+function normalizeCoach(coach) {
+  const specialties = Array.isArray(coach.specialties) ? coach.specialties : []
+  return Object.assign({}, coach, {
+    title: coach.title || '教练',
+    specialties,
+    specialtiesText: specialties.join(' / '),
+    summaryText: specialties.length ? specialties.join(' / ') : (coach.bio || ''),
+    avatarText: (coach.name || '教').slice(0, 1),
+    searchText: [coach.name || '', coach.title || '', specialties.join(' '), coach.levelLabel || '', coach.bio || ''].join(' ').toLowerCase(),
+  })
+}
+
+function decorateBookingPageData(pageData, filters, coachKeyword) {
+  const safeData = pageData || {}
+  const normalizedCoaches = (safeData.coaches || []).map(normalizeCoach)
+  const selectedCoach = normalizedCoaches.find((item) => item.id === (filters && filters.coachId))
+  const keyword = String(coachKeyword || '').trim().toLowerCase()
+  const filteredCoachOptions = normalizedCoaches.filter((item) => !keyword || item.searchText.includes(keyword))
+  return Object.assign({}, safeData, {
+    filters: Object.assign({}, safeData.filters, filters || {}),
+    coaches: normalizedCoaches,
+    filteredCoachOptions,
+    selectedCoachName: selectedCoach ? selectedCoach.name : '全部教练',
+    selectedCoachTitle: selectedCoach ? selectedCoach.title : '全部教练',
+    resultCount: (safeData.schedules || []).length,
+    dates: buildNextSevenDays(),
+    schedules: (safeData.schedules || []).map(decorateSchedule),
+  })
+}
+
 Page({
   data: {
     runtime: {},
@@ -7,8 +76,10 @@ Page({
     filters: {
       type: 'group',
       coachId: 'all',
-      dateKey: '04-24',
+      dateKey: DEFAULT_DATE_KEY,
     },
+    coachPickerVisible: false,
+    coachKeyword: '',
   },
 
   onShow() {
@@ -27,12 +98,12 @@ Page({
       })
       this.setData({
         runtime,
-        pageData,
+        pageData: decorateBookingPageData(pageData, this.data.filters, this.data.coachKeyword),
       })
     } catch (error) {
       this.setData({
         runtime,
-        pageData: app.getBookingPageData(this.data.filters),
+        pageData: decorateBookingPageData(app.getBookingPageData(this.data.filters), this.data.filters, this.data.coachKeyword),
       })
     }
   },
@@ -48,8 +119,31 @@ Page({
       filters: Object.assign({}, this.data.filters, {
         type: event.currentTarget.dataset.type,
       }),
+    }, () => {
+      this.syncPageData()
     })
-    this.syncPageData()
+  },
+
+  onOpenCoachPicker() {
+    this.setData({
+      coachPickerVisible: true,
+    })
+  },
+
+  onCloseCoachPicker() {
+    this.setData({
+      coachPickerVisible: false,
+      coachKeyword: '',
+      pageData: decorateBookingPageData(this.data.pageData, this.data.filters, ''),
+    })
+  },
+
+  onCoachKeywordInput(event) {
+    const nextKeyword = event.detail.value
+    this.setData({
+      coachKeyword: nextKeyword,
+      pageData: decorateBookingPageData(this.data.pageData, this.data.filters, nextKeyword),
+    })
   },
 
   onCoachChange(event) {
@@ -57,8 +151,11 @@ Page({
       filters: Object.assign({}, this.data.filters, {
         coachId: event.currentTarget.dataset.coachId,
       }),
+      coachPickerVisible: false,
+      coachKeyword: '',
+    }, () => {
+      this.syncPageData()
     })
-    this.syncPageData()
   },
 
   onDateChange(event) {
@@ -66,8 +163,9 @@ Page({
       filters: Object.assign({}, this.data.filters, {
         dateKey: event.currentTarget.dataset.dateKey,
       }),
+    }, () => {
+      this.syncPageData()
     })
-    this.syncPageData()
   },
 
   async onBook(event) {

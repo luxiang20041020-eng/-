@@ -1,13 +1,126 @@
+.admin-toolbar-card {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.admin-toolbar-left {
+  flex: 1;
+  min-height: 80rpx;
+  padding: 14rpx 16rpx;
+  border: 1rpx solid #232323;
+  background: #0b0b0b;
+}
+
+.admin-tool-label {
+  font-size: 16rpx;
+  letter-spacing: 2rpx;
+  color: #7d7d7d;
+}
+
+.admin-tool-value {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.admin-toolbar-mid {
+  color: #9b9b9b;
+  font-size: 20rpx;
+}
+
+.admin-mini-btn {
+  width: 120rpx;
+  min-height: 80rpx;
+  line-height: 80rpx;
+  padding: 0;
+}
+
 .audit-item {
-  margin-top: 20rpx;
-  padding: 20rpx;
-  border-radius: 14rpx;
-  background: #101010;
-  border: 1rpx solid #27272a;
+  position: relative;
+  margin-top: 18rpx;
+  padding: 18rpx 18rpx 16rpx;
+  border: 1rpx solid #242424;
+  background: #090909;
+}
+
+.audit-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.audit-time {
+  font-size: 18rpx;
+  letter-spacing: 2rpx;
+  color: #7a7a7a;
+}
+
+.audit-paytype {
+  font-size: 18rpx;
+  color: #ff4545;
+}
+
+.audit-main-text {
+  margin-top: 14rpx;
+  padding-right: 120rpx;
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.audit-remark {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #8a8a8a;
+}
+
+.audit-amount {
+  position: absolute;
+  right: 18rpx;
+  bottom: 14rpx;
+  font-size: 40rpx;
+  color: #ffffff;
+  font-weight: 700;
 }
 
 .export-button {
   width: auto;
-  padding: 12rpx 20rpx;
-  font-size: 24rpx;
+  min-width: 110rpx;
+  padding: 0 20rpx;
+  font-size: 22rpx;
+}
+
+.admin-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14rpx;
+  margin-top: 18rpx;
+}
+
+.admin-tool-card {
+  min-height: 140rpx;
+  padding: 18rpx;
+  border: 1rpx solid #242424;
+  background: #0a0a0a;
+}
+
+.admin-tool-card.primary {
+  background: linear-gradient(180deg, rgba(255, 52, 52, 0.16) 0%, rgba(13, 13, 13, 1) 100%);
+}
+
+.admin-card-title {
+  font-size: 28rpx;
+  line-height: 1.35;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.admin-card-desc {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  line-height: 1.6;
+  color: #8d8d8d;
 }
