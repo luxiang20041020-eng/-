@@ -10,12 +10,14 @@
   <view class="card">
     <view class="card-title">新增排课</view>
     <view class="field-block">
-      <view class="field-label">周标签</view>
-      <input class="form-input" data-field="weekLabel" value="{{weekLabel}}" bindinput="onInput" />
+      <view class="field-label">选择星期</view>
+      <view class="button-row week-option-row" style="margin-top: 16rpx;">
+        <view wx:for="{{weekOptions}}" wx:key="value" class="outline-chip {{weekDay === item.value ? 'active' : ''}}" data-week-day="{{item.value}}" bindtap="onWeekChange">{{item.label}}</view>
+      </view>
     </view>
     <view class="field-block">
-      <view class="field-label">日期</view>
-      <input class="form-input" data-field="dateLabel" value="{{dateLabel}}" bindinput="onInput" />
+      <view class="field-label">自动日期</view>
+      <view class="readonly-value">{{dateLabel}} · {{weekLabel}}</view>
     </view>
     <view class="field-block">
       <view class="field-label">时间段</view>
@@ -33,8 +35,21 @@
       </view>
     </view>
     <view class="field-block">
-      <view class="field-label">场地</view>
-      <input class="form-input" data-field="venue" value="{{venue}}" bindinput="onInput" placeholder="如：高新店二楼 A 馆" />
+      <view class="field-label">门店选择（即场地）</view>
+      <view class="store-picker" bindtap="onStoreFieldTap">
+        <view class="store-picker-main">
+          <view class="store-picker-value {{selectedStoreName ? '' : 'placeholder'}}">{{selectedStoreName || '点击选择门店'}}</view>
+          <view wx:if="{{selectedStoreAddress}}" class="card-desc">{{selectedStoreAddress}}</view>
+        </view>
+        <view class="store-picker-arrow">></view>
+      </view>
+    </view>
+    <view class="field-block">
+      <view class="row-between">
+        <view class="field-label">每周固定时间排课</view>
+        <switch checked="{{repeatWeekly}}" color="#ff3434" bindchange="onRepeatWeeklyChange" />
+      </view>
+      <view class="card-desc">开启后将按所选星期与当前时间段生成固定周排课规则。</view>
     </view>
     <button class="primary-button" bindtap="onSubmit">确认新增排课</button>
   </view>
@@ -47,7 +62,7 @@
         <view class="status-chip">{{item.status}}</view>
       </view>
       <view class="card-desc">{{item.weekLabel}} {{item.dateLabel}} · {{item.timeRange}}</view>
-      <view class="card-desc">{{item.type === 'group' ? '团课' : '私教'}} · {{item.venue}}</view>
+      <view class="card-desc">{{item.type === 'group' ? '团课' : '私教'}} · {{item.venue}}<text wx:if="{{item.repeatWeekly}}"> · 每周固定</text></view>
     </view>
   </view>
 </view>

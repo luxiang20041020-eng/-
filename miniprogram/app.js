@@ -539,22 +539,30 @@ App({
     return { ok: true, message: nextStatus === '已核销' ? '核销完成' : '已标记缺席' }
   },
 
-  getScheduleManagePageData() {
+  getScheduleManagePageData(storeId) {
+    const targetStoreId = storeId || this.globalData.selectedStoreId
+    const currentStore = this.globalData.stores.find((item) => item.id === targetStoreId) || this.getCurrentStore()
     return {
-      plans: deepClone(this.globalData.coachScheduleBoard),
-      currentStore: this.getCurrentStore(),
+      plans: deepClone(this.globalData.coachScheduleBoard.filter((item) => !item.storeId || item.storeId === targetStoreId)),
+      currentStore: deepClone(currentStore),
+      stores: deepClone(this.globalData.stores),
     }
   },
 
   createCoachSchedule(payload) {
+    const targetStore = this.globalData.stores.find((item) => item.id === payload.storeId) || this.getCurrentStore()
+    const storeName = payload.storeName || (targetStore ? targetStore.name : '') || payload.venue || ''
     const plan = {
       id: payload.planId || ('plan_' + Date.now()),
+      storeId: payload.storeId || (targetStore ? targetStore.id : ''),
+      storeName,
       weekLabel: payload.weekLabel,
       dateLabel: payload.dateLabel,
       timeRange: payload.timeRange,
       title: payload.title,
       type: payload.type,
-      venue: payload.venue,
+      venue: storeName,
+      repeatWeekly: Boolean(payload.repeatWeekly),
       status: '已发布',
     }
     this.globalData.coachScheduleBoard.unshift(plan)

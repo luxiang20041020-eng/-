@@ -44,6 +44,8 @@ const SCHEDULE_STATUS = {
   COACH_CANCELLED: 4,
 }
 
+const WEEKDAY_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+
 const storeSeeds = [
   {
     _id: 'gaoxin',
@@ -311,6 +313,7 @@ const scheduleSeeds = [
   {
     _id: 'class_001',
     store_id: 'gaoxin',
+    store_name: '高新旗舰店',
     coach_id: 'coach_li',
     class_type: ASSET_TYPE.GROUP,
     title: '泰拳基础发力小班课',
@@ -319,7 +322,7 @@ const scheduleSeeds = [
     max_capacity: 15,
     booked_count: 12,
     status: SCHEDULE_STATUS.OPEN,
-    venue: '高新店二楼 A 馆',
+    venue: '高新旗舰店',
     created_at: db.serverDate(),
     updated_at: db.serverDate(),
     is_deleted: false,
@@ -327,6 +330,7 @@ const scheduleSeeds = [
   {
     _id: 'class_002',
     store_id: 'gaoxin',
+    store_name: '高新旗舰店',
     coach_id: 'coach_li',
     class_type: ASSET_TYPE.PRIVATE,
     title: '拳腿衔接私教档期',
@@ -335,7 +339,7 @@ const scheduleSeeds = [
     max_capacity: 1,
     booked_count: 0,
     status: SCHEDULE_STATUS.OPEN,
-    venue: '高新店私教室 2',
+    venue: '高新旗舰店',
     created_at: db.serverDate(),
     updated_at: db.serverDate(),
     is_deleted: false,
@@ -602,6 +606,18 @@ function formatTimeRange(startTime, endTime) {
   return formatTimeText(startTime) + ' - ' + formatTimeText(endTime)
 }
 
+function getWeekdayLabelByDateTime(dateTimeString) {
+  const source = String(dateTimeString || '')
+  if (!source) {
+    return ''
+  }
+  const parsedDate = new Date(source.slice(0, 10).replace(/-/g, '/'))
+  if (Number.isNaN(parsedDate.getTime())) {
+    return ''
+  }
+  return WEEKDAY_LABELS[parsedDate.getDay()]
+}
+
 async function listCollection(collectionName, where = {}) {
   const res = await db.collection(collectionName).where(where).get()
   return res.data || []
@@ -616,6 +632,16 @@ function buildStoreView(store) {
     name: store.name,
     address: store.address,
   }
+}
+
+function getScheduleVenueName(schedule, storeMap) {
+  if (!schedule) {
+    return ''
+  }
+  if (schedule.store_id && storeMap && storeMap.has(schedule.store_id)) {
+    return storeMap.get(schedule.store_id).name || ''
+  }
+  return schedule.store_name || schedule.venue_name || schedule.venue || ''
 }
 
 function buildAssetView(assetList) {
@@ -663,6 +689,7 @@ async function getBookingViewData(event) {
     const pendingBookingIdSet = new Set(
       bookings.filter((item) => Number(item.status) === BOOKING_STATUS.PENDING).map((item) => item.schedule_id)
     )
+    const storeMap = new Map(stores.map((item) => [item._id, item]))
 
     const visibleSchedules = schedules
       .filter((item) => Number(item.status) !== SCHEDULE_STATUS.COACH_CANCELLED)
@@ -681,7 +708,7 @@ async function getBookingViewData(event) {
         typeLabel: mapAssetTypeToLabel(item.class_type),
         coachId: item.coach_id,
         coachName: coaches.find((coach) => coach._id === item.coach_id)?.real_name || item.coach_id,
-        venue: item.venue || '',
+        venue: getScheduleVenueName(item, storeMap),
         capacity: Number(item.max_capacity || 0),
         bookedCount: Number(item.booked_count || 0),
         progressText: Number(item.booked_count || 0) + '/' + Number(item.max_capacity || 0) + ' 人',
@@ -805,10 +832,12 @@ async function getWorkspaceViewData(event) {
   }
 
   try {
-    const [schedules, bookings] = await Promise.all([
+    const [schedules, bookings, storeRes] = await Promise.all([
       listCollection(COLLECTIONS.CLASS_SCHEDULE, { is_deleted: false, store_id: payload.storeId, coach_id: payload.coachId }),
       listCollection(COLLECTIONS.BOOKING, { is_deleted: false }),
+      getDocById(COLLECTIONS.STORE, payload.storeId),
     ])
+    const currentStore = buildStoreView(storeRes.data)
 
     const todayClasses = schedules
       .filter((item) => Number(item.status) !== SCHEDULE_STATUS.COACH_CANCELLED)
@@ -821,17 +850,14 @@ async function getWorkspaceViewData(event) {
           timeRange: formatTimeRange(item.start_time, item.end_time),
           bookedCount: roster.filter((booking) => ![BOOKING_STATUS.CLIENT_CANCELLED, BOOKING_STATUS.COACH_CANCELLED].includes(Number(booking.status))).length,
           capacity: Number(item.max_capacity || 0),
-          venue: item.venue || '',
+          venue: (currentStore && currentStore.name) || item.store_name || item.venue || '',
           checkedCount: roster.filter((booking) => Number(booking.status) === BOOKING_STATUS.WRITTEN_OFF).length,
           absentCount: roster.filter((booking) => Number(booking.status) === BOOKING_STATUS.ABSENT).length,
         }
       })
 
     return buildSuccess({
-      currentStore: buildStoreView(await (async () => {
-        const storeRes = await getDocById(COLLECTIONS.STORE, payload.storeId)
-        return storeRes.data
-      })()),
+      currentStore,
       quickActions: COACH_QUICK_ACTIONS.slice(),
       todayClasses,
     })
@@ -921,14 +947,16 @@ async function getCoachClassViewData(event) {
     }
 
     const userMap = new Map(users.map((item) => [item._id, item]))
+    const storeMap = new Map(stores.map((item) => [item._id, item]))
+    const currentStore = buildStoreView(storeMap.get(schedule.store_id))
     const visibleBookings = bookings.filter((item) => ![BOOKING_STATUS.CLIENT_CANCELLED, BOOKING_STATUS.COACH_CANCELLED].includes(Number(item.status)))
 
     return buildSuccess({
-      currentStore: buildStoreView(stores.find((item) => item._id === schedule.store_id)),
+      currentStore,
       classInfo: {
         id: schedule._id,
         title: schedule.title,
-        venue: schedule.venue || '',
+        venue: getScheduleVenueName(schedule, storeMap),
         dateLabel: formatDateLabel(schedule.start_time),
         timeRange: formatTimeRange(schedule.start_time, schedule.end_time),
         bookedCount: visibleBookings.length,
@@ -959,20 +987,25 @@ async function getCoachScheduleViewData(event) {
       listCollection(COLLECTIONS.CLASS_SCHEDULE, { is_deleted: false, store_id: payload.storeId }),
       listCollection(COLLECTIONS.STORE, { is_deleted: false, status: 1 }),
     ])
+    const storeMap = new Map(stores.map((item) => [item._id, item]))
 
     return buildSuccess({
       currentStore: buildStoreView(stores.find((item) => item._id === payload.storeId)),
+      stores: stores.map((item) => buildStoreView(item)),
       plans: schedules
         .filter((item) => !payload.coachId || item.coach_id === payload.coachId)
         .sort((left, right) => String(left.start_time).localeCompare(String(right.start_time)))
         .map((item) => ({
           id: item._id,
-          weekLabel: '已发布',
+          weekLabel: getWeekdayLabelByDateTime(item.start_time),
           dateLabel: formatDateLabel(item.start_time),
           timeRange: formatTimeRange(item.start_time, item.end_time),
           title: item.title,
           type: mapAssetTypeToPageType(item.class_type),
-          venue: item.venue || '',
+          storeId: item.store_id,
+          storeName: storeMap.get(item.store_id)?.name || item.store_name || '',
+          venue: getScheduleVenueName(item, storeMap),
+          repeatWeekly: Boolean(item.repeat_weekly),
           status: Number(item.status) === SCHEDULE_STATUS.COACH_CANCELLED ? '已取消' : '已发布',
         })),
     })
@@ -1299,10 +1332,18 @@ async function createCoachSchedule(event) {
 
   try {
     const classType = mapClassTypeToAssetType(payload.classType)
+    const storeRecord = await getDocById(COLLECTIONS.STORE, payload.storeId)
+    const storeData = storeRecord.data
+    if (!storeData || storeData.status !== 1 || storeData.is_deleted) {
+      return buildFail('门店不存在或不可用', 'STORE_NOT_AVAILABLE')
+    }
+
+    const storeName = payload.storeName || storeData.name
     const maxCapacity = Number(payload.maxCapacity || (classType === ASSET_TYPE.PRIVATE ? 1 : 15))
     const addRes = await db.collection(COLLECTIONS.CLASS_SCHEDULE).add({
       data: {
         store_id: payload.storeId,
+        store_name: storeName,
         coach_id: payload.coachId,
         class_type: classType,
         title: payload.title,
@@ -1311,7 +1352,9 @@ async function createCoachSchedule(event) {
         max_capacity: maxCapacity,
         booked_count: 0,
         status: SCHEDULE_STATUS.OPEN,
-        venue: payload.venue || '',
+        venue: storeName,
+        week_day: Number(payload.weekDay || 0),
+        repeat_weekly: Boolean(payload.repeatWeekly),
         created_at: db.serverDate(),
         updated_at: db.serverDate(),
         is_deleted: false,

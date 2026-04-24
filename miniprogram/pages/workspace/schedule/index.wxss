@@ -18,10 +18,51 @@
   color: #e5e5e5;
 }
 
+.week-option-row {
+  flex-wrap: wrap;
+}
+
+.readonly-value {
+  margin-top: 16rpx;
+  padding: 20rpx;
+  border: 1rpx solid #2a2a2a;
+  background: #101010;
+  color: #ffffff;
+  font-size: 26rpx;
+}
+
+.store-picker {
+  margin-top: 16rpx;
+  padding: 20rpx;
+  border: 1rpx solid #2a2a2a;
+  background: #101010;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.store-picker-main {
+  flex: 1;
+}
+
+.store-picker-value {
+  color: #ffffff;
+  font-size: 26rpx;
+}
+
+.store-picker-value.placeholder {
+  color: #7a7a7a;
+}
+
+.store-picker-arrow {
+  margin-left: 16rpx;
+  color: #8a8a8a;
+  font-size: 28rpx;
+}
+
 .plan-item {
   margin-top: 18rpx;
   padding: 20rpx;
   border: 1rpx solid #2a2a2a;
-  border-radius: 14rpx;
   background: #101010;
 }

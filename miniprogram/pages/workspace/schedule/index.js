@@ -1,37 +1,123 @@
 const businessApi = require('../../../utils/business-api')
 
+const WEEKDAY_OPTIONS = [
+  { value: 1, label: '周一' },
+  { value: 2, label: '周二' },
+  { value: 3, label: '周三' },
+  { value: 4, label: '周四' },
+  { value: 5, label: '周五' },
+  { value: 6, label: '周六' },
+  { value: 0, label: '周日' },
+]
+
+function pad2(value) {
+  return String(value).padStart(2, '0')
+}
+
+function getNextDateByWeekday(weekDay) {
+  const today = new Date()
+  const currentWeekDay = today.getDay()
+  let diff = weekDay - currentWeekDay
+  if (diff < 0) {
+    diff += 7
+  }
+  const targetDate = new Date(today)
+  targetDate.setDate(today.getDate() + diff)
+  return {
+    monthDay: pad2(targetDate.getMonth() + 1) + '/' + pad2(targetDate.getDate()),
+    fullDate: targetDate.getFullYear() + '-' + pad2(targetDate.getMonth() + 1) + '-' + pad2(targetDate.getDate()),
+  }
+}
+
+function mapRuntimeStoreToOption(store) {
+  return {
+    id: store.id,
+    name: store.name,
+    address: store.address,
+  }
+}
+
+function normalizeSchedulePageData(pageData, runtime) {
+  const safeData = pageData || {}
+  const fallbackStores = (runtime && runtime.stores ? runtime.stores : []).map(mapRuntimeStoreToOption)
+  return Object.assign({}, safeData, {
+    stores: safeData.stores && safeData.stores.length ? safeData.stores : fallbackStores,
+    plans: safeData.plans || [],
+  })
+}
+
+function getStoreSelection(pageData, fallbackStoreId) {
+  const stores = pageData.stores || []
+  if (stores.some((item) => item.id === fallbackStoreId)) {
+    const selectedStore = stores.find((item) => item.id === fallbackStoreId)
+    return {
+      storeId: fallbackStoreId,
+      selectedStoreName: selectedStore ? selectedStore.name : '',
+      selectedStoreAddress: selectedStore ? selectedStore.address : '',
+    }
+  }
+  if (stores[0]) {
+    return {
+      storeId: stores[0].id,
+      selectedStoreName: stores[0].name,
+      selectedStoreAddress: stores[0].address,
+    }
+  }
+  return {
+    storeId: fallbackStoreId || '',
+    selectedStoreName: pageData.currentStore ? pageData.currentStore.name : '',
+    selectedStoreAddress: pageData.currentStore ? pageData.currentStore.address : '',
+  }
+}
+
 Page({
   data: {
     runtime: {},
     pageData: {},
-    weekLabel: '下周一',
-    dateLabel: '04/29',
+    weekDay: 1,
+    weekLabel: '周一',
+    dateLabel: getNextDateByWeekday(1).monthDay,
+    fullDate: getNextDateByWeekday(1).fullDate,
     timeRange: '19:00 - 20:30',
     title: '',
     type: 'group',
-    venue: '',
+    storeId: '',
+    selectedStoreName: '',
+    selectedStoreAddress: '',
+    repeatWeekly: true,
+    weekOptions: WEEKDAY_OPTIONS,
   },
 
   onShow() {
     this.syncPageData()
   },
 
-  async syncPageData() {
+  async syncPageData(selectedStoreId) {
     const app = getApp()
     const runtime = app.getRuntimeSnapshot()
+    const targetStoreId = selectedStoreId || this.data.storeId || runtime.currentStore.id
     try {
-      const pageData = await businessApi.getCoachScheduleViewData({
-        storeId: runtime.currentStore.id,
+      const pageData = normalizeSchedulePageData(await businessApi.getCoachScheduleViewData({
+        storeId: targetStoreId,
         coachId: runtime.userProfile.id,
-      })
+      }), runtime)
+      const selection = getStoreSelection(pageData, targetStoreId)
       this.setData({
         runtime,
         pageData,
+        storeId: selection.storeId,
+        selectedStoreName: selection.selectedStoreName,
+        selectedStoreAddress: selection.selectedStoreAddress,
       })
     } catch (error) {
+      const localPageData = normalizeSchedulePageData(app.getScheduleManagePageData(targetStoreId), runtime)
+      const selection = getStoreSelection(localPageData, targetStoreId)
       this.setData({
         runtime,
-        pageData: app.getScheduleManagePageData(),
+        pageData: localPageData,
+        storeId: selection.storeId,
+        selectedStoreName: selection.selectedStoreName,
+        selectedStoreAddress: selection.selectedStoreAddress,
       })
     }
   },
@@ -45,33 +131,83 @@ Page({
     this.setData({ type: event.currentTarget.dataset.type })
   },
 
+  onWeekChange(event) {
+    const weekDay = Number(event.currentTarget.dataset.weekDay)
+    const nextDate = getNextDateByWeekday(weekDay)
+    const option = WEEKDAY_OPTIONS.find((item) => item.value === weekDay)
+    this.setData({
+      weekDay,
+      weekLabel: option ? option.label : '周一',
+      dateLabel: nextDate.monthDay,
+      fullDate: nextDate.fullDate,
+    })
+  },
+
+  onStoreFieldTap() {
+    const stores = this.data.pageData.stores || []
+    if (!stores.length) {
+      wx.showToast({ title: '暂无可选门店', icon: 'none' })
+      return
+    }
+
+    wx.showActionSheet({
+      itemList: stores.map((item) => item.name),
+      success: (res) => {
+        const selectedStore = stores[res.tapIndex]
+        if (!selectedStore) {
+          return
+        }
+        this.setData({
+          storeId: selectedStore.id,
+          selectedStoreName: selectedStore.name,
+          selectedStoreAddress: selectedStore.address,
+        })
+        this.syncPageData(selectedStore.id)
+      },
+    })
+  },
+
+  onRepeatWeeklyChange(event) {
+    this.setData({
+      repeatWeekly: event.detail.value,
+    })
+  },
+
   async onSubmit() {
-    if (!this.data.title || !this.data.venue) {
-      wx.showToast({ title: '请补全课程主题和场地', icon: 'none' })
+    const selectedStore = (this.data.pageData.stores || []).find((item) => item.id === this.data.storeId)
+      || this.data.pageData.currentStore
+
+    if (!this.data.title || !selectedStore || !selectedStore.id) {
+      wx.showToast({ title: '请补全课程主题并选择门店', icon: 'none' })
       return
     }
 
     const app = getApp()
     const localPayload = {
+      storeId: selectedStore.id,
+      storeName: selectedStore.name,
       weekLabel: this.data.weekLabel,
       dateLabel: this.data.dateLabel,
       timeRange: this.data.timeRange,
       title: this.data.title,
       type: this.data.type,
-      venue: this.data.venue,
+      venue: selectedStore.name,
+      repeatWeekly: this.data.repeatWeekly,
     }
     let result = null
 
     try {
       const cloudResult = await businessApi.createCoachSchedule({
-        storeId: app.globalData.selectedStoreId,
+        storeId: selectedStore.id,
+        storeName: selectedStore.name,
         coachId: app.globalData.userProfile.id,
         classType: this.data.type === 'group' ? 1 : 2,
         title: this.data.title,
-        startTime: '2026-' + this.data.dateLabel.replace('/', '-') + ' ' + this.data.timeRange.split(' - ')[0] + ':00',
-        endTime: '2026-' + this.data.dateLabel.replace('/', '-') + ' ' + this.data.timeRange.split(' - ')[1] + ':00',
+        startTime: this.data.fullDate + ' ' + this.data.timeRange.split(' - ')[0] + ':00',
+        endTime: this.data.fullDate + ' ' + this.data.timeRange.split(' - ')[1] + ':00',
         maxCapacity: this.data.type === 'group' ? 15 : 1,
-        venue: this.data.venue,
+        weekDay: this.data.weekDay,
+        repeatWeekly: this.data.repeatWeekly,
       })
       result = app.createCoachSchedule(Object.assign({}, localPayload, { planId: cloudResult.scheduleId }))
     } catch (error) {
@@ -87,9 +223,8 @@ Page({
     if (result.ok) {
       this.setData({
         title: '',
-        venue: '',
       })
-      this.syncPageData()
+      this.syncPageData(selectedStore.id)
     }
   },
 })
