@@ -1,0 +1,13 @@
+<view class="tabbar-wrap">
+  <view class="tabbar">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="tab-item {{item.path === current ? 'is-active' : ''}}"
+      data-path="{{item.path}}"
+      bindtap="onTap"
+    >
+      <text class="tab-label">{{item.label}}</text>
+    </view>
+  </view>
+</view>

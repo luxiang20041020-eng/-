@@ -1,0 +1,43 @@
+<view class="page-shell">
+  <view class="page-header">
+    <view>
+      <view class="page-title">课程核销</view>
+      <view class="page-subtitle">{{pageData.classInfo.title}} · {{pageData.classInfo.timeRange}}</view>
+    </view>
+    <view class="role-badge">教练</view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">课程概览</view>
+    <view class="card-desc">{{pageData.classInfo.venue}} · {{pageData.classInfo.dateLabel}}</view>
+    <view class="metric-grid">
+      <view class="metric-item">
+        <view class="metric-label">预约人数</view>
+        <view class="metric-value">{{pageData.classInfo.bookedCount}}</view>
+      </view>
+      <view class="metric-item">
+        <view class="metric-label">已核销</view>
+        <view class="metric-value">{{pageData.classInfo.checkedCount}}</view>
+      </view>
+      <view class="metric-item">
+        <view class="metric-label">已缺席</view>
+        <view class="metric-value">{{pageData.classInfo.absentCount}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">预约名单</view>
+    <view wx:for="{{pageData.roster}}" wx:key="bookingId" class="roster-item">
+      <view class="row-between">
+        <view class="schedule-title">{{item.userName}}</view>
+        <view class="status-chip">{{item.status}}</view>
+      </view>
+      <view class="card-desc">{{item.phone}}</view>
+      <view class="button-row" style="margin-top: 16rpx;">
+        <button class="primary-button" size="mini" data-booking-id="{{item.bookingId}}" data-status="已核销" bindtap="onUpdateStatus">确认到场</button>
+        <button class="secondary-button" size="mini" data-booking-id="{{item.bookingId}}" data-status="已缺席" bindtap="onUpdateStatus">标记缺席</button>
+      </view>
+    </view>
+  </view>
+</view>

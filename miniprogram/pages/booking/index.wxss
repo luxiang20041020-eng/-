@@ -1,0 +1,26 @@
+.schedule-card {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  border-radius: 14rpx;
+  background: #111111;
+  border: 1rpx solid #27272a;
+}
+
+.schedule-time {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #facc15;
+}
+
+.schedule-title {
+  margin-top: 14rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.progress-text {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #d4d4d4;
+}

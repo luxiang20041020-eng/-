@@ -1,0 +1,62 @@
+<view class="page-shell">
+  <view class="page-header">
+    <view>
+      <view class="page-title">管理员看板</view>
+      <view class="page-subtitle">{{pageData.currentStore.name}} · 财务对账与课时审计总览。</view>
+    </view>
+    <view class="role-badge">{{runtime.roleLabel}}</view>
+  </view>
+
+  <view wx:if="{{!hasPermission}}" class="card">
+    <view class="card-title">无访问权限</view>
+    <view class="card-desc">当前身份不是管理员，按文档要求此页面仅 Role=3 可见。你可以先去“我的”页切换角色进行验收。</view>
+  </view>
+
+  <block wx:else>
+    <view class="card">
+      <view class="card-title">云端初始化</view>
+      <view class="card-desc">首次接入真实云数据库前，先执行一次集合与基础数据初始化。</view>
+      <button class="primary-button" style="margin-top: 18rpx;" loading="{{bootstrapLoading}}" bindtap="onBootstrap">初始化业务集合</button>
+    </view>
+
+    <view class="card">
+      <view class="card-title">今日概览</view>
+      <view class="metric-grid">
+        <view class="metric-item">
+          <view class="metric-label">新增私教课时</view>
+          <view class="metric-value">{{pageData.auditOverview.addedPrivateLessons}}</view>
+        </view>
+        <view class="metric-item">
+          <view class="metric-label">新增团课课时</view>
+          <view class="metric-value">{{pageData.auditOverview.addedGroupLessons}}</view>
+        </view>
+        <view class="metric-item">
+          <view class="metric-label">今日核销</view>
+          <view class="metric-value">{{pageData.auditOverview.writeOffCount}}</view>
+        </view>
+        <view class="metric-item">
+          <view class="metric-label">收款上报</view>
+          <view class="metric-value">{{pageData.auditOverview.incomeText}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="row-between">
+        <view class="card-title">课时派发审计日志</view>
+        <button class="secondary-button export-button" bindtap="onExport">导出 Excel</button>
+      </view>
+      <view wx:for="{{pageData.auditLogs}}" wx:key="id" class="audit-item">
+        <view class="row-between">
+          <view class="schedule-title">{{item.operatorName}}</view>
+          <view class="status-chip">{{item.time}}</view>
+        </view>
+        <view class="card-desc">派发 {{item.packageName}} 给 {{item.targetName}}</view>
+        <view class="card-desc">实收 ￥{{item.amount}} · {{item.payType}}</view>
+        <view class="card-desc">备注：{{item.remark}}</view>
+      </view>
+    </view>
+  </block>
+
+  <app-tabbar current="/pages/admin/index"></app-tabbar>
+</view>

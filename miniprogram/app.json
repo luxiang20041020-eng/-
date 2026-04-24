@@ -1,0 +1,22 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/booking/index",
+    "pages/profile/index",
+    "pages/workspace/index",
+    "pages/workspace/distribute/index",
+    "pages/workspace/class/index",
+    "pages/workspace/schedule/index",
+    "pages/admin/index"
+  ],
+  "window": {
+    "backgroundColor": "#121212",
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#121212",
+    "navigationBarTitleText": "铁拳泰拳",
+    "navigationBarTextStyle": "white"
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

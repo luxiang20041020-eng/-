@@ -1,0 +1,8 @@
+.action-item,
+.class-item {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  border-radius: 14rpx;
+  background: #101010;
+  border: 1rpx solid #27272a;
+}

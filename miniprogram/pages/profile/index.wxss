@@ -1,0 +1,27 @@
+.code-box {
+  margin-top: 20rpx;
+  padding: 36rpx 24rpx;
+  border-radius: 14rpx;
+  border: 1rpx dashed #facc15;
+  background: #101010;
+  text-align: center;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #facc15;
+  letter-spacing: 4rpx;
+}
+
+.booking-item {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  border-radius: 14rpx;
+  background: #101010;
+  border: 1rpx solid #27272a;
+}
+
+.role-switch-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 18rpx;
+}

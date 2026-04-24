@@ -1,0 +1,69 @@
+<view class="page-shell">
+  <view class="page-header">
+    <view>
+      <view class="page-title">我的</view>
+      <view class="page-subtitle">{{runtime.userProfile.nickname}} · {{runtime.userProfile.phone}} · {{pageData.currentStore.name}}</view>
+    </view>
+    <view class="role-badge">{{runtime.roleLabel}}</view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">课时资产</view>
+    <view class="metric-grid">
+      <view class="metric-item">
+        <view class="metric-label">私教余额</view>
+        <view class="metric-value">{{runtime.assets.privateCount}}</view>
+      </view>
+      <view class="metric-item">
+        <view class="metric-label">团课余额</view>
+        <view class="metric-value">{{runtime.assets.groupCount}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">动态身份码</view>
+    <view class="card-desc">当前为演示态动态口令，后续接入云函数后替换为可扫码识别的短时二维码。</view>
+    <view class="code-box">{{dynamicCode}}</view>
+    <view class="card-desc">每 60 秒自动刷新一次，避免截图复用。</view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">训练统计</view>
+    <view class="metric-grid">
+      <view class="metric-item">
+        <view class="metric-label">本月上课</view>
+        <view class="metric-value">{{pageData.trainingStats.monthLessons}}</view>
+      </view>
+      <view class="metric-item">
+        <view class="metric-label">连续坚持</view>
+        <view class="metric-value">{{pageData.trainingStats.streakDays}}</view>
+      </view>
+    </view>
+    <view class="card-desc">{{pageData.trainingStats.nextTarget}}</view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">我的预约</view>
+    <view wx:for="{{pageData.myBookings}}" wx:key="id" class="booking-item">
+      <view class="row-between">
+        <view class="schedule-title">{{item.title}}</view>
+        <view class="status-chip">{{item.status}}</view>
+      </view>
+      <view class="card-desc">{{item.dateLabel}} · {{item.timeRange}}</view>
+      <button wx:if="{{item.status === '待上课'}}" class="secondary-button" style="margin-top: 16rpx;" data-booking-id="{{item.id}}" bindtap="onCancelBooking">取消预约</button>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">演示角色切换</view>
+    <view class="card-desc">当前仅用于原型联调，后续会由登录态和后台权限替换。</view>
+    <view class="role-switch-row">
+      <view wx:for="{{runtime.roleList}}" wx:key="value" class="scroll-chip">
+        <view class="outline-chip {{runtime.role === item.value ? 'active' : ''}}" data-role="{{item.value}}" data-label="{{item.label}}" bindtap="onSwitchRole">{{item.label}}</view>
+      </view>
+    </view>
+  </view>
+
+  <app-tabbar id="tabbar" current="/pages/profile/index"></app-tabbar>
+</view>

@@ -1,0 +1,49 @@
+<view class="page-shell">
+  <view class="page-header">
+    <view>
+      <view class="page-title">课时派发</view>
+      <view class="page-subtitle">{{pageData.currentStore.name}} · 线下收款后给学员加课，并保留审计记录。</view>
+    </view>
+    <view class="role-badge">教练</view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">搜索学员</view>
+    <input class="form-input" placeholder="输入姓名或手机号" value="{{keyword}}" bindinput="onKeywordInput" />
+    <view wx:for="{{pageData.members}}" wx:key="id" class="member-item {{selectedMemberId === item.id ? 'is-selected' : ''}}" data-member-id="{{item.id}}" bindtap="onSelectMember">
+      <view class="row-between">
+        <view class="schedule-title">{{item.nickname}}</view>
+        <view class="status-chip">{{item.phone}}</view>
+      </view>
+      <view class="card-desc">私教 {{item.privateCount}} 节 · 团课 {{item.groupCount}} 节</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">派发配置</view>
+    <view wx:for="{{pageData.packageOptions}}" wx:key="id" class="package-item {{selectedPackageId === item.id ? 'is-selected' : ''}}" data-package-id="{{item.id}}" bindtap="onSelectPackage">
+      <view class="row-between">
+        <view class="schedule-title">{{item.name}}</view>
+        <view class="status-chip">{{item.type === 'group' ? '团课' : '私教'}}</view>
+      </view>
+      <view class="card-desc">{{item.lessons}} 节 · 标准价 ￥{{item.price}}</view>
+    </view>
+
+    <view class="field-block">
+      <view class="field-label">线下实收金额</view>
+      <input class="form-input" type="digit" placeholder="请输入金额" value="{{amount}}" bindinput="onAmountInput" />
+    </view>
+
+    <view class="field-block">
+      <view class="field-label">收款方式</view>
+      <input class="form-input" placeholder="如：微信转账 / 现金 / 赠课" value="{{payType}}" bindinput="onPayTypeInput" />
+    </view>
+
+    <view class="field-block">
+      <view class="field-label">派发备注</view>
+      <textarea class="form-textarea" placeholder="如：活动赠送、续费已转财务" value="{{remark}}" bindinput="onRemarkInput"></textarea>
+    </view>
+
+    <button class="primary-button" bindtap="onSubmit">确认派发</button>
+  </view>
+</view>

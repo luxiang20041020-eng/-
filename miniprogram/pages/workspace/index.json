@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "app-tabbar": "/components/app-tabbar/index"
+  },
+  "navigationBarTitleText": "工作台"
+}

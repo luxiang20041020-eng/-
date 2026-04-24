@@ -1,0 +1,80 @@
+<view class="page-shell">
+  <view class="page-header">
+    <view>
+      <view class="page-title">预约大厅</view>
+      <view class="page-subtitle">{{pageData.currentStore.name}} · 支持按课程类型、教练、日期筛选。</view>
+    </view>
+    <view class="role-badge">{{runtime.roleLabel}}</view>
+  </view>
+
+  <view class="card">
+    <view class="row-between">
+      <view class="card-title">当前门店</view>
+      <view class="store-badge">{{pageData.currentStore.name}}</view>
+    </view>
+    <scroll-view class="scroll-row" scroll-x="true" show-scrollbar="false">
+      <view class="scroll-chip" wx:for="{{runtime.stores}}" wx:key="id">
+        <view class="outline-chip {{item.id === runtime.currentStore.id ? 'active' : ''}}" data-store-id="{{item.id}}" bindtap="onSwitchStore">{{item.name}}</view>
+      </view>
+    </scroll-view>
+    <view class="metric-grid">
+      <view class="metric-item">
+        <view class="metric-label">团课余额</view>
+        <view class="metric-value">{{pageData.assets.groupCount}}</view>
+      </view>
+      <view class="metric-item">
+        <view class="metric-label">私教余额</view>
+        <view class="metric-value">{{pageData.assets.privateCount}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">课程类型</view>
+    <view class="button-row">
+      <view class="outline-chip {{pageData.filters.type === 'group' ? 'active' : ''}}" data-type="group" bindtap="onTypeChange">团课</view>
+      <view class="outline-chip {{pageData.filters.type === 'private' ? 'active' : ''}}" data-type="private" bindtap="onTypeChange">私教</view>
+    </view>
+    <view class="section-title" style="margin-top: 24rpx;">教练筛选</view>
+    <scroll-view class="scroll-row" scroll-x="true" show-scrollbar="false">
+      <view class="scroll-chip">
+        <view class="filter-chip {{pageData.filters.coachId === 'all' ? 'active' : ''}}" data-coach-id="all" bindtap="onCoachChange">全部教练</view>
+      </view>
+      <view class="scroll-chip" wx:for="{{pageData.coaches}}" wx:key="id">
+        <view class="filter-chip {{pageData.filters.coachId === item.id ? 'active' : ''}}" data-coach-id="{{item.id}}" bindtap="onCoachChange">{{item.name}}</view>
+      </view>
+    </scroll-view>
+    <view class="section-title" style="margin-top: 24rpx;">日期</view>
+    <scroll-view class="scroll-row" scroll-x="true" show-scrollbar="false">
+      <view class="scroll-chip" wx:for="{{pageData.dates}}" wx:key="key">
+        <view class="filter-chip {{pageData.filters.dateKey === item.key ? 'active' : ''}}" data-date-key="{{item.key}}" bindtap="onDateChange">{{item.label}}</view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">可预约课程</view>
+    <view wx:if="{{pageData.schedules.length === 0}}" class="empty-text">当前筛选条件下暂无课程，可切换门店或日期继续查看。</view>
+    <view wx:for="{{pageData.schedules}}" wx:key="id" class="schedule-card">
+      <view class="row-between">
+        <view class="schedule-time">{{item.timeRange}}</view>
+        <view class="status-chip">{{item.typeLabel}}</view>
+      </view>
+      <view class="schedule-title">{{item.title}}</view>
+      <view class="card-desc">{{item.coachName}} · {{item.venue}}</view>
+      <view class="progress-text">当前进度：{{item.progressText}}</view>
+      <button
+        class="{{item.isBooked ? 'secondary-button' : 'primary-button'}}"
+        style="margin-top: 18rpx;"
+        data-schedule-id="{{item.id}}"
+        data-title="{{item.title}}"
+        bindtap="onBook"
+        disabled="{{item.isBooked || item.isFull}}"
+      >
+        {{item.isBooked ? '已预约' : item.isFull ? '已满员' : '立即预约（扣 1 课时）'}}
+      </button>
+    </view>
+  </view>
+
+  <app-tabbar current="/pages/booking/index"></app-tabbar>
+</view>

@@ -1,0 +1,45 @@
+<view class="page-shell">
+  <view class="page-header">
+    <view>
+      <view class="page-title">教练工作台</view>
+      <view class="page-subtitle">{{pageData.currentStore.name}} · 线下发课、排课、核销的统一入口。</view>
+    </view>
+    <view class="role-badge">{{runtime.roleLabel}}</view>
+  </view>
+
+  <view wx:if="{{!hasPermission}}" class="card">
+    <view class="card-title">无访问权限</view>
+    <view class="card-desc">当前身份不是教练，按文档要求此页面仅 Role=2 可见。你可以先去“我的”页切换角色进行验收。</view>
+  </view>
+
+  <block wx:else>
+    <view class="card">
+      <view class="card-title">快捷操作</view>
+      <view
+        wx:for="{{pageData.quickActions}}"
+        wx:key="id"
+        class="action-item"
+        data-action-id="{{item.id}}"
+        bindtap="onTapAction"
+      >
+        <view class="schedule-title">{{item.title}}</view>
+        <view class="card-desc">{{item.desc}}</view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card-title">今日带课</view>
+      <view wx:for="{{pageData.todayClasses}}" wx:key="id" class="class-item">
+        <view class="row-between">
+          <view class="schedule-title">{{item.title}}</view>
+          <view class="status-chip">{{item.bookedCount}} / {{item.capacity}}</view>
+        </view>
+        <view class="card-desc">{{item.timeRange}} · {{item.venue}}</view>
+        <view class="card-desc">已核销 {{item.checkedCount}} 人，缺席 {{item.absentCount}} 人</view>
+        <button class="secondary-button" style="margin-top: 16rpx;" data-class-id="{{item.id}}" bindtap="goClassDetail">进入单节课管理</button>
+      </view>
+    </view>
+  </block>
+
+  <app-tabbar current="/pages/workspace/index"></app-tabbar>
+</view>
