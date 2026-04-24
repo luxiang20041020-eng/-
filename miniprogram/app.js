@@ -1,6 +1,7 @@
 const {
   ROLE_LIST,
   STORE_LIST,
+  ROLE_USER_MAP,
   USER_PROFILE,
   MEMBER_LIST,
   ASSET_PACKAGE_OPTIONS,
@@ -33,6 +34,10 @@ function getRoleMeta(role) {
   return ROLE_LIST.find((item) => item.value === role) || ROLE_LIST[0]
 }
 
+function getRoleUserProfile(role) {
+  return deepClone(ROLE_USER_MAP[role] || USER_PROFILE)
+}
+
 function getAssetKeyByType(type) {
   return type === 'group' ? 'groupCount' : 'privateCount'
 }
@@ -59,7 +64,7 @@ App({
       selectedStoreId: STORE_LIST[0].id,
       selectedCoachClassId: TODAY_CLASSES[0].id,
       stores: deepClone(STORE_LIST),
-      userProfile: deepClone(USER_PROFILE),
+      userProfile: getRoleUserProfile('client'),
       members: deepClone(MEMBER_LIST),
       packageOptions: deepClone(ASSET_PACKAGE_OPTIONS),
       banners: deepClone(BANNERS),
@@ -102,6 +107,8 @@ App({
   syncCurrentUserAssetsFromMember() {
     const currentUser = this.getCurrentUserMember()
     if (!currentUser) {
+      this.globalData.assets.privateCount = 0
+      this.globalData.assets.groupCount = 0
       return
     }
 
@@ -145,7 +152,14 @@ App({
   },
 
   switchRole(role) {
-    this.globalData.role = role
+    const roleMeta = getRoleMeta(role)
+    const nextProfile = getRoleUserProfile(roleMeta.value)
+    this.globalData.role = roleMeta.value
+    this.globalData.userProfile = nextProfile
+    if (nextProfile.homeStoreId) {
+      this.globalData.selectedStoreId = nextProfile.homeStoreId
+    }
+    this.syncCurrentUserAssetsFromMember()
     return this.getRuntimeSnapshot()
   },
 

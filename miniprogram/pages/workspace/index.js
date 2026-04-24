@@ -19,7 +19,7 @@ Page({
     try {
       const pageData = await businessApi.getWorkspaceViewData({
         storeId: runtime.currentStore.id,
-        coachId: 'coach_li',
+        coachId: runtime.userProfile.id,
       })
       this.setData({
         runtime,

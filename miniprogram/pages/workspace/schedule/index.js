@@ -22,7 +22,7 @@ Page({
     try {
       const pageData = await businessApi.getCoachScheduleViewData({
         storeId: runtime.currentStore.id,
-        coachId: 'coach_li',
+        coachId: runtime.userProfile.id,
       })
       this.setData({
         runtime,
@@ -65,7 +65,7 @@ Page({
     try {
       const cloudResult = await businessApi.createCoachSchedule({
         storeId: app.globalData.selectedStoreId,
-        coachId: 'coach_li',
+        coachId: app.globalData.userProfile.id,
         classType: this.data.type === 'group' ? 1 : 2,
         title: this.data.title,
         startTime: '2026-' + this.data.dateLabel.replace('/', '-') + ' ' + this.data.timeRange.split(' - ')[0] + ':00',

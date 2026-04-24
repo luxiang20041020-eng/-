@@ -21,12 +21,31 @@ const STORE_LIST = [
   },
 ]
 
-const USER_PROFILE = {
-  id: 'u_1001',
-  nickname: '王小明',
-  phone: '13800001234',
-  levelText: '综合格斗会员',
+const ROLE_USER_MAP = {
+  client: {
+    id: 'u_1001',
+    nickname: '王小明',
+    phone: '13800001234',
+    levelText: '综合格斗会员',
+    homeStoreId: 'gaoxin',
+  },
+  coach: {
+    id: 'coach_li',
+    nickname: '李教练',
+    phone: '13900001234',
+    levelText: '泰拳金牌教练',
+    homeStoreId: 'gaoxin',
+  },
+  admin: {
+    id: 'admin_001',
+    nickname: '陈店长',
+    phone: '13700001234',
+    levelText: '门店运营管理员',
+    homeStoreId: 'gaoxin',
+  },
 }
+
+const USER_PROFILE = ROLE_USER_MAP.client
 
 const MEMBER_LIST = [
   {
@@ -347,6 +366,7 @@ const TRAINING_STATS = {
 module.exports = {
   ROLE_LIST,
   STORE_LIST,
+  ROLE_USER_MAP,
   USER_PROFILE,
   MEMBER_LIST,
   ASSET_PACKAGE_OPTIONS,

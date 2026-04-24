@@ -62,8 +62,11 @@ Page({
   refreshDynamicCode() {
     const now = new Date()
     const minuteKey = [now.getHours(), now.getMinutes()].map((item) => String(item).padStart(2, '0')).join('')
+    const userIdSuffix = (this.data.runtime.userProfile && this.data.runtime.userProfile.id
+      ? this.data.runtime.userProfile.id
+      : 'guest').toUpperCase()
     this.setData({
-      dynamicCode: 'TK-' + this.data.runtime.role + '-' + minuteKey + '-U1001',
+      dynamicCode: 'TK-' + this.data.runtime.role + '-' + minuteKey + '-' + userIdSuffix,
     })
   },
 

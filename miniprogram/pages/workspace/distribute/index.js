@@ -93,7 +93,7 @@ Page({
           await businessApi.distributeAsset({
             userId: localPayload.memberId,
             packageId: localPayload.packageId,
-            operatorId: 'coach_li',
+            operatorId: app.globalData.userProfile.id,
             offlineAmount: localPayload.amount,
             payType: localPayload.payType,
             remark: localPayload.remark,

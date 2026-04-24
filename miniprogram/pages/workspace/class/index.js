@@ -44,7 +44,7 @@ Page({
     try {
       await businessApi.writeOffBooking({
         bookingId,
-        operatorId: 'coach_li',
+        operatorId: app.globalData.userProfile.id,
         status: status === '已核销' ? 2 : 5,
       })
       result = app.updateCheckinStatus(this.data.pageData.classInfo.id, bookingId, status)

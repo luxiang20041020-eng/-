@@ -415,16 +415,43 @@ async function tryCreateCollection(collectionName) {
 }
 
 async function seedCollectionIfEmpty(collectionName, docs) {
+  if (!docs.length) {
+    return { collectionName, seeded: false, total: 0, insertedCount: 0, insertedIds: [] }
+  }
+
   const countResult = await db.collection(collectionName).count()
-  if (countResult.total > 0 || !docs.length) {
-    return { collectionName, seeded: false, total: countResult.total }
+  if (countResult.total === 0) {
+    for (const doc of docs) {
+      await db.collection(collectionName).add({ data: doc })
+    }
+
+    return {
+      collectionName,
+      seeded: true,
+      total: docs.length,
+      insertedCount: docs.length,
+      insertedIds: docs.map((item) => item._id),
+    }
   }
 
+  const insertedIds = []
   for (const doc of docs) {
+    const existsResult = await db.collection(collectionName).where({ _id: doc._id }).count()
+    if (existsResult.total > 0) {
+      continue
+    }
     await db.collection(collectionName).add({ data: doc })
+    insertedIds.push(doc._id)
   }
 
-  return { collectionName, seeded: true, total: docs.length }
+  const finalCount = await db.collection(collectionName).count()
+  return {
+    collectionName,
+    seeded: insertedIds.length > 0,
+    total: finalCount.total,
+    insertedCount: insertedIds.length,
+    insertedIds,
+  }
 }
 
 async function getDocById(collectionName, docId) {

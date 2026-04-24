@@ -48,9 +48,13 @@ Page({
     this.setData({ bootstrapLoading: true })
     try {
       const result = await businessApi.bootstrapCollections()
+      const createdCollectionNames = (result.createResults || []).map((item) => item.collectionName)
+      const seededCollectionNames = (result.seedResults || []).filter((item) => item.seeded).map((item) => item.collectionName)
       wx.showModal({
         title: '初始化完成',
-        content: '集合初始化成功：' + Object.keys(result.collections).join('、'),
+        content:
+          '已检查集合：' + createdCollectionNames.join('、') +
+          '\n已写入种子：' + (seededCollectionNames.length ? seededCollectionNames.join('、') : '无新增种子'),
         showCancel: false,
       })
     } catch (error) {
