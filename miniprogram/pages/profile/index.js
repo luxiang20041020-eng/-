@@ -38,7 +38,11 @@ Page({
 
   async syncPageData() {
     const app = getApp()
-    const runtime = app.getRuntimeSnapshot()
+    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    if (!runtime.isAuthenticated) {
+      wx.reLaunch({ url: '/pages/login/index' })
+      return
+    }
     try {
       const pageData = await businessApi.getProfileViewData({
         userId: app.globalData.userProfile.id,
@@ -90,6 +94,9 @@ Page({
 
   onSwitchRole(event) {
     const app = getApp()
+    if (app.globalData.isAuthenticated) {
+      return
+    }
     const { role, label } = event.currentTarget.dataset
     app.switchRole(role)
     wx.showToast({
