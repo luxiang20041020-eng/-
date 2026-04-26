@@ -1,0 +1,82 @@
+<view class="page-shell">
+  <view class="page-header">
+    <view>
+      <view class="eyebrow">ADMIN · USER ROLE MATRIX</view>
+      <view class="page-title">人员权限管理</view>
+      <view class="page-subtitle">直接基于云端 app_user 调整用户身份权限。</view>
+    </view>
+    <view class="role-badge">管理员</view>
+  </view>
+
+  <view wx:if="{{!hasPermission}}" class="card">
+    <view class="section-title">ACCESS DENIED</view>
+    <view class="card-desc">当前账号不是管理员，无法查看或修改人员权限。</view>
+  </view>
+
+  <block wx:else>
+    <view class="card">
+      <view class="section-title">SEARCH · 人员筛选</view>
+      <input
+        class="form-input"
+        value="{{keyword}}"
+        bindinput="onKeywordInput"
+        placeholder="输入姓名 / 手机号 / 门店"
+        placeholder-class="input-placeholder"
+      />
+      <view class="headline-row toolbar-row">
+        <view class="card-desc">共 {{pageData.users.length}} 人，当前显示 {{visibleUsers.length}} 人</view>
+        <button wx:if="{{keyword}}" class="secondary-button clear-button" bindtap="onClearKeyword">清空</button>
+      </view>
+    </view>
+
+    <view wx:if="{{loading}}" class="page-loading">正在读取人员列表...</view>
+
+    <view wx:elif="{{!visibleUsers.length}}" class="card">
+      <view class="empty-text">暂无匹配人员</view>
+    </view>
+
+    <block wx:else>
+      <view wx:for="{{visibleUsers}}" wx:key="id" class="card user-card">
+        <view class="headline-row user-head">
+          <view class="user-main">
+            <view class="avatar-square user-avatar">{{item.avatarText}}</view>
+            <view class="user-text">
+              <view class="user-name-row">
+                <view class="user-name">{{item.name}}</view>
+                <view wx:if="{{item.id === pageData.currentUserId}}" class="info-chip self-chip">当前账号</view>
+              </view>
+              <view class="user-phone">{{item.phone || '未绑定手机号'}}</view>
+            </view>
+          </view>
+          <view class="user-side">
+            <view class="user-role-chip role-{{item.roleKey}}">{{item.roleLabel}}</view>
+            <view class="store-badge store-chip">{{item.homeStoreName || '未分配门店'}}</view>
+          </view>
+        </view>
+
+        <view class="meta-grid">
+          <view class="meta-item">
+            <view class="meta-label">账号状态</view>
+            <view class="meta-value">{{item.statusLabel}}</view>
+          </view>
+          <view class="meta-item">
+            <view class="meta-label">角色编码</view>
+            <view class="meta-value">{{item.role}}</view>
+          </view>
+        </view>
+
+        <button
+          class="secondary-button role-action-button"
+          data-user-id="{{item.id}}"
+          bindtap="onChangeRole"
+          loading="{{submittingUserId === item.id}}"
+          disabled="{{item.id === pageData.currentUserId || submittingUserId !== ''}}"
+        >
+          {{item.id === pageData.currentUserId ? '当前登录管理员不可在此页改权' : '更改身份权限'}}
+        </button>
+      </view>
+    </block>
+  </block>
+
+  <app-tabbar id="tabbar" current="/pages/admin/index"></app-tabbar>
+</view>

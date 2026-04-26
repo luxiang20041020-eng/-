@@ -1,0 +1,152 @@
+.form-input {
+  width: 100%;
+  margin-top: 16rpx;
+  padding: 20rpx;
+  border: 1rpx solid #343434;
+  border-radius: 14rpx;
+  background: #101010;
+  color: #f5f5f5;
+  font-size: 26rpx;
+}
+
+.input-placeholder {
+  color: #707070;
+}
+
+.toolbar-row {
+  margin-top: 14rpx;
+}
+
+.clear-button {
+  width: auto;
+  min-width: 110rpx;
+  padding: 0 20rpx;
+  font-size: 22rpx;
+}
+
+.user-card {
+  padding: 22rpx;
+}
+
+.user-head {
+  align-items: flex-start;
+  gap: 16rpx;
+}
+
+.user-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.user-avatar {
+  flex-shrink: 0;
+}
+
+.user-text {
+  flex: 1;
+  min-width: 0;
+  margin-left: 16rpx;
+}
+
+.user-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  flex-wrap: wrap;
+}
+
+.user-name {
+  font-size: 32rpx;
+  line-height: 1.2;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.self-chip {
+  min-height: 38rpx;
+  padding: 0 12rpx;
+  font-size: 18rpx;
+}
+
+.user-phone {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #8c8c8c;
+}
+
+.user-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10rpx;
+  flex-shrink: 0;
+}
+
+.user-role-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46rpx;
+  padding: 0 16rpx;
+  border: 1rpx solid #2f2f2f;
+  background: #121212;
+  color: #f4f4f4;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.user-role-chip.role-admin {
+  border-color: #ff3434;
+  background: #ff3434;
+  color: #ffffff;
+}
+
+.user-role-chip.role-coach {
+  border-color: #ff8c32;
+  background: rgba(255, 140, 50, 0.16);
+  color: #ffb36e;
+}
+
+.user-role-chip.role-client {
+  border-color: #2e2e2e;
+  background: #151515;
+  color: #d2d2d2;
+}
+
+.store-chip {
+  min-height: 40rpx;
+  padding: 0 14rpx;
+  font-size: 18rpx;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12rpx;
+  margin-top: 18rpx;
+}
+
+.meta-item {
+  padding: 16rpx;
+  border: 1rpx solid #242424;
+  background: #0b0b0b;
+}
+
+.meta-label {
+  font-size: 18rpx;
+  letter-spacing: 2rpx;
+  color: #787878;
+}
+
+.meta-value {
+  margin-top: 10rpx;
+  font-size: 26rpx;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.role-action-button {
+  margin-top: 18rpx;
+}
