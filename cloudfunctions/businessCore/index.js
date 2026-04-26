@@ -462,6 +462,10 @@ function buildUserStatusLabel(status) {
   return Number(status) === 1 ? '正常' : '停用'
 }
 
+function buildPackageStatusLabel(status) {
+  return Number(status) === 1 ? '已上架' : '已下架'
+}
+
 function buildUserLevelText(user) {
   const role = mapUserRoleToPageRole(user && user.role)
   if (role === 'coach') {
@@ -811,6 +815,19 @@ function buildAdminUserManageItem(user, storeMap) {
   }
 }
 
+function buildAdminPackageManageItem(packageDoc) {
+  return {
+    id: packageDoc._id,
+    name: packageDoc.name || '未命名套餐',
+    type: mapAssetTypeToPageType(packageDoc.asset_type),
+    typeLabel: mapAssetTypeToLabel(packageDoc.asset_type),
+    lessons: Number(packageDoc.course_count || 0),
+    price: Number(packageDoc.display_price || 0),
+    status: Number(packageDoc.status || 0),
+    statusLabel: buildPackageStatusLabel(packageDoc.status),
+  }
+}
+
 function getScheduleVenueName(schedule, storeMap) {
   if (!schedule) {
     return ''
@@ -1043,6 +1060,75 @@ async function getWorkspaceViewData(event) {
   }
 }
 
+async function getDistributeViewData(event) {
+  const payload = event.payload || {}
+  const keyword = String(payload.keyword || '').trim()
+
+  try {
+    const operator = await getCurrentAuthedUser()
+    if (!operator) {
+      return buildFail('请先完成登录', 'DISTRIBUTE_LOGIN_REQUIRED')
+    }
+    if (Number(operator.role) < 2) {
+      return buildFail('当前账号没有派课权限', 'DISTRIBUTE_FORBIDDEN')
+    }
+
+    const [members, packages, assets, storeRes] = await Promise.all([
+      listAllCollection(COLLECTIONS.USER, { is_deleted: false, status: 1, role: 1 }, {
+        orderByField: 'updated_at',
+        orderDirection: 'desc',
+      }),
+      listAllCollection(COLLECTIONS.PACKAGE, { is_deleted: false, status: 1 }, {
+        orderByField: 'updated_at',
+        orderDirection: 'desc',
+      }),
+      listAllCollection(COLLECTIONS.USER_ASSET, { is_deleted: false }, {
+        orderByField: 'updated_at',
+        orderDirection: 'desc',
+      }),
+      payload.storeId ? getDocById(COLLECTIONS.STORE, payload.storeId) : Promise.resolve({ data: null }),
+    ])
+
+    const visibleMembers = members
+      .filter((item) => {
+        if (!keyword) {
+          return true
+        }
+        return [item.real_name, item.phone].some((field) => String(field || '').includes(keyword))
+      })
+      .sort((left, right) => String(left.real_name || left.phone || left._id).localeCompare(String(right.real_name || right.phone || right._id), 'zh-CN'))
+      .map((item) => {
+        const assetView = buildAssetView(assets.filter((asset) => asset.user_id === item._id))
+        return {
+          id: item._id,
+          nickname: item.real_name || item.phone || '未命名学员',
+          phone: item.phone || '',
+          privateCount: assetView.privateCount,
+          groupCount: assetView.groupCount,
+        }
+      })
+
+    const packageOptions = packages
+      .slice()
+      .sort((left, right) => Number(left.display_price || 0) - Number(right.display_price || 0))
+      .map((item) => ({
+        id: item._id,
+        name: item.name,
+        type: mapAssetTypeToPageType(item.asset_type),
+        lessons: Number(item.course_count || 0),
+        price: Number(item.display_price || 0),
+      }))
+
+    return buildSuccess({
+      members: visibleMembers,
+      packageOptions,
+      currentStore: buildStoreView(storeRes.data),
+    })
+  } catch (error) {
+    return buildFail('读取派课页面数据失败：' + (error.errMsg || error.message || error), 'DISTRIBUTE_VIEW_ERROR')
+  }
+}
+
 async function getAdminDashboardData(event) {
   const payload = event.payload || {}
 
@@ -1140,6 +1226,38 @@ async function getAdminUserManageData() {
   }
 }
 
+async function getAdminPackageManageData() {
+  try {
+    await ensureAdminOperator()
+    const packages = await listAllCollection(COLLECTIONS.PACKAGE, { is_deleted: false }, {
+      orderByField: 'updated_at',
+      orderDirection: 'desc',
+    })
+
+    const safePackages = packages
+      .slice()
+      .sort((left, right) => {
+        const statusDiff = Number(right.status || 0) - Number(left.status || 0)
+        if (statusDiff !== 0) {
+          return statusDiff
+        }
+        return String(left.name || left._id).localeCompare(String(right.name || right._id), 'zh-CN')
+      })
+      .map((item) => buildAdminPackageManageItem(item))
+
+    return buildSuccess({
+      stats: {
+        total: safePackages.length,
+        activeCount: safePackages.filter((item) => item.status === 1).length,
+        inactiveCount: safePackages.filter((item) => item.status !== 1).length,
+      },
+      packages: safePackages,
+    })
+  } catch (error) {
+    return buildFail('读取套餐管理列表失败：' + (error.errMsg || error.message || error), 'ADMIN_PACKAGE_MANAGE_VIEW_ERROR')
+  }
+}
+
 async function updateUserRole(event) {
   const payload = event.payload || {}
   const nextRole = Number(payload.nextRole)
@@ -1192,6 +1310,107 @@ async function updateUserRole(event) {
     })
   } catch (error) {
     return buildFail('更新人员权限失败：' + (error.errMsg || error.message || error), 'UPDATE_USER_ROLE_ERROR')
+  }
+}
+
+async function createPackage(event) {
+  const payload = event.payload || {}
+  const packageName = String(payload.name || '').trim()
+  const packageType = String(payload.type || '').trim()
+  const lessons = Number(payload.lessons)
+  const price = Number(payload.price)
+  const nextStatus = Number(payload.status)
+
+  if (!packageName) {
+    return buildFail('套餐名称不能为空', 'INVALID_CREATE_PACKAGE_PAYLOAD')
+  }
+  if (!['group', 'private'].includes(packageType)) {
+    return buildFail('套餐类型非法', 'INVALID_CREATE_PACKAGE_PAYLOAD')
+  }
+  if (!Number.isFinite(lessons) || lessons <= 0) {
+    return buildFail('课时数必须大于 0', 'INVALID_CREATE_PACKAGE_PAYLOAD')
+  }
+  if (!Number.isFinite(price) || price < 0) {
+    return buildFail('展示价不能小于 0', 'INVALID_CREATE_PACKAGE_PAYLOAD')
+  }
+  if (![0, 1].includes(nextStatus)) {
+    return buildFail('status 非法', 'INVALID_CREATE_PACKAGE_PAYLOAD')
+  }
+
+  try {
+    await ensureAdminOperator()
+    const addRes = await db.collection(COLLECTIONS.PACKAGE).add({
+      data: {
+        name: packageName,
+        asset_type: packageType === 'group' ? ASSET_TYPE.GROUP : ASSET_TYPE.PRIVATE,
+        course_count: Math.floor(lessons),
+        display_price: Number(price.toFixed(2)),
+        status: nextStatus,
+        created_at: db.serverDate(),
+        updated_at: db.serverDate(),
+        is_deleted: false,
+      },
+    })
+
+    return buildSuccess({
+      packageInfo: buildAdminPackageManageItem({
+        _id: addRes._id,
+        name: packageName,
+        asset_type: packageType === 'group' ? ASSET_TYPE.GROUP : ASSET_TYPE.PRIVATE,
+        course_count: Math.floor(lessons),
+        display_price: Number(price.toFixed(2)),
+        status: nextStatus,
+      }),
+    })
+  } catch (error) {
+    return buildFail('创建套餐失败：' + (error.errMsg || error.message || error), 'CREATE_PACKAGE_ERROR')
+  }
+}
+
+async function updatePackageStatus(event) {
+  const payload = event.payload || {}
+  const nextStatus = Number(payload.nextStatus)
+
+  if (!payload.targetPackageId) {
+    return buildFail('targetPackageId 不能为空', 'INVALID_UPDATE_PACKAGE_STATUS_PAYLOAD')
+  }
+  if (![0, 1].includes(nextStatus)) {
+    return buildFail('nextStatus 非法', 'INVALID_UPDATE_PACKAGE_STATUS_PAYLOAD')
+  }
+
+  try {
+    await ensureAdminOperator()
+    const packageRes = await getDocById(COLLECTIONS.PACKAGE, payload.targetPackageId)
+    const targetPackage = packageRes.data
+    if (!targetPackage || targetPackage.is_deleted) {
+      return buildFail('目标套餐不存在', 'TARGET_PACKAGE_NOT_FOUND')
+    }
+
+    if (Number(targetPackage.status || 0) === nextStatus) {
+      return buildSuccess({
+        changed: false,
+        packageInfo: buildAdminPackageManageItem(targetPackage),
+      })
+    }
+
+    await db.collection(COLLECTIONS.PACKAGE).doc(payload.targetPackageId).update({
+      data: {
+        status: nextStatus,
+        updated_at: db.serverDate(),
+      },
+    })
+
+    const updatedPackage = Object.assign({}, targetPackage, {
+      status: nextStatus,
+      updated_at: new Date().toISOString(),
+    })
+
+    return buildSuccess({
+      changed: true,
+      packageInfo: buildAdminPackageManageItem(updatedPackage),
+    })
+  } catch (error) {
+    return buildFail('更新套餐上下架状态失败：' + (error.errMsg || error.message || error), 'UPDATE_PACKAGE_STATUS_ERROR')
   }
 }
 
@@ -1761,16 +1980,24 @@ exports.main = async (event) => {
       return getProfileViewData(event)
     case 'getWorkspaceViewData':
       return getWorkspaceViewData(event)
+    case 'getDistributeViewData':
+      return getDistributeViewData(event)
     case 'getAdminDashboardData':
       return getAdminDashboardData(event)
     case 'getAdminUserManageData':
       return getAdminUserManageData()
+    case 'getAdminPackageManageData':
+      return getAdminPackageManageData()
+    case 'createPackage':
+      return createPackage(event)
     case 'getCoachClassViewData':
       return getCoachClassViewData(event)
     case 'getCoachScheduleViewData':
       return getCoachScheduleViewData(event)
     case 'updateUserRole':
       return updateUserRole(event)
+    case 'updatePackageStatus':
+      return updatePackageStatus(event)
     case 'distributeAsset':
       return createAssetDistribution(event)
     case 'createBooking':

@@ -23,10 +23,28 @@ Page({
       wx.reLaunch({ url: '/pages/login/index' })
       return
     }
-    this.setData({
-      runtime,
-      pageData: app.getDistributePageData(this.data.keyword),
-    })
+    if (!['coach', 'admin'].includes(runtime.role)) {
+      wx.showToast({
+        title: '当前身份没有派课权限',
+        icon: 'none',
+      })
+      return
+    }
+    try {
+      const pageData = await businessApi.getDistributeViewData({
+        storeId: runtime.currentStore.id,
+        keyword: this.data.keyword,
+      })
+      this.setData({
+        runtime,
+        pageData,
+      })
+    } catch (error) {
+      this.setData({
+        runtime,
+        pageData: app.getDistributePageData(this.data.keyword),
+      })
+    }
   },
 
   onKeywordInput(event) {

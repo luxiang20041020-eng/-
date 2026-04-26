@@ -9,7 +9,8 @@
     "pages/workspace/class/index",
     "pages/workspace/schedule/index",
     "pages/admin/index",
-    "pages/admin/users/index"
+    "pages/admin/users/index",
+    "pages/admin/packages/index"
   ],
   "window": {
     "backgroundColor": "#121212",

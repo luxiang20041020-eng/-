@@ -51,6 +51,11 @@ async function getWorkspaceViewData(payload) {
   return unwrapResult(response)
 }
 
+async function getDistributeViewData(payload) {
+  const response = await callBusinessCore('getDistributeViewData', payload)
+  return unwrapResult(response)
+}
+
 async function getAdminDashboardData(payload) {
   const response = await callBusinessCore('getAdminDashboardData', payload)
   return unwrapResult(response)
@@ -58,6 +63,16 @@ async function getAdminDashboardData(payload) {
 
 async function getAdminUserManageData(payload) {
   const response = await callBusinessCore('getAdminUserManageData', payload)
+  return unwrapResult(response)
+}
+
+async function getAdminPackageManageData(payload) {
+  const response = await callBusinessCore('getAdminPackageManageData', payload)
+  return unwrapResult(response)
+}
+
+async function createPackage(payload) {
+  const response = await callBusinessCore('createPackage', payload)
   return unwrapResult(response)
 }
 
@@ -101,6 +116,11 @@ async function updateUserRole(payload) {
   return unwrapResult(response)
 }
 
+async function updatePackageStatus(payload) {
+  const response = await callBusinessCore('updatePackageStatus', payload)
+  return unwrapResult(response)
+}
+
 module.exports = {
   bootstrapCollections,
   getCurrentUserSession,
@@ -109,8 +129,11 @@ module.exports = {
   getBookingViewData,
   getProfileViewData,
   getWorkspaceViewData,
+  getDistributeViewData,
   getAdminDashboardData,
   getAdminUserManageData,
+  getAdminPackageManageData,
+  createPackage,
   getCoachClassViewData,
   getCoachScheduleViewData,
   distributeAsset,
@@ -119,4 +142,5 @@ module.exports = {
   writeOffBooking,
   createCoachSchedule,
   updateUserRole,
+  updatePackageStatus,
 }

@@ -1,0 +1,193 @@
+<view class="page-shell">
+  <view class="page-header">
+    <view>
+      <view class="eyebrow">ADMIN · PACKAGE MATRIX</view>
+      <view class="page-title">套餐上下架</view>
+      <view class="page-subtitle">控制首页价目表与派课入口里可见的套餐。</view>
+    </view>
+    <view class="role-badge">管理员</view>
+  </view>
+
+  <view wx:if="{{!hasPermission}}" class="card">
+    <view class="section-title">ACCESS DENIED</view>
+    <view class="card-desc">当前账号不是管理员，无法调整套餐上下架状态。</view>
+  </view>
+
+  <block wx:else>
+    <view class="card">
+      <view class="section-title">OVERVIEW · 套餐概览</view>
+      <view class="metric-grid">
+        <view class="metric-item">
+          <view class="metric-label">TOTAL</view>
+          <view class="metric-value">{{pageData.stats.total}}</view>
+          <view class="metric-note">全部套餐</view>
+        </view>
+        <view class="metric-item">
+          <view class="metric-label">ONLINE</view>
+          <view class="metric-value">{{pageData.stats.activeCount}}</view>
+          <view class="metric-note">已上架</view>
+        </view>
+        <view class="metric-item">
+          <view class="metric-label">OFFLINE</view>
+          <view class="metric-value">{{pageData.stats.inactiveCount}}</view>
+          <view class="metric-note">已下架</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title section-title-no-gap">FILTER · 套餐筛选</view>
+      <view class="create-entry" bindtap="onOpenCreatePopup">
+        <view class="create-entry-mark">+</view>
+        <view class="create-entry-main">
+          <view class="create-entry-kicker">CREATE PACKAGE</view>
+          <view class="create-entry-title">新建套餐</view>
+          <view class="create-entry-desc">新增团课或私教套餐，并决定是否立即上架。</view>
+        </view>
+        <view class="create-entry-arrow">></view>
+      </view>
+      <input
+        class="form-input"
+        value="{{keyword}}"
+        bindinput="onKeywordInput"
+        placeholder="输入套餐名搜索"
+        placeholder-class="input-placeholder"
+      />
+      <view class="filter-row">
+        <view class="filter-label">状态</view>
+        <view class="filter-chip-row">
+          <view class="outline-chip {{statusFilter === 'all' ? 'active' : ''}}" data-value="all" bindtap="onStatusFilterChange">全部</view>
+          <view class="outline-chip {{statusFilter === 'active' ? 'active' : ''}}" data-value="active" bindtap="onStatusFilterChange">已上架</view>
+          <view class="outline-chip {{statusFilter === 'inactive' ? 'active' : ''}}" data-value="inactive" bindtap="onStatusFilterChange">已下架</view>
+        </view>
+      </view>
+      <view class="filter-row">
+        <view class="filter-label">类型</view>
+        <view class="filter-chip-row">
+          <view class="outline-chip {{typeFilter === 'all' ? 'active' : ''}}" data-value="all" bindtap="onTypeFilterChange">全部</view>
+          <view class="outline-chip {{typeFilter === 'group' ? 'active' : ''}}" data-value="group" bindtap="onTypeFilterChange">团课</view>
+          <view class="outline-chip {{typeFilter === 'private' ? 'active' : ''}}" data-value="private" bindtap="onTypeFilterChange">私教</view>
+        </view>
+      </view>
+      <view class="headline-row toolbar-row">
+        <view class="card-desc">当前显示 {{visiblePackages.length}} 个套餐</view>
+        <button wx:if="{{keyword}}" class="secondary-button clear-button" bindtap="onClearKeyword">清空</button>
+      </view>
+    </view>
+
+    <view wx:if="{{loading}}" class="page-loading">正在读取套餐列表...</view>
+
+    <view wx:elif="{{!visiblePackages.length}}" class="card">
+      <view class="empty-text">暂无匹配套餐</view>
+    </view>
+
+    <block wx:else>
+      <view wx:for="{{visiblePackages}}" wx:key="id" class="card package-card">
+        <view class="headline-row package-head">
+          <view class="package-title-wrap">
+            <view class="pricing-tag {{item.type === 'private' ? 'is-private' : 'is-group'}}">{{item.type === 'private' ? 'PRIVATE' : 'GROUP'}}</view>
+            <view class="package-name">{{item.name}}</view>
+          </view>
+          <view class="package-status-chip status-{{item.status === 1 ? 'active' : 'inactive'}}">{{item.statusLabel}}</view>
+        </view>
+
+        <view class="package-meta-row">
+          <view class="package-meta-item">
+            <view class="meta-label">课时数</view>
+            <view class="meta-value">{{item.lessons}} 节</view>
+          </view>
+          <view class="package-meta-item">
+            <view class="meta-label">展示价</view>
+            <view class="meta-value">￥{{item.priceText}}</view>
+          </view>
+          <view class="package-meta-item">
+            <view class="meta-label">类型</view>
+            <view class="meta-value">{{item.typeLabel}}</view>
+          </view>
+        </view>
+
+        <button
+          class="secondary-button package-action-button {{item.actionMode === 'on' ? 'action-on' : 'action-off'}}"
+          data-package-id="{{item.id}}"
+          bindtap="onTogglePackageStatus"
+          loading="{{submittingPackageId === item.id}}"
+          disabled="{{submittingPackageId !== ''}}"
+        >
+          {{item.actionText}}
+        </button>
+      </view>
+    </block>
+  </block>
+
+  <view wx:if="{{showCreatePopup}}" class="modal-mask" bindtap="onCloseCreatePopup">
+    <view class="modal-panel" catchtap="noop">
+      <view class="headline-row">
+        <view>
+          <view class="section-title section-title-no-gap">CREATE · 新建套餐</view>
+          <view class="card-desc">新建后会按上架状态进入首页价目表与派课入口。</view>
+        </view>
+        <view class="modal-close" bindtap="onCloseCreatePopup">×</view>
+      </view>
+
+      <view class="field-block">
+        <view class="field-label">套餐名称</view>
+        <input
+          class="form-input"
+          value="{{createForm.name}}"
+          data-field="name"
+          bindinput="onCreateFieldInput"
+          placeholder="如：12 节私教入门卡"
+          placeholder-class="input-placeholder"
+        />
+      </view>
+
+      <view class="field-block">
+        <view class="field-label">套餐类型</view>
+        <view class="filter-chip-row">
+          <view class="outline-chip {{createForm.type === 'private' ? 'active' : ''}}" data-value="private" bindtap="onCreateTypeChange">私教</view>
+          <view class="outline-chip {{createForm.type === 'group' ? 'active' : ''}}" data-value="group" bindtap="onCreateTypeChange">团课</view>
+        </view>
+      </view>
+
+      <view class="field-block">
+        <view class="field-label">课时数</view>
+        <input
+          class="form-input"
+          type="number"
+          value="{{createForm.lessons}}"
+          data-field="lessons"
+          bindinput="onCreateFieldInput"
+          placeholder="请输入课时数"
+          placeholder-class="input-placeholder"
+        />
+      </view>
+
+      <view class="field-block">
+        <view class="field-label">展示价</view>
+        <input
+          class="form-input"
+          type="digit"
+          value="{{createForm.price}}"
+          data-field="price"
+          bindinput="onCreateFieldInput"
+          placeholder="请输入展示价"
+          placeholder-class="input-placeholder"
+        />
+      </view>
+
+      <view class="field-block">
+        <view class="row-between">
+          <view class="field-label">创建后立即上架</view>
+          <switch checked="{{createForm.status === 1}}" color="#ff3434" bindchange="onCreateStatusChange" />
+        </view>
+      </view>
+
+      <view class="button-row modal-button-row">
+        <button class="secondary-button" bindtap="onCloseCreatePopup" disabled="{{creatingPackage}}">取消</button>
+        <button class="primary-button" bindtap="onSubmitCreatePackage" loading="{{creatingPackage}}">确认创建</button>
+      </view>
+    </view>
+  </view>
+
+  <app-tabbar id="tabbar" current="/pages/admin/index"></app-tabbar>
+</view>

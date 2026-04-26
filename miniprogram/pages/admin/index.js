@@ -50,6 +50,12 @@ Page({
     })
   },
 
+  onOpenPackageManage() {
+    wx.navigateTo({
+      url: '/pages/admin/packages/index',
+    })
+  },
+
   async onBootstrap() {
     if (this.data.bootstrapLoading) {
       return

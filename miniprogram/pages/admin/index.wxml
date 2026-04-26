@@ -89,7 +89,7 @@
           <view class="admin-card-title">人员权限管理</view>
           <view class="admin-card-desc">用户 / 角色矩阵</view>
         </view>
-        <view class="admin-tool-card">
+        <view class="admin-tool-card" bindtap="onOpenPackageManage">
           <view class="admin-card-title">套餐上下架</view>
           <view class="admin-card-desc">面向价目板配置</view>
         </view>
