@@ -1,17 +1,4 @@
 <view class="page-shell">
-  <view class="brand-bar">
-    <view class="brand-left">
-      <view class="brand-logo">IF</view>
-      <view class="brand-text">
-        <view class="brand-name">IRONFIST</view>
-        <view class="brand-demo">/ DEMO</view>
-      </view>
-    </view>
-    <view class="role-strip">
-      <view wx:for="{{runtime.roleList}}" wx:key="value" class="role-chip {{runtime.role === item.value ? 'active' : ''}}">{{item.label}}</view>
-    </view>
-  </view>
-
   <view class="page-header">
     <view class="eyebrow">BOOKING · 选课 · 扣课课时</view>
     <view class="headline-row booking-title-row">

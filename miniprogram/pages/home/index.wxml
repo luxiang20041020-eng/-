@@ -21,7 +21,7 @@
       <view class="home-hero-copy">
         <view class="home-hero-kicker">EST. 2018 · CHENGDU</view>
         <view class="home-hero-title">IRONFIST</view>
-        <view class="home-hero-subtitle">铁拳 · 泰拳搏击馆</view>
+        <view class="home-hero-subtitle">ONE · 泰拳搏击馆</view>
       </view>
       <view class="home-hero-stat">
         <view class="home-hero-stat-value">{{pageData.coachCountText}}</view>
