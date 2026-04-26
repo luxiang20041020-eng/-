@@ -59,7 +59,7 @@ function buildClassSummary(schedule, roster) {
 App({
   onLaunch() {
     this.globalData = {
-      env: 'cloud1-5g4kw3ux8649ea3e',
+      env: 'cloud1-d0go5nfchb64419d5',
       role: 'client',
       selectedStoreId: STORE_LIST[0].id,
       selectedCoachClassId: TODAY_CLASSES[0].id,
