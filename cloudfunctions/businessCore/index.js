@@ -46,6 +46,18 @@ const SCHEDULE_STATUS = {
 
 const WEEKDAY_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
 
+const ROLE_VALUE_MAP = {
+  1: 'client',
+  2: 'coach',
+  3: 'admin',
+}
+
+const ROLE_LABEL_MAP = {
+  1: '客户',
+  2: '教练',
+  3: '管理员',
+}
+
 const storeSeeds = [
   {
     _id: 'gaoxin',
@@ -430,6 +442,52 @@ function normalizeAmount(value) {
   return Number(value || 0)
 }
 
+function mapUserRoleToPageRole(role) {
+  return ROLE_VALUE_MAP[Number(role)] || 'client'
+}
+
+function mapUserRoleToLabel(role) {
+  return ROLE_LABEL_MAP[Number(role)] || '客户'
+}
+
+function buildRoleOptions() {
+  return [1, 2, 3].map((value) => ({
+    value,
+    key: mapUserRoleToPageRole(value),
+    label: mapUserRoleToLabel(value),
+  }))
+}
+
+function buildUserStatusLabel(status) {
+  return Number(status) === 1 ? '正常' : '停用'
+}
+
+function buildUserLevelText(user) {
+  const role = mapUserRoleToPageRole(user && user.role)
+  if (role === 'coach') {
+    return user.coach_title || (user.level_label ? user.level_label + '教练' : '教练')
+  }
+  if (role === 'admin') {
+    return '门店运营管理员'
+  }
+  return '综合格斗会员'
+}
+
+function buildUserProfileView(user) {
+  if (!user) {
+    return null
+  }
+  return {
+    id: user._id,
+    nickname: user.real_name || user.phone || '未命名用户',
+    phone: user.phone || '',
+    levelText: buildUserLevelText(user),
+    homeStoreId: user.home_store_id || '',
+    role: mapUserRoleToPageRole(user.role),
+    roleLabel: mapUserRoleToLabel(user.role),
+  }
+}
+
 function mapClassTypeToAssetType(classType) {
   return Number(classType) === ASSET_TYPE.GROUP ? ASSET_TYPE.GROUP : ASSET_TYPE.PRIVATE
 }
@@ -517,6 +575,11 @@ async function seedCollectionIfEmpty(collectionName, docs) {
 
 async function getDocById(collectionName, docId) {
   return db.collection(collectionName).doc(docId).get()
+}
+
+async function getFirstUserByWhere(where) {
+  const list = await listCollection(COLLECTIONS.USER, where)
+  return list[0] || null
 }
 
 async function ensureBaseCollectionsAndSeeds() {
@@ -655,6 +718,33 @@ async function listCollection(collectionName, where = {}) {
   return res.data || []
 }
 
+async function listAllCollection(collectionName, where = {}, options = {}) {
+  const pageSize = Math.min(Number(options.pageSize) || 100, 100)
+  const max = Number(options.max) || 0
+  let skip = 0
+  let result = []
+  let hasMore = true
+
+  while (hasMore) {
+    let query = db.collection(collectionName).where(where)
+    if (options.orderByField) {
+      query = query.orderBy(options.orderByField, options.orderDirection === 'asc' ? 'asc' : 'desc')
+    }
+
+    const res = await query.skip(skip).limit(pageSize).get()
+    const data = res.data || []
+    result = result.concat(data)
+    skip += data.length
+    hasMore = data.length === pageSize
+
+    if (max > 0 && result.length >= max) {
+      return result.slice(0, max)
+    }
+  }
+
+  return result
+}
+
 function buildStoreView(store) {
   if (!store) {
     return null
@@ -663,6 +753,61 @@ function buildStoreView(store) {
     id: store._id,
     name: store.name,
     address: store.address,
+  }
+}
+
+async function buildUserSession(user) {
+  const stores = await listCollection(COLLECTIONS.STORE, { is_deleted: false, status: 1 })
+  const userProfile = buildUserProfileView(user)
+  const homeStoreId = userProfile && userProfile.homeStoreId ? userProfile.homeStoreId : (stores[0] ? stores[0]._id : '')
+  const currentStore = stores.find((item) => item._id === homeStoreId) || stores[0] || null
+
+  return {
+    loggedIn: Boolean(userProfile),
+    role: userProfile ? userProfile.role : 'client',
+    userProfile,
+    currentStore: buildStoreView(currentStore),
+    stores: stores.map(buildStoreView),
+  }
+}
+
+async function getCurrentAuthedUser() {
+  const wxContext = cloud.getWXContext()
+  if (!wxContext.OPENID) {
+    return null
+  }
+
+  return getFirstUserByWhere({
+    is_deleted: false,
+    status: 1,
+    openid: wxContext.OPENID,
+  })
+}
+
+async function ensureAdminOperator() {
+  const currentUser = await getCurrentAuthedUser()
+  if (!currentUser) {
+    throw new Error('请先完成管理员登录')
+  }
+  if (Number(currentUser.role) !== 3) {
+    throw new Error('当前账号没有管理员权限')
+  }
+  return currentUser
+}
+
+function buildAdminUserManageItem(user, storeMap) {
+  const homeStore = user && user.home_store_id && storeMap ? storeMap.get(user.home_store_id) : null
+  return {
+    id: user._id,
+    name: user.real_name || user.phone || '未命名用户',
+    phone: user.phone || '',
+    role: Number(user.role || 1),
+    roleKey: mapUserRoleToPageRole(user.role),
+    roleLabel: mapUserRoleToLabel(user.role),
+    homeStoreId: user.home_store_id || '',
+    homeStoreName: homeStore ? homeStore.name : '',
+    status: Number(user.status || 0),
+    statusLabel: buildUserStatusLabel(user.status),
   }
 }
 
@@ -902,6 +1047,7 @@ async function getAdminDashboardData(event) {
   const payload = event.payload || {}
 
   try {
+    await ensureAdminOperator()
     const [logs, bookings, packages, stores, users] = await Promise.all([
       listCollection(COLLECTIONS.USER_ASSET_LOG, { is_deleted: false }),
       listCollection(COLLECTIONS.BOOKING, { is_deleted: false }),
@@ -956,6 +1102,96 @@ async function getAdminDashboardData(event) {
     })
   } catch (error) {
     return buildFail('读取管理员看板失败：' + (error.errMsg || error.message || error), 'ADMIN_VIEW_ERROR')
+  }
+}
+
+async function getAdminUserManageData() {
+  try {
+    const operator = await ensureAdminOperator()
+    const [users, stores] = await Promise.all([
+      listAllCollection(COLLECTIONS.USER, { is_deleted: false }, {
+        orderByField: 'updated_at',
+        orderDirection: 'desc',
+      }),
+      listAllCollection(COLLECTIONS.STORE, { is_deleted: false }, {
+        orderByField: 'updated_at',
+        orderDirection: 'desc',
+      }),
+    ])
+    const storeMap = new Map(stores.map((item) => [item._id, item]))
+    const safeUsers = users
+      .slice()
+      .sort((left, right) => {
+        const roleDiff = Number(right.role || 0) - Number(left.role || 0)
+        if (roleDiff !== 0) {
+          return roleDiff
+        }
+        return String(left.real_name || left.phone || left._id).localeCompare(String(right.real_name || right.phone || right._id), 'zh-CN')
+      })
+      .map((item) => buildAdminUserManageItem(item, storeMap))
+
+    return buildSuccess({
+      currentUserId: operator._id,
+      roleOptions: buildRoleOptions(),
+      users: safeUsers,
+    })
+  } catch (error) {
+    return buildFail('读取人员权限列表失败：' + (error.errMsg || error.message || error), 'ADMIN_USER_MANAGE_VIEW_ERROR')
+  }
+}
+
+async function updateUserRole(event) {
+  const payload = event.payload || {}
+  const nextRole = Number(payload.nextRole)
+
+  if (!payload.targetUserId) {
+    return buildFail('targetUserId 不能为空', 'INVALID_UPDATE_USER_ROLE_PAYLOAD')
+  }
+  if (!ROLE_VALUE_MAP[nextRole]) {
+    return buildFail('nextRole 非法', 'INVALID_UPDATE_USER_ROLE_PAYLOAD')
+  }
+
+  try {
+    const operator = await ensureAdminOperator()
+    if (payload.targetUserId === operator._id && nextRole !== 3) {
+      return buildFail('当前登录管理员不能在此页取消自己的管理员权限', 'ADMIN_SELF_ROLE_LOCKED')
+    }
+
+    const userRes = await getDocById(COLLECTIONS.USER, payload.targetUserId)
+    const targetUser = userRes.data
+    if (!targetUser || targetUser.is_deleted) {
+      return buildFail('目标用户不存在', 'TARGET_USER_NOT_FOUND')
+    }
+
+    if (Number(targetUser.role || 1) === nextRole) {
+      const stores = await listCollection(COLLECTIONS.STORE, { is_deleted: false })
+      const storeMap = new Map(stores.map((item) => [item._id, item]))
+      return buildSuccess({
+        changed: false,
+        user: buildAdminUserManageItem(targetUser, storeMap),
+      })
+    }
+
+    await db.collection(COLLECTIONS.USER).doc(payload.targetUserId).update({
+      data: {
+        role: nextRole,
+        updated_at: db.serverDate(),
+      },
+    })
+
+    const updatedUser = Object.assign({}, targetUser, {
+      role: nextRole,
+      updated_at: new Date().toISOString(),
+    })
+    const stores = await listCollection(COLLECTIONS.STORE, { is_deleted: false })
+    const storeMap = new Map(stores.map((item) => [item._id, item]))
+
+    return buildSuccess({
+      changed: true,
+      user: buildAdminUserManageItem(updatedUser, storeMap),
+    })
+  } catch (error) {
+    return buildFail('更新人员权限失败：' + (error.errMsg || error.message || error), 'UPDATE_USER_ROLE_ERROR')
   }
 }
 
@@ -1054,6 +1290,111 @@ async function getBootstrapData() {
     collections: COLLECTIONS,
     ...result,
   })
+}
+
+async function getCurrentUserSession() {
+  try {
+    const wxContext = cloud.getWXContext()
+    if (!wxContext.OPENID) {
+      return buildSuccess({
+        loggedIn: false,
+        role: 'client',
+        userProfile: null,
+        currentStore: null,
+        stores: [],
+      })
+    }
+
+    const currentUser = await getFirstUserByWhere({
+      is_deleted: false,
+      status: 1,
+      openid: wxContext.OPENID,
+    })
+
+    if (!currentUser) {
+      return buildSuccess({
+        loggedIn: false,
+        role: 'client',
+        userProfile: null,
+        currentStore: null,
+        stores: [],
+      })
+    }
+
+    return buildSuccess(await buildUserSession(currentUser))
+  } catch (error) {
+    return buildFail('读取当前登录态失败：' + (error.errMsg || error.message || error), 'GET_CURRENT_USER_SESSION_ERROR')
+  }
+}
+
+async function loginWithPhone(event) {
+  const payload = event.payload || {}
+  if (!payload.phoneCode) {
+    return buildFail('phoneCode 不能为空', 'INVALID_PHONE_LOGIN_PAYLOAD')
+  }
+
+  try {
+    const wxContext = cloud.getWXContext()
+    if (!wxContext.OPENID) {
+      return buildFail('未获取到 OPENID，请稍后重试', 'OPENID_NOT_FOUND')
+    }
+
+    const phoneRes = await cloud.openapi.phonenumber.getPhoneNumber({
+      code: payload.phoneCode,
+    })
+    const phoneInfo = phoneRes.phone_info || phoneRes.phoneInfo || {}
+    const purePhoneNumber = phoneInfo.purePhoneNumber || phoneInfo.phoneNumber || ''
+
+    if (!purePhoneNumber) {
+      return buildFail('未获取到手机号，请重新授权', 'PHONE_NUMBER_NOT_FOUND')
+    }
+
+    const stores = await listCollection(COLLECTIONS.STORE, { is_deleted: false, status: 1 })
+    const defaultStoreId = stores[0] ? stores[0]._id : ''
+    let currentUser = await getFirstUserByWhere({
+      is_deleted: false,
+      phone: purePhoneNumber,
+    })
+
+    if (currentUser) {
+      await db.collection(COLLECTIONS.USER).doc(currentUser._id).update({
+        data: {
+          openid: wxContext.OPENID,
+          status: 1,
+          updated_at: db.serverDate(),
+        },
+      })
+      currentUser = Object.assign({}, currentUser, {
+        openid: wxContext.OPENID,
+        status: 1,
+      })
+    } else {
+      const userId = 'u_' + Date.now()
+      const realName = payload.realName || ('新会员' + purePhoneNumber.slice(-4))
+      const nextUser = {
+        openid: wxContext.OPENID,
+        phone: purePhoneNumber,
+        real_name: realName,
+        avatar_url: '',
+        role: 1,
+        home_store_id: payload.storeId || defaultStoreId,
+        status: 1,
+        created_at: db.serverDate(),
+        updated_at: db.serverDate(),
+        is_deleted: false,
+      }
+      await db.collection(COLLECTIONS.USER).doc(userId).set({
+        data: nextUser,
+      })
+      currentUser = Object.assign({
+        _id: userId,
+      }, nextUser)
+    }
+
+    return buildSuccess(await buildUserSession(currentUser))
+  } catch (error) {
+    return buildFail('手机号登录失败：' + (error.errMsg || error.message || error), 'LOGIN_WITH_PHONE_ERROR')
+  }
 }
 
 async function createAssetDistribution(event) {
@@ -1408,6 +1749,10 @@ exports.main = async (event) => {
   switch (event.action) {
     case 'bootstrap':
       return getBootstrapData()
+    case 'getCurrentUserSession':
+      return getCurrentUserSession()
+    case 'loginWithPhone':
+      return loginWithPhone(event)
     case 'getHomeViewData':
       return getHomeViewData(event)
     case 'getBookingViewData':
@@ -1418,10 +1763,14 @@ exports.main = async (event) => {
       return getWorkspaceViewData(event)
     case 'getAdminDashboardData':
       return getAdminDashboardData(event)
+    case 'getAdminUserManageData':
+      return getAdminUserManageData()
     case 'getCoachClassViewData':
       return getCoachClassViewData(event)
     case 'getCoachScheduleViewData':
       return getCoachScheduleViewData(event)
+    case 'updateUserRole':
+      return updateUserRole(event)
     case 'distributeAsset':
       return createAssetDistribution(event)
     case 'createBooking':

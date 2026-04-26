@@ -20,7 +20,11 @@ Page({
 
   async syncPageData() {
     const app = getApp()
-    const runtime = app.getRuntimeSnapshot()
+    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    if (!runtime.isAuthenticated) {
+      wx.reLaunch({ url: '/pages/login/index' })
+      return
+    }
     try {
       const pageData = await businessApi.getCoachClassViewData({
         classId: this.data.classId || app.globalData.selectedCoachClassId,
@@ -40,6 +44,11 @@ Page({
   async onUpdateStatus(event) {
     const { bookingId, status } = event.currentTarget.dataset
     const app = getApp()
+    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    if (!runtime.isAuthenticated) {
+      wx.reLaunch({ url: '/pages/login/index' })
+      return
+    }
     let result = null
 
     if (this.data.submittingBookingId === bookingId) {
@@ -51,7 +60,7 @@ Page({
     try {
       await businessApi.writeOffBooking({
         bookingId,
-        operatorId: app.globalData.userProfile.id,
+        operatorId: runtime.userProfile.id,
         status: status === '已核销' ? 2 : 5,
       })
       result = app.applyCloudCheckinStatus(this.data.pageData.classInfo.id, bookingId, status)

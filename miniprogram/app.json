@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/login/index",
     "pages/home/index",
     "pages/booking/index",
     "pages/profile/index",
@@ -7,13 +8,14 @@
     "pages/workspace/distribute/index",
     "pages/workspace/class/index",
     "pages/workspace/schedule/index",
-    "pages/admin/index"
+    "pages/admin/index",
+    "pages/admin/users/index"
   ],
   "window": {
     "backgroundColor": "#121212",
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#121212",
-    "navigationBarTitleText": "铁拳泰拳",
+    "navigationBarTitleText": "ONE泰拳格斗馆",
     "navigationBarTextStyle": "white"
   },
   "sitemapLocation": "sitemap.json",

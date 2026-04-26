@@ -28,7 +28,7 @@
         <view class="admin-tool-label">DATE</view>
         <view class="admin-tool-value">2026-04-24</view>
       </view>
-      <view class="admin-toolbar-mid">至</view>
+      <view class="admin-toolbar-mid"> </view>
       <view class="admin-toolbar-left">
         <view class="admin-tool-label">STORE</view>
         <view class="admin-tool-value">{{pageData.currentStore.name}}</view>
@@ -85,7 +85,7 @@
           <view class="admin-card-title">发布系统公告</view>
           <view class="admin-card-desc">云端初始化与基础播报</view>
         </view>
-        <view class="admin-tool-card">
+        <view class="admin-tool-card" bindtap="onOpenUserManage">
           <view class="admin-card-title">人员权限管理</view>
           <view class="admin-card-desc">用户 / 角色矩阵</view>
         </view>

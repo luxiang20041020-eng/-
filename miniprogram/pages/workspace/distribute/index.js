@@ -16,10 +16,15 @@ Page({
     this.syncPageData()
   },
 
-  syncPageData() {
+  async syncPageData() {
     const app = getApp()
+    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    if (!runtime.isAuthenticated) {
+      wx.reLaunch({ url: '/pages/login/index' })
+      return
+    }
     this.setData({
-      runtime: app.getRuntimeSnapshot(),
+      runtime,
       pageData: app.getDistributePageData(this.data.keyword),
     })
   },
@@ -80,6 +85,11 @@ Page({
         }
 
         const app = getApp()
+        const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+        if (!runtime.isAuthenticated) {
+          wx.reLaunch({ url: '/pages/login/index' })
+          return
+        }
         const localPayload = {
           memberId: this.data.selectedMemberId,
           packageId: this.data.selectedPackageId,
@@ -93,7 +103,7 @@ Page({
           await businessApi.distributeAsset({
             userId: localPayload.memberId,
             packageId: localPayload.packageId,
-            operatorId: app.globalData.userProfile.id,
+            operatorId: runtime.userProfile.id,
             offlineAmount: localPayload.amount,
             payType: localPayload.payType,
             remark: localPayload.remark,

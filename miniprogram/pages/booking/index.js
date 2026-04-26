@@ -88,7 +88,11 @@ Page({
 
   async syncPageData() {
     const app = getApp()
-    const runtime = app.getRuntimeSnapshot()
+    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    if (!runtime.isAuthenticated) {
+      wx.reLaunch({ url: '/pages/login/index' })
+      return
+    }
 
     try {
       const pageData = await businessApi.getBookingViewData({
@@ -170,6 +174,11 @@ Page({
 
   async onBook(event) {
     const app = getApp()
+    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    if (!runtime.isAuthenticated) {
+      wx.reLaunch({ url: '/pages/login/index' })
+      return
+    }
     const { scheduleId, title } = event.currentTarget.dataset
     const schedule = this.data.pageData.schedules.find((item) => item.id === scheduleId)
     if (!schedule || schedule.isBooked || schedule.isFull) {

@@ -21,6 +21,16 @@ async function bootstrapCollections() {
   return unwrapResult(response)
 }
 
+async function getCurrentUserSession() {
+  const response = await callBusinessCore('getCurrentUserSession')
+  return unwrapResult(response)
+}
+
+async function loginWithPhone(payload) {
+  const response = await callBusinessCore('loginWithPhone', payload)
+  return unwrapResult(response)
+}
+
 async function getHomeViewData(payload) {
   const response = await callBusinessCore('getHomeViewData', payload)
   return unwrapResult(response)
@@ -43,6 +53,11 @@ async function getWorkspaceViewData(payload) {
 
 async function getAdminDashboardData(payload) {
   const response = await callBusinessCore('getAdminDashboardData', payload)
+  return unwrapResult(response)
+}
+
+async function getAdminUserManageData(payload) {
+  const response = await callBusinessCore('getAdminUserManageData', payload)
   return unwrapResult(response)
 }
 
@@ -81,13 +96,21 @@ async function createCoachSchedule(payload) {
   return unwrapResult(response)
 }
 
+async function updateUserRole(payload) {
+  const response = await callBusinessCore('updateUserRole', payload)
+  return unwrapResult(response)
+}
+
 module.exports = {
   bootstrapCollections,
+  getCurrentUserSession,
+  loginWithPhone,
   getHomeViewData,
   getBookingViewData,
   getProfileViewData,
   getWorkspaceViewData,
   getAdminDashboardData,
+  getAdminUserManageData,
   getCoachClassViewData,
   getCoachScheduleViewData,
   distributeAsset,
@@ -95,4 +118,5 @@ module.exports = {
   cancelBooking,
   writeOffBooking,
   createCoachSchedule,
+  updateUserRole,
 }

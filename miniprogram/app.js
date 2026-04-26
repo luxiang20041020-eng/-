@@ -21,6 +21,9 @@ const {
   AUDIT_LOGS,
   TRAINING_STATS,
 } = require('./utils/mock-data')
+const businessApi = require('./utils/business-api')
+
+const AUTH_REFRESH_INTERVAL = 3000
 
 function deepClone(data) {
   return JSON.parse(JSON.stringify(data))
@@ -36,6 +39,31 @@ function getRoleMeta(role) {
 
 function getRoleUserProfile(role) {
   return deepClone(ROLE_USER_MAP[role] || USER_PROFILE)
+}
+
+function buildGuestUserProfile() {
+  return {
+    id: '',
+    nickname: '未登录用户',
+    phone: '',
+    levelText: '请先完成手机号登录',
+    homeStoreId: STORE_LIST[0] ? STORE_LIST[0].id : '',
+    role: 'client',
+  }
+}
+
+function normalizeCloudUserProfile(profile) {
+  if (!profile) {
+    return null
+  }
+  return {
+    id: profile.id || '',
+    nickname: profile.nickname || '未命名用户',
+    phone: profile.phone || '',
+    levelText: profile.levelText || '综合格斗会员',
+    homeStoreId: profile.homeStoreId || (STORE_LIST[0] ? STORE_LIST[0].id : ''),
+    role: profile.role || 'client',
+  }
 }
 
 function getAssetKeyByType(type) {
@@ -64,7 +92,10 @@ App({
       selectedStoreId: STORE_LIST[0].id,
       selectedCoachClassId: TODAY_CLASSES[0].id,
       stores: deepClone(STORE_LIST),
-      userProfile: getRoleUserProfile('client'),
+      userProfile: buildGuestUserProfile(),
+      isAuthenticated: false,
+      authMode: 'demo',
+      lastAuthSyncAt: 0,
       members: deepClone(MEMBER_LIST),
       packageOptions: deepClone(ASSET_PACKAGE_OPTIONS),
       banners: deepClone(BANNERS),
@@ -147,11 +178,17 @@ App({
       assets: deepClone(this.globalData.assets),
       userProfile: deepClone(this.globalData.userProfile),
       tabItems: this.getTabItems(),
-      roleList: deepClone(ROLE_LIST),
+      roleList: this.globalData.isAuthenticated ? [deepClone(roleMeta)] : deepClone(ROLE_LIST),
+      allowRoleSwitch: !this.globalData.isAuthenticated,
+      isAuthenticated: this.globalData.isAuthenticated,
+      authMode: this.globalData.authMode,
     }
   },
 
   switchRole(role) {
+    if (this.globalData.isAuthenticated) {
+      return this.getRuntimeSnapshot()
+    }
     const roleMeta = getRoleMeta(role)
     const nextProfile = getRoleUserProfile(roleMeta.value)
     this.globalData.role = roleMeta.value
@@ -165,6 +202,75 @@ App({
 
   switchStore(storeId) {
     this.globalData.selectedStoreId = storeId
+    return this.getRuntimeSnapshot()
+  },
+
+  applyCloudSession(sessionData) {
+    const normalizedProfile = normalizeCloudUserProfile(sessionData && sessionData.userProfile)
+    const normalizedStores = sessionData && sessionData.stores && sessionData.stores.length
+      ? deepClone(sessionData.stores)
+      : this.globalData.stores
+
+    this.globalData.stores = normalizedStores
+
+    if (!normalizedProfile) {
+      this.resetGuestSession()
+      return this.getRuntimeSnapshot()
+    }
+
+    this.globalData.isAuthenticated = true
+    this.globalData.authMode = 'cloud'
+    this.globalData.role = normalizedProfile.role || 'client'
+    this.globalData.userProfile = normalizedProfile
+    this.globalData.selectedStoreId = normalizedProfile.homeStoreId
+      || (sessionData && sessionData.currentStore ? sessionData.currentStore.id : '')
+      || (normalizedStores[0] ? normalizedStores[0].id : '')
+    this.globalData.lastAuthSyncAt = Date.now()
+    this.syncCurrentUserAssetsFromMember()
+    return this.getRuntimeSnapshot()
+  },
+
+  resetGuestSession() {
+    this.globalData.isAuthenticated = false
+    this.globalData.authMode = 'demo'
+    this.globalData.role = 'client'
+    this.globalData.userProfile = buildGuestUserProfile()
+    this.globalData.selectedStoreId = STORE_LIST[0] ? STORE_LIST[0].id : ''
+    this.globalData.lastAuthSyncAt = Date.now()
+    this.syncCurrentUserAssetsFromMember()
+    return this.getRuntimeSnapshot()
+  },
+
+  async refreshUserSession(options = {}) {
+    const force = Boolean(options.force)
+    if (this._authRefreshingPromise) {
+      return this._authRefreshingPromise
+    }
+    if (!force && this.globalData.lastAuthSyncAt && Date.now() - this.globalData.lastAuthSyncAt < AUTH_REFRESH_INTERVAL) {
+      return this.globalData.isAuthenticated
+    }
+
+    this._authRefreshingPromise = (async () => {
+      try {
+        const sessionData = await businessApi.getCurrentUserSession()
+        if (sessionData && sessionData.loggedIn && sessionData.userProfile) {
+          this.applyCloudSession(sessionData)
+          return true
+        }
+        this.resetGuestSession()
+        return false
+      } catch (error) {
+        return this.globalData.isAuthenticated
+      } finally {
+        this._authRefreshingPromise = null
+      }
+    })()
+
+    return this._authRefreshingPromise
+  },
+
+  async getRuntimeSnapshotAsync(options = {}) {
+    await this.refreshUserSession(options)
     return this.getRuntimeSnapshot()
   },
 

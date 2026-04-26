@@ -23,7 +23,7 @@
     <view class="home-hero-row">
       <view>
         <view class="section-main-title">IRONFIST</view>
-        <view class="hero-subtitle">铁拳 · 泰拳搏击馆</view>
+        <view class="hero-subtitle">ONE · 泰拳格斗馆</view>
       </view>
       <view class="hero-side-stat">
         <view class="hero-side-value">{{pageData.coachCount}}</view>

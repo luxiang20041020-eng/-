@@ -94,7 +94,11 @@ Page({
 
   async syncPageData(selectedStoreId) {
     const app = getApp()
-    const runtime = app.getRuntimeSnapshot()
+    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    if (!runtime.isAuthenticated) {
+      wx.reLaunch({ url: '/pages/login/index' })
+      return
+    }
     const targetStoreId = selectedStoreId || this.data.storeId || runtime.currentStore.id
     try {
       const pageData = normalizeSchedulePageData(await businessApi.getCoachScheduleViewData({
@@ -174,6 +178,12 @@ Page({
   },
 
   async onSubmit() {
+    const app = getApp()
+    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    if (!runtime.isAuthenticated) {
+      wx.reLaunch({ url: '/pages/login/index' })
+      return
+    }
     const selectedStore = (this.data.pageData.stores || []).find((item) => item.id === this.data.storeId)
       || this.data.pageData.currentStore
 
@@ -182,7 +192,6 @@ Page({
       return
     }
 
-    const app = getApp()
     const localPayload = {
       storeId: selectedStore.id,
       storeName: selectedStore.name,
@@ -200,7 +209,7 @@ Page({
       const cloudResult = await businessApi.createCoachSchedule({
         storeId: selectedStore.id,
         storeName: selectedStore.name,
-        coachId: app.globalData.userProfile.id,
+        coachId: runtime.userProfile.id,
         classType: this.data.type === 'group' ? 1 : 2,
         title: this.data.title,
         startTime: this.data.fullDate + ' ' + this.data.timeRange.split(' - ')[0] + ':00',
