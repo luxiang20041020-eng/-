@@ -44,19 +44,49 @@
 }
 
 .qr-code-box {
-  padding: 56rpx 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 420rpx;
+  padding: 24rpx;
   border: 2rpx solid #ff3434;
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.04) 50%, transparent 50%),
     linear-gradient(rgba(255, 255, 255, 0.04) 50%, transparent 50%),
     #ffffff;
   background-size: 20rpx 20rpx;
+}
+
+.qr-code-image {
+  width: 100%;
+  height: 372rpx;
+}
+
+.qr-placeholder {
+  padding: 0 24rpx;
   text-align: center;
   word-break: break-all;
   font-size: 24rpx;
   line-height: 1.8;
   color: #0b0b0b;
   font-weight: 700;
+}
+
+.qr-code-text {
+  margin-top: 18rpx;
+  text-align: center;
+  word-break: break-all;
+  font-size: 20rpx;
+  line-height: 1.7;
+  letter-spacing: 1rpx;
+  color: #a0a0a0;
+}
+
+.qr-error-text {
+  margin: 0 26rpx 12rpx;
+  font-size: 20rpx;
+  line-height: 1.6;
+  color: #ff7a7a;
 }
 
 .booking-item {

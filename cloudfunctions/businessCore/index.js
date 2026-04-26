@@ -466,6 +466,13 @@ function buildPackageStatusLabel(status) {
   return Number(status) === 1 ? '已上架' : '已下架'
 }
 
+function buildIdentityQrScene(user, minuteKey) {
+  const compactUserId = String(user && user._id ? user._id : 'guest').replace(/[^0-9a-zA-Z]/g, '').slice(-18) || 'guest'
+  const compactMinuteKey = String(minuteKey || '').replace(/[^0-9]/g, '').slice(-4) || '0000'
+  const compactRole = String(user && user.role ? Number(user.role) : 1)
+  return 'u' + compactUserId + 't' + compactMinuteKey + 'r' + compactRole
+}
+
 function buildUserLevelText(user) {
   const role = mapUserRoleToPageRole(user && user.role)
   if (role === 'coach') {
@@ -1546,6 +1553,45 @@ async function getCurrentUserSession() {
   }
 }
 
+async function getIdentityQrCode(event) {
+  const payload = event.payload || {}
+  const minuteKey = String(payload.minuteKey || '').replace(/[^0-9]/g, '').slice(-4)
+
+  if (!minuteKey) {
+    return buildFail('minuteKey 不能为空', 'INVALID_IDENTITY_QR_PAYLOAD')
+  }
+
+  try {
+    const currentUser = await getCurrentAuthedUser()
+    if (!currentUser) {
+      return buildFail('请先完成登录', 'IDENTITY_QR_LOGIN_REQUIRED')
+    }
+
+    const scene = buildIdentityQrScene(currentUser, minuteKey)
+    const qrRes = await cloud.openapi.wxacode.getUnlimited({
+      scene,
+      page: 'pages/profile/index',
+      checkPath: false,
+      width: 430,
+      autoColor: false,
+      lineColor: {
+        r: 0,
+        g: 0,
+        b: 0,
+      },
+      isHyaline: false,
+    })
+
+    return buildSuccess({
+      imageBase64: qrRes.buffer.toString('base64'),
+      scene,
+      minuteKey,
+    })
+  } catch (error) {
+    return buildFail('生成身份二维码失败：' + (error.errMsg || error.message || error), 'GET_IDENTITY_QR_CODE_ERROR')
+  }
+}
+
 async function loginWithPhone(event) {
   const payload = event.payload || {}
   if (!payload.phoneCode) {
@@ -1970,6 +2016,8 @@ exports.main = async (event) => {
       return getBootstrapData()
     case 'getCurrentUserSession':
       return getCurrentUserSession()
+    case 'getIdentityQrCode':
+      return getIdentityQrCode(event)
     case 'loginWithPhone':
       return loginWithPhone(event)
     case 'getHomeViewData':

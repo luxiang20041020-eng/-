@@ -15,12 +15,38 @@ function decorateProfilePageData(pageData) {
   })
 }
 
+function buildMinuteKey(date = new Date()) {
+  return [date.getHours(), date.getMinutes()].map((item) => String(item).padStart(2, '0')).join('')
+}
+
+function buildIdentityQrFilePath(userId, minuteKey) {
+  const safeUserId = String(userId || 'guest').replace(/[^0-9a-zA-Z_-]/g, '') || 'guest'
+  const safeMinuteKey = String(minuteKey || '0000').replace(/[^0-9]/g, '').slice(-4) || '0000'
+  return wx.env.USER_DATA_PATH + '/identity-qr-' + safeUserId + '-' + safeMinuteKey + '.png'
+}
+
+function writeBase64ImageFile(filePath, imageBase64) {
+  const fileSystemManager = wx.getFileSystemManager()
+  return new Promise((resolve, reject) => {
+    fileSystemManager.writeFile({
+      filePath,
+      data: imageBase64,
+      encoding: 'base64',
+      success: resolve,
+      fail: reject,
+    })
+  })
+}
+
 Page({
   data: {
     runtime: {},
     pageData: {},
     dynamicCode: '',
     avatarText: '',
+    qrCodeImageSrc: '',
+    qrCodeLoading: false,
+    qrCodeError: '',
   },
 
   onShow() {
@@ -59,7 +85,7 @@ Page({
         avatarText: runtime.userProfile.nickname ? runtime.userProfile.nickname.slice(0, 1) : '人',
       })
     }
-    this.refreshDynamicCode()
+    await this.refreshDynamicCode(runtime)
     const tabbar = this.selectComponent('#tabbar')
     if (tabbar) {
       tabbar.syncTabs()
@@ -81,15 +107,46 @@ Page({
     }
   },
 
-  refreshDynamicCode() {
+  async refreshDynamicCode(runtimeOverride) {
+    const runtime = runtimeOverride || this.data.runtime || {}
     const now = new Date()
-    const minuteKey = [now.getHours(), now.getMinutes()].map((item) => String(item).padStart(2, '0')).join('')
-    const userIdSuffix = (this.data.runtime.userProfile && this.data.runtime.userProfile.id
-      ? this.data.runtime.userProfile.id
+    const minuteKey = buildMinuteKey(now)
+    const userIdSuffix = (runtime.userProfile && runtime.userProfile.id
+      ? runtime.userProfile.id
       : 'guest').toUpperCase()
+    const dynamicCode = 'TK-' + (runtime.role || 'client') + '-' + minuteKey + '-' + userIdSuffix
+    const requestId = (this.qrRequestId || 0) + 1
+    this.qrRequestId = requestId
+
     this.setData({
-      dynamicCode: 'TK-' + this.data.runtime.role + '-' + minuteKey + '-' + userIdSuffix,
+      dynamicCode,
+      qrCodeLoading: true,
+      qrCodeError: '',
     })
+
+    try {
+      const qrData = await businessApi.getIdentityQrCode({
+        minuteKey,
+      })
+      const filePath = buildIdentityQrFilePath(runtime.userProfile && runtime.userProfile.id, minuteKey)
+      await writeBase64ImageFile(filePath, qrData.imageBase64)
+      if (this.qrRequestId !== requestId) {
+        return
+      }
+      this.setData({
+        qrCodeImageSrc: filePath,
+        qrCodeLoading: false,
+        qrCodeError: '',
+      })
+    } catch (error) {
+      if (this.qrRequestId !== requestId) {
+        return
+      }
+      this.setData({
+        qrCodeLoading: false,
+        qrCodeError: error.message || '二维码生成失败',
+      })
+    }
   },
 
   onSwitchRole(event) {

@@ -26,6 +26,11 @@ async function getCurrentUserSession() {
   return unwrapResult(response)
 }
 
+async function getIdentityQrCode(payload) {
+  const response = await callBusinessCore('getIdentityQrCode', payload)
+  return unwrapResult(response)
+}
+
 async function loginWithPhone(payload) {
   const response = await callBusinessCore('loginWithPhone', payload)
   return unwrapResult(response)
@@ -124,6 +129,7 @@ async function updatePackageStatus(payload) {
 module.exports = {
   bootstrapCollections,
   getCurrentUserSession,
+  getIdentityQrCode,
   loginWithPhone,
   getHomeViewData,
   getBookingViewData,

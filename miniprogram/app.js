@@ -210,6 +210,8 @@ App({
     const normalizedStores = sessionData && sessionData.stores && sessionData.stores.length
       ? deepClone(sessionData.stores)
       : this.globalData.stores
+    const previousUserId = this.globalData.userProfile ? this.globalData.userProfile.id : ''
+    const currentUserId = normalizedProfile ? normalizedProfile.id : ''
 
     this.globalData.stores = normalizedStores
 
@@ -222,9 +224,16 @@ App({
     this.globalData.authMode = 'cloud'
     this.globalData.role = normalizedProfile.role || 'client'
     this.globalData.userProfile = normalizedProfile
-    this.globalData.selectedStoreId = normalizedProfile.homeStoreId
-      || (sessionData && sessionData.currentStore ? sessionData.currentStore.id : '')
-      || (normalizedStores[0] ? normalizedStores[0].id : '')
+    const sessionStoreId = sessionData && sessionData.currentStore ? sessionData.currentStore.id : ''
+    const shouldKeepSelectedStore = previousUserId && previousUserId === currentUserId
+    const candidateStoreId = shouldKeepSelectedStore
+      ? (this.globalData.selectedStoreId || normalizedProfile.homeStoreId || sessionStoreId)
+      : (normalizedProfile.homeStoreId || sessionStoreId || this.globalData.selectedStoreId)
+    const hasCandidateStore = normalizedStores.some((item) => item.id === candidateStoreId)
+
+    this.globalData.selectedStoreId = hasCandidateStore
+      ? candidateStoreId
+      : (normalizedStores[0] ? normalizedStores[0].id : '')
     this.globalData.lastAuthSyncAt = Date.now()
     this.syncCurrentUserAssetsFromMember()
     return this.getRuntimeSnapshot()

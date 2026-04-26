@@ -1,70 +1,84 @@
 <view class="page-shell">
-  <view class="brand-bar">
-    <view class="brand-left">
-      <view class="brand-logo">IF</view>
-      <view class="brand-text">
-        <view class="brand-name">IRONFIST</view>
-        <view class="brand-demo">/ DEMO</view>
-      </view>
-    </view>
-    <view class="role-strip">
-      <view wx:for="{{runtime.roleList}}" wx:key="value" class="role-chip {{runtime.role === item.value ? 'active' : ''}}">{{item.label}}</view>
-    </view>
-  </view>
-
   <view wx:if="{{pageLoading}}" class="page-loading">LOADING HOME DATA...</view>
 
-  <view class="page-header">
+  <view class="home-top-shell">
     <view class="headline-row">
-      <view class="store-anchor">{{pageData.currentStore.name}}</view>
-      <view class="bell-mark">01</view>
+      <view class="home-store-trigger" bindtap="onOpenStorePicker">
+        <view class="home-store-pin">
+          <view class="home-store-pin-core"></view>
+        </view>
+        <view class="home-store-name">{{pageData.currentStore.name}}</view>
+        <view class="home-store-chevron"></view>
+      </view>
+      <view class="home-bell" bindtap="onBellTap">
+        <view class="home-bell-handle"></view>
+        <view class="home-bell-body"></view>
+        <view class="home-bell-clapper"></view>
+        <view class="home-bell-dot"></view>
+      </view>
     </view>
-    <view class="eyebrow">EST. 2019 · CHENGDU</view>
     <view class="home-hero-row">
-      <view>
-        <view class="section-main-title">IRONFIST</view>
-        <view class="hero-subtitle">ONE · 泰拳格斗馆</view>
+      <view class="home-hero-copy">
+        <view class="home-hero-kicker">EST. 2018 · CHENGDU</view>
+        <view class="home-hero-title">IRONFIST</view>
+        <view class="home-hero-subtitle">铁拳 · 泰拳搏击馆</view>
       </view>
-      <view class="hero-side-stat">
-        <view class="hero-side-value">{{pageData.coachCount}}</view>
-        <view class="hero-side-label">COACHES</view>
+      <view class="home-hero-stat">
+        <view class="home-hero-stat-value">{{pageData.coachCountText}}</view>
+        <view class="home-hero-stat-label">COACHES</view>
       </view>
     </view>
   </view>
 
-  <view class="card notice-banner">
-    <view class="card-title">EVENT</view>
-    <view class="notice-title">{{pageData.heroNotice}}</view>
-    <view class="card-desc">3 级别赛事活动奖金池 10,000Y，门店联动推广中。</view>
+  <view class="home-event-card">
+    <view class="home-event-copy">
+      <view class="home-event-kicker">EVENT</view>
+      <view class="home-event-title">{{pageData.heroNotice}}</view>
+      <view class="home-event-desc">3 级别 8 强淘汰奖金 10,000 ￥</view>
+    </view>
+    <view class="home-event-index">01</view>
   </view>
 
-  <view class="home-store-switch">
-    <scroll-view class="scroll-row" scroll-x="true" show-scrollbar="false">
-      <view class="scroll-chip" wx:for="{{runtime.stores}}" wx:key="id">
-        <view class="outline-chip {{item.id === runtime.currentStore.id ? 'active' : ''}}" data-store-id="{{item.id}}" bindtap="onSwitchStore">{{item.name}}</view>
-      </view>
-    </scroll-view>
+  <view class="home-event-pager">
+    <view class="home-event-pager-item active"></view>
+    <view class="home-event-pager-item"></view>
   </view>
 
-  <view class="card">
-    <view class="section-title">QUICK ACCESS</view>
-    <view class="home-action-grid">
-      <view class="home-action-card primary" bindtap="goBooking">
-        <view class="home-action-kicker">GROUP</view>
-        <view class="home-action-title">团课预约</view>
+  <view class="home-access-grid">
+    <view class="home-access-item" bindtap="goBooking">
+      <view class="home-access-icon icon-calendar">
+        <view class="icon-calendar-top"></view>
+        <view class="icon-calendar-grid"></view>
       </view>
-      <view class="home-action-card" bindtap="goBooking">
-        <view class="home-action-kicker">PT</view>
-        <view class="home-action-title">私教预约</view>
+      <view class="home-access-kicker">GROUP</view>
+      <view class="home-access-title">团课预约</view>
+    </view>
+    <view class="home-access-item" bindtap="goBooking">
+      <view class="home-access-icon icon-user">
+        <view class="icon-user-head"></view>
+        <view class="icon-user-body"></view>
       </view>
-      <view class="home-action-card" bindtap="goProfile">
-        <view class="home-action-kicker">MINE</view>
-        <view class="home-action-title">我的资产</view>
+      <view class="home-access-kicker">PT</view>
+      <view class="home-access-title">私教预约</view>
+    </view>
+    <view class="home-access-item" bindtap="goMySchedule">
+      <view class="home-access-icon icon-list">
+        <view class="icon-list-row"></view>
+        <view class="icon-list-row"></view>
+        <view class="icon-list-row"></view>
       </view>
-      <view class="home-action-card" bindtap="goRolePage">
-        <view class="home-action-kicker">ROLE</view>
-        <view class="home-action-title">当前工作区</view>
+      <view class="home-access-kicker">MINE</view>
+      <view class="home-access-title">我的课表</view>
+    </view>
+    <view class="home-access-item" bindtap="goIdentityQr">
+      <view class="home-access-icon icon-qr">
+        <view class="icon-qr-box box-1"></view>
+        <view class="icon-qr-box box-2"></view>
+        <view class="icon-qr-box box-3"></view>
+        <view class="icon-qr-box box-4"></view>
       </view>
+      <view class="home-access-kicker">QR</view>
+      <view class="home-access-title">身份码</view>
     </view>
   </view>
 

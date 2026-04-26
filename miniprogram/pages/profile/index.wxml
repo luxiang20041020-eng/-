@@ -53,8 +53,14 @@
     </view>
     <view class="qr-frame">
       <view class="qr-inner">
-        <view class="qr-code-box">{{dynamicCode}}</view>
+        <view class="qr-code-box">
+          <image wx:if="{{qrCodeImageSrc}}" class="qr-code-image" src="{{qrCodeImageSrc}}" mode="aspectFit" show-menu-by-longpress="true"></image>
+          <view wx:elif="{{qrCodeLoading}}" class="qr-placeholder">二维码生成中...</view>
+          <view wx:else class="qr-placeholder">{{qrCodeError || '二维码暂不可用'}}</view>
+        </view>
+        <view class="qr-code-text">{{dynamicCode}}</view>
       </view>
+      <view wx:if="{{qrCodeError}}" class="qr-error-text">{{qrCodeError}}</view>
       <view class="card-desc">馆内核验演示态字段，校验后动态刷新。</view>
     </view>
   </view>
