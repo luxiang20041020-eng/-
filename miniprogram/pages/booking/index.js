@@ -169,6 +169,7 @@ Page({
   },
 
   async onBook(event) {
+    if (this._isBooking) return
     const app = getApp()
     const runtime = await app.getRuntimeSnapshotAsync({ force: true })
     if (!runtime.isAuthenticated) {
@@ -195,9 +196,9 @@ Page({
       title: '确认预约',
       content: '当前剩余课时 ' + assetText + ' 节，确认预约《' + title + '》吗？',
       success: async (res) => {
-        if (!res.confirm) {
-          return
-        }
+        if (!res.confirm) return
+        if (this._isBooking) return
+        this._isBooking = true
 
         let result = null
         try {
@@ -217,6 +218,8 @@ Page({
           } else if (error && error.message) {
             result.message = result.message + '；云端返回：' + error.message
           }
+        } finally {
+          this._isBooking = false
         }
 
         wx.showToast({

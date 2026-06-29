@@ -70,23 +70,23 @@ Page({
       this.stopDynamicCodeTicker()
       return
     }
-    try {
-      const pageData = await businessApi.getProfileViewData({
-        userId: app.globalData.userProfile.id,
-      })
+    const avatarText = runtime.userProfile.nickname ? runtime.userProfile.nickname.slice(0, 1) : '人'
+    const profileTask = businessApi.getProfileViewData({
+      userId: app.globalData.userProfile.id,
+    }).then((pageData) => {
       this.setData({
         runtime,
         pageData: decorateProfilePageData(pageData),
-        avatarText: runtime.userProfile.nickname ? runtime.userProfile.nickname.slice(0, 1) : '人',
+        avatarText,
       })
-    } catch (error) {
+    }).catch(() => {
       this.setData({
         runtime,
         pageData: decorateProfilePageData(app.getProfilePageData()),
-        avatarText: runtime.userProfile.nickname ? runtime.userProfile.nickname.slice(0, 1) : '人',
+        avatarText,
       })
-    }
-    await this.refreshDynamicCode(runtime)
+    })
+    await Promise.all([profileTask, this.refreshDynamicCode(runtime)])
     const tabbar = this.selectComponent('#tabbar')
     if (tabbar) {
       tabbar.syncTabs()

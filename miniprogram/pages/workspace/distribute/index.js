@@ -30,39 +30,50 @@ Page({
   },
 
   async syncPageData() {
+    if (this._syncing) return
+    this._syncing = true
     const app = getApp()
-    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
-    if (!runtime.isAuthenticated) {
-      wx.reLaunch({ url: '/pages/login/index' })
-      return
-    }
-    if (!['coach', 'admin'].includes(runtime.role)) {
-      wx.showToast({
-        title: '当前身份没有派课权限',
-        icon: 'none',
-      })
-      return
-    }
     try {
-      const pageData = await businessApi.getDistributeViewData({
-        storeId: runtime.currentStore.id,
-        keyword: this.data.keyword,
-      })
-      this.setData({
-        runtime,
-        pageData,
-      })
-    } catch (error) {
-      this.setData({
-        runtime,
-        pageData: app.getDistributePageData(this.data.keyword),
-      })
+      const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+      if (!runtime.isAuthenticated) {
+        wx.reLaunch({ url: '/pages/login/index' })
+        return
+      }
+      if (!['coach', 'admin'].includes(runtime.role)) {
+        wx.showToast({
+          title: '当前身份没有派课权限',
+          icon: 'none',
+        })
+        return
+      }
+      try {
+        const pageData = await businessApi.getDistributeViewData({
+          storeId: runtime.currentStore.id,
+          keyword: this.data.keyword,
+        })
+        this.setData({
+          runtime,
+          pageData,
+        })
+      } catch (error) {
+        wx.showToast({ title: '数据加载失败，已显示本地数据', icon: 'none', duration: 2000 })
+        this.setData({
+          runtime,
+          pageData: app.getDistributePageData(this.data.keyword),
+        })
+      }
+    } finally {
+      this._syncing = false
     }
   },
 
   onKeywordInput(event) {
     this.setData({ keyword: event.detail.value })
-    this.syncPageData()
+    if (this._keywordTimer) clearTimeout(this._keywordTimer)
+    this._keywordTimer = setTimeout(() => {
+      this._keywordTimer = null
+      this.syncPageData()
+    }, 350)
   },
 
   onSelectMember(event) {
@@ -71,7 +82,7 @@ Page({
 
   onSelectPackage(event) {
     const packageId = event.currentTarget.dataset.packageId
-    const targetPackage = this.data.pageData.packageOptions.find((item) => item.id === packageId)
+    const targetPackage = (this.data.pageData.packageOptions || []).find((item) => item.id === packageId)
     this.setData({
       selectedPackageId: packageId,
       amount: targetPackage ? String(targetPackage.price) : this.data.amount,
