@@ -154,6 +154,27 @@ Page({
     wx.navigateTo({ url: '/pages/login/index' })
   },
 
+  onLogout() {
+    wx.showModal({
+      title: '退出登录',
+      content: '确认退出当前账号？',
+      confirmText: '退出',
+      confirmColor: '#e74c3c',
+      cancelText: '取消',
+      success: async (res) => {
+        if (!res.confirm) return
+        const app = getApp()
+        try {
+          await wx.cloud.callFunction({ name: 'businessCore', data: { action: 'logout' } })
+        } catch (_) {
+          // 云端退出失败不阻断本地会话清除
+        }
+        app.resetGuestSession()
+        wx.reLaunch({ url: '/pages/home/index' })
+      },
+    })
+  },
+
   onSwitchRole(event) {
     const app = getApp()
     if (app.globalData.isAuthenticated) {

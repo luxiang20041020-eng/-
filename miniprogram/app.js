@@ -99,6 +99,25 @@ function buildClassSummary(schedule, roster) {
 
 App({
   onLaunch() {
+    // 必须在任何隐私 API 调用之前注册，基础库 2.32.3+ 会拦截 getPhoneNumber 等 API。
+    // 用 feature detect 兼容旧基础库（< 2.32.3 的设备无此 API，直接跳过）。
+    if (wx.onNeedPrivacyAuthorization) {
+      wx.onNeedPrivacyAuthorization((resolve) => {
+        wx.showModal({
+          title: '用户隐私保护提示',
+          content: '本小程序需要获取你的手机号用于登录验证。请阅读《用户隐私保护协议》后，点击「同意」继续使用。',
+          confirmText: '同意',
+          cancelText: '暂不使用',
+          success: (res) => {
+            resolve({ event: res.confirm ? 'agree' : 'disagree' })
+          },
+          fail: () => {
+            resolve({ event: 'disagree' })
+          },
+        })
+      })
+    }
+
     this.globalData = {
       env: 'cloud1-d0go5nfchb64419d5',
       role: 'client',

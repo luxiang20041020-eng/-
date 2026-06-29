@@ -109,6 +109,10 @@
       <view class="menu-item"><text>帮助与客服</text><text class="menu-arrow">></text></view>
     </view>
   </view>
+
+  <view class="card logout-card">
+    <button class="logout-button" bindtap="onLogout">退出登录</button>
+  </view>
   </block>
 
   <app-tabbar id="tabbar" current="/pages/profile/index"></app-tabbar>

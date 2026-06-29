@@ -19,6 +19,7 @@
     "navigationBarTitleText": "ONE泰拳格斗馆",
     "navigationBarTextStyle": "white"
   },
+  "__usePrivacyCheck__": true,
   "sitemapLocation": "sitemap.json",
   "style": "v2",
   "lazyCodeLoading": "requiredComponents"
