@@ -149,3 +149,19 @@
   min-height: 116rpx;
   text-align: center;
 }
+
+
+.metric-expiry {
+  font-size: 22rpx;
+  color: #e74c3c;
+  margin-top: 6rpx;
+  font-weight: 500;
+}
+
+.metric-expiry-none {
+  color: #888888;
+}
+
+.login-guide-card {
+  margin-top: 32rpx;
+}

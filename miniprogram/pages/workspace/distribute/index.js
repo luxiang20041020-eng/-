@@ -1,5 +1,16 @@
 const businessApi = require('../../../utils/business-api')
 
+function addDays(days) {
+  const date = new Date()
+  date.setDate(date.getDate() + days)
+  return date.toISOString().slice(0, 10)
+}
+
+// 日期选择器的最小可选日期（今天）
+function todayStr() {
+  return new Date().toISOString().slice(0, 10)
+}
+
 Page({
   data: {
     runtime: {},
@@ -7,9 +18,11 @@ Page({
     keyword: '',
     selectedMemberId: '',
     selectedPackageId: '',
+    expiryDate: '',
     amount: '',
     payType: '微信转账',
     remark: '',
+    minExpiryDate: todayStr(),
   },
 
   onShow() {
@@ -62,7 +75,12 @@ Page({
     this.setData({
       selectedPackageId: packageId,
       amount: targetPackage ? String(targetPackage.price) : this.data.amount,
+      expiryDate: targetPackage && targetPackage.validDays ? addDays(targetPackage.validDays) : this.data.expiryDate,
     })
+  },
+
+  onExpiryDateChange(event) {
+    this.setData({ expiryDate: event.detail.value })
   },
 
   onAmountInput(event) {
@@ -80,6 +98,14 @@ Page({
   onSubmit() {
     if (!this.data.selectedMemberId || !this.data.selectedPackageId) {
       wx.showToast({ title: '请先选择学员和套餐', icon: 'none' })
+      return
+    }
+    if (!this.data.expiryDate) {
+      wx.showToast({ title: '请设置课时到期日期', icon: 'none' })
+      return
+    }
+    if (this.data.expiryDate < todayStr()) {
+      wx.showToast({ title: '到期日期不能早于今天', icon: 'none' })
       return
     }
     if (Number(this.data.amount) < 0) {
@@ -111,6 +137,7 @@ Page({
         const localPayload = {
           memberId: this.data.selectedMemberId,
           packageId: this.data.selectedPackageId,
+          expiryDate: this.data.expiryDate,
           amount: Number(this.data.amount || 0),
           payType: this.data.payType || '微信转账',
           remark: this.data.remark,
@@ -121,6 +148,7 @@ Page({
           await businessApi.distributeAsset({
             userId: localPayload.memberId,
             packageId: localPayload.packageId,
+            expiryDate: localPayload.expiryDate,
             operatorId: runtime.userProfile.id,
             offlineAmount: localPayload.amount,
             payType: localPayload.payType,
@@ -142,6 +170,7 @@ Page({
           this.setData({
             selectedMemberId: '',
             selectedPackageId: '',
+            expiryDate: '',
             amount: '',
             payType: '微信转账',
             remark: '',

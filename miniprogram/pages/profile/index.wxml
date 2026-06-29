@@ -30,11 +30,17 @@
         <view class="metric-label">PRIVATE</view>
         <view class="metric-value">{{pageData.assets.privateCount}}<text class="metric-unit">节</text></view>
         <view class="metric-note">私教余额</view>
+        <view class="metric-expiry {{pageData.assets.privateExpiry ? '' : 'metric-expiry-none'}}">
+          {{pageData.assets.privateExpiry ? pageData.assets.privateExpiry + ' 到期' : '无到期限制'}}
+        </view>
       </view>
       <view class="metric-item">
         <view class="metric-label">GROUP</view>
         <view class="metric-value">{{pageData.assets.groupCount}}<text class="metric-unit">节</text></view>
         <view class="metric-note">团课余额</view>
+        <view class="metric-expiry {{pageData.assets.groupExpiry ? '' : 'metric-expiry-none'}}">
+          {{pageData.assets.groupExpiry ? pageData.assets.groupExpiry + ' 到期' : '无到期限制'}}
+        </view>
       </view>
     </view>
     <view class="card-desc">课时预约前 365 天、跨门店通用。缺席前组开课前 2 小时内不可取消。</view>

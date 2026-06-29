@@ -54,6 +54,8 @@ const MEMBER_LIST = [
     phone: '13800001234',
     privateCount: 12,
     groupCount: 5,
+    privateExpiry: '2027-04-24',
+    groupExpiry: '2026-10-24',
   },
   {
     id: 'u_1002',
@@ -61,6 +63,8 @@ const MEMBER_LIST = [
     phone: '13800004567',
     privateCount: 6,
     groupCount: 10,
+    privateExpiry: '2026-12-31',
+    groupExpiry: '2026-10-25',
   },
   {
     id: 'u_1003',
@@ -68,6 +72,8 @@ const MEMBER_LIST = [
     phone: '13800007890',
     privateCount: 0,
     groupCount: 8,
+    privateExpiry: '',
+    groupExpiry: '2026-09-01',
   },
   {
     id: 'u_1004',
@@ -75,6 +81,8 @@ const MEMBER_LIST = [
     phone: '13911112222',
     privateCount: 2,
     groupCount: 1,
+    privateExpiry: '2026-07-20',
+    groupExpiry: '2026-08-15',
   },
 ]
 
@@ -85,6 +93,7 @@ const ASSET_PACKAGE_OPTIONS = [
     type: 'private',
     lessons: 30,
     price: 6000,
+    validDays: 365,
     payTypes: ['微信转账', '支付宝', '前台 POS', '现金', '赠课'],
   },
   {
@@ -93,6 +102,7 @@ const ASSET_PACKAGE_OPTIONS = [
     type: 'private',
     lessons: 1,
     price: 99,
+    validDays: 30,
     payTypes: ['微信转账', '支付宝', '前台 POS', '现金', '赠课'],
   },
   {
@@ -101,6 +111,7 @@ const ASSET_PACKAGE_OPTIONS = [
     type: 'group',
     lessons: 48,
     price: 2999,
+    validDays: 180,
     payTypes: ['微信转账', '支付宝', '前台 POS', '现金', '赠课'],
   },
 ]
@@ -304,6 +315,8 @@ const COACH_SCHEDULE_BOARD = [
 const INITIAL_ASSETS = {
   privateCount: 12,
   groupCount: 5,
+  privateExpiry: '2027-04-24',
+  groupExpiry: '2026-10-24',
 }
 
 const TODAY_CLASSES = [

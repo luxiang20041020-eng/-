@@ -33,6 +33,19 @@ function formatMoney(amount) {
   return Number(amount || 0).toFixed(2)
 }
 
+function addDays(days) {
+  const date = new Date()
+  date.setDate(date.getDate() + days)
+  return date.toISOString().slice(0, 10)
+}
+
+// 取两个 YYYY-MM-DD 字符串中较晚的一个
+function laterDate(a, b) {
+  if (!a) return b
+  if (!b) return a
+  return a > b ? a : b
+}
+
 function getRoleMeta(role) {
   return ROLE_LIST.find((item) => item.value === role) || ROLE_LIST[0]
 }
@@ -140,11 +153,15 @@ App({
     if (!currentUser) {
       this.globalData.assets.privateCount = 0
       this.globalData.assets.groupCount = 0
+      this.globalData.assets.privateExpiry = ''
+      this.globalData.assets.groupExpiry = ''
       return
     }
 
     this.globalData.assets.privateCount = currentUser.privateCount
     this.globalData.assets.groupCount = currentUser.groupCount
+    this.globalData.assets.privateExpiry = currentUser.privateExpiry || ''
+    this.globalData.assets.groupExpiry = currentUser.groupExpiry || ''
   },
 
   getTabItems() {
@@ -526,6 +543,7 @@ App({
       myBookings: deepClone(this.globalData.myBookings.filter((item) => item.userId === currentUserId)),
       trainingStats: deepClone(this.globalData.trainingStats),
       currentStore: this.getCurrentStore(),
+      assets: deepClone(this.globalData.assets),
     }
   },
 
@@ -566,10 +584,14 @@ App({
     }
 
     const assetKey = getAssetKeyByType(packageOption.type)
+    const expiryKey = packageOption.type === 'group' ? 'groupExpiry' : 'privateExpiry'
     member[assetKey] += Number(packageOption.lessons)
+    // 取新到期日与现有到期日中较晚的一个，保护用户现有权益
+    member[expiryKey] = laterDate(member[expiryKey] || '', payload.expiryDate || '')
 
     if (member.id === this.globalData.userProfile.id) {
       this.globalData.assets[assetKey] = member[assetKey]
+      this.globalData.assets[expiryKey] = member[expiryKey]
     }
 
     if (packageOption.type === 'private') {

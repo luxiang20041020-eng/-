@@ -36,3 +36,11 @@
 .package-item.is-selected {
   border-color: #facc15;
 }
+
+.picker-display {
+  color: #ffffff;
+}
+
+.picker-display.placeholder {
+  color: #888888;
+}

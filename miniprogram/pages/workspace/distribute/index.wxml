@@ -15,7 +15,7 @@
         <view class="schedule-title">{{item.nickname}}</view>
         <view class="status-chip">{{item.phone}}</view>
       </view>
-      <view class="card-desc">私教 {{item.privateCount}} 节 · 团课 {{item.groupCount}} 节</view>
+      <view class="card-desc">私教 {{item.privateCount}} 节<text wx:if="{{item.privateExpiry}}">（{{item.privateExpiry}} 到期）</text> · 团课 {{item.groupCount}} 节<text wx:if="{{item.groupExpiry}}">（{{item.groupExpiry}} 到期）</text></view>
     </view>
   </view>
 
@@ -26,7 +26,17 @@
         <view class="schedule-title">{{item.name}}</view>
         <view class="status-chip">{{item.type === 'group' ? '团课' : '私教'}}</view>
       </view>
-      <view class="card-desc">{{item.lessons}} 节 · 标准价 ￥{{item.price}}</view>
+      <view class="card-desc">{{item.lessons}} 节 · 标准价 ￥{{item.price}} · 有效期 {{item.validDays}} 天</view>
+    </view>
+
+    <view class="field-block">
+      <view class="field-label">课时到期日期 <text style="color:#e74c3c">*</text></view>
+      <picker mode="date" value="{{expiryDate}}" start="{{minExpiryDate}}" bindchange="onExpiryDateChange">
+        <view class="form-input picker-display {{expiryDate ? '' : 'placeholder'}}">
+          {{expiryDate ? expiryDate : '请选择到期日期'}}
+        </view>
+      </picker>
+      <view class="card-desc" wx:if="{{expiryDate}}">到期后剩余课时将自动失效，不可继续预约。</view>
     </view>
 
     <view class="field-block">
