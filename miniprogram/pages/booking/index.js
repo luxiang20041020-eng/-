@@ -89,10 +89,6 @@ Page({
   async syncPageData() {
     const app = getApp()
     const runtime = await app.getRuntimeSnapshotAsync({ force: true })
-    if (!runtime.isAuthenticated) {
-      wx.reLaunch({ url: '/pages/login/index' })
-      return
-    }
 
     try {
       const pageData = await businessApi.getBookingViewData({
@@ -176,7 +172,16 @@ Page({
     const app = getApp()
     const runtime = await app.getRuntimeSnapshotAsync({ force: true })
     if (!runtime.isAuthenticated) {
-      wx.reLaunch({ url: '/pages/login/index' })
+      wx.showModal({
+        title: '请先登录',
+        content: '预约课程需要登录，是否前往登录？',
+        confirmText: '去登录',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/pages/login/index' })
+          }
+        },
+      })
       return
     }
     const { scheduleId, title } = event.currentTarget.dataset

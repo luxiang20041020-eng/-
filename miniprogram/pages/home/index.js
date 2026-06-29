@@ -24,10 +24,6 @@ Page({
   async syncPageData() {
     const app = getApp()
     const runtime = await app.getRuntimeSnapshotAsync({ force: true })
-    if (!runtime.isAuthenticated) {
-      wx.reLaunch({ url: '/pages/login/index' })
-      return
-    }
     this.setData({ pageLoading: true })
     try {
       const pageData = await businessApi.getHomeViewData({

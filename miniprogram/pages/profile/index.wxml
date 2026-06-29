@@ -4,7 +4,13 @@
     <view class="page-title">我的</view>
   </view>
 
-  <view class="card profile-hero">
+  <view wx:if="{{!runtime.isAuthenticated}}" class="card login-guide-card">
+    <view class="section-title">登录后解锁全部功能</view>
+    <view class="card-desc" style="margin-bottom:16px;">查看课时资产、我的预约记录、身份核验码，需要先完成手机号登录。</view>
+    <button class="primary-button" bindtap="goLogin">前往登录</button>
+  </view>
+
+  <view wx:if="{{runtime.isAuthenticated}}" class="card profile-hero">
     <view class="avatar-square">{{avatarText}}</view>
     <view class="profile-hero-main">
       <view class="profile-name-row">
@@ -16,6 +22,7 @@
     </view>
   </view>
 
+  <block wx:if="{{runtime.isAuthenticated}}">
   <view class="card">
     <view class="section-title">MY ASSETS · 我的课时资产</view>
     <view class="metric-grid">
@@ -96,6 +103,7 @@
       <view class="menu-item"><text>帮助与客服</text><text class="menu-arrow">></text></view>
     </view>
   </view>
+  </block>
 
   <app-tabbar id="tabbar" current="/pages/profile/index"></app-tabbar>
 </view>

@@ -66,7 +66,8 @@ Page({
     const app = getApp()
     const runtime = await app.getRuntimeSnapshotAsync({ force: true })
     if (!runtime.isAuthenticated) {
-      wx.reLaunch({ url: '/pages/login/index' })
+      this.setData({ runtime, pageData: {} })
+      this.stopDynamicCodeTicker()
       return
     }
     try {
@@ -147,6 +148,10 @@ Page({
         qrCodeError: error.message || '二维码生成失败',
       })
     }
+  },
+
+  goLogin() {
+    wx.navigateTo({ url: '/pages/login/index' })
   },
 
   onSwitchRole(event) {
