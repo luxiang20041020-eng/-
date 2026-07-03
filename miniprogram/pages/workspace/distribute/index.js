@@ -11,6 +11,11 @@ function todayStr() {
   return new Date().toISOString().slice(0, 10)
 }
 
+function buildDistributeCacheKey(runtime, keyword) {
+  const storeId = runtime && runtime.currentStore && runtime.currentStore.id ? runtime.currentStore.id : 'default'
+  return 'workspace:distribute:' + storeId + ':' + String(keyword || '').trim()
+}
+
 Page({
   data: {
     runtime: {},
@@ -30,41 +35,63 @@ Page({
   },
 
   async syncPageData() {
-    if (this._syncing) return
-    this._syncing = true
     const app = getApp()
-    try {
-      const runtime = await app.getRuntimeSnapshotAsync({ force: true })
-      if (!runtime.isAuthenticated) {
-        wx.reLaunch({ url: '/pages/login/index' })
-        return
-      }
-      if (!['coach', 'admin'].includes(runtime.role)) {
-        wx.showToast({
-          title: '当前身份没有派课权限',
-          icon: 'none',
-        })
-        return
-      }
-      try {
-        const pageData = await businessApi.getDistributeViewData({
-          storeId: runtime.currentStore.id,
-          keyword: this.data.keyword,
-        })
-        this.setData({
-          runtime,
-          pageData,
-        })
-      } catch (error) {
-        wx.showToast({ title: '数据加载失败，已显示本地数据', icon: 'none', duration: 2000 })
-        this.setData({
-          runtime,
-          pageData: app.getDistributePageData(this.data.keyword),
-        })
-      }
-    } finally {
-      this._syncing = false
+    const initialRuntime = app.getRuntimeSnapshot()
+    this.hydratePageData(initialRuntime)
+    const requestId = (this._syncRequestId || 0) + 1
+    this._syncRequestId = requestId
+
+    const runtime = await app.getRuntimeSnapshotAsync()
+    if (this._syncRequestId !== requestId) {
+      return
     }
+    if (!runtime.isAuthenticated) {
+      wx.reLaunch({ url: '/pages/login/index' })
+      return
+    }
+    if (!['coach', 'admin'].includes(runtime.role)) {
+      wx.showToast({
+        title: '当前身份没有派课权限',
+        icon: 'none',
+      })
+      return
+    }
+    this.hydratePageData(runtime)
+    try {
+      const pageData = await businessApi.getDistributeViewData({
+        storeId: runtime.currentStore.id,
+        keyword: this.data.keyword,
+      })
+      if (this._syncRequestId !== requestId) {
+        return
+      }
+      app.setViewCache(buildDistributeCacheKey(runtime, this.data.keyword), pageData)
+      this.setData({
+        runtime,
+        pageData,
+      })
+    } catch (error) {
+      if (this._syncRequestId !== requestId) {
+        return
+      }
+      this.setData({
+        runtime,
+        pageData: app.getDistributePageData(this.data.keyword),
+      })
+    }
+  },
+
+  hydratePageData(runtime) {
+    const app = getApp()
+    if (!runtime || !runtime.isAuthenticated || !['coach', 'admin'].includes(runtime.role)) {
+      return false
+    }
+    const cachedPageData = app.getViewCache(buildDistributeCacheKey(runtime, this.data.keyword))
+    this.setData({
+      runtime,
+      pageData: cachedPageData || app.getDistributePageData(this.data.keyword),
+    })
+    return Boolean(cachedPageData)
   },
 
   onKeywordInput(event) {
@@ -178,6 +205,9 @@ Page({
 
         wx.showToast({ title: result.message, icon: result.ok ? 'success' : 'none' })
         if (result.ok) {
+          app.removeViewCacheByPrefix('workspace:')
+          app.removeViewCacheByPrefix('admin:dashboard:')
+          app.removeViewCacheByPrefix('profile:' + localPayload.memberId)
           this.setData({
             selectedMemberId: '',
             selectedPackageId: '',

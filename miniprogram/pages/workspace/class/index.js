@@ -1,5 +1,9 @@
 const businessApi = require('../../../utils/business-api')
 
+function buildClassCacheKey(classId) {
+  return 'workspace:class:' + (classId || 'selected')
+}
+
 Page({
   data: {
     runtime: {},
@@ -20,25 +24,56 @@ Page({
 
   async syncPageData() {
     const app = getApp()
-    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    const initialRuntime = app.getRuntimeSnapshot()
+    this.hydratePageData(initialRuntime)
+    const requestId = (this._syncRequestId || 0) + 1
+    this._syncRequestId = requestId
+
+    const runtime = await app.getRuntimeSnapshotAsync()
+    if (this._syncRequestId !== requestId) {
+      return
+    }
     if (!runtime.isAuthenticated) {
       wx.reLaunch({ url: '/pages/login/index' })
       return
     }
+    this.hydratePageData(runtime)
     try {
+      const classId = this.data.classId || app.globalData.selectedCoachClassId
       const pageData = await businessApi.getCoachClassViewData({
-        classId: this.data.classId || app.globalData.selectedCoachClassId,
+        classId,
       })
+      if (this._syncRequestId !== requestId) {
+        return
+      }
+      app.setViewCache(buildClassCacheKey(classId), pageData)
       this.setData({
         runtime,
         pageData,
       })
     } catch (error) {
+      if (this._syncRequestId !== requestId) {
+        return
+      }
       this.setData({
         runtime,
         pageData: app.getClassCheckinPageData(this.data.classId),
       })
     }
+  },
+
+  hydratePageData(runtime) {
+    const app = getApp()
+    if (!runtime || !runtime.isAuthenticated) {
+      return false
+    }
+    const classId = this.data.classId || app.globalData.selectedCoachClassId
+    const cachedPageData = app.getViewCache(buildClassCacheKey(classId))
+    this.setData({
+      runtime,
+      pageData: cachedPageData || app.getClassCheckinPageData(this.data.classId),
+    })
+    return Boolean(cachedPageData)
   },
 
   async onUpdateStatus(event) {
@@ -76,6 +111,9 @@ Page({
     wx.showToast({ title: result.message, icon: result.ok ? 'success' : 'none' })
     if (result.ok) {
       this.applyLocalRosterStatus(bookingId, status)
+      app.removeViewCacheByPrefix('workspace:')
+      app.removeViewCacheByPrefix('profile:')
+      app.removeViewCacheByPrefix('admin:dashboard:')
       this.syncPageData()
     }
     this.setData({ submittingBookingId: '' })

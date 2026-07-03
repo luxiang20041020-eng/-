@@ -59,6 +59,8 @@ function buildVisiblePackages(packages, filters) {
     }))
 }
 
+const ADMIN_PACKAGES_CACHE_KEY = 'admin:packages'
+
 Page({
   data: {
     runtime: {},
@@ -81,7 +83,15 @@ Page({
 
   async syncPageData() {
     const app = getApp()
-    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    const initialRuntime = app.getRuntimeSnapshot()
+    const hadCachedData = this.hydratePageData(initialRuntime)
+    const requestId = (this._syncRequestId || 0) + 1
+    this._syncRequestId = requestId
+
+    const runtime = await app.getRuntimeSnapshotAsync()
+    if (this._syncRequestId !== requestId) {
+      return
+    }
     if (!runtime.isAuthenticated) {
       wx.reLaunch({ url: '/pages/login/index' })
       return
@@ -102,11 +112,15 @@ Page({
     this.setData({
       runtime,
       hasPermission: true,
-      loading: true,
+      loading: !hadCachedData && !(this.data.pageData.packages || []).length,
     })
 
     try {
       const pageData = normalizePageData(await businessApi.getAdminPackageManageData())
+      if (this._syncRequestId !== requestId) {
+        return
+      }
+      app.setViewCache(ADMIN_PACKAGES_CACHE_KEY, pageData)
       this.setData({
         runtime,
         hasPermission: true,
@@ -115,18 +129,41 @@ Page({
         loading: false,
       })
     } catch (error) {
+      if (this._syncRequestId !== requestId) {
+        return
+      }
       this.setData({
         runtime,
         hasPermission: true,
         loading: false,
-        pageData: normalizePageData(),
-        visiblePackages: [],
       })
-      wx.showToast({
-        title: error.message || '读取套餐列表失败',
-        icon: 'none',
-      })
+      if (!(this.data.pageData.packages || []).length) {
+        wx.showToast({
+          title: error.message || '读取套餐列表失败',
+          icon: 'none',
+        })
+      }
     }
+  },
+
+  hydratePageData(runtime) {
+    const app = getApp()
+    if (!runtime || !runtime.isAuthenticated || runtime.role !== 'admin') {
+      return false
+    }
+    const cachedPageData = app.getViewCache(ADMIN_PACKAGES_CACHE_KEY)
+    if (!cachedPageData) {
+      return false
+    }
+    const pageData = normalizePageData(cachedPageData)
+    this.setData({
+      runtime,
+      hasPermission: true,
+      pageData,
+      visiblePackages: buildVisiblePackages(pageData.packages, this.data),
+      loading: false,
+    })
+    return true
   },
 
   refreshVisiblePackages(patch = {}) {
@@ -238,6 +275,10 @@ Page({
         title: nextStatus === 1 ? '套餐已上架' : '套餐已下架',
         icon: 'success',
       })
+      const app = getApp()
+      app.removeViewCacheByPrefix('admin:')
+      app.removeViewCacheByPrefix('home:')
+      app.removeViewCacheByPrefix('workspace:distribute:')
       await this.syncPageData()
     } catch (error) {
       wx.showToast({
@@ -301,6 +342,10 @@ Page({
         title: '套餐已创建',
         icon: 'success',
       })
+      const app = getApp()
+      app.removeViewCacheByPrefix('admin:')
+      app.removeViewCacheByPrefix('home:')
+      app.removeViewCacheByPrefix('workspace:distribute:')
       this.setData({
         showCreatePopup: false,
         createForm: buildDefaultCreateForm(),

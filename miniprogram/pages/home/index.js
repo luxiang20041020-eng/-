@@ -10,6 +10,10 @@ function decorateHomePageData(pageData) {
   })
 }
 
+function buildHomeCacheKey(runtime) {
+  return 'home:' + (runtime && runtime.currentStore ? runtime.currentStore.id : 'default')
+}
+
 Page({
   data: {
     runtime: {},
@@ -21,19 +25,50 @@ Page({
     this.syncPageData()
   },
 
+  hydratePageData(runtime) {
+    const app = getApp()
+    const cacheKey = buildHomeCacheKey(runtime)
+    const cachedPageData = app.getViewCache(cacheKey)
+    const pageData = cachedPageData || app.getHomePageData()
+
+    this.setData({
+      runtime: Object.assign({}, runtime, { stores: pageData.stores || runtime.stores }),
+      pageData: decorateHomePageData(pageData),
+      pageLoading: false,
+    })
+
+    return Boolean(cachedPageData)
+  },
+
   async syncPageData() {
     const app = getApp()
-    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
-    this.setData({ pageLoading: true })
+    const initialRuntime = app.getRuntimeSnapshot()
+    const hadCachedData = this.hydratePageData(initialRuntime)
+    const requestId = (this._syncRequestId || 0) + 1
+    this._syncRequestId = requestId
+
+    if (!hadCachedData && !(this.data.pageData && this.data.pageData.currentStore)) {
+      this.setData({ pageLoading: true })
+    }
+
     try {
+      const runtime = await app.getRuntimeSnapshotAsync()
       const pageData = await businessApi.getHomeViewData({
         storeId: runtime.currentStore.id,
       })
+      if (this._syncRequestId !== requestId) {
+        return
+      }
+      app.setViewCache(buildHomeCacheKey(runtime), pageData)
       this.setData({
         runtime: Object.assign({}, runtime, { stores: pageData.stores || runtime.stores }),
         pageData: decorateHomePageData(pageData),
       })
     } catch (error) {
+      if (this._syncRequestId !== requestId) {
+        return
+      }
+      const runtime = app.getRuntimeSnapshot()
       this.setData({
         runtime,
         pageData: decorateHomePageData(app.getHomePageData()),

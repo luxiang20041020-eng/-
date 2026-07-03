@@ -74,8 +74,8 @@ export const STORES: Store[] = [
 export const BANNERS: Banner[] = [
   {
     id: 1,
-    title: "2025 铁拳争霸赛 · 报名开启",
-    subtitle: "3 级别·8 强淘汰·奖金 10,000￥",
+    title: "2026 报名开启",
+    subtitle: "",
     tag: "EVENT",
   },
   {

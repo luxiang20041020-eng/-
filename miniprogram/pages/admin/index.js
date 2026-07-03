@@ -1,5 +1,10 @@
 const businessApi = require('../../utils/business-api')
 
+function buildAdminDashboardCacheKey(runtime) {
+  const storeId = runtime && runtime.currentStore && runtime.currentStore.id ? runtime.currentStore.id : 'default'
+  return 'admin:dashboard:' + storeId
+}
+
 Page({
   data: {
     runtime: {},
@@ -14,27 +19,59 @@ Page({
 
   async syncPageData() {
     const app = getApp()
-    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    const initialRuntime = app.getRuntimeSnapshot()
+    this.hydratePageData(initialRuntime)
+    const requestId = (this._syncRequestId || 0) + 1
+    this._syncRequestId = requestId
+
+    const runtime = await app.getRuntimeSnapshotAsync()
+    if (this._syncRequestId !== requestId) {
+      return
+    }
     if (!runtime.isAuthenticated) {
       wx.reLaunch({ url: '/pages/login/index' })
       return
     }
+    this.hydratePageData(runtime)
     try {
       const pageData = await businessApi.getAdminDashboardData({
         storeId: runtime.currentStore.id,
       })
+      if (this._syncRequestId !== requestId) {
+        return
+      }
+      app.setViewCache(buildAdminDashboardCacheKey(runtime), pageData)
       this.setData({
         runtime,
         pageData,
         hasPermission: runtime.role === 'admin',
       })
     } catch (error) {
+      if (this._syncRequestId !== requestId) {
+        return
+      }
       this.setData({
         runtime,
         pageData: app.getAdminPageData(),
         hasPermission: runtime.role === 'admin',
       })
     }
+  },
+
+  hydratePageData(runtime) {
+    const app = getApp()
+    if (!runtime || !runtime.isAuthenticated) {
+      return false
+    }
+
+    const cachedPageData = app.getViewCache(buildAdminDashboardCacheKey(runtime))
+    this.setData({
+      runtime,
+      pageData: cachedPageData || app.getAdminPageData(),
+      hasPermission: runtime.role === 'admin',
+    })
+
+    return Boolean(cachedPageData)
   },
 
   onExport() {
@@ -64,6 +101,11 @@ Page({
     this.setData({ bootstrapLoading: true })
     try {
       const result = await businessApi.bootstrapCollections()
+      const app = getApp()
+      app.removeViewCacheByPrefix('admin:')
+      app.removeViewCacheByPrefix('home:')
+      app.removeViewCacheByPrefix('booking:')
+      app.removeViewCacheByPrefix('workspace:')
       const createSummary = (result.createResults || []).map((item) => {
         if (item.status === 'created') {
           return item.collectionName + '（新建）'

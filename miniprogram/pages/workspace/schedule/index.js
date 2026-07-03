@@ -70,6 +70,11 @@ function getStoreSelection(pageData, fallbackStoreId) {
   }
 }
 
+function buildScheduleCacheKey(runtime, storeId) {
+  const userId = runtime && runtime.userProfile && runtime.userProfile.id ? runtime.userProfile.id : 'guest'
+  return 'workspace:schedule:' + userId + ':' + (storeId || 'default')
+}
+
 Page({
   data: {
     runtime: {},
@@ -94,18 +99,32 @@ Page({
 
   async syncPageData(selectedStoreId) {
     const app = getApp()
-    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    const initialRuntime = app.getRuntimeSnapshot()
+    const initialStoreId = selectedStoreId || this.data.storeId || (initialRuntime.currentStore && initialRuntime.currentStore.id)
+    this.hydratePageData(initialRuntime, initialStoreId)
+    const requestId = (this._syncRequestId || 0) + 1
+    this._syncRequestId = requestId
+
+    const runtime = await app.getRuntimeSnapshotAsync()
+    if (this._syncRequestId !== requestId) {
+      return
+    }
     if (!runtime.isAuthenticated) {
       wx.reLaunch({ url: '/pages/login/index' })
       return
     }
     const targetStoreId = selectedStoreId || this.data.storeId || runtime.currentStore.id
+    this.hydratePageData(runtime, targetStoreId)
     try {
       const pageData = normalizeSchedulePageData(await businessApi.getCoachScheduleViewData({
         storeId: targetStoreId,
         coachId: runtime.userProfile.id,
       }), runtime)
+      if (this._syncRequestId !== requestId) {
+        return
+      }
       const selection = getStoreSelection(pageData, targetStoreId)
+      app.setViewCache(buildScheduleCacheKey(runtime, targetStoreId), pageData)
       this.setData({
         runtime,
         pageData,
@@ -114,6 +133,9 @@ Page({
         selectedStoreAddress: selection.selectedStoreAddress,
       })
     } catch (error) {
+      if (this._syncRequestId !== requestId) {
+        return
+      }
       const localPageData = normalizeSchedulePageData(app.getScheduleManagePageData(targetStoreId), runtime)
       const selection = getStoreSelection(localPageData, targetStoreId)
       this.setData({
@@ -124,6 +146,25 @@ Page({
         selectedStoreAddress: selection.selectedStoreAddress,
       })
     }
+  },
+
+  hydratePageData(runtime, storeId) {
+    const app = getApp()
+    if (!runtime || !runtime.isAuthenticated) {
+      return false
+    }
+    const targetStoreId = storeId || (runtime.currentStore && runtime.currentStore.id)
+    const cachedPageData = app.getViewCache(buildScheduleCacheKey(runtime, targetStoreId))
+    const pageData = normalizeSchedulePageData(cachedPageData || app.getScheduleManagePageData(targetStoreId), runtime)
+    const selection = getStoreSelection(pageData, targetStoreId)
+    this.setData({
+      runtime,
+      pageData,
+      storeId: selection.storeId,
+      selectedStoreName: selection.selectedStoreName,
+      selectedStoreAddress: selection.selectedStoreAddress,
+    })
+    return Boolean(cachedPageData)
   },
 
   onInput(event) {
@@ -230,6 +271,8 @@ Page({
 
     wx.showToast({ title: result.message, icon: result.ok ? 'success' : 'none' })
     if (result.ok) {
+      app.removeViewCacheByPrefix('workspace:')
+      app.removeViewCacheByPrefix('booking:')
       this.setData({
         title: '',
       })

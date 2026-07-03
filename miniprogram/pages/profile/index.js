@@ -38,6 +38,11 @@ function writeBase64ImageFile(filePath, imageBase64) {
   })
 }
 
+function buildProfileCacheKey(runtime) {
+  const userId = runtime && runtime.userProfile && runtime.userProfile.id ? runtime.userProfile.id : 'guest'
+  return 'profile:' + userId
+}
+
 Page({
   data: {
     runtime: {},
@@ -64,33 +69,76 @@ Page({
 
   async syncPageData() {
     const app = getApp()
-    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    const initialRuntime = app.getRuntimeSnapshot()
+    this.hydratePageData(initialRuntime)
+    const requestId = (this._syncRequestId || 0) + 1
+    this._syncRequestId = requestId
+
+    const runtime = await app.getRuntimeSnapshotAsync()
+    if (this._syncRequestId !== requestId) {
+      return
+    }
     if (!runtime.isAuthenticated) {
       this.setData({ runtime, pageData: {} })
       this.stopDynamicCodeTicker()
       return
     }
     const avatarText = runtime.userProfile.nickname ? runtime.userProfile.nickname.slice(0, 1) : '人'
-    const profileTask = businessApi.getProfileViewData({
-      userId: app.globalData.userProfile.id,
-    }).then((pageData) => {
+
+    this.hydratePageData(runtime)
+    this.refreshDynamicCode(runtime)
+
+    try {
+      const pageData = await businessApi.getProfileViewData({
+        userId: app.globalData.userProfile.id,
+      })
+      if (this._syncRequestId !== requestId) {
+        return
+      }
+      app.setViewCache(buildProfileCacheKey(runtime), pageData)
       this.setData({
         runtime,
         pageData: decorateProfilePageData(pageData),
         avatarText,
       })
-    }).catch(() => {
+    } catch (error) {
+      if (this._syncRequestId !== requestId) {
+        return
+      }
       this.setData({
         runtime,
         pageData: decorateProfilePageData(app.getProfilePageData()),
         avatarText,
       })
-    })
-    await Promise.all([profileTask, this.refreshDynamicCode(runtime)])
+    }
+
     const tabbar = this.selectComponent('#tabbar')
     if (tabbar) {
       tabbar.syncTabs()
     }
+  },
+
+  hydratePageData(runtime) {
+    const app = getApp()
+    if (!runtime || !runtime.isAuthenticated) {
+      this.setData({
+        runtime: runtime || {},
+      })
+      return false
+    }
+
+    const cacheKey = buildProfileCacheKey(runtime)
+    const cachedPageData = app.getViewCache(cacheKey)
+    const pageData = cachedPageData || app.getProfilePageData()
+    const avatarText = runtime.userProfile.nickname ? runtime.userProfile.nickname.slice(0, 1) : '人'
+
+    this.setData({
+      runtime,
+      pageData: decorateProfilePageData(pageData),
+      avatarText,
+    })
+
+    return Boolean(cachedPageData)
   },
 
   startDynamicCodeTicker() {
@@ -214,6 +262,11 @@ Page({
       title: result.message,
       icon: result.ok ? 'success' : 'none',
     })
+    if (result.ok) {
+      const userId = app.globalData.userProfile.id || 'guest'
+      app.removeViewCacheByPrefix('booking:' + userId + ':')
+      app.removeViewCacheByPrefix('profile:' + userId)
+    }
     this.syncPageData()
   },
 })

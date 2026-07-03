@@ -15,6 +15,12 @@ function decorateWorkspacePageData(pageData) {
   })
 }
 
+function buildWorkspaceCacheKey(runtime) {
+  const userId = runtime && runtime.userProfile && runtime.userProfile.id ? runtime.userProfile.id : 'guest'
+  const storeId = runtime && runtime.currentStore && runtime.currentStore.id ? runtime.currentStore.id : 'default'
+  return 'workspace:' + userId + ':' + storeId
+}
+
 Page({
   data: {
     runtime: {},
@@ -30,17 +36,33 @@ Page({
 
   async syncPageData() {
     const app = getApp()
-    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    const initialRuntime = app.getRuntimeSnapshot()
+    const hadCachedData = this.hydratePageData(initialRuntime)
+    const requestId = (this._syncRequestId || 0) + 1
+    this._syncRequestId = requestId
+
+    if (!hadCachedData && !(this.data.pageData && this.data.pageData.todayClasses)) {
+      this.setData({ pageLoading: true })
+    }
+
+    const runtime = await app.getRuntimeSnapshotAsync()
+    if (this._syncRequestId !== requestId) {
+      return
+    }
     if (!runtime.isAuthenticated) {
       wx.reLaunch({ url: '/pages/login/index' })
       return
     }
-    this.setData({ pageLoading: true })
+    this.hydratePageData(runtime)
     try {
       const pageData = await businessApi.getWorkspaceViewData({
         storeId: runtime.currentStore.id,
         coachId: runtime.userProfile.id,
       })
+      if (this._syncRequestId !== requestId) {
+        return
+      }
+      app.setViewCache(buildWorkspaceCacheKey(runtime), pageData)
       this.setData({
         runtime,
         pageData: decorateWorkspacePageData(pageData),
@@ -48,6 +70,9 @@ Page({
         avatarText: runtime.userProfile.nickname ? runtime.userProfile.nickname.slice(0, 1) : '教',
       })
     } catch (error) {
+      if (this._syncRequestId !== requestId) {
+        return
+      }
       this.setData({
         runtime,
         pageData: decorateWorkspacePageData(app.getWorkspacePageData()),
@@ -57,6 +82,25 @@ Page({
     } finally {
       this.setData({ pageLoading: false })
     }
+  },
+
+  hydratePageData(runtime) {
+    const app = getApp()
+    if (!runtime || !runtime.isAuthenticated) {
+      return false
+    }
+
+    const cachedPageData = app.getViewCache(buildWorkspaceCacheKey(runtime))
+    const pageData = cachedPageData || app.getWorkspacePageData()
+    this.setData({
+      runtime,
+      pageData: decorateWorkspacePageData(pageData),
+      hasPermission: runtime.role === 'coach',
+      avatarText: runtime.userProfile.nickname ? runtime.userProfile.nickname.slice(0, 1) : '教',
+      pageLoading: false,
+    })
+
+    return Boolean(cachedPageData)
   },
 
   onTapAction(event) {

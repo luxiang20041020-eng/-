@@ -34,7 +34,7 @@
     <view class="home-event-copy">
       <view class="home-event-kicker">EVENT</view>
       <view class="home-event-title">{{pageData.heroNotice}}</view>
-      <view class="home-event-desc">3 级别 8 强淘汰奖金 10,000 ￥</view>
+      <view class="home-event-desc"></view>
     </view>
     <view class="home-event-index">01</view>
   </view>

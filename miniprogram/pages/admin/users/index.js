@@ -29,6 +29,8 @@ function buildVisibleUsers(users, keyword) {
     }))
 }
 
+const ADMIN_USERS_CACHE_KEY = 'admin:users'
+
 Page({
   data: {
     runtime: {},
@@ -46,7 +48,15 @@ Page({
 
   async syncPageData() {
     const app = getApp()
-    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    const initialRuntime = app.getRuntimeSnapshot()
+    const hadCachedData = this.hydratePageData(initialRuntime)
+    const requestId = (this._syncRequestId || 0) + 1
+    this._syncRequestId = requestId
+
+    const runtime = await app.getRuntimeSnapshotAsync()
+    if (this._syncRequestId !== requestId) {
+      return
+    }
     if (!runtime.isAuthenticated) {
       wx.reLaunch({ url: '/pages/login/index' })
       return
@@ -69,11 +79,15 @@ Page({
     this.setData({
       runtime,
       hasPermission: true,
-      loading: true,
+      loading: !hadCachedData && !(this.data.pageData.users || []).length,
     })
 
     try {
       const pageData = normalizePageData(await businessApi.getAdminUserManageData())
+      if (this._syncRequestId !== requestId) {
+        return
+      }
+      app.setViewCache(ADMIN_USERS_CACHE_KEY, pageData)
       this.setData({
         runtime,
         hasPermission: true,
@@ -82,20 +96,41 @@ Page({
         loading: false,
       })
     } catch (error) {
+      if (this._syncRequestId !== requestId) {
+        return
+      }
       this.setData({
         runtime,
         hasPermission: true,
         loading: false,
-        pageData: normalizePageData({
-          currentUserId: runtime.userProfile ? runtime.userProfile.id : '',
-        }),
-        visibleUsers: [],
       })
-      wx.showToast({
-        title: error.message || '读取人员列表失败',
-        icon: 'none',
-      })
+      if (!(this.data.pageData.users || []).length) {
+        wx.showToast({
+          title: error.message || '读取人员列表失败',
+          icon: 'none',
+        })
+      }
     }
+  },
+
+  hydratePageData(runtime) {
+    const app = getApp()
+    if (!runtime || !runtime.isAuthenticated || runtime.role !== 'admin') {
+      return false
+    }
+    const cachedPageData = app.getViewCache(ADMIN_USERS_CACHE_KEY)
+    if (!cachedPageData) {
+      return false
+    }
+    const pageData = normalizePageData(cachedPageData)
+    this.setData({
+      runtime,
+      hasPermission: true,
+      pageData,
+      visibleUsers: buildVisibleUsers(pageData.users, this.data.keyword),
+      loading: false,
+    })
+    return true
   },
 
   onKeywordInput(event) {
@@ -163,6 +198,10 @@ Page({
         title: '身份权限已更新',
         icon: 'success',
       })
+      const app = getApp()
+      app.removeViewCacheByPrefix('admin:')
+      app.removeViewCacheByPrefix('workspace:')
+      app.removeViewCacheByPrefix('profile:')
       await this.syncPageData()
     } catch (error) {
       wx.showToast({

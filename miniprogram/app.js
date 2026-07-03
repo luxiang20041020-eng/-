@@ -23,7 +23,8 @@ const {
 } = require('./utils/mock-data')
 const businessApi = require('./utils/business-api')
 
-const AUTH_REFRESH_INTERVAL = 3000
+const AUTH_REFRESH_INTERVAL = 60000
+const VIEW_CACHE_TTL = 5 * 60 * 1000
 
 function deepClone(data) {
   return JSON.parse(JSON.stringify(data))
@@ -128,6 +129,7 @@ App({
       isAuthenticated: false,
       authMode: 'demo',
       lastAuthSyncAt: 0,
+      viewCache: {},
       members: deepClone(MEMBER_LIST),
       packageOptions: deepClone(ASSET_PACKAGE_OPTIONS),
       banners: deepClone(BANNERS),
@@ -282,6 +284,7 @@ App({
     this.globalData.userProfile = buildGuestUserProfile()
     this.globalData.selectedStoreId = STORE_LIST[0] ? STORE_LIST[0].id : ''
     this.globalData.lastAuthSyncAt = Date.now()
+    this.globalData.viewCache = {}
     this.syncCurrentUserAssetsFromMember()
     return this.getRuntimeSnapshot()
   },
@@ -317,6 +320,45 @@ App({
   async getRuntimeSnapshotAsync(options = {}) {
     await this.refreshUserSession(options)
     return this.getRuntimeSnapshot()
+  },
+
+  getViewCache(cacheKey, options = {}) {
+    if (!cacheKey) {
+      return null
+    }
+    const maxAge = typeof options.maxAge === 'number' ? options.maxAge : VIEW_CACHE_TTL
+    const cacheItem = this.globalData.viewCache[cacheKey]
+    if (!cacheItem || Date.now() - cacheItem.updatedAt > maxAge) {
+      return null
+    }
+    return deepClone(cacheItem.data)
+  },
+
+  setViewCache(cacheKey, data) {
+    if (!cacheKey) {
+      return
+    }
+    this.globalData.viewCache[cacheKey] = {
+      updatedAt: Date.now(),
+      data: deepClone(data),
+    }
+  },
+
+  removeViewCache(cacheKey) {
+    if (cacheKey) {
+      delete this.globalData.viewCache[cacheKey]
+    }
+  },
+
+  removeViewCacheByPrefix(prefix) {
+    if (!prefix) {
+      return
+    }
+    Object.keys(this.globalData.viewCache).forEach((cacheKey) => {
+      if (cacheKey.indexOf(prefix) === 0) {
+        delete this.globalData.viewCache[cacheKey]
+      }
+    })
   },
 
   getHomePageData() {

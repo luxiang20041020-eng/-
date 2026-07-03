@@ -69,6 +69,21 @@ function decorateBookingPageData(pageData, filters, coachKeyword) {
   })
 }
 
+function buildBookingCacheKey(runtime, filters) {
+  const safeRuntime = runtime || {}
+  const safeFilters = filters || {}
+  const userId = safeRuntime.userProfile && safeRuntime.userProfile.id ? safeRuntime.userProfile.id : 'guest'
+  const storeId = safeRuntime.currentStore && safeRuntime.currentStore.id ? safeRuntime.currentStore.id : 'default'
+  return [
+    'booking',
+    userId,
+    storeId,
+    safeFilters.type || 'group',
+    safeFilters.coachId || 'all',
+    safeFilters.dateKey || DEFAULT_DATE_KEY,
+  ].join(':')
+}
+
 Page({
   data: {
     runtime: {},
@@ -86,21 +101,47 @@ Page({
     this.syncPageData()
   },
 
+  hydratePageData(runtime) {
+    const app = getApp()
+    const cacheKey = buildBookingCacheKey(runtime, this.data.filters)
+    const cachedPageData = app.getViewCache(cacheKey)
+    const pageData = cachedPageData || app.getBookingPageData(this.data.filters)
+
+    this.setData({
+      runtime,
+      pageData: decorateBookingPageData(pageData, this.data.filters, this.data.coachKeyword),
+    })
+
+    return Boolean(cachedPageData)
+  },
+
   async syncPageData() {
     const app = getApp()
-    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+    const initialRuntime = app.getRuntimeSnapshot()
+    this.hydratePageData(initialRuntime)
+    const requestId = (this._syncRequestId || 0) + 1
+    this._syncRequestId = requestId
 
     try {
+      const runtime = await app.getRuntimeSnapshotAsync()
       const pageData = await businessApi.getBookingViewData({
         userId: app.globalData.userProfile.id,
         storeId: runtime.currentStore.id,
         filters: this.data.filters,
       })
+      if (this._syncRequestId !== requestId) {
+        return
+      }
+      app.setViewCache(buildBookingCacheKey(runtime, this.data.filters), pageData)
       this.setData({
         runtime,
         pageData: decorateBookingPageData(pageData, this.data.filters, this.data.coachKeyword),
       })
     } catch (error) {
+      if (this._syncRequestId !== requestId) {
+        return
+      }
+      const runtime = app.getRuntimeSnapshot()
       this.setData({
         runtime,
         pageData: decorateBookingPageData(app.getBookingPageData(this.data.filters), this.data.filters, this.data.coachKeyword),
@@ -226,6 +267,11 @@ Page({
           title: result.message,
           icon: result.ok ? 'success' : 'none',
         })
+        if (result.ok) {
+          const userId = app.globalData.userProfile.id || 'guest'
+          app.removeViewCacheByPrefix('booking:' + userId + ':')
+          app.removeViewCacheByPrefix('profile:' + userId)
+        }
         this.syncPageData()
       },
     })
