@@ -1124,6 +1124,7 @@ async function getDistributeViewData(event) {
         type: mapAssetTypeToPageType(item.asset_type),
         lessons: Number(item.course_count || 0),
         price: Number(item.display_price || 0),
+        validDays: Number(item.valid_days || (Number(item.asset_type) === ASSET_TYPE.GROUP ? 180 : 365)),
       }))
 
     return buildSuccess({

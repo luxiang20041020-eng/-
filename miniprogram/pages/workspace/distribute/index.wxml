@@ -8,25 +8,52 @@
   </view>
 
   <view class="card">
-    <view class="card-title">搜索学员</view>
-    <input class="form-input" placeholder="输入姓名或手机号" value="{{keyword}}" bindinput="onKeywordInput" />
-    <view wx:for="{{pageData.members}}" wx:key="id" class="member-item {{selectedMemberId === item.id ? 'is-selected' : ''}}" data-member-id="{{item.id}}" bindtap="onSelectMember">
-      <view class="row-between">
-        <view class="schedule-title">{{item.nickname}}</view>
-        <view class="status-chip">{{item.phone}}</view>
+    <view class="card-title">选择学员</view>
+
+    <view wx:if="{{selectedMember}}" class="selected-summary">
+      <view class="summary-avatar">{{selectedMember.avatarText}}</view>
+      <view class="summary-main">
+        <view class="summary-name">{{selectedMember.nickname}}</view>
+        <view class="summary-meta">{{selectedMember.phone}}</view>
+        <view class="summary-meta">私教 {{selectedMember.privateCount}} 节 · 团课 {{selectedMember.groupCount}} 节</view>
       </view>
-      <view class="card-desc">私教 {{item.privateCount}} 节<text wx:if="{{item.privateExpiry}}">（{{item.privateExpiry}} 到期）</text> · 团课 {{item.groupCount}} 节<text wx:if="{{item.groupExpiry}}">（{{item.groupExpiry}} 到期）</text></view>
     </view>
+
+    <input class="form-input" placeholder="{{selectedMember ? '重新搜索学员' : '输入姓名或手机号搜索学员'}}" value="{{keyword}}" bindinput="onKeywordInput" />
+
+    <view wx:if="{{keyword}}" class="result-list">
+      <view wx:for="{{pageData.members}}" wx:key="id" class="member-item {{selectedMemberId === item.id ? 'is-selected' : ''}}" data-member-id="{{item.id}}" bindtap="onSelectMember">
+        <view class="row-between">
+          <view>
+            <view class="schedule-title">{{item.nickname}}</view>
+            <view class="member-phone">{{item.phone}}</view>
+          </view>
+          <view class="status-chip">{{selectedMemberId === item.id ? '已选' : '选择'}}</view>
+        </view>
+        <view class="card-desc">私教 {{item.privateCount}} 节<text wx:if="{{item.privateExpiry}}">（{{item.privateExpiry}} 到期）</text> · 团课 {{item.groupCount}} 节<text wx:if="{{item.groupExpiry}}">（{{item.groupExpiry}} 到期）</text></view>
+      </view>
+      <view wx:if="{{pageData.members.length === 0}}" class="empty-text">没有匹配到学员，请换姓名或手机号再试。</view>
+    </view>
+
+    <view wx:elif="{{!selectedMember}}" class="search-hint">输入姓名或手机号后再展示匹配学员，避免整页被客户列表占满。</view>
   </view>
 
   <view class="card">
-    <view class="card-title">派发配置</view>
+    <view class="card-title">选择套餐</view>
+    <view wx:if="{{selectedPackage}}" class="selected-summary package-summary">
+      <view class="summary-main">
+        <view class="summary-name">{{selectedPackage.name}}</view>
+        <view class="summary-meta">{{selectedPackage.typeLabel}} · {{selectedPackage.lessons}} 节 · ￥{{selectedPackage.price}}</view>
+      </view>
+    </view>
+    <view class="package-list">
     <view wx:for="{{pageData.packageOptions}}" wx:key="id" class="package-item {{selectedPackageId === item.id ? 'is-selected' : ''}}" data-package-id="{{item.id}}" bindtap="onSelectPackage">
       <view class="row-between">
         <view class="schedule-title">{{item.name}}</view>
-        <view class="status-chip">{{item.type === 'group' ? '团课' : '私教'}}</view>
+        <view class="status-chip">{{item.typeLabel}}</view>
       </view>
       <view class="card-desc">{{item.lessons}} 节 · 标准价 ￥{{item.price}} · 有效期 {{item.validDays}} 天</view>
+    </view>
     </view>
 
     <view class="field-block">

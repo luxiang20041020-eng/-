@@ -4,7 +4,7 @@
   margin-top: 16rpx;
   padding: 20rpx;
   border: 1rpx solid #343434;
-  border-radius: 14rpx;
+  border-radius: 8rpx;
   background: #101010;
   color: #f5f5f5;
   font-size: 26rpx;
@@ -28,13 +28,76 @@
   margin-top: 18rpx;
   padding: 20rpx;
   border: 1rpx solid #2a2a2a;
-  border-radius: 14rpx;
+  border-radius: 8rpx;
   background: #101010;
 }
 
 .member-item.is-selected,
 .package-item.is-selected {
   border-color: #facc15;
+  background: #171309;
+} 
+
+.selected-summary {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  margin-top: 18rpx;
+  padding: 20rpx;
+  border: 1rpx solid #3a2c12;
+  border-radius: 8rpx;
+  background: #120f08;
+}
+
+.summary-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 72rpx;
+  width: 72rpx;
+  height: 72rpx;
+  background: #ff3434;
+  color: #ffffff;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.summary-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.summary-name {
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.summary-meta,
+.member-phone {
+  margin-top: 8rpx;
+  color: #9c9c9c;
+  font-size: 22rpx;
+  line-height: 1.45;
+}
+
+.package-summary {
+  margin-bottom: 4rpx;
+}
+
+.result-list,
+.package-list {
+  margin-top: 8rpx;
+}
+
+.search-hint {
+  margin-top: 18rpx;
+  padding: 18rpx 20rpx;
+  border: 1rpx dashed #343434;
+  border-radius: 8rpx;
+  color: #888888;
+  font-size: 24rpx;
+  line-height: 1.6;
 }
 
 .picker-display {

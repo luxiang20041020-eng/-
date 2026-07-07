@@ -619,8 +619,36 @@ App({
   },
 
   submitDistribution(payload) {
-    const member = this.getMemberById(payload.memberId)
-    const packageOption = this.globalData.packageOptions.find((item) => item.id === payload.packageId)
+    let member = this.getMemberById(payload.memberId)
+    let packageOption = this.globalData.packageOptions.find((item) => item.id === payload.packageId)
+    const memberSnapshot = payload.memberSnapshot || {}
+    const packageSnapshot = payload.packageSnapshot || {}
+
+    if (!member && memberSnapshot.id) {
+      member = {
+        id: memberSnapshot.id,
+        nickname: memberSnapshot.nickname || memberSnapshot.name || '未命名学员',
+        phone: memberSnapshot.phone || '',
+        privateCount: Number(memberSnapshot.privateCount || 0),
+        groupCount: Number(memberSnapshot.groupCount || 0),
+        privateExpiry: memberSnapshot.privateExpiry || '',
+        groupExpiry: memberSnapshot.groupExpiry || '',
+      }
+      this.globalData.members.unshift(member)
+    }
+
+    if (!packageOption && packageSnapshot.id) {
+      packageOption = {
+        id: packageSnapshot.id,
+        name: packageSnapshot.name || '未命名套餐',
+        type: packageSnapshot.type || 'private',
+        lessons: Number(packageSnapshot.lessons || 0),
+        price: Number(packageSnapshot.price || 0),
+        validDays: Number(packageSnapshot.validDays || 0),
+      }
+      this.globalData.packageOptions.unshift(packageOption)
+    }
+
     if (!member || !packageOption) {
       return { ok: false, message: '学员或套餐不存在' }
     }
@@ -646,7 +674,7 @@ App({
     // 派课必须留审计日志，后续接云数据库时这里会落到独立流水集合。
     this.globalData.auditLogs.unshift({
       id: 'log_' + Date.now(),
-      operatorName: '李教练',
+      operatorName: this.globalData.userProfile.nickname || '操作人',
       packageName: packageOption.name,
       targetName: member.nickname,
       amount: Number(payload.amount),
