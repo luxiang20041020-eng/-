@@ -57,3 +57,74 @@
   font-size: 24rpx;
   line-height: 1.6;
 }
+
+.privacy-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.privacy-panel {
+  width: 100%;
+  max-width: 640rpx;
+  padding: 34rpx 32rpx 30rpx;
+  border: 1rpx solid #2d2d2d;
+  background: #090909;
+}
+
+.privacy-title {
+  color: #ffffff;
+  font-size: 34rpx;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.privacy-content {
+  margin-top: 22rpx;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 26rpx;
+  line-height: 1.7;
+  text-align: left;
+}
+
+.privacy-link {
+  color: #ff6565;
+  font-weight: 700;
+}
+
+.privacy-actions {
+  display: flex;
+  gap: 18rpx;
+  margin-top: 32rpx;
+}
+
+.privacy-cancel,
+.privacy-confirm {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 84rpx;
+  margin: 0;
+  padding: 0 18rpx;
+  border: 1rpx solid #2a2a2a;
+  font-size: 26rpx;
+  line-height: 1.2;
+}
+
+.privacy-cancel {
+  background: #111111;
+  color: #d8d8d8;
+}
+
+.privacy-confirm {
+  background: #ff3434;
+  border-color: #ff3434;
+  color: #ffffff;
+  font-weight: 700;
+}

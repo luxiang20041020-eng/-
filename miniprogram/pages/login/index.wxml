@@ -14,11 +14,33 @@
       open-type="getPhoneNumber"
       bindgetphonenumber="onGetPhoneNumber"
       loading="{{submitting}}"
-      disabled="{{checkingSession || submitting}}"
+      disabled="{{checkingSession || submitting || needPrivacyAuthorization}}"
     >
       {{submitting ? '登录中...' : '手机号一键登录'}}
     </button>
     <view wx:if="{{loginError}}" class="login-error">{{loginError}}</view>
     <view class="card-desc">点击即表示同意通过微信授权手机号完成登录绑定。</view>
+  </view>
+
+  <view wx:if="{{needPrivacyAuthorization}}" class="privacy-mask">
+    <view class="privacy-panel">
+      <view class="privacy-title">用户隐私保护提示</view>
+      <view class="privacy-content">
+        <text>本小程序需要获取你的手机号用于登录验证。请先阅读并同意</text>
+        <text class="privacy-link" bindtap="onOpenPrivacyContract">《{{privacyContractName}}》</text>
+        <text>后继续使用。</text>
+      </view>
+      <view class="privacy-actions">
+        <button class="privacy-cancel" bindtap="onRejectPrivacyAuthorization">暂不使用</button>
+        <button
+          id="privacyAgreeButton"
+          class="privacy-confirm"
+          open-type="agreePrivacyAuthorization"
+          bindagreeprivacyauthorization="onAgreePrivacyAuthorization"
+        >
+          同意并继续
+        </button>
+      </view>
+    </view>
   </view>
 </view>
