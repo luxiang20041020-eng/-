@@ -4,7 +4,7 @@ import Image from "next/image"
 const IMAGES = [
   { src: "/images/gym-interior-1.jpg", label: "A 馆 · 器械区", code: "01 / 03" },
   { src: "/images/gym-interior-2.jpg", label: "擂台 · 实战", code: "02 / 03" },
-  { src: "/images/gym-interior-3.jpg", label: "私教区 · 训练", code: "03 / 03" },
+  { src: "/images/gym-interior-3.jpg", label: "专属区域 · 体能区", code: "03 / 03" },
 ]
 
 export function HomeGallery() {

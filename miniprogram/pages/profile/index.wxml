@@ -6,7 +6,7 @@
 
   <view wx:if="{{!runtime.isAuthenticated}}" class="card login-guide-card">
     <view class="section-title">登录后解锁全部功能</view>
-    <view class="card-desc" style="margin-bottom:16px;">查看课时资产、我的预约记录、身份核验码，需要先完成手机号登录。</view>
+    <view class="card-desc" style="margin-bottom:16px;">查看权益余额、我的预约记录、身份核验码，需要先完成手机号登录。</view>
     <button class="primary-button" bindtap="goLogin">前往登录</button>
   </view>
 
@@ -24,26 +24,26 @@
 
   <block wx:if="{{runtime.isAuthenticated}}">
   <view class="card">
-    <view class="section-title">MY ASSETS · 我的课时资产</view>
+    <view class="section-title">MY ASSETS · 我的权益</view>
     <view class="metric-grid">
       <view class="metric-item">
         <view class="metric-label">PRIVATE</view>
-        <view class="metric-value">{{pageData.assets.privateCount}}<text class="metric-unit">节</text></view>
-        <view class="metric-note">私教余额</view>
+        <view class="metric-value">{{pageData.assets.privateCount}}<text class="metric-unit">次</text></view>
+        <view class="metric-note">专属权益</view>
         <view class="metric-expiry {{pageData.assets.privateExpiry ? '' : 'metric-expiry-none'}}">
           {{pageData.assets.privateExpiry ? pageData.assets.privateExpiry + ' 到期' : '无到期限制'}}
         </view>
       </view>
       <view class="metric-item">
         <view class="metric-label">GROUP</view>
-        <view class="metric-value">{{pageData.assets.groupCount}}<text class="metric-unit">节</text></view>
-        <view class="metric-note">团课余额</view>
+        <view class="metric-value">{{pageData.assets.groupCount}}<text class="metric-unit">次</text></view>
+        <view class="metric-note">团体权益</view>
         <view class="metric-expiry {{pageData.assets.groupExpiry ? '' : 'metric-expiry-none'}}">
           {{pageData.assets.groupExpiry ? pageData.assets.groupExpiry + ' 到期' : '无到期限制'}}
         </view>
       </view>
     </view>
-    <view class="card-desc">课时预约前 365 天、跨门店通用。缺席前组开课前 2 小时内不可取消。</view>
+    <view class="card-desc">权益自购买日起 365 天内有效，跨门店通用。预约开始前 2 小时内不可取消。</view>
   </view>
 
   <view class="card">
@@ -81,17 +81,17 @@
           <view class="status-chip">{{item.status}}</view>
         </view>
         <view class="card-desc">{{item.timeRange}}</view>
-        <button wx:if="{{item.status === '待上课'}}" class="secondary-button booking-cancel-btn" data-booking-id="{{item.id}}" bindtap="onCancelBooking">取消预约</button>
+        <button wx:if="{{item.status === '待到店'}}" class="secondary-button booking-cancel-btn" data-booking-id="{{item.id}}" bindtap="onCancelBooking">取消预约</button>
       </view>
     </view>
   </view>
 
   <view class="card">
-    <view class="section-title">STATS · 训练统计</view>
+    <view class="section-title">STATS · 到店统计</view>
     <view class="profile-stats-grid">
       <view class="stats-item">
         <view class="stats-value">{{pageData.trainingStats.monthLessons}}</view>
-        <view class="stats-note">本月课数</view>
+        <view class="stats-note">本月场次</view>
       </view>
       <view class="stats-item">
         <view class="stats-value">{{pageData.trainingStats.streakDays}}</view>
@@ -104,7 +104,7 @@
     </view>
     <view class="menu-list">
       <view class="menu-item"><text>预约与核销规则</text><text class="menu-arrow">></text></view>
-      <view class="menu-item"><text>我的训练趋势</text><text class="menu-arrow">></text></view>
+      <view class="menu-item"><text>我的到店趋势</text><text class="menu-arrow">></text></view>
       <view class="menu-item"><text>消息与公告</text><text class="menu-arrow">></text></view>
       <view class="menu-item"><text>帮助与客服</text><text class="menu-arrow">></text></view>
     </view>

@@ -1,4 +1,4 @@
-// 🏠 首页（客户/教练/管理员共用）
+// 🏠 首页（客户/场馆人员/管理员共用）
 // 布局：状态栏 → 门店切换 + 消息 → Banner → 金刚区 → 馆内实景 → 价目表
 
 import { MobileShell } from "@/components/mobile-shell"
@@ -61,11 +61,11 @@ export default function HomePage() {
       />
       <HomeGallery />
 
-      {/* 课程价目表 */}
+      {/* 权益价目表 */}
       <SectionHeader
         index="02"
         eyebrow="PRICING"
-        title="课程价目表"
+        title="权益价目表"
         action={<span className="font-mono tracking-widest">线下购课</span>}
       />
       <PriceList />

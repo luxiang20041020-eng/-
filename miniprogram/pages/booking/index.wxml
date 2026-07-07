@@ -1,6 +1,6 @@
 <view class="page-shell">
   <view class="page-header">
-    <view class="eyebrow">BOOKING · 选课 · 扣课课时</view>
+    <view class="eyebrow">BOOKING · 选场次 · 使用权益</view>
     <view class="headline-row booking-title-row">
       <view class="page-title">预约大厅</view>
       <view class="filter-mark">FLT</view>
@@ -10,8 +10,8 @@
 
   <view class="card">
     <view class="booking-type-switch">
-      <view class="booking-type-tab {{pageData.filters.type === 'group' ? 'active' : ''}}" data-type="group" bindtap="onTypeChange">团课 GROUP</view>
-      <view class="booking-type-tab {{pageData.filters.type === 'private' ? 'active' : ''}}" data-type="private" bindtap="onTypeChange">私教 PRIVATE</view>
+      <view class="booking-type-tab {{pageData.filters.type === 'group' ? 'active' : ''}}" data-type="group" bindtap="onTypeChange">团体 GROUP</view>
+      <view class="booking-type-tab {{pageData.filters.type === 'private' ? 'active' : ''}}" data-type="private" bindtap="onTypeChange">专属 EXCLUSIVE</view>
     </view>
 
     <scroll-view class="scroll-row filter-scroll" scroll-x="true" show-scrollbar="false">
@@ -25,7 +25,7 @@
         <text class="coach-filter-label">{{pageData.selectedCoachName}}</text>
         <text class="coach-filter-arrow">></text>
       </view>
-      <view class="booking-result-count">{{pageData.resultCount}} 门课</view>
+      <view class="booking-result-count">{{pageData.resultCount}} 个场次</view>
     </view>
 
     <scroll-view class="scroll-row date-scroll" scroll-x="true" show-scrollbar="false">
@@ -37,8 +37,8 @@
   </view>
 
   <view class="card">
-    <view class="section-title">CLASS BOARD</view>
-    <view wx:if="{{pageData.schedules.length === 0}}" class="empty-text">当前筛选条件下暂无课程，请切换日期或门店。</view>
+    <view class="section-title">SLOT BOARD</view>
+    <view wx:if="{{pageData.schedules.length === 0}}" class="empty-text">当前筛选条件下暂无可预约场次，请切换日期或门店。</view>
     <view wx:for="{{pageData.schedules}}" wx:key="id" class="booking-schedule-card">
       <view class="booking-time-block">
         <view class="booking-time-main">{{item.timeStart}}</view>
@@ -69,7 +69,7 @@
           bindtap="onBook"
           disabled="{{item.isBooked || item.isFull}}"
         >
-          {{item.isBooked ? '已预约' : item.isFull ? '当前满员' : '立即预约 · 扣 1 课时'}}
+          {{item.isBooked ? '已预约' : item.isFull ? '当前满员' : '立即预约 · 使用 1 次权益'}}
         </button>
       </view>
     </view>
@@ -79,18 +79,18 @@
   <view wx:if="{{coachPickerVisible}}" class="coach-drawer">
     <view class="coach-drawer-header">
       <view>
-        <view class="coach-drawer-title">选择教练</view>
-        <view class="coach-drawer-subtitle">支持按姓名 / 头衔 / 专长搜索</view>
+        <view class="coach-drawer-title">选择场馆人员</view>
+        <view class="coach-drawer-subtitle">支持按姓名 / 岗位 / 熟悉项目搜索</view>
       </view>
       <view class="coach-drawer-close" bindtap="onCloseCoachPicker">×</view>
     </view>
-    <input class="coach-search-input" placeholder="搜索姓名、头衔、专长" placeholder-class="coach-search-placeholder" value="{{coachKeyword}}" bindinput="onCoachKeywordInput" />
+    <input class="coach-search-input" placeholder="搜索姓名、岗位、项目" placeholder-class="coach-search-placeholder" value="{{coachKeyword}}" bindinput="onCoachKeywordInput" />
     <scroll-view class="coach-drawer-scroll" scroll-y="true">
       <view class="coach-option-item {{pageData.filters.coachId === 'all' ? 'active' : ''}}" data-coach-id="all" bindtap="onCoachChange">
         <view class="coach-option-avatar">ALL</view>
         <view class="coach-option-main">
-          <view class="coach-option-name">全部教练</view>
-          <view class="coach-option-meta">当前筛选结果 {{pageData.resultCount}} 门课</view>
+          <view class="coach-option-name">全部人员</view>
+          <view class="coach-option-meta">当前筛选结果 {{pageData.resultCount}} 个场次</view>
         </view>
       </view>
       <view wx:for="{{pageData.filteredCoachOptions}}" wx:key="id" class="coach-option-item {{pageData.filters.coachId === item.id ? 'active' : ''}}" data-coach-id="{{item.id}}" bindtap="onCoachChange">
@@ -104,7 +104,7 @@
           <view class="coach-option-meta">{{item.summaryText}}</view>
         </view>
       </view>
-      <view wx:if="{{pageData.filteredCoachOptions.length === 0}}" class="empty-text">没有匹配到教练，请换个关键词再试。</view>
+      <view wx:if="{{pageData.filteredCoachOptions.length === 0}}" class="empty-text">没有匹配到场馆人员，请换个关键词再试。</view>
     </scroll-view>
   </view>
 

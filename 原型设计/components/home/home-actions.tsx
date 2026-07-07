@@ -1,13 +1,13 @@
 "use client"
 
-// 首页金刚区：团课预约 · 私教预约 · 我的课表 · 身份码
+// 首页金刚区：团体预约 · 专属预约 · 我的预约 · 身份码
 import Link from "next/link"
 import { CalendarDays, UserRound, ListChecks, QrCode } from "lucide-react"
 
 const ITEMS = [
-  { href: "/booking?type=1", icon: CalendarDays, label: "团课预约", code: "GROUP" },
-  { href: "/booking?type=2", icon: UserRound, label: "私教预约", code: "PT" },
-  { href: "/profile#bookings", icon: ListChecks, label: "我的课表", code: "MINE" },
+  { href: "/booking?type=1", icon: CalendarDays, label: "团体预约", code: "GROUP" },
+  { href: "/booking?type=2", icon: UserRound, label: "专属预约", code: "EXCL" },
+  { href: "/profile#bookings", icon: ListChecks, label: "我的预约", code: "MINE" },
   { href: "/profile#qr", icon: QrCode, label: "身份码", code: "QR" },
 ]
 

@@ -1,14 +1,14 @@
 <view class="page-shell">
   <view class="page-header">
     <view>
-      <view class="page-title">课程核销</view>
+      <view class="page-title">到场核销</view>
       <view class="page-subtitle">{{pageData.classInfo.title}} · {{pageData.classInfo.timeRange}}</view>
     </view>
     <view class="role-badge">教练</view>
   </view>
 
   <view class="card">
-    <view class="card-title">课程概览</view>
+    <view class="card-title">训练概览</view>
     <view class="card-desc">{{pageData.classInfo.venue}} · {{pageData.classInfo.dateLabel}}</view>
     <view class="metric-grid">
       <view class="metric-item">

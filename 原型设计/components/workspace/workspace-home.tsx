@@ -1,7 +1,7 @@
 "use client"
 
 // 教练工作台首页
-// 快捷操作 (扫码发课/核销 · 搜学员 · 排课 · 历史带课) + 今日我的课程
+// 快捷操作 (扫码发课/核销 · 搜学员 · 排课 · 历史带课) + 今日我的训练
 import Link from "next/link"
 import { useApp } from "@/components/app-provider"
 import { SCHEDULES } from "@/lib/mock-data"
@@ -57,7 +57,7 @@ export function WorkspaceHome() {
             href="/workspace/publish"
             icon={CalendarPlus}
             code="NEW"
-            title="发布课程"
+            title="发布训练"
             desc="发布一节具体日期的课"
           />
           <ActionTile
@@ -85,11 +85,11 @@ export function WorkspaceHome() {
         </div>
       </section>
 
-      {/* 今日我的课程 */}
+      {/* 今日我的训练 */}
       <section className="px-4 pb-6">
         <div className="flex items-center justify-between mb-2">
           <div className="text-[10px] font-mono tracking-[0.25em] text-primary">
-            TODAY · 今日我的课程
+            TODAY · 今日我的训练
           </div>
           <span className="text-[10px] font-mono tracking-widest text-muted-foreground">
             {todayClasses.length} CLASSES

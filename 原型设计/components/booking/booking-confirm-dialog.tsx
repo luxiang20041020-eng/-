@@ -1,6 +1,6 @@
 "use client"
 
-// 预约二次确认弹窗（防误扣课时）
+// 预约二次确认弹窗（防误用权益）
 import type { Schedule } from "@/lib/mock-data"
 import {
   AlertDialog,
@@ -36,7 +36,7 @@ export function BookingConfirmDialog({ schedule, onOpenChange, onConfirm }: Prop
             确认预约
           </AlertDialogTitle>
           <AlertDialogDescription className="text-muted-foreground text-xs leading-relaxed">
-            将扣除 1 节{schedule?.classType === 1 ? "团课" : "私教"}课时。
+            将使用 1 次{schedule?.classType === 1 ? "团体" : "专属"}权益。
             <br />
             <span className="text-foreground">{schedule?.title}</span>
             <br />

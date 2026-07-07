@@ -56,7 +56,7 @@
 
     <view class="card">
       <view class="headline-row">
-        <view class="section-title">TODAY · 今日课程</view>
+        <view class="section-title">TODAY · 今日训练</view>
         <view class="card-desc">{{pageData.todayClasses.length}} CLASSES</view>
       </view>
       <view wx:for="{{pageData.todayClasses}}" wx:key="id" class="today-class-card" data-class-id="{{item.id}}" bindtap="goClassDetail">

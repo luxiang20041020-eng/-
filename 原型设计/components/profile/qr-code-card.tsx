@@ -1,6 +1,6 @@
 "use client"
 
-// 🔐 动态身份码：每 60 秒刷新，生成 qr_token 供教练扫码核销 / 发课
+// 🔐 动态身份码：每 60 秒刷新，生成 qr_token 供场馆人员扫码核销 / 加权益
 import { useEffect, useMemo, useState } from "react"
 import { QRCodeSVG } from "qrcode.react"
 import { useApp } from "@/components/app-provider"
@@ -85,7 +85,7 @@ export function QrCodeCard() {
           <span className="absolute -bottom-1 -right-1 h-3 w-3 border-b-2 border-r-2 border-primary" />
         </div>
         <div className="text-center">
-          <div className="text-xs text-foreground">向教练出示此码 · 核销或充值</div>
+          <div className="text-xs text-foreground">向场馆人员出示此码 · 核销或充值</div>
           <div className="text-[10px] text-muted-foreground mt-1 font-mono tracking-widest break-all max-w-[240px]">
             {token}
           </div>

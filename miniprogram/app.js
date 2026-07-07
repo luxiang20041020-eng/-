@@ -85,7 +85,7 @@ function getAssetKeyByType(type) {
 }
 
 function getAssetLabelByType(type) {
-  return type === 'group' ? '团课' : '私教'
+  return type === 'group' ? '团体' : '专属'
 }
 
 function buildClassSummary(schedule, roster) {
@@ -379,7 +379,7 @@ App({
       return item.status !== '已取消'
     }).map((item) => {
       const isBooked = this.globalData.myBookings.some(
-        (booking) => booking.userId === currentUserId && booking.scheduleId === item.id && booking.status === '待上课'
+        (booking) => booking.userId === currentUserId && booking.scheduleId === item.id && booking.status === '待到店'
       )
       return Object.assign({}, item, {
         typeLabel: getAssetLabelByType(item.type),
@@ -402,26 +402,26 @@ App({
   createBooking(scheduleId, options = {}) {
     const targetSchedule = this.globalData.schedules.find((item) => item.id === scheduleId)
     if (!targetSchedule) {
-      return { ok: false, message: '课程不存在' }
+      return { ok: false, message: '排课不存在' }
     }
 
     const assetKey = getAssetKeyByType(targetSchedule.type)
     const assetLabel = getAssetLabelByType(targetSchedule.type)
-    const hasBooking = this.globalData.myBookings.some((item) => item.scheduleId === scheduleId && item.status === '待上课')
+    const hasBooking = this.globalData.myBookings.some((item) => item.scheduleId === scheduleId && item.status === '待到店')
 
     if (hasBooking) {
-      return { ok: false, message: '该课程已预约，无需重复提交' }
+      return { ok: false, message: '该场次已预约，无需重复提交' }
     }
 
     if (this.globalData.assets[assetKey] <= 0) {
-      return { ok: false, message: assetLabel + '课时不足，无法预约' }
+      return { ok: false, message: assetLabel + '权益不足，无法预约' }
     }
 
     if (targetSchedule.bookedCount >= targetSchedule.capacity) {
-      return { ok: false, message: '课程已满员，请选择其他时间段' }
+      return { ok: false, message: '当前时段已满员，请选择其他时间段' }
     }
 
-    // 这里用内存态模拟生产环境中的“扣课 + 占位”原子事务，后续接云函数时应替换为服务端事务。
+    // 这里用内存态模拟生产环境中的“使用权益 + 占位”原子事务，后续接云函数时应替换为服务端事务。
     targetSchedule.bookedCount += 1
     this.globalData.assets[assetKey] -= 1
     const currentUser = this.getCurrentUserMember()
@@ -438,7 +438,7 @@ App({
       type: targetSchedule.type,
       dateLabel: targetSchedule.dateLabel,
       timeRange: targetSchedule.timeRange,
-      status: '待上课',
+      status: '待到店',
     }
     this.globalData.myBookings.unshift(bookingRecord)
 
@@ -453,7 +453,7 @@ App({
       status: '待核销',
     })
 
-    return { ok: true, message: '预约成功，已扣减 1 节' + assetLabel }
+    return { ok: true, message: '预约成功，已使用 1 次' + assetLabel + '权益' }
   },
 
   applyCloudBookingSuccess(scheduleId, options = {}) {
@@ -466,7 +466,7 @@ App({
     const assetLabel = getAssetLabelByType(targetSchedule.type)
     const userId = this.globalData.userProfile.id
     const existingBooking = this.globalData.myBookings.find(
-      (item) => item.userId === userId && item.scheduleId === scheduleId && item.status === '待上课'
+      (item) => item.userId === userId && item.scheduleId === scheduleId && item.status === '待到店'
     )
     const bookingId = options.bookingId || (existingBooking ? existingBooking.id : ('booking_' + Date.now()))
 
@@ -480,7 +480,7 @@ App({
         type: targetSchedule.type,
         dateLabel: targetSchedule.dateLabel,
         timeRange: targetSchedule.timeRange,
-        status: '待上课',
+        status: '待到店',
       }
       this.globalData.myBookings.unshift(bookingRecord)
     }
@@ -512,12 +512,12 @@ App({
       targetSchedule.bookedCount += 1
     }
 
-    return { ok: true, message: '预约成功，已扣减 1 节' + assetLabel }
+    return { ok: true, message: '预约成功，已使用 1 次' + assetLabel + '权益' }
   },
 
   cancelBooking(bookingId) {
     const booking = this.globalData.myBookings.find((item) => item.id === bookingId)
-    if (!booking || booking.status !== '待上课') {
+    if (!booking || booking.status !== '待到店') {
       return { ok: false, message: '当前预约状态不可取消' }
     }
 
@@ -542,7 +542,7 @@ App({
       targetRoster.status = '已取消'
     }
 
-    return { ok: true, message: '取消成功，已退回 1 节' + assetLabel }
+    return { ok: true, message: '取消成功，已退回 1 次' + assetLabel + '权益' }
   },
 
   applyCloudCancelSuccess(bookingId) {
@@ -576,7 +576,7 @@ App({
       targetRoster.status = '已取消'
     }
 
-    return { ok: true, message: '取消成功，已退回 1 节' + assetLabel }
+    return { ok: true, message: '取消成功，已退回 1 次' + assetLabel + '权益' }
   },
 
   getProfilePageData() {

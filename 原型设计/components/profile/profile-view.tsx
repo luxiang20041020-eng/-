@@ -1,6 +1,6 @@
 "use client"
 
-// 我的 · 资产卡片 · 身份核销码 · 预约记录 · 上课统计
+// 我的 · 权益卡片 · 身份核销码 · 预约记录 · 到店统计
 import { useApp } from "@/components/app-provider"
 import { MY_BOOKINGS } from "@/lib/mock-data"
 import { QrCodeCard } from "@/components/profile/qr-code-card"
@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 export function ProfileView() {
   const { role, userName, userPhone, assets, currentStore } = useApp()
 
-  const roleLabel = role === 3 ? "ADMIN · 管理员" : role === 2 ? "COACH · 教练" : "CLIENT · 会员"
+  const roleLabel = role === 3 ? "ADMIN · 管理员" : role === 2 ? "STAFF · 场馆人员" : "CLIENT · 会员"
 
   return (
     <div className="flex flex-col">
@@ -32,17 +32,17 @@ export function ProfileView() {
         </div>
       </section>
 
-      {/* 课时资产卡片 */}
+      {/* 权益卡片 */}
       <section id="assets" className="px-4 py-4">
         <div className="text-[10px] font-mono tracking-[0.25em] text-primary mb-2">
-          MY ASSETS · 我的课时资产
+          MY ASSETS · 我的权益
         </div>
         <div className="grid grid-cols-2 border border-border">
-          <AssetCell label="私教" code="PRIVATE" value={assets.privateClass} highlight />
-          <AssetCell label="团课" code="GROUP" value={assets.groupClass} />
+          <AssetCell label="专属" code="EXCLUSIVE" value={assets.privateClass} highlight />
+          <AssetCell label="团体" code="GROUP" value={assets.groupClass} />
         </div>
         <div className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
-          课时有效期 365 天 · 跨门店通用 · 缺席照扣 · 开课前 2 小时内不可取消
+          权益有效期 365 天 · 跨门店通用 · 缺席照扣 · 预约开始前 2 小时内不可取消
         </div>
       </section>
 
@@ -64,10 +64,10 @@ export function ProfileView() {
         <ul className="border border-border divide-y divide-border">
           {MY_BOOKINGS.map((b) => {
             const statusMap: Record<number, { label: string; cls: string }> = {
-              1: { label: "待上课", cls: "text-primary border-primary" },
+              1: { label: "待到店", cls: "text-primary border-primary" },
               2: { label: "已完成", cls: "text-muted-foreground border-border" },
               3: { label: "已取消", cls: "text-muted-foreground border-border" },
-              4: { label: "教练取消", cls: "text-muted-foreground border-border" },
+              4: { label: "场馆取消", cls: "text-muted-foreground border-border" },
               5: { label: "缺席", cls: "text-destructive border-destructive" },
             }
             const st = statusMap[b.status]
@@ -101,12 +101,12 @@ export function ProfileView() {
       {/* 统计 */}
       <section className="px-4 pb-4">
         <div className="text-[10px] font-mono tracking-[0.25em] text-primary mb-2">
-          STATS · 训练统计
+          STATS · 到店统计
         </div>
         <div className="grid grid-cols-3 border border-border">
-          <StatCell label="本月课数" value="12" unit="节" />
+          <StatCell label="本月场次" value="12" unit="次" />
           <StatCell label="坚持天数" value="37" unit="天" border />
-          <StatCell label="累计课时" value="128" unit="节" border />
+          <StatCell label="累计权益" value="128" unit="次" border />
         </div>
       </section>
 
@@ -114,7 +114,7 @@ export function ProfileView() {
       <section className="px-4 pb-6">
         <ul className="border border-border divide-y divide-border">
           <MenuItem icon={CalendarCheck} label="预约与核销规则" />
-          <MenuItem icon={TrendingUp} label="我的训练趋势" />
+          <MenuItem icon={TrendingUp} label="我的到店趋势" />
           <MenuItem icon={Megaphone} label="消息与公告" />
           <MenuItem icon={CircleHelp} label="帮助与客服" />
           <MenuItem icon={LogOut} label="切换账号" danger />
@@ -147,9 +147,9 @@ function AssetCell({
       </span>
       <div className="flex items-baseline gap-1.5 mt-1">
         <span className="font-display text-4xl num leading-none">{value}</span>
-        <span className="text-xs text-muted-foreground">节</span>
+        <span className="text-xs text-muted-foreground">次</span>
       </div>
-      <span className="text-xs text-foreground mt-1">{label}余额</span>
+      <span className="text-xs text-foreground mt-1">{label}权益</span>
       {highlight && <div className="absolute top-0 left-0 w-[3px] h-full bg-primary" />}
     </div>
   )

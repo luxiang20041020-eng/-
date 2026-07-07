@@ -229,7 +229,7 @@ Page({
       || this.data.pageData.currentStore
 
     if (!this.data.title || !selectedStore || !selectedStore.id) {
-      wx.showToast({ title: '请补全课程主题并选择门店', icon: 'none' })
+      wx.showToast({ title: '请补全训练主题并选择门店', icon: 'none' })
       return
     }
 

@@ -2,7 +2,7 @@
   <view class="page-header">
     <view>
       <view class="page-title">排课管理</view>
-      <view class="page-subtitle">{{pageData.currentStore.name}} · 维护近期发布课程并补录新排课。</view>
+      <view class="page-subtitle">{{pageData.currentStore.name}} · 维护近期发布训练安排并补录新排课。</view>
     </view>
     <view class="role-badge">教练</view>
   </view>
@@ -24,11 +24,11 @@
       <input class="form-input" data-field="timeRange" value="{{timeRange}}" bindinput="onInput" />
     </view>
     <view class="field-block">
-      <view class="field-label">课程主题</view>
+      <view class="field-label">训练主题</view>
       <input class="form-input" data-field="title" value="{{title}}" bindinput="onInput" placeholder="如：泰拳基础步法" />
     </view>
     <view class="field-block">
-      <view class="field-label">课程类型</view>
+      <view class="field-label">训练类型</view>
       <view class="button-row" style="margin-top: 16rpx;">
         <view class="outline-chip {{type === 'group' ? 'active' : ''}}" data-type="group" bindtap="onTypeChange">团课</view>
         <view class="outline-chip {{type === 'private' ? 'active' : ''}}" data-type="private" bindtap="onTypeChange">私教</view>

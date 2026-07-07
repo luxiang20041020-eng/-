@@ -26,7 +26,7 @@ const jetbrains = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "铁拳搏击 · IRONFIST MUAY THAI",
-  description: "泰拳搏击馆会员小程序 · 预约 · 核销 · 课时管理",
+  description: "泰拳搏击馆会员小程序 · 场馆预约 · 核销 · 权益管理",
   generator: "v0.app",
 }
 

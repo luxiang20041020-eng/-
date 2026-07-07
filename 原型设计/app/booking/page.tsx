@@ -8,7 +8,7 @@ export default function BookingPage() {
     <MobileShell>
       <PageHeader
         title="预约大厅"
-        subtitle="BOOKING · 选课 · 扣减课时"
+        subtitle="BOOKING · 选场次 · 使用权益"
         right={
           <button className="p-1" aria-label="筛选">
             <Filter className="h-5 w-5" strokeWidth={1.75} />

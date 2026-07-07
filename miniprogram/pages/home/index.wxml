@@ -25,7 +25,7 @@
       </view>
       <view class="home-hero-stat">
         <view class="home-hero-stat-value">{{pageData.coachCountText}}</view>
-        <view class="home-hero-stat-label">COACHES</view>
+        <view class="home-hero-stat-label">STAFF</view>
       </view>
     </view>
   </view>
@@ -51,7 +51,7 @@
         <view class="icon-calendar-grid"></view>
       </view>
       <view class="home-access-kicker">GROUP</view>
-      <view class="home-access-title">团课预约</view>
+      <view class="home-access-title">团体预约</view>
     </view>
     <view class="home-access-item" bindtap="goBooking">
       <view class="home-access-icon icon-user">
@@ -59,7 +59,7 @@
         <view class="icon-user-body"></view>
       </view>
       <view class="home-access-kicker">PT</view>
-      <view class="home-access-title">私教预约</view>
+      <view class="home-access-title">专属预约</view>
     </view>
     <view class="home-access-item" bindtap="goMySchedule">
       <view class="home-access-icon icon-list">
@@ -68,7 +68,7 @@
         <view class="icon-list-row"></view>
       </view>
       <view class="home-access-kicker">MINE</view>
-      <view class="home-access-title">我的课表</view>
+      <view class="home-access-title">我的预约</view>
     </view>
     <view class="home-access-item" bindtap="goIdentityQr">
       <view class="home-access-icon icon-qr">
@@ -102,16 +102,16 @@
     <view class="headline-row">
       <view>
         <view class="eyebrow">PRICING</view>
-        <view class="home-section-name">课程价目表</view>
+        <view class="home-section-name">价目表</view>
       </view>
       <view class="card-desc">线下了解</view>
     </view>
     <view class="pricing-list">
       <view wx:for="{{pageData.packages}}" wx:key="id" class="pricing-item">
         <view>
-          <view class="pricing-tag {{item.type === 'private' ? 'is-private' : 'is-group'}}">{{item.type === 'private' ? 'PRIVATE' : 'GROUP'}}</view>
+          <view class="pricing-tag {{item.type === 'private' ? 'is-private' : 'is-group'}}">{{item.type === 'private' ? 'EXCLUSIVE' : 'GROUP'}}</view>
           <view class="pricing-name">{{item.name}}</view>
-          <view class="pricing-meta">{{item.lessons}} CLASSES · CODE-00{{index + 1}}</view>
+          <view class="pricing-meta">{{item.lessons}} TIMES · CODE-00{{index + 1}}</view>
         </view>
         <view class="pricing-price-wrap">
           <view class="pricing-price">￥{{item.price}}</view>

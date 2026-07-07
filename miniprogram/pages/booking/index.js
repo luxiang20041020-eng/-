@@ -42,7 +42,7 @@ function decorateSchedule(schedule) {
 function normalizeCoach(coach) {
   const specialties = Array.isArray(coach.specialties) ? coach.specialties : []
   return Object.assign({}, coach, {
-    title: coach.title || '教练',
+    title: coach.title || '场馆人员',
     specialties,
     specialtiesText: specialties.join(' / '),
     summaryText: specialties.length ? specialties.join(' / ') : (coach.bio || ''),
@@ -61,8 +61,8 @@ function decorateBookingPageData(pageData, filters, coachKeyword) {
     filters: Object.assign({}, safeData.filters, filters || {}),
     coaches: normalizedCoaches,
     filteredCoachOptions,
-    selectedCoachName: selectedCoach ? selectedCoach.name : '全部教练',
-    selectedCoachTitle: selectedCoach ? selectedCoach.title : '全部教练',
+    selectedCoachName: selectedCoach ? selectedCoach.name : '全部人员',
+    selectedCoachTitle: selectedCoach ? selectedCoach.title : '全部人员',
     resultCount: (safeData.schedules || []).length,
     dates: buildNextSevenDays(),
     schedules: (safeData.schedules || []).map(decorateSchedule),
@@ -216,7 +216,7 @@ Page({
     if (!runtime.isAuthenticated) {
       wx.showModal({
         title: '请先登录',
-        content: '预约课程需要登录，是否前往登录？',
+        content: '预约需要登录，是否前往登录？',
         confirmText: '去登录',
         success: (res) => {
           if (res.confirm) {
@@ -235,7 +235,7 @@ Page({
     const assetText = schedule.type === 'group' ? this.data.pageData.assets.groupCount : this.data.pageData.assets.privateCount
     wx.showModal({
       title: '确认预约',
-      content: '当前剩余课时 ' + assetText + ' 节，确认预约《' + title + '》吗？',
+      content: '当前剩余权益 ' + assetText + ' 次，确认预约《' + title + '》吗？',
       success: async (res) => {
         if (!res.confirm) return
         if (this._isBooking) return

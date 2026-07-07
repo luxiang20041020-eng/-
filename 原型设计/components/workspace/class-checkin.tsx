@@ -1,6 +1,6 @@
 "use client"
 
-// 🎯 单节课程核销
+// 🎯 单节训练核销
 // 支持两种模式：A 扫码核销（唤起 wx.scanCode）；B 手动点名核销（左滑选项）
 
 import { useMemo, useState } from "react"
@@ -43,13 +43,13 @@ export function ClassCheckin({ scheduleId }: Props) {
 
   if (!schedule) {
     return (
-      <div className="p-6 text-center text-sm text-muted-foreground">课程不存在</div>
+      <div className="p-6 text-center text-sm text-muted-foreground">排课不存在</div>
     )
   }
 
   return (
     <div>
-      {/* 课程信息 */}
+      {/* 训练信息 */}
       <section className="px-4 py-4 border-b border-border">
         <div className="flex items-center gap-2 text-[10px] font-mono tracking-widest text-primary mb-1.5">
           <span className="border border-primary px-1 py-0.5">

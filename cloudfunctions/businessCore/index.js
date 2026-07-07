@@ -54,7 +54,7 @@ const ROLE_VALUE_MAP = {
 
 const ROLE_LABEL_MAP = {
   1: '客户',
-  2: '教练',
+  2: '场馆人员',
   3: '管理员',
 }
 
@@ -86,7 +86,7 @@ const storeSeeds = [
 const packageSeeds = [
   {
     _id: 'pkg_private_30',
-    name: '30节私教卡',
+    name: '30次专属权益',
     asset_type: ASSET_TYPE.PRIVATE,
     course_count: 30,
     display_price: 6000,
@@ -97,7 +97,7 @@ const packageSeeds = [
   },
   {
     _id: 'pkg_private_trial',
-    name: '新人体验私教课',
+    name: '新人体验权益',
     asset_type: ASSET_TYPE.PRIVATE,
     course_count: 1,
     display_price: 99,
@@ -108,7 +108,7 @@ const packageSeeds = [
   },
   {
     _id: 'pkg_group_half_year',
-    name: '半年团课卡',
+    name: '半年团体权益',
     asset_type: ASSET_TYPE.GROUP,
     course_count: 48,
     display_price: 2999,
@@ -176,12 +176,12 @@ const userSeeds = [
     _id: 'coach_li',
     openid: 'demo_openid_coach_2001',
     phone: '13900001234',
-    real_name: '李教练',
+    real_name: '李馆员',
     avatar_url: '',
-    coach_title: '泰拳主教练',
+    coach_title: '场馆服务顾问',
     specialties: ['步法', '膝法', '燃脂'],
     level_label: '资深',
-    bio: '职业泰拳背景，擅长小班动作纠正与燃脂训练。',
+    bio: '熟悉馆内区域与到店流程，擅长小班时段安排。',
     role: 2,
     home_store_id: 'gaoxin',
     status: 1,
@@ -193,9 +193,9 @@ const userSeeds = [
     _id: 'coach_wang',
     openid: 'demo_openid_coach_2002',
     phone: '13900004567',
-    real_name: '王教练',
+    real_name: '王馆员',
     avatar_url: '',
-    coach_title: '自由搏击教练',
+    coach_title: '场馆协调员',
     specialties: ['拳法', '实战', '对练'],
     level_label: '资深',
     bio: '擅长对练体系与比赛节奏建立，偏实战风格。',
@@ -210,12 +210,12 @@ const userSeeds = [
     _id: 'coach_zhao',
     openid: 'demo_openid_coach_2003',
     phone: '13900007890',
-    real_name: '赵教练',
+    real_name: '赵馆员',
     avatar_url: '',
-    coach_title: '体能与私教教练',
-    specialties: ['减脂', '私教', '体能'],
+    coach_title: '体能区顾问',
+    specialties: ['减脂', '专属', '体能'],
     level_label: '核心',
-    bio: '偏重私教减脂与体能提升，适合零基础进阶。',
+    bio: '熟悉体能区与专属预约流程，适合零基础体验。',
     role: 2,
     home_store_id: 'jingkai',
     status: 1,
@@ -328,7 +328,7 @@ const scheduleSeeds = [
     store_name: '高新旗舰店',
     coach_id: 'coach_li',
     class_type: ASSET_TYPE.GROUP,
-    title: '泰拳基础发力小班课',
+    title: '泰拳基础发力小班场',
     start_time: '2026-04-24 19:00:00',
     end_time: '2026-04-24 20:30:00',
     max_capacity: 15,
@@ -345,7 +345,7 @@ const scheduleSeeds = [
     store_name: '高新旗舰店',
     coach_id: 'coach_li',
     class_type: ASSET_TYPE.PRIVATE,
-    title: '拳腿衔接私教档期',
+    title: '拳腿衔接专属时段',
     start_time: '2026-04-24 20:30:00',
     end_time: '2026-04-24 21:30:00',
     max_capacity: 1,
@@ -402,21 +402,21 @@ const bookingSeeds = [
 ]
 
 const HOME_NOTICES = [
-  '暑期燃脂计划开启，团课卡续费可预约教练体验课。',
+  '暑期燃脂计划开启。',
   '五一假期营业时间调整：高新店 9:00-21:00，经开店 10:00-20:00。',
-  '新手友好课程持续开放，首次到店可申请教练动作评估。',
+  '新手友好体验时段持续开放，首次到店可申请动作评估。',
 ]
 
 const HOME_GALLERY = [
   '拳台区 / 标准赛台 / 录像回放',
-  '力量区 / 壶铃雪橇 / 爆发训练',
-  '沙袋区 / 实战靶训练 / 私教专区',
+  '力量区 / 壶铃雪橇 / 体能区',
+  '沙袋区 / 实战靶区 / 专属区域',
 ]
 
 const COACH_QUICK_ACTIONS = [
-  { id: 'distribute', title: '课时派发', desc: '线下收款后给学员加课，并形成审计流水。' },
-  { id: 'class', title: '课程核销', desc: '进入单节课名单，扫码或手动核销到场学员。' },
-  { id: 'schedule', title: '排课管理', desc: '管理近期排课并临时新增训练计划。' },
+  { id: 'distribute', title: '权益派发', desc: '线下收款后给学员加权益，并形成审计流水。' },
+  { id: 'class', title: '到场核销', desc: '进入单节名单，扫码或手动核销到场学员。' },
+  { id: 'schedule', title: '排期管理', desc: '管理近期排期并临时新增场次计划。' },
 ]
 
 function buildSuccess(data) {
@@ -476,7 +476,7 @@ function buildIdentityQrScene(user, minuteKey) {
 function buildUserLevelText(user) {
   const role = mapUserRoleToPageRole(user && user.role)
   if (role === 'coach') {
-    return user.coach_title || (user.level_label ? user.level_label + '教练' : '教练')
+    return user.coach_title || (user.level_label ? user.level_label + '场馆人员' : '场馆人员')
   }
   if (role === 'admin') {
     return '门店运营管理员'
@@ -650,19 +650,19 @@ function mapAssetTypeToPageType(assetType) {
 }
 
 function mapAssetTypeToLabel(assetType) {
-  return Number(assetType) === ASSET_TYPE.GROUP ? '团课' : '私教'
+  return Number(assetType) === ASSET_TYPE.GROUP ? '团体' : '专属'
 }
 
 function mapBookingStatusToLabel(status) {
   switch (Number(status)) {
     case BOOKING_STATUS.PENDING:
-      return '待上课'
+      return '待到店'
     case BOOKING_STATUS.WRITTEN_OFF:
       return '已完成'
     case BOOKING_STATUS.CLIENT_CANCELLED:
       return '已取消'
     case BOOKING_STATUS.COACH_CANCELLED:
-      return '教练取消'
+      return '场馆取消'
     case BOOKING_STATUS.ABSENT:
       return '已缺席'
     default:
@@ -681,7 +681,7 @@ function mapRosterStatusToLabel(status) {
     case BOOKING_STATUS.CLIENT_CANCELLED:
       return '已取消'
     case BOOKING_STATUS.COACH_CANCELLED:
-      return '教练取消'
+      return '场馆取消'
     default:
       return '未知状态'
   }
@@ -936,7 +936,7 @@ async function getBookingViewData(event) {
       coaches: coaches.map((item) => ({
         id: item._id,
         name: item.real_name,
-        title: item.coach_title || '教练',
+        title: item.coach_title || '场馆人员',
         specialties: Array.isArray(item.specialties) ? item.specialties : [],
         levelLabel: item.level_label || '',
         bio: item.bio || '',
@@ -1018,7 +1018,7 @@ async function getProfileViewData(event) {
       trainingStats: {
         monthLessons: writtenOffCount,
         streakDays: writtenOffCount > 0 ? writtenOffCount + 3 : 0,
-        nextTarget: writtenOffCount >= 12 ? '本月目标已完成，继续保持训练节奏。' : '本月再完成 ' + Math.max(0, 12 - writtenOffCount) + ' 节课即可达到目标。',
+        nextTarget: writtenOffCount >= 12 ? '本月目标已完成，继续保持到店节奏。' : '本月再完成 ' + Math.max(0, 12 - writtenOffCount) + ' 次预约即可达到目标。',
       },
     })
   } catch (error) {
@@ -1336,7 +1336,7 @@ async function createPackage(event) {
     return buildFail('套餐类型非法', 'INVALID_CREATE_PACKAGE_PAYLOAD')
   }
   if (!Number.isFinite(lessons) || lessons <= 0) {
-    return buildFail('课时数必须大于 0', 'INVALID_CREATE_PACKAGE_PAYLOAD')
+    return buildFail('权益次数必须大于 0', 'INVALID_CREATE_PACKAGE_PAYLOAD')
   }
   if (!Number.isFinite(price) || price < 0) {
     return buildFail('展示价不能小于 0', 'INVALID_CREATE_PACKAGE_PAYLOAD')
@@ -1438,7 +1438,7 @@ async function getCoachClassViewData(event) {
 
     const schedule = scheduleRes.data
     if (!schedule) {
-      return buildFail('课程不存在', 'CLASS_NOT_FOUND')
+      return buildFail('排课不存在', 'CLASS_NOT_FOUND')
     }
 
     const userMap = new Map(users.map((item) => [item._id, item]))
@@ -1467,7 +1467,7 @@ async function getCoachClassViewData(event) {
       })),
     })
   } catch (error) {
-    return buildFail('读取课程核销页失败：' + (error.errMsg || error.message || error), 'COACH_CLASS_VIEW_ERROR')
+    return buildFail('读取到场核销页失败：' + (error.errMsg || error.message || error), 'COACH_CLASS_VIEW_ERROR')
   }
 }
 
@@ -1769,10 +1769,10 @@ async function createClientBooking(event) {
         throw new Error('排课不存在')
       }
       if (scheduleData.status !== SCHEDULE_STATUS.OPEN && scheduleData.status !== SCHEDULE_STATUS.FULL) {
-        throw new Error('当前课程状态不可预约')
+        throw new Error('当前排课状态不可预约')
       }
       if (Number(scheduleData.booked_count) >= Number(scheduleData.max_capacity)) {
-        throw new Error('课程已满员')
+        throw new Error('当前时段已满员')
       }
 
       const assetType = mapClassTypeToAssetType(scheduleData.class_type)
@@ -1784,13 +1784,13 @@ async function createClientBooking(event) {
         is_deleted: false,
       }).count()
       if (bookingExists.total > 0) {
-        throw new Error('该用户已预约当前课程')
+        throw new Error('该用户已预约当前场次')
       }
 
       const assetRes = await transaction.collection(COLLECTIONS.USER_ASSET).doc(assetDocId).get()
       const assetData = assetRes.data
       if (!assetData || Number(assetData.balance) <= 0) {
-        throw new Error('可用课时不足')
+        throw new Error('可用权益不足')
       }
 
       const nextBookedCount = Number(scheduleData.booked_count) + 1
@@ -1826,7 +1826,7 @@ async function createClientBooking(event) {
           amount: -1,
           operator_id: payload.userId,
           ref_biz_id: payload.scheduleId,
-          remark: payload.remark || '预约扣课',
+          remark: payload.remark || '预约使用权益',
           created_at: db.serverDate(),
           updated_at: db.serverDate(),
           is_deleted: false,
@@ -1868,7 +1868,7 @@ async function cancelClientBooking(event) {
     const scheduleRes = await getDocById(COLLECTIONS.CLASS_SCHEDULE, bookingData.schedule_id)
     const scheduleData = scheduleRes.data
     if (!scheduleData) {
-      return buildFail('关联课程不存在', 'SCHEDULE_NOT_FOUND')
+      return buildFail('关联排课不存在', 'SCHEDULE_NOT_FOUND')
     }
 
     const assetType = mapClassTypeToAssetType(scheduleData.class_type)

@@ -1,6 +1,6 @@
 "use client"
 
-// 发布课程 (biz_class_schedule · 单条或批量)
+// 发布训练 (biz_class_schedule · 单条或批量)
 // 核心字段：类型 / 主题 / 日期 / 时段 / 场地 / 容量 / 难度 / 重复策略 / 备注
 // 提交后：单次 → POST /api/coach/schedules
 //         重复 → 后端按 repeatWeeks 生成 N 条记录（每周同一时段）
@@ -88,7 +88,7 @@ export function PublishClassForm() {
 
   const handleSubmit = () => {
     if (!title.trim()) {
-      toast.error("请先填写课程主题")
+      toast.error("请先填写训练主题")
       return
     }
     setConfirmOpen(true)
@@ -124,7 +124,7 @@ export function PublishClassForm() {
               PUBLISH · 新建一节课
             </div>
             <h2 className="text-base font-semibold mt-1 text-balance">
-              填写课程信息 · 提交后即对学员可见
+              填写训练信息 · 提交后即对学员可见
             </h2>
           </div>
           <span className="text-[10px] font-mono tracking-widest border border-border px-2 py-0.5 text-muted-foreground">
@@ -133,8 +133,8 @@ export function PublishClassForm() {
         </div>
       </div>
 
-      {/* 01 · 课程类型 */}
-      <Group index="01" code="TYPE" label="课程类型">
+      {/* 01 · 训练类型 */}
+      <Group index="01" code="TYPE" label="训练类型">
         <div className="grid grid-cols-2 border border-border">
           {([1, 2] as const).map((t) => (
             <button
@@ -156,8 +156,8 @@ export function PublishClassForm() {
         </div>
       </Group>
 
-      {/* 02 · 课程主题 / 难度 */}
-      <Group index="02" code="TITLE" label="课程主题">
+      {/* 02 · 训练主题 / 难度 */}
+      <Group index="02" code="TITLE" label="训练主题">
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -278,7 +278,7 @@ export function PublishClassForm() {
       </Group>
 
       {/* 06 · 容量 */}
-      <Group index="06" code="CAP" label="课程容量" icon={Users}>
+      <Group index="06" code="CAP" label="训练容量" icon={Users}>
         {classType === 2 ? (
           <div className="border border-border px-3 py-3 text-sm text-muted-foreground flex items-center justify-between">
             <span>私教课固定 1 人</span>
@@ -329,7 +329,7 @@ export function PublishClassForm() {
         {repeatWeeks !== 0 && (
           <div className="mt-2 text-[11px] text-muted-foreground leading-relaxed">
             将自 <span className="num text-foreground">{date}</span> 起，
-            每周同一时段生成 <span className="num text-foreground">{repeatWeeks}</span> 条课程记录。
+            每周同一时段生成 <span className="num text-foreground">{repeatWeeks}</span> 条训练记录。
           </div>
         )}
       </Group>
@@ -376,7 +376,7 @@ export function PublishClassForm() {
               <span className="text-[10px] font-mono tracking-widest text-primary border border-primary px-1">
                 CONFIRM
               </span>
-              确认发布课程
+              确认发布训练
             </DialogTitle>
           </DialogHeader>
           <div className="border border-border divide-y divide-border">

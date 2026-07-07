@@ -13,7 +13,7 @@ export default async function ClassCheckinPage({
   return (
     <MobileShell>
       <RoleGuard min={2}>
-        <PageHeader title="课程核销" subtitle="CHECK-IN · 扫码 / 手动点名" back={<BackButton />} />
+        <PageHeader title="到场核销" subtitle="CHECK-IN · 扫码 / 手动点名" back={<BackButton />} />
         <ClassCheckin scheduleId={Number(id)} />
       </RoleGuard>
     </MobileShell>

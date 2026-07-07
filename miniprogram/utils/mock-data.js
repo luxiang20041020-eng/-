@@ -1,6 +1,6 @@
 const ROLE_LIST = [
   { value: 'client', label: '客户', level: 1 },
-  { value: 'coach', label: '教练', level: 2 },
+  { value: 'coach', label: '场馆人员', level: 2 },
   { value: 'admin', label: '管理员', level: 3 },
 ]
 
@@ -31,9 +31,9 @@ const ROLE_USER_MAP = {
   },
   coach: {
     id: 'coach_li',
-    nickname: '李教练',
+    nickname: '李馆员',
     phone: '13900001234',
-    levelText: '泰拳金牌教练',
+    levelText: '场馆服务人员',
     homeStoreId: 'gaoxin',
   },
   admin: {
@@ -89,7 +89,7 @@ const MEMBER_LIST = [
 const ASSET_PACKAGE_OPTIONS = [
   {
     id: 'pkg_private_30',
-    name: '30 节私教卡',
+    name: '30 次专属权益',
     type: 'private',
     lessons: 30,
     price: 6000,
@@ -98,7 +98,7 @@ const ASSET_PACKAGE_OPTIONS = [
   },
   {
     id: 'pkg_private_trial',
-    name: '新人体验私教课',
+    name: '新人体验权益',
     type: 'private',
     lessons: 1,
     price: 99,
@@ -107,7 +107,7 @@ const ASSET_PACKAGE_OPTIONS = [
   },
   {
     id: 'pkg_group_half_year',
-    name: '半年团课卡',
+    name: '半年团体权益',
     type: 'group',
     lessons: 48,
     price: 2999,
@@ -117,27 +117,27 @@ const ASSET_PACKAGE_OPTIONS = [
 ]
 
 const BANNERS = [
-  '暑期燃脂计划开启，团课卡续费可预约教练体验课。',
+  '暑期燃脂计划开启',
   '五一假期营业时间调整：高新店 9:00-21:00，经开店 10:00-20:00。',
-  '新手友好课程持续开放，首次到店可申请教练动作评估。',
+  '新手友好体验时段持续开放，首次到店可申请动作评估。',
 ]
 
 const PRICE_PACKAGES = [
-  { id: 'pkg_trial', name: '新人体验私教课', type: 'private', lessons: 1, price: 99 },
-  { id: 'pkg_group_half_year', name: '泰拳基础大班卡', type: 'group', lessons: 48, price: 2999 },
-  { id: 'pkg_private_30', name: '进阶一对一私教', type: 'private', lessons: 30, price: 6000 },
+  { id: 'pkg_trial', name: '新人体验权益', type: 'private', lessons: 1, price: 99 },
+  { id: 'pkg_group_half_year', name: '泰拳基础团体权益', type: 'group', lessons: 48, price: 2999 },
+  { id: 'pkg_private_30', name: '进阶一对一专属权益', type: 'private', lessons: 30, price: 6000 },
 ]
 
 const GALLERY_LIST = [
   '拳台区 / 标准赛台 / 录像回放',
-  '力量区 / 壶铃雪橇 / 爆发训练',
-  '沙袋区 / 实战靶训练 / 私教专区',
+  '力量区 / 壶铃雪橇 / 体能区',
+  '沙袋区 / 实战靶区 / 专属区域',
 ]
 
 const COACH_LIST = [
-  { id: 'coach_li', name: '李教练', title: '泰拳主教练', specialties: ['步法', '膝法', '燃脂'], levelLabel: '资深' },
-  { id: 'coach_wang', name: '王教练', title: '自由搏击教练', specialties: ['拳法', '实战', '对练'], levelLabel: '资深' },
-  { id: 'coach_zhao', name: '赵教练', title: '体能与私教教练', specialties: ['减脂', '私教', '体能'], levelLabel: '核心' },
+  { id: 'coach_li', name: '李馆员', title: '场馆服务顾问', specialties: ['步法区', '膝法区', '燃脂'], levelLabel: '资深' },
+  { id: 'coach_wang', name: '王馆员', title: '场馆协调员', specialties: ['拳法区', '实战区', '对练'], levelLabel: '资深' },
+  { id: 'coach_zhao', name: '赵馆员', title: '体能区顾问', specialties: ['减脂', '专属', '体能'], levelLabel: '核心' },
 ]
 
 const BOOKING_DATES = [
@@ -154,10 +154,10 @@ const SCHEDULE_LIST = [
     dateKey: '04-24',
     dateLabel: '04/24 今日',
     timeRange: '19:00 - 20:30',
-    title: '泰拳基础发力小班课',
+    title: '泰拳基础发力小班场',
     type: 'group',
     coachId: 'coach_li',
-    coachName: '李教练',
+    coachName: '李馆员',
     venue: '高新旗舰店',
     capacity: 15,
     bookedCount: 12,
@@ -169,10 +169,10 @@ const SCHEDULE_LIST = [
     dateKey: '04-24',
     dateLabel: '04/24 今日',
     timeRange: '20:30 - 21:30',
-    title: '拳腿衔接私教档期',
+    title: '拳腿衔接专属时段',
     type: 'private',
     coachId: 'coach_wang',
-    coachName: '王教练',
+    coachName: '王馆员',
     venue: '高新旗舰店',
     capacity: 1,
     bookedCount: 0,
@@ -187,7 +187,7 @@ const SCHEDULE_LIST = [
     title: '自由搏击进阶对练',
     type: 'group',
     coachId: 'coach_zhao',
-    coachName: '赵教练',
+    coachName: '赵馆员',
     venue: '高新旗舰店',
     capacity: 18,
     bookedCount: 9,
@@ -199,10 +199,10 @@ const SCHEDULE_LIST = [
     dateKey: '04-24',
     dateLabel: '04/24 今日',
     timeRange: '18:30 - 19:30',
-    title: '零基础出拳启蒙',
+    title: '零基础体验时段',
     type: 'group',
     coachId: 'coach_li',
-    coachName: '李教练',
+    coachName: '李馆员',
     venue: '经开实战店',
     capacity: 12,
     bookedCount: 5,
@@ -214,10 +214,10 @@ const SCHEDULE_LIST = [
     dateKey: '04-26',
     dateLabel: '04/26 周六',
     timeRange: '10:00 - 11:00',
-    title: '私教减脂档期',
+    title: '专属减脂时段',
     type: 'private',
     coachId: 'coach_zhao',
-    coachName: '赵教练',
+    coachName: '赵馆员',
     venue: '经开实战店',
     capacity: 1,
     bookedCount: 0,
@@ -231,11 +231,11 @@ const MY_BOOKINGS = [
     scheduleId: 'class_001',
     userId: 'u_1001',
     userName: '王小明',
-    title: '泰拳基础发力小班课',
+    title: '泰拳基础发力小班场',
     type: 'group',
     dateLabel: '04/24 今日',
     timeRange: '19:00 - 20:30',
-    status: '待上课',
+    status: '待到店',
   },
   {
     id: 'booking_002',
@@ -293,7 +293,7 @@ const COACH_SCHEDULE_BOARD = [
     weekLabel: '本周四',
     dateLabel: '04/24',
     timeRange: '19:00 - 20:30',
-    title: '泰拳基础发力小班课',
+    title: '泰拳基础发力小班场',
     type: 'group',
     venue: '高新旗舰店',
     status: '已发布',
@@ -305,7 +305,7 @@ const COACH_SCHEDULE_BOARD = [
     weekLabel: '本周四',
     dateLabel: '04/24',
     timeRange: '20:30 - 21:30',
-    title: '拳腿衔接私教档期',
+    title: '拳腿衔接专属时段',
     type: 'private',
     venue: '高新旗舰店',
     status: '已发布',
@@ -322,7 +322,7 @@ const INITIAL_ASSETS = {
 const TODAY_CLASSES = [
   {
     id: 'class_001',
-    title: '泰拳基础发力小班课',
+    title: '泰拳基础发力小班场',
     timeRange: '19:00 - 20:30',
     bookedCount: 12,
     capacity: 15,
@@ -330,7 +330,7 @@ const TODAY_CLASSES = [
   },
   {
     id: 'class_002',
-    title: '拳腿衔接私教档期',
+    title: '拳腿衔接专属时段',
     timeRange: '20:30 - 21:30',
     bookedCount: 1,
     capacity: 1,
@@ -339,9 +339,9 @@ const TODAY_CLASSES = [
 ]
 
 const COACH_QUICK_ACTIONS = [
-  { id: 'distribute', title: '课时派发', desc: '线下收款后给学员加课，并形成审计流水。' },
-  { id: 'class', title: '课程核销', desc: '进入单节课名单，扫码或手动核销到场学员。' },
-  { id: 'schedule', title: '排课管理', desc: '管理近期排课并临时新增训练计划。' },
+  { id: 'distribute', title: '权益派发', desc: '线下收款后给学员加权益，并形成审计流水。' },
+  { id: 'class', title: '到场核销', desc: '进入单节名单，扫码或手动核销到场学员。' },
+  { id: 'schedule', title: '排期管理', desc: '管理近期排期并临时新增场次计划。' },
 ]
 
 const AUDIT_OVERVIEW = {
@@ -354,8 +354,8 @@ const AUDIT_OVERVIEW = {
 const AUDIT_LOGS = [
   {
     id: 'log_001',
-    operatorName: '李教练',
-    packageName: '30 节私教卡',
+    operatorName: '李馆员',
+    packageName: '30 次专属权益',
     targetName: '王小明',
     amount: 6000,
     payType: '微信转账',
@@ -364,8 +364,8 @@ const AUDIT_LOGS = [
   },
   {
     id: 'log_002',
-    operatorName: '王教练',
-    packageName: '新人体验课 1 节',
+    operatorName: '王馆员',
+    packageName: '新人体验权益 1 次',
     targetName: '赵六',
     amount: 99,
     payType: '前台 POS',
@@ -377,7 +377,7 @@ const AUDIT_LOGS = [
 const TRAINING_STATS = {
   monthLessons: 8,
   streakDays: 11,
-  nextTarget: '本月再完成 4 节课即可解锁进阶训练营体验。',
+  nextTarget: '本月再完成 4 次预约即可解锁进阶体验。',
 }
 
 module.exports = {

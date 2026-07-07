@@ -1,7 +1,7 @@
 "use client"
 
-// 📅 预约大厅 · 核心选课页
-// 逻辑：1. 顶部团课/私教切换  2. 日期轴  3. 课程列表  4. 预约二次确认
+// 📅 预约大厅 · 核心选场次页
+// 逻辑：1. 顶部团体/专属切换  2. 日期轴  3. 场次列表  4. 预约二次确认
 
 import { useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
@@ -41,7 +41,7 @@ export function BookingHub() {
 
   const activeDate = days[dateIdx].iso
 
-  // 教练筛选可选列表
+  // 场馆人员筛选可选列表
   const coaches = useMemo(() => {
     const set = new Set(SCHEDULES.map((s) => s.coachName))
     return ["ALL", ...Array.from(set)]
@@ -60,7 +60,7 @@ export function BookingHub() {
     // 前端演示：扣减资产 + 标记已预约
     const needed = selected.classType === 1 ? "groupClass" : "privateClass"
     if (assets[needed] <= 0) {
-      toast.error("课时不足，请联系教练补充课时")
+      toast.error("权益不足，请联系场馆人员补充权益")
       setSelected(null)
       return
     }
@@ -69,13 +69,13 @@ export function BookingHub() {
       [needed]: assets[needed] - 1,
     } as typeof assets)
     setBookedSet(new Set([...bookedSet, selected.id]))
-    toast.success(`预约成功 · 扣减 1 节 ${selected.classType === 1 ? "团课" : "私教"}`)
+    toast.success(`预约成功 · 使用 1 次 ${selected.classType === 1 ? "团体" : "专属"}权益`)
     setSelected(null)
   }
 
   return (
     <div>
-      {/* 类型切换 + 教练筛选 */}
+      {/* 类型切换 + 场馆人员筛选 */}
       <div className="sticky top-[49px] z-[5] bg-background border-b border-border">
         <div className="flex items-center">
           {([1, 2] as const).map((t) => (
@@ -87,14 +87,14 @@ export function BookingHub() {
                 classType === t ? "text-foreground" : "text-muted-foreground",
               )}
             >
-              {t === 1 ? "团课 GROUP" : "私教 PRIVATE"}
+              {t === 1 ? "团体 GROUP" : "专属 EXCLUSIVE"}
               {classType === t && (
                 <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] w-10 bg-primary" />
               )}
             </button>
           ))}
         </div>
-        {/* 教练 Chip 滚动栏 */}
+        {/* 场馆人员 Chip 滚动栏 */}
         <div className="overflow-x-auto no-scrollbar px-4 pb-3 pt-1">
           <div className="flex gap-2">
             {coaches.map((c) => (
@@ -108,7 +108,7 @@ export function BookingHub() {
                     : "border-border text-muted-foreground",
                 )}
               >
-                {c === "ALL" ? "全部教练" : c}
+                {c === "ALL" ? "全部人员" : c}
               </button>
             ))}
           </div>
@@ -145,11 +145,11 @@ export function BookingHub() {
         </div>
       </div>
 
-      {/* 课程列表 */}
+      {/* 场次列表 */}
       <div className="px-4 py-4 flex flex-col gap-3">
         {list.length === 0 ? (
           <EmptyState
-            title="今天这个时段还没有课程"
+            title="今天这个时段还没有可预约场次"
             description="切换日期或类型试试，汗水不会骗人。"
           />
         ) : (

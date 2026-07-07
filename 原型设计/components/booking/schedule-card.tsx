@@ -1,4 +1,4 @@
-// 课程排课卡片（预约大厅使用）
+// 场次卡片（预约大厅使用）
 import type { Schedule } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 import { Clock, MapPin } from "lucide-react"

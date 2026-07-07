@@ -1,7 +1,7 @@
 // 🥊 泰拳搏击馆 · 前端 Demo 静态 Mock 数据
 // 所有数据仅用于前端原型展示，真实项目请对接 /api/* 接口。
 
-export type Role = 1 | 2 | 3 // 1-客户 2-教练 3-管理员
+export type Role = 1 | 2 | 3 // 1-客户 2-场馆人员 3-管理员
 
 export interface Store {
   id: number
@@ -20,7 +20,7 @@ export interface Banner {
 export interface Package {
   id: number
   name: string
-  assetType: 1 | 2 // 1-团课 2-私教
+  assetType: 1 | 2 // 1-团体 2-专属
   courseCount: number
   displayPrice: number
   status: 1 | 0
@@ -50,7 +50,7 @@ export interface Booking {
   userName: string
   userPhone: string
   scheduleId: number
-  status: 1 | 2 | 3 | 4 | 5 // 1-待核销 2-已核销 3-客户取消 4-教练取消 5-缺席
+  status: 1 | 2 | 3 | 4 | 5 // 1-待核销 2-已核销 3-客户取消 4-场馆取消 5-缺席
 }
 
 export interface AuditLog {
@@ -68,30 +68,30 @@ export interface AuditLog {
 export const STORES: Store[] = [
   { id: 1, name: "高新旗舰店", address: "成都高新区天府三街 101 号", distance: "0.8km" },
   { id: 2, name: "经开万象店", address: "成都经开区万象城 B 座 3F", distance: "5.2km" },
-  { id: 3, name: "江北训练馆", address: "重庆江北区嘉陵江路 66 号", distance: "—" },
+  { id: 3, name: "江北场馆", address: "重庆江北区嘉陵江路 66 号", distance: "—" },
 ]
 
 export const BANNERS: Banner[] = [
   {
     id: 1,
-    title: "2026 报名开启",
+    title: "2026 会员权益开放",
     subtitle: "",
     tag: "EVENT",
   },
   {
     id: 2,
-    title: "国庆集训 · 每日加训 2 小时",
+    title: "国庆开放时段 · 每日延长 2 小时",
     subtitle: "10/01 - 10/07 · 限额 30 名",
     tag: "NOTICE",
   },
 ]
 
 export const PACKAGES: Package[] = [
-  { id: 1, name: "新人体验 · 1 节私教", assetType: 2, courseCount: 1, displayPrice: 9.9, status: 1, highlight: true },
-  { id: 2, name: "泰拳基础大班卡 · 半年不限次", assetType: 1, courseCount: 180, displayPrice: 2999, status: 1 },
-  { id: 3, name: "团课次卡 · 30 节", assetType: 1, courseCount: 30, displayPrice: 1680, status: 1 },
-  { id: 4, name: "进阶一对一私教 · 30 节", assetType: 2, courseCount: 30, displayPrice: 6000, status: 1, highlight: true },
-  { id: 5, name: "实战特训一对一 · 50 节", assetType: 2, courseCount: 50, displayPrice: 9800, status: 1 },
+  { id: 1, name: "新人体验 · 1 次专属权益", assetType: 2, courseCount: 1, displayPrice: 9.9, status: 1, highlight: true },
+  { id: 2, name: "泰拳基础团体权益 · 半年不限次", assetType: 1, courseCount: 180, displayPrice: 2999, status: 1 },
+  { id: 3, name: "团体次卡 · 30 次", assetType: 1, courseCount: 30, displayPrice: 1680, status: 1 },
+  { id: 4, name: "进阶一对一专属权益 · 30 次", assetType: 2, courseCount: 30, displayPrice: 6000, status: 1, highlight: true },
+  { id: 5, name: "实战区一对一权益 · 50 次", assetType: 2, courseCount: 50, displayPrice: 9800, status: 1 },
 ]
 
 const today = new Date()
@@ -107,9 +107,9 @@ export const SCHEDULES: Schedule[] = [
   {
     id: 501,
     storeId: 1,
-    coachName: "李 · ARTHIT",
+    coachName: "李馆员",
     classType: 1,
-    title: "泰拳基础 · 发力小班",
+    title: "泰拳基础 · 小班场",
     startTime: "10:00",
     endTime: "11:30",
     maxCapacity: 15,
@@ -122,9 +122,9 @@ export const SCHEDULES: Schedule[] = [
   {
     id: 502,
     storeId: 1,
-    coachName: "王 · SAMART",
+    coachName: "王馆员",
     classType: 1,
-    title: "泰拳实战模拟",
+    title: "泰拳实战场",
     startTime: "19:00",
     endTime: "20:30",
     maxCapacity: 15,
@@ -137,23 +137,23 @@ export const SCHEDULES: Schedule[] = [
   {
     id: 503,
     storeId: 1,
-    coachName: "李 · ARTHIT",
+    coachName: "李馆员",
     classType: 2,
-    title: "一对一私教",
+    title: "一对一专属时段",
     startTime: "20:30",
     endTime: "21:30",
     maxCapacity: 1,
     bookedCount: 0,
     status: 1,
-    room: "私教区 03",
+    room: "专属区域 03",
     date: mkDate(0),
   },
   {
     id: 504,
     storeId: 1,
-    coachName: "陈 · YODSANKLAI",
+    coachName: "陈馆员",
     classType: 1,
-    title: "踢腿专项课",
+    title: "踢腿专项场",
     startTime: "07:00",
     endTime: "08:00",
     maxCapacity: 12,
@@ -166,9 +166,9 @@ export const SCHEDULES: Schedule[] = [
   {
     id: 505,
     storeId: 1,
-    coachName: "李 · ARTHIT",
+    coachName: "李馆员",
     classType: 1,
-    title: "泰拳基础 · 发力小班",
+    title: "泰拳基础 · 小班场",
     startTime: "19:00",
     endTime: "20:30",
     maxCapacity: 15,
@@ -181,15 +181,15 @@ export const SCHEDULES: Schedule[] = [
   {
     id: 506,
     storeId: 1,
-    coachName: "王 · SAMART",
+    coachName: "王馆员",
     classType: 2,
-    title: "一对一私教",
+    title: "一对一专属时段",
     startTime: "14:00",
     endTime: "15:00",
     maxCapacity: 1,
     bookedCount: 1,
     status: 2,
-    room: "私教区 01",
+    room: "专属区域 01",
     date: mkDate(2),
   },
 ]
@@ -209,9 +209,9 @@ export const AUDIT_LOGS: AuditLog[] = [
   {
     id: 9901,
     createdAt: "2025-10-25 10:30:12",
-    coachName: "李 · ARTHIT",
+    coachName: "李馆员",
     clientName: "王 · 小明",
-    packageName: "30 节私教卡",
+    packageName: "30 次专属权益",
     courseCount: 30,
     offlineAmount: 6000,
     payMethod: "微信转账",
@@ -220,9 +220,9 @@ export const AUDIT_LOGS: AuditLog[] = [
   {
     id: 9902,
     createdAt: "2025-10-25 11:05:44",
-    coachName: "王 · SAMART",
+    coachName: "王馆员",
     clientName: "赵 · 六",
-    packageName: "新人体验课 1 节",
+    packageName: "新人体验权益 1 次",
     courseCount: 1,
     offlineAmount: 9.9,
     payMethod: "POS 机",
@@ -231,9 +231,9 @@ export const AUDIT_LOGS: AuditLog[] = [
   {
     id: 9903,
     createdAt: "2025-10-25 14:15:00",
-    coachName: "王 · SAMART",
+    coachName: "王馆员",
     clientName: "张 · 三",
-    packageName: "半年团课卡",
+    packageName: "半年团体权益",
     courseCount: 180,
     offlineAmount: 2999,
     payMethod: "支付宝",
@@ -242,20 +242,20 @@ export const AUDIT_LOGS: AuditLog[] = [
   {
     id: 9904,
     createdAt: "2025-10-25 16:42:30",
-    coachName: "陈 · YODSANKLAI",
+    coachName: "陈馆员",
     clientName: "孙 · 七",
-    packageName: "30 节团课次卡",
+    packageName: "30 次团体权益",
     courseCount: 30,
     offlineAmount: 1680,
     payMethod: "微信转账",
-    remark: "老带新 · 赠 2 节",
+    remark: "老带新 · 赠 2 次",
   },
   {
     id: 9905,
     createdAt: "2025-10-25 18:10:09",
-    coachName: "李 · ARTHIT",
+    coachName: "李馆员",
     clientName: "周 · 八",
-    packageName: "50 节实战特训",
+    packageName: "50 次实战区权益",
     courseCount: 50,
     offlineAmount: 9800,
     payMethod: "微信转账",
@@ -266,30 +266,30 @@ export const AUDIT_LOGS: AuditLog[] = [
 export const MY_BOOKINGS = [
   {
     id: 7001,
-    title: "泰拳基础 · 发力小班",
-    coachName: "李 · ARTHIT",
+    title: "泰拳基础 · 小班场",
+    coachName: "李馆员",
     date: mkDate(0),
     startTime: "10:00",
     endTime: "11:30",
     storeName: "高新旗舰店",
     room: "A 馆",
-    status: 1, // 待上课
+    status: 1, // 待到店
   },
   {
     id: 7002,
-    title: "一对一私教",
-    coachName: "王 · SAMART",
+    title: "一对一专属时段",
+    coachName: "王馆员",
     date: mkDate(-2),
     startTime: "19:00",
     endTime: "20:00",
     storeName: "高新旗舰店",
-    room: "私教区 01",
+    room: "专属区域 01",
     status: 2, // 已完成
   },
   {
     id: 7003,
     title: "泰拳实战模拟",
-    coachName: "陈 · YODSANKLAI",
+    coachName: "陈馆员",
     date: mkDate(-5),
     startTime: "19:00",
     endTime: "20:30",
