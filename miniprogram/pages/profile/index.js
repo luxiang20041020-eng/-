@@ -207,7 +207,7 @@ Page({
       title: '退出登录',
       content: '确认退出当前账号？',
       confirmText: '退出',
-      confirmColor: '#e74c3c',
+      confirmColor: '#ff1f4f',
       cancelText: '取消',
       success: async (res) => {
         if (!res.confirm) return

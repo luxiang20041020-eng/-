@@ -2,41 +2,49 @@
   display: flex;
   gap: 20rpx;
   align-items: center;
+  border-color: #ffe1e8;
+  background: #fffafa;
 }
 
 .profile-hero-main {
   flex: 1;
+  min-width: 0;
 }
 
 .profile-name-row {
   display: flex;
   align-items: center;
   gap: 10rpx;
+  flex-wrap: wrap;
 }
 
 .profile-name {
   font-size: 36rpx;
-  color: #ffffff;
-  font-weight: 700;
+  color: #07142f;
+  font-weight: 900;
 }
 
 .mini-role-tag {
-  padding: 6rpx 10rpx;
-  border: 1rpx solid #ff3434;
-  color: #ff3434;
+  padding: 6rpx 12rpx;
+  border-radius: 999rpx;
+  background: #ff1f4f;
+  color: #ffffff;
   font-size: 18rpx;
+  font-weight: 900;
 }
 
 .profile-meta {
   margin-top: 10rpx;
   font-size: 22rpx;
-  color: #8f8f8f;
+  color: #7d8798;
+  font-weight: 700;
 }
 
 .qr-frame {
   margin-top: 16rpx;
-  border: 1rpx solid #242424;
-  background: #050505;
+  border-radius: 32rpx;
+  background: #f8f9fc;
+  overflow: hidden;
 }
 
 .qr-inner {
@@ -49,10 +57,11 @@
   justify-content: center;
   min-height: 420rpx;
   padding: 24rpx;
-  border: 2rpx solid #ff3434;
+  border: 2rpx solid #ff1f4f;
+  border-radius: 28rpx;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 50%, transparent 50%),
-    linear-gradient(rgba(255, 255, 255, 0.04) 50%, transparent 50%),
+    linear-gradient(90deg, rgba(7, 20, 47, 0.04) 50%, transparent 50%),
+    linear-gradient(rgba(7, 20, 47, 0.04) 50%, transparent 50%),
     #ffffff;
   background-size: 20rpx 20rpx;
 }
@@ -68,8 +77,8 @@
   word-break: break-all;
   font-size: 24rpx;
   line-height: 1.8;
-  color: #0b0b0b;
-  font-weight: 700;
+  color: #07142f;
+  font-weight: 900;
 }
 
 .qr-code-text {
@@ -78,28 +87,25 @@
   word-break: break-all;
   font-size: 20rpx;
   line-height: 1.7;
-  letter-spacing: 1rpx;
-  color: #a0a0a0;
+  color: #7d8798;
 }
 
 .qr-error-text {
   margin: 0 26rpx 12rpx;
   font-size: 20rpx;
   line-height: 1.6;
-  color: #ff7a7a;
+  color: #ff1f4f;
+  font-weight: 800;
 }
 
 .booking-item {
   display: flex;
   gap: 18rpx;
   margin-top: 18rpx;
-  padding-top: 18rpx;
-  border-top: 1rpx solid #1d1d1d;
-}
-
-.booking-item:first-of-type {
-  border-top: none;
-  padding-top: 0;
+  padding: 18rpx;
+  border: 1rpx solid #eef1f6;
+  border-radius: 28rpx;
+  background: #ffffff;
 }
 
 .booking-date-block {
@@ -110,28 +116,30 @@
 .booking-date-day {
   font-size: 50rpx;
   line-height: 1;
-  color: #ffffff;
-  font-weight: 700;
+  color: #07142f;
+  font-weight: 900;
 }
 
 .booking-date-month {
   margin-top: 8rpx;
   font-size: 18rpx;
   letter-spacing: 2rpx;
-  color: #8d8d8d;
+  color: #7d8798;
+  font-weight: 900;
 }
 
 .booking-main-block {
   flex: 1;
+  min-width: 0;
 }
 
 .booking-title-text {
   flex: 1;
   padding-right: 14rpx;
-  font-size: 30rpx;
+  font-size: 29rpx;
   line-height: 1.35;
-  color: #ffffff;
-  font-weight: 700;
+  color: #07142f;
+  font-weight: 900;
 }
 
 .booking-cancel-btn {
@@ -141,8 +149,8 @@
 .profile-stats-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14rpx;
   margin-top: 18rpx;
-  border: 1rpx solid #242424;
 }
 
 .profile-stats-grid .stats-item {
@@ -150,16 +158,15 @@
   text-align: center;
 }
 
-
 .metric-expiry {
-  font-size: 22rpx;
-  color: #e74c3c;
-  margin-top: 6rpx;
-  font-weight: 500;
+  margin-top: 8rpx;
+  font-size: 21rpx;
+  color: #ff1f4f;
+  font-weight: 800;
 }
 
 .metric-expiry-none {
-  color: #888888;
+  color: #7d8798;
 }
 
 .login-guide-card {
@@ -174,13 +181,12 @@
   width: 100%;
   height: 88rpx;
   line-height: 88rpx;
-  background: transparent;
-  border: 1rpx solid #3a1a1a;
-  border-radius: 8rpx;
-  color: #e74c3c;
+  border: 1rpx solid #ffd2dc;
+  border-radius: 28rpx;
+  background: #fff1f5;
+  color: #ff1f4f;
   font-size: 28rpx;
-  font-weight: 600;
-  letter-spacing: 2rpx;
+  font-weight: 900;
 }
 
 .logout-button::after {

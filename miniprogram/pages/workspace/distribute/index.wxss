@@ -1,42 +1,17 @@
-.form-input,
-.form-textarea {
-  width: 100%;
-  margin-top: 16rpx;
-  padding: 20rpx;
-  border: 1rpx solid #343434;
-  border-radius: 8rpx;
-  background: #101010;
-  color: #f5f5f5;
-  font-size: 26rpx;
-}
-
-.form-textarea {
-  min-height: 160rpx;
-}
-
-.field-block {
-  margin-top: 24rpx;
-}
-
-.field-label {
-  font-size: 26rpx;
-  color: #e5e5e5;
-}
-
 .member-item,
 .package-item {
   margin-top: 18rpx;
   padding: 20rpx;
-  border: 1rpx solid #2a2a2a;
-  border-radius: 8rpx;
-  background: #101010;
+  border: 1rpx solid #eef1f6;
+  border-radius: 28rpx;
+  background: #ffffff;
 }
 
 .member-item.is-selected,
 .package-item.is-selected {
-  border-color: #facc15;
-  background: #171309;
-} 
+  border-color: #ff1f4f;
+  background: #fff1f5;
+}
 
 .selected-summary {
   display: flex;
@@ -44,9 +19,9 @@
   gap: 18rpx;
   margin-top: 18rpx;
   padding: 20rpx;
-  border: 1rpx solid #3a2c12;
-  border-radius: 8rpx;
-  background: #120f08;
+  border: 1rpx solid #ffd2dc;
+  border-radius: 28rpx;
+  background: #fff1f5;
 }
 
 .summary-avatar {
@@ -56,10 +31,11 @@
   flex: 0 0 72rpx;
   width: 72rpx;
   height: 72rpx;
-  background: #ff3434;
+  border-radius: 26rpx;
+  background: #ff1f4f;
   color: #ffffff;
   font-size: 32rpx;
-  font-weight: 700;
+  font-weight: 900;
 }
 
 .summary-main {
@@ -68,15 +44,15 @@
 }
 
 .summary-name {
-  color: #ffffff;
+  color: #07142f;
   font-size: 30rpx;
-  font-weight: 700;
+  font-weight: 900;
 }
 
 .summary-meta,
 .member-phone {
   margin-top: 8rpx;
-  color: #9c9c9c;
+  color: #7d8798;
   font-size: 22rpx;
   line-height: 1.45;
 }
@@ -92,18 +68,19 @@
 
 .search-hint {
   margin-top: 18rpx;
-  padding: 18rpx 20rpx;
-  border: 1rpx dashed #343434;
-  border-radius: 8rpx;
-  color: #888888;
+  padding: 20rpx 22rpx;
+  border: 1rpx dashed #dce2ec;
+  border-radius: 24rpx;
+  color: #7d8798;
+  background: #f8f9fc;
   font-size: 24rpx;
   line-height: 1.6;
 }
 
 .picker-display {
-  color: #ffffff;
+  color: #07142f;
 }
 
 .picker-display.placeholder {
-  color: #888888;
+  color: #9aa3b2;
 }

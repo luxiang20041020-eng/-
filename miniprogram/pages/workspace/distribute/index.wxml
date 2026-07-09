@@ -57,7 +57,7 @@
     </view>
 
     <view class="field-block">
-      <view class="field-label">课时到期日期 <text style="color:#e74c3c">*</text></view>
+      <view class="field-label">课时到期日期 <text style="color:#ff1f4f">*</text></view>
       <picker mode="date" value="{{expiryDate}}" start="{{minExpiryDate}}" bindchange="onExpiryDateChange">
         <view class="form-input picker-display {{expiryDate ? '' : 'placeholder'}}">
           {{expiryDate ? expiryDate : '请选择到期日期'}}

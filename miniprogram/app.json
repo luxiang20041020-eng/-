@@ -13,11 +13,11 @@
     "pages/admin/packages/index"
   ],
   "window": {
-    "backgroundColor": "#121212",
-    "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#121212",
+    "backgroundColor": "#f7f8fb",
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTitleText": "ONE泰拳格斗馆",
-    "navigationBarTextStyle": "white"
+    "navigationBarTextStyle": "black"
   },
   "__usePrivacyCheck__": true,
   "sitemapLocation": "sitemap.json",

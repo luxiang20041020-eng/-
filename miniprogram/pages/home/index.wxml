@@ -92,6 +92,8 @@
     </view>
     <view class="facility-grid">
       <view wx:for="{{pageData.galleryList}}" wx:key="*this" class="facility-card {{index === 0 ? 'facility-card-main' : ''}}">
+        <image class="facility-image" src="/images/gym-interior-{{index + 1}}.jpg" mode="aspectFill"></image>
+        <view class="facility-shade"></view>
         <view class="facility-index">0{{index + 1}}</view>
         <view class="facility-name">{{item}}</view>
       </view>

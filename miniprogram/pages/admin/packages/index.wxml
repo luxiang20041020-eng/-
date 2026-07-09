@@ -178,7 +178,7 @@
       <view class="field-block">
         <view class="row-between">
           <view class="field-label">创建后立即上架</view>
-          <switch checked="{{createForm.status === 1}}" color="#ff3434" bindchange="onCreateStatusChange" />
+          <switch checked="{{createForm.status === 1}}" color="#ff1f4f" bindchange="onCreateStatusChange" />
         </view>
       </view>
 

@@ -4,52 +4,166 @@
   right: 0;
   bottom: 0;
   z-index: 99;
+  padding: 0 0 env(safe-area-inset-bottom);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(18px);
 }
 
 .tabbar {
   display: flex;
   gap: 0;
-  padding: 12rpx 16rpx 20rpx;
-  background: rgba(10, 10, 10, 0.98);
-  border-top: 1rpx solid #202020;
+  padding: 14rpx 18rpx 18rpx;
+  border-top: 1rpx solid rgba(221, 226, 235, 0.86);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 -20rpx 48rpx rgba(8, 20, 47, 0.12);
 }
 
 .tab-item {
   flex: 1;
-  padding: 10rpx 0 8rpx;
+  min-height: 92rpx;
   text-align: center;
 }
 
-.tab-item.is-active {
+.tab-symbol {
   position: relative;
+  width: 38rpx;
+  height: 38rpx;
+  margin: 0 auto;
+  color: #7d8798;
 }
 
-.tab-item.is-active::before {
+.tab-symbol-home::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 50%;
-  width: 42rpx;
-  height: 4rpx;
-  transform: translateX(-50%);
-  background: #ff3434;
+  left: 8rpx;
+  top: 12rpx;
+  width: 22rpx;
+  height: 18rpx;
+  border: 3rpx solid currentColor;
+  border-top: none;
+}
+
+.tab-symbol-home::after {
+  content: '';
+  position: absolute;
+  left: 7rpx;
+  top: 4rpx;
+  width: 20rpx;
+  height: 20rpx;
+  border-left: 3rpx solid currentColor;
+  border-top: 3rpx solid currentColor;
+  transform: rotate(45deg);
+}
+
+.tab-symbol-booking::before {
+  content: '';
+  position: absolute;
+  left: 6rpx;
+  top: 8rpx;
+  width: 26rpx;
+  height: 24rpx;
+  border: 3rpx solid currentColor;
+  border-radius: 4rpx;
+}
+
+.tab-symbol-booking::after {
+  content: '';
+  position: absolute;
+  left: 12rpx;
+  right: 12rpx;
+  top: 4rpx;
+  height: 10rpx;
+  border-left: 3rpx solid currentColor;
+  border-right: 3rpx solid currentColor;
+}
+
+.tab-symbol-workspace::before {
+  content: '';
+  position: absolute;
+  left: 4rpx;
+  top: 18rpx;
+  width: 30rpx;
+  height: 3rpx;
+  background: currentColor;
+  box-shadow: 0 -10rpx 0 currentColor, 0 10rpx 0 currentColor;
+}
+
+.tab-symbol-workspace::after {
+  content: '';
+  position: absolute;
+  right: 5rpx;
+  top: 4rpx;
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: -16rpx 10rpx 0 currentColor, -6rpx 20rpx 0 currentColor;
+}
+
+.tab-symbol-admin::before {
+  content: '';
+  position: absolute;
+  left: 4rpx;
+  top: 18rpx;
+  width: 30rpx;
+  height: 3rpx;
+  background: currentColor;
+  transform: rotate(20deg);
+}
+
+.tab-symbol-admin::after {
+  content: '';
+  position: absolute;
+  left: 6rpx;
+  top: 8rpx;
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 18rpx 13rpx 0 currentColor;
+}
+
+.tab-symbol-profile::before {
+  content: '';
+  position: absolute;
+  left: 12rpx;
+  top: 4rpx;
+  width: 14rpx;
+  height: 14rpx;
+  border: 3rpx solid currentColor;
+  border-radius: 50%;
+}
+
+.tab-symbol-profile::after {
+  content: '';
+  position: absolute;
+  left: 6rpx;
+  bottom: 2rpx;
+  width: 26rpx;
+  height: 16rpx;
+  border: 3rpx solid currentColor;
+  border-radius: 20rpx 20rpx 0 0;
+  border-bottom: none;
 }
 
 .tab-icon {
+  margin-top: 4rpx;
   font-size: 18rpx;
-  letter-spacing: 2rpx;
-  color: #707070;
+  letter-spacing: 1rpx;
+  color: #7d8798;
+  font-weight: 900;
 }
 
 .tab-label {
   display: block;
-  margin-top: 8rpx;
+  margin-top: 4rpx;
   font-size: 20rpx;
-  color: #8d8d8d;
+  color: #7d8798;
+  font-weight: 700;
 }
 
+.tab-item.is-active .tab-symbol,
 .tab-item.is-active .tab-icon,
 .tab-item.is-active .tab-label {
-  color: #ff3434;
-  font-weight: 700;
+  color: #ff1f4f;
 }

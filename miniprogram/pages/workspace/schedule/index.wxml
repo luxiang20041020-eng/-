@@ -47,7 +47,7 @@
     <view class="field-block">
       <view class="row-between">
         <view class="field-label">每周固定时间排课</view>
-        <switch checked="{{repeatWeekly}}" color="#ff3434" bindchange="onRepeatWeeklyChange" />
+        <switch checked="{{repeatWeekly}}" color="#ff1f4f" bindchange="onRepeatWeeklyChange" />
       </view>
       <view class="card-desc">开启后将按所选星期与当前时间段生成固定周排课规则。</view>
     </view>

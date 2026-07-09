@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="100e687d-5462-4a43-87c9-89b5c23af30d" name="更改" comment="2.1" />
+    <list default="true" id="100e687d-5462-4a43-87c9-89b5c23af30d" name="更改" comment="文字修改" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -60,6 +60,9 @@
       <workItem from="1777185750125" duration="41000" />
       <workItem from="1777189727071" duration="3275000" />
       <workItem from="1782988203806" duration="13000" />
+      <workItem from="1783301997109" duration="21000" />
+      <workItem from="1783302029207" duration="5000" />
+      <workItem from="1783415548917" duration="3089000" />
     </task>
     <task id="LOCAL-00001" summary="new">
       <option name="closed" value="true" />
@@ -189,7 +192,31 @@
       <option name="project" value="LOCAL" />
       <updated>1777198476117</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="用户隐私">
+      <option name="closed" value="true" />
+      <created>1783415567228</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1783415567228</updated>
+    </task>
+    <task id="LOCAL-00018" summary="发课">
+      <option name="closed" value="true" />
+      <created>1783416628498</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1783416628498</updated>
+    </task>
+    <task id="LOCAL-00019" summary="文字修改">
+      <option name="closed" value="true" />
+      <created>1783425233449</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1783425233449</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -220,6 +247,9 @@
     <MESSAGE value="1.9" />
     <MESSAGE value="2.0" />
     <MESSAGE value="2.1" />
-    <option name="LAST_COMMIT_MESSAGE" value="2.1" />
+    <MESSAGE value="用户隐私" />
+    <MESSAGE value="发课" />
+    <MESSAGE value="文字修改" />
+    <option name="LAST_COMMIT_MESSAGE" value="文字修改" />
   </component>
 </project>

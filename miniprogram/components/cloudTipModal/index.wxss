@@ -4,57 +4,68 @@
   right: 0;
   bottom: 0;
   left: 0;
-  background-color: rgba(0,0,0,0.4);
+  background: rgba(7, 20, 47, 0.45);
+  backdrop-filter: blur(10px);
   z-index: 1;
 }
-.install_tip_close{
-  position:absolute;
-  right: 10rpx;
-  top: 10rpx;
-  width: 32px;
-  height: 32px;
-  /* background-color: red; */
+
+.install_tip_close {
+  position: absolute;
+  right: 24rpx;
+  top: 24rpx;
+  width: 44rpx;
+  height: 44rpx;
+  padding: 10rpx;
+  border-radius: 50%;
+  background: #f3f5f9;
 }
+
 .install_tip_detail {
   position: fixed;
-  background-color: white;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  border-radius: 40rpx 40rpx 0 0;
-  padding: 50rpx 50rpx 100rpx 50rpx;
+  right: 28rpx;
+  bottom: 28rpx;
+  left: 28rpx;
+  padding: 58rpx 36rpx 52rpx;
+  border: 1rpx solid #ffe1e8;
+  border-radius: 38rpx;
+  background: #ffffff;
+  box-shadow: 0 30rpx 80rpx rgba(8, 20, 47, 0.18);
   z-index: 9;
 }
 
 .install_tip_detail_title {
-  font-weight: 400;
-  font-size: 40rpx;
-  text-align: center;
+  color: #07142f;
+  font-weight: 900;
+  font-size: 38rpx;
+  text-align: left;
 }
 
 .install_tip_detail_tip {
-  font-size: 25rpx;
-  color: rgba(0,0,0,0.4);
   margin-top: 20rpx;
+  color: #697386;
+  font-size: 25rpx;
+  line-height: 1.7;
   text-align: left;
 }
+
 .install_tip_detail_buttons {
   padding-top: 50rpx;
   display: flex;
+  gap: 16rpx;
 }
+
 .install_tip_detail_button {
-  color: #07C160;
-  font-weight: 500;
-  background-color: rgba(0,0,0,0.1);
-  width: 40%;
+  flex: 1;
+  min-height: 82rpx;
+  line-height: 82rpx;
+  border-radius: 26rpx;
+  color: #07142f;
+  font-weight: 900;
+  background: #f3f5f9;
   text-align: center;
-  /* height: 90rpx; */
-  /* line-height: 90rpx; */
-  border-radius: 10rpx;
-  margin: 0 auto;
 }
 
 .install_tip_detail_button_primary {
-  background-color: #07C160;
-  color: #fff;
+  background: #ff1f4f;
+  color: #ffffff;
 }

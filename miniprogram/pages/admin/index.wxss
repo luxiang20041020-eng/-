@@ -6,43 +6,46 @@
 
 .admin-toolbar-left {
   flex: 1;
-  min-height: 80rpx;
+  min-height: 82rpx;
   padding: 14rpx 16rpx;
-  border: 1rpx solid #232323;
-  background: #0b0b0b;
+  border: 1rpx solid #eef1f6;
+  border-radius: 24rpx;
+  background: #f8f9fc;
 }
 
 .admin-tool-label {
   font-size: 16rpx;
   letter-spacing: 2rpx;
-  color: #7d7d7d;
+  color: #7d8798;
+  font-weight: 900;
 }
 
 .admin-tool-value {
   margin-top: 10rpx;
   font-size: 24rpx;
-  color: #ffffff;
-  font-weight: 700;
+  color: #07142f;
+  font-weight: 900;
 }
 
 .admin-toolbar-mid {
-  color: #9b9b9b;
+  color: #7d8798;
   font-size: 20rpx;
 }
 
 .admin-mini-btn {
   width: 120rpx;
-  min-height: 80rpx;
-  line-height: 80rpx;
+  min-height: 82rpx;
+  line-height: 82rpx;
   padding: 0;
 }
 
 .audit-item {
   position: relative;
   margin-top: 18rpx;
-  padding: 18rpx 18rpx 16rpx;
-  border: 1rpx solid #242424;
-  background: #090909;
+  padding: 20rpx 20rpx 18rpx;
+  border: 1rpx solid #eef1f6;
+  border-radius: 30rpx;
+  background: #ffffff;
 }
 
 .audit-top-row {
@@ -54,12 +57,14 @@
 .audit-time {
   font-size: 18rpx;
   letter-spacing: 2rpx;
-  color: #7a7a7a;
+  color: #7d8798;
+  font-weight: 900;
 }
 
 .audit-paytype {
   font-size: 18rpx;
-  color: #ff4545;
+  color: #ff1f4f;
+  font-weight: 900;
 }
 
 .audit-main-text {
@@ -67,28 +72,30 @@
   padding-right: 120rpx;
   font-size: 26rpx;
   line-height: 1.6;
-  color: #ffffff;
-  font-weight: 700;
+  color: #07142f;
+  font-weight: 900;
 }
 
 .audit-remark {
   margin-top: 10rpx;
   font-size: 22rpx;
-  color: #8a8a8a;
+  color: #7d8798;
 }
 
 .audit-amount {
   position: absolute;
-  right: 18rpx;
-  bottom: 14rpx;
-  font-size: 40rpx;
-  color: #ffffff;
-  font-weight: 700;
+  right: 20rpx;
+  bottom: 18rpx;
+  font-size: 38rpx;
+  color: #07142f;
+  font-weight: 900;
 }
 
 .export-button {
   width: auto;
-  min-width: 110rpx;
+  min-width: 112rpx;
+  min-height: 62rpx;
+  line-height: 62rpx;
   padding: 0 20rpx;
   font-size: 22rpx;
 }
@@ -101,26 +108,28 @@
 }
 
 .admin-tool-card {
-  min-height: 140rpx;
-  padding: 18rpx;
-  border: 1rpx solid #242424;
-  background: #0a0a0a;
+  min-height: 146rpx;
+  padding: 20rpx;
+  border: 1rpx solid #eef1f6;
+  border-radius: 30rpx;
+  background: #ffffff;
 }
 
 .admin-tool-card.primary {
-  background: linear-gradient(180deg, rgba(255, 52, 52, 0.16) 0%, rgba(13, 13, 13, 1) 100%);
+  border-color: #ffd2dc;
+  background: #fff1f5;
 }
 
 .admin-card-title {
   font-size: 28rpx;
   line-height: 1.35;
-  color: #ffffff;
-  font-weight: 700;
+  color: #07142f;
+  font-weight: 900;
 }
 
 .admin-card-desc {
   margin-top: 12rpx;
   font-size: 22rpx;
   line-height: 1.6;
-  color: #8d8d8d;
+  color: #7d8798;
 }
