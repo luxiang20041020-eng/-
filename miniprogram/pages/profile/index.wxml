@@ -15,10 +15,39 @@
     <view class="profile-hero-main">
       <view class="profile-name-row">
         <view class="profile-name">{{runtime.userProfile.nickname}}</view>
+        <button class="profile-edit-button" bindtap="openNicknameEditor">编辑</button>
         <view class="mini-role-tag">{{runtime.roleLabel}}</view>
       </view>
       <view class="profile-meta">{{runtime.userProfile.phone}} · {{pageData.currentStore.name}}</view>
       <view class="profile-meta">{{runtime.userProfile.levelText}}</view>
+    </view>
+  </view>
+
+  <view wx:if="{{showNicknameEditor}}" class="nickname-mask">
+    <view class="nickname-panel">
+      <view class="nickname-title">更改用户名</view>
+      <input
+        class="nickname-input"
+        value="{{nicknameDraft}}"
+        maxlength="20"
+        placeholder="请输入新的用户名"
+        focus="{{showNicknameEditor}}"
+        confirm-type="done"
+        bindinput="onNicknameInput"
+        bindconfirm="submitNicknameChange"
+      />
+      <view wx:if="{{nicknameError}}" class="nickname-error">{{nicknameError}}</view>
+      <view class="nickname-actions">
+        <button class="nickname-cancel" bindtap="closeNicknameEditor" disabled="{{nicknameSubmitting}}">取消</button>
+        <button
+          class="nickname-confirm"
+          bindtap="submitNicknameChange"
+          loading="{{nicknameSubmitting}}"
+          disabled="{{nicknameSubmitting}}"
+        >
+          {{nicknameSubmitting ? '保存中...' : '保存'}}
+        </button>
+      </view>
     </view>
   </view>
 

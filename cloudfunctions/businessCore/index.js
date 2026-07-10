@@ -499,6 +499,10 @@ function buildUserProfileView(user) {
   }
 }
 
+function normalizeNickname(value) {
+  return String(value || '').replace(/\s+/g, ' ').trim()
+}
+
 function mapClassTypeToAssetType(classType) {
   return Number(classType) === ASSET_TYPE.GROUP ? ASSET_TYPE.GROUP : ASSET_TYPE.PRIVATE
 }
@@ -1321,6 +1325,49 @@ async function updateUserRole(event) {
   }
 }
 
+async function updateUserProfile(event) {
+  const payload = event.payload || {}
+  const nickname = normalizeNickname(payload.nickname)
+
+  if (!nickname) {
+    return buildFail('用户名不能为空', 'INVALID_UPDATE_USER_PROFILE_PAYLOAD')
+  }
+  if (nickname.length > 20) {
+    return buildFail('用户名不能超过 20 个字符', 'INVALID_UPDATE_USER_PROFILE_PAYLOAD')
+  }
+
+  try {
+    const currentUser = await getCurrentAuthedUser()
+    if (!currentUser) {
+      return buildFail('请先完成登录', 'UPDATE_USER_PROFILE_LOGIN_REQUIRED')
+    }
+
+    if (normalizeNickname(currentUser.real_name) === nickname) {
+      return buildSuccess(Object.assign({
+        changed: false,
+      }, await buildUserSession(currentUser)))
+    }
+
+    await db.collection(COLLECTIONS.USER).doc(currentUser._id).update({
+      data: {
+        real_name: nickname,
+        updated_at: db.serverDate(),
+      },
+    })
+
+    const updatedUser = Object.assign({}, currentUser, {
+      real_name: nickname,
+      updated_at: new Date().toISOString(),
+    })
+
+    return buildSuccess(Object.assign({
+      changed: true,
+    }, await buildUserSession(updatedUser)))
+  } catch (error) {
+    return buildFail('更新用户名失败：' + (error.errMsg || error.message || error), 'UPDATE_USER_PROFILE_ERROR')
+  }
+}
+
 async function createPackage(event) {
   const payload = event.payload || {}
   const packageName = String(payload.name || '').trim()
@@ -2045,6 +2092,8 @@ exports.main = async (event) => {
       return getCoachScheduleViewData(event)
     case 'updateUserRole':
       return updateUserRole(event)
+    case 'updateUserProfile':
+      return updateUserProfile(event)
     case 'updatePackageStatus':
       return updatePackageStatus(event)
     case 'distributeAsset':

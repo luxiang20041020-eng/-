@@ -121,6 +121,11 @@ async function updateUserRole(payload) {
   return unwrapResult(response)
 }
 
+async function updateUserProfile(payload) {
+  const response = await callBusinessCore('updateUserProfile', payload)
+  return unwrapResult(response)
+}
+
 async function updatePackageStatus(payload) {
   const response = await callBusinessCore('updatePackageStatus', payload)
   return unwrapResult(response)
@@ -148,5 +153,6 @@ module.exports = {
   writeOffBooking,
   createCoachSchedule,
   updateUserRole,
+  updateUserProfile,
   updatePackageStatus,
 }

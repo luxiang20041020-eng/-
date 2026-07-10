@@ -270,6 +270,45 @@ App({
     return this.getRuntimeSnapshot()
   },
 
+  applyUserProfileUpdate(profilePatch) {
+    const patch = profilePatch || {}
+    const currentUserId = this.globalData.userProfile ? this.globalData.userProfile.id : ''
+    const nextNickname = String(patch.nickname || '').trim()
+
+    if (!currentUserId || !nextNickname) {
+      return this.getRuntimeSnapshot()
+    }
+
+    this.globalData.userProfile = Object.assign({}, this.globalData.userProfile, {
+      nickname: nextNickname,
+    })
+
+    const currentMember = this.getMemberById(currentUserId)
+    if (currentMember) {
+      currentMember.nickname = nextNickname
+    }
+
+    this.globalData.myBookings.forEach((item) => {
+      if (item.userId === currentUserId) {
+        item.userName = nextNickname
+      }
+    })
+
+    Object.keys(this.globalData.classRosterMap || {}).forEach((classId) => {
+      const roster = this.globalData.classRosterMap[classId] || []
+      roster.forEach((item) => {
+        if (item.userId === currentUserId) {
+          item.userName = nextNickname
+        }
+      })
+    })
+
+    this.removeViewCacheByPrefix('profile:' + currentUserId)
+    this.removeViewCacheByPrefix('booking:' + currentUserId + ':')
+    this.removeViewCacheByPrefix('workspace:')
+    return this.getRuntimeSnapshot()
+  },
+
   async refreshUserSession(options = {}) {
     const force = Boolean(options.force)
     if (this._authRefreshingPromise) {

@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="100e687d-5462-4a43-87c9-89b5c23af30d" name="更改" comment="文字修改" />
+    <list default="true" id="100e687d-5462-4a43-87c9-89b5c23af30d" name="更改" comment="文字修改">
+      <change beforePath="$PROJECT_DIR$/cloudfunctions/businessCore/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/cloudfunctions/businessCore/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/miniprogram/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/miniprogram/pages/profile/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/pages/profile/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/miniprogram/pages/profile/index.wxml" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/pages/profile/index.wxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/miniprogram/pages/profile/index.wxss" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/pages/profile/index.wxss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/miniprogram/utils/business-api.js" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/utils/business-api.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -63,6 +70,7 @@
       <workItem from="1783301997109" duration="21000" />
       <workItem from="1783302029207" duration="5000" />
       <workItem from="1783415548917" duration="3089000" />
+      <workItem from="1783568361044" duration="601000" />
     </task>
     <task id="LOCAL-00001" summary="new">
       <option name="closed" value="true" />

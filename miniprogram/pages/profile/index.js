@@ -52,6 +52,10 @@ Page({
     qrCodeImageSrc: '',
     qrCodeLoading: false,
     qrCodeError: '',
+    showNicknameEditor: false,
+    nicknameDraft: '',
+    nicknameSubmitting: false,
+    nicknameError: '',
   },
 
   onShow() {
@@ -200,6 +204,106 @@ Page({
 
   goLogin() {
     wx.navigateTo({ url: '/pages/login/index' })
+  },
+
+  openNicknameEditor() {
+    const runtime = this.data.runtime || {}
+    const userProfile = runtime.userProfile || {}
+    this.setData({
+      showNicknameEditor: true,
+      nicknameDraft: userProfile.nickname || '',
+      nicknameError: '',
+    })
+  },
+
+  closeNicknameEditor() {
+    if (this.data.nicknameSubmitting) {
+      return
+    }
+    this.setData({
+      showNicknameEditor: false,
+      nicknameDraft: '',
+      nicknameError: '',
+    })
+  },
+
+  onNicknameInput(event) {
+    this.setData({
+      nicknameDraft: event.detail.value,
+      nicknameError: '',
+    })
+  },
+
+  async submitNicknameChange() {
+    if (this.data.nicknameSubmitting) {
+      return
+    }
+
+    const app = getApp()
+    const currentNickname = this.data.runtime && this.data.runtime.userProfile
+      ? this.data.runtime.userProfile.nickname
+      : ''
+    const nextNickname = String(this.data.nicknameDraft || '').replace(/\s+/g, ' ').trim()
+
+    if (!nextNickname) {
+      this.setData({ nicknameError: '请输入用户名' })
+      return
+    }
+    if (nextNickname.length > 20) {
+      this.setData({ nicknameError: '用户名不能超过 20 个字符' })
+      return
+    }
+    if (nextNickname === currentNickname) {
+      this.setData({
+        showNicknameEditor: false,
+        nicknameDraft: '',
+        nicknameError: '',
+      })
+      wx.showToast({
+        title: '用户名未变化',
+        icon: 'none',
+      })
+      return
+    }
+
+    this.setData({
+      nicknameSubmitting: true,
+      nicknameError: '',
+    })
+
+    try {
+      const sessionData = await businessApi.updateUserProfile({
+        nickname: nextNickname,
+      })
+      if (sessionData && sessionData.userProfile) {
+        app.applyCloudSession(sessionData)
+      }
+      const runtime = app.applyUserProfileUpdate({
+        nickname: nextNickname,
+      })
+      this.setData({
+        runtime,
+        avatarText: nextNickname.slice(0, 1),
+        showNicknameEditor: false,
+        nicknameDraft: '',
+      })
+      wx.showToast({
+        title: '用户名已更新',
+        icon: 'success',
+      })
+      this.syncPageData()
+    } catch (error) {
+      const message = error && error.message ? error.message : '用户名更新失败'
+      this.setData({
+        nicknameError: message,
+      })
+      wx.showToast({
+        title: message,
+        icon: 'none',
+      })
+    } finally {
+      this.setData({ nicknameSubmitting: false })
+    }
   },
 
   onLogout() {
