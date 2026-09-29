@@ -445,6 +445,18 @@
   margin-top: 20rpx;
 }
 
+.pricing-header-side {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  flex-shrink: 0;
+}
+
+.pricing-header-side .card-desc {
+  margin-top: 0;
+  white-space: nowrap;
+}
+
 .pricing-item {
   display: flex;
   align-items: flex-start;

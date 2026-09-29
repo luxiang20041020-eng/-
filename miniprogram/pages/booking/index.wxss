@@ -40,7 +40,6 @@
   box-shadow: 0 14rpx 28rpx rgba(255, 31, 79, 0.2);
 }
 
-.filter-scroll,
 .booking-filter-row,
 .date-scroll {
   margin-top: 18rpx;

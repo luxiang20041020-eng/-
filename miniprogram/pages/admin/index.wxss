@@ -100,6 +100,13 @@
   font-size: 22rpx;
 }
 
+.audit-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex-shrink: 0;
+}
+
 .admin-tools-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

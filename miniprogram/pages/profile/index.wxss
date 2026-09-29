@@ -1,9 +1,17 @@
 .profile-hero {
   display: flex;
-  gap: 20rpx;
-  align-items: center;
+  gap: 22rpx;
+  align-items: flex-start;
+  padding: 28rpx;
   border-color: #ffe1e8;
   background: #fffafa;
+}
+
+.profile-hero > .avatar-square {
+  flex: 0 0 76rpx;
+  width: 76rpx;
+  height: 76rpx;
+  margin-top: 2rpx;
 }
 
 .profile-hero-main {
@@ -14,18 +22,22 @@
 .profile-name-row {
   display: flex;
   align-items: center;
-  gap: 10rpx;
-  flex-wrap: wrap;
+  gap: 12rpx;
+  min-width: 0;
 }
 
 .profile-name {
+  flex: 1;
+  min-width: 0;
   font-size: 36rpx;
+  line-height: 1.25;
   color: #07142f;
   font-weight: 900;
-  word-break: break-all;
+  word-break: break-word;
 }
 
 .mini-role-tag {
+  flex-shrink: 0;
   padding: 6rpx 12rpx;
   border-radius: 999rpx;
   background: #ff1f4f;
@@ -38,10 +50,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 56rpx;
-  min-height: 34rpx;
+  flex: 0 0 72rpx;
+  width: 72rpx;
+  min-width: 72rpx;
+  min-height: 42rpx;
   margin: 0;
-  padding: 0 10rpx;
+  padding: 0;
   border: 1rpx solid #ffd2dc;
   border-radius: 999rpx;
   background: #fff7f9;
@@ -56,10 +70,44 @@
   border: none;
 }
 
-.profile-meta {
-  margin-top: 10rpx;
+.profile-facts {
+  margin-top: 18rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx solid #f0e6e9;
+}
+
+.profile-fact-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14rpx;
+  margin-top: 8rpx;
   font-size: 22rpx;
+  line-height: 1.45;
+}
+
+.profile-fact-row:first-child {
+  margin-top: 0;
+}
+
+.profile-fact-label {
+  flex: 0 0 96rpx;
+  width: 96rpx;
+  color: #9aa3b2;
+}
+
+.profile-fact-value {
+  flex: 1;
+  min-width: 0;
+  color: #5f697c;
+  font-weight: 800;
+  word-break: break-word;
+}
+
+.profile-level {
+  margin-top: 12rpx;
   color: #7d8798;
+  font-size: 21rpx;
+  line-height: 1.45;
   font-weight: 700;
 }
 

@@ -466,6 +466,10 @@ function buildPackageStatusLabel(status) {
   return Number(status) === 1 ? '已上架' : '已下架'
 }
 
+function buildStoreStatusLabel(status) {
+  return Number(status) === 1 ? '营业中' : '已停用'
+}
+
 function buildIdentityQrScene(user, minuteKey) {
   const compactUserId = String(user && user._id ? user._id : 'guest').replace(/[^0-9a-zA-Z]/g, '').slice(-18) || 'guest'
   const compactMinuteKey = String(minuteKey || '').replace(/[^0-9]/g, '').slice(-4) || '0000'
@@ -836,6 +840,55 @@ function buildAdminPackageManageItem(packageDoc) {
     price: Number(packageDoc.display_price || 0),
     status: Number(packageDoc.status || 0),
     statusLabel: buildPackageStatusLabel(packageDoc.status),
+  }
+}
+
+function buildAdminStoreManageItem(store, userCount = 0, scheduleCount = 0) {
+  return {
+    id: store._id,
+    name: store.name || '未命名门店',
+    address: store.address || '',
+    longitude: store.longitude === null || store.longitude === undefined ? '' : Number(store.longitude),
+    latitude: store.latitude === null || store.latitude === undefined ? '' : Number(store.latitude),
+    status: Number(store.status || 0),
+    statusLabel: buildStoreStatusLabel(store.status),
+    userCount: Number(userCount || 0),
+    scheduleCount: Number(scheduleCount || 0),
+  }
+}
+
+function normalizeStorePayload(payload) {
+  const name = String(payload.name || '').replace(/\s+/g, ' ').trim()
+  const address = String(payload.address || '').replace(/\s+/g, ' ').trim()
+  const longitudeText = String(payload.longitude === null || payload.longitude === undefined ? '' : payload.longitude).trim()
+  const latitudeText = String(payload.latitude === null || payload.latitude === undefined ? '' : payload.latitude).trim()
+  const longitude = longitudeText ? Number(longitudeText) : null
+  const latitude = latitudeText ? Number(latitudeText) : null
+
+  if (!name) {
+    return { error: '门店名称不能为空' }
+  }
+  if (name.length > 50) {
+    return { error: '门店名称不能超过 50 个字符' }
+  }
+  if (!address) {
+    return { error: '门店地址不能为空' }
+  }
+  if (address.length > 120) {
+    return { error: '门店地址不能超过 120 个字符' }
+  }
+  if (longitudeText && (!Number.isFinite(longitude) || longitude < -180 || longitude > 180)) {
+    return { error: '经度必须在 -180 到 180 之间' }
+  }
+  if (latitudeText && (!Number.isFinite(latitude) || latitude < -90 || latitude > 90)) {
+    return { error: '纬度必须在 -90 到 90 之间' }
+  }
+
+  return {
+    name,
+    address,
+    longitude,
+    latitude,
   }
 }
 
@@ -1267,6 +1320,203 @@ async function getAdminPackageManageData() {
     })
   } catch (error) {
     return buildFail('读取套餐管理列表失败：' + (error.errMsg || error.message || error), 'ADMIN_PACKAGE_MANAGE_VIEW_ERROR')
+  }
+}
+
+async function getAdminStoreManageData() {
+  try {
+    await ensureAdminOperator()
+    const [stores, users, schedules] = await Promise.all([
+      listAllCollection(COLLECTIONS.STORE, { is_deleted: false }, {
+        orderByField: 'updated_at',
+        orderDirection: 'desc',
+      }),
+      listAllCollection(COLLECTIONS.USER, { is_deleted: false }),
+      listAllCollection(COLLECTIONS.CLASS_SCHEDULE, { is_deleted: false }),
+    ])
+    const userCountMap = new Map()
+    const scheduleCountMap = new Map()
+
+    users.forEach((item) => {
+      if (item.home_store_id) {
+        userCountMap.set(item.home_store_id, (userCountMap.get(item.home_store_id) || 0) + 1)
+      }
+    })
+    schedules.forEach((item) => {
+      if (item.store_id) {
+        scheduleCountMap.set(item.store_id, (scheduleCountMap.get(item.store_id) || 0) + 1)
+      }
+    })
+
+    const safeStores = stores
+      .slice()
+      .sort((left, right) => {
+        const statusDiff = Number(right.status || 0) - Number(left.status || 0)
+        if (statusDiff !== 0) {
+          return statusDiff
+        }
+        return String(left.name || left._id).localeCompare(String(right.name || right._id), 'zh-CN')
+      })
+      .map((item) => buildAdminStoreManageItem(
+        item,
+        userCountMap.get(item._id),
+        scheduleCountMap.get(item._id)
+      ))
+
+    return buildSuccess({
+      stats: {
+        total: safeStores.length,
+        activeCount: safeStores.filter((item) => item.status === 1).length,
+        inactiveCount: safeStores.filter((item) => item.status !== 1).length,
+      },
+      stores: safeStores,
+    })
+  } catch (error) {
+    return buildFail('读取门店管理列表失败：' + (error.errMsg || error.message || error), 'ADMIN_STORE_MANAGE_VIEW_ERROR')
+  }
+}
+
+async function createStore(event) {
+  const payload = event.payload || {}
+  const storeData = normalizeStorePayload(payload)
+  const nextStatus = Number(payload.status)
+
+  if (storeData.error) {
+    return buildFail(storeData.error, 'INVALID_CREATE_STORE_PAYLOAD')
+  }
+  if (![0, 1].includes(nextStatus)) {
+    return buildFail('status 非法', 'INVALID_CREATE_STORE_PAYLOAD')
+  }
+
+  try {
+    await ensureAdminOperator()
+    const stores = await listAllCollection(COLLECTIONS.STORE, { is_deleted: false })
+    const duplicateStore = stores.find((item) => String(item.name || '').trim().toLowerCase() === storeData.name.toLowerCase())
+    if (duplicateStore) {
+      return buildFail('已存在同名门店', 'STORE_NAME_DUPLICATED')
+    }
+
+    const addRes = await db.collection(COLLECTIONS.STORE).add({
+      data: {
+        name: storeData.name,
+        address: storeData.address,
+        longitude: storeData.longitude,
+        latitude: storeData.latitude,
+        status: nextStatus,
+        created_at: db.serverDate(),
+        updated_at: db.serverDate(),
+        is_deleted: false,
+      },
+    })
+
+    return buildSuccess({
+      storeInfo: buildAdminStoreManageItem({
+        _id: addRes._id,
+        name: storeData.name,
+        address: storeData.address,
+        longitude: storeData.longitude,
+        latitude: storeData.latitude,
+        status: nextStatus,
+      }),
+    })
+  } catch (error) {
+    return buildFail('创建门店失败：' + (error.errMsg || error.message || error), 'CREATE_STORE_ERROR')
+  }
+}
+
+async function updateStore(event) {
+  const payload = event.payload || {}
+  const storeData = normalizeStorePayload(payload)
+
+  if (!payload.targetStoreId) {
+    return buildFail('targetStoreId 不能为空', 'INVALID_UPDATE_STORE_PAYLOAD')
+  }
+  if (storeData.error) {
+    return buildFail(storeData.error, 'INVALID_UPDATE_STORE_PAYLOAD')
+  }
+
+  try {
+    await ensureAdminOperator()
+    const [storeRes, stores] = await Promise.all([
+      getDocById(COLLECTIONS.STORE, payload.targetStoreId),
+      listAllCollection(COLLECTIONS.STORE, { is_deleted: false }),
+    ])
+    const targetStore = storeRes.data
+    if (!targetStore || targetStore.is_deleted) {
+      return buildFail('目标门店不存在', 'TARGET_STORE_NOT_FOUND')
+    }
+    const duplicateStore = stores.find((item) => (
+      item._id !== payload.targetStoreId &&
+      String(item.name || '').trim().toLowerCase() === storeData.name.toLowerCase()
+    ))
+    if (duplicateStore) {
+      return buildFail('已存在同名门店', 'STORE_NAME_DUPLICATED')
+    }
+
+    await db.collection(COLLECTIONS.STORE).doc(payload.targetStoreId).update({
+      data: {
+        name: storeData.name,
+        address: storeData.address,
+        longitude: storeData.longitude,
+        latitude: storeData.latitude,
+        updated_at: db.serverDate(),
+      },
+    })
+
+    return buildSuccess({
+      storeInfo: buildAdminStoreManageItem(Object.assign({}, targetStore, storeData)),
+    })
+  } catch (error) {
+    return buildFail('更新门店资料失败：' + (error.errMsg || error.message || error), 'UPDATE_STORE_ERROR')
+  }
+}
+
+async function updateStoreStatus(event) {
+  const payload = event.payload || {}
+  const nextStatus = Number(payload.nextStatus)
+
+  if (!payload.targetStoreId) {
+    return buildFail('targetStoreId 不能为空', 'INVALID_UPDATE_STORE_STATUS_PAYLOAD')
+  }
+  if (![0, 1].includes(nextStatus)) {
+    return buildFail('nextStatus 非法', 'INVALID_UPDATE_STORE_STATUS_PAYLOAD')
+  }
+
+  try {
+    await ensureAdminOperator()
+    const [storeRes, activeStores] = await Promise.all([
+      getDocById(COLLECTIONS.STORE, payload.targetStoreId),
+      listAllCollection(COLLECTIONS.STORE, { is_deleted: false, status: 1 }),
+    ])
+    const targetStore = storeRes.data
+    if (!targetStore || targetStore.is_deleted) {
+      return buildFail('目标门店不存在', 'TARGET_STORE_NOT_FOUND')
+    }
+    if (Number(targetStore.status || 0) === nextStatus) {
+      return buildSuccess({
+        changed: false,
+        storeInfo: buildAdminStoreManageItem(targetStore),
+      })
+    }
+    if (nextStatus === 0 && activeStores.length <= 1) {
+      return buildFail('至少需要保留一家营业门店', 'LAST_ACTIVE_STORE_LOCKED')
+    }
+
+    await db.collection(COLLECTIONS.STORE).doc(payload.targetStoreId).update({
+      data: {
+        status: nextStatus,
+        updated_at: db.serverDate(),
+      },
+    })
+
+    return buildSuccess({
+      changed: true,
+      storeInfo: buildAdminStoreManageItem(Object.assign({}, targetStore, {
+        status: nextStatus,
+      })),
+    })
+  } catch (error) {
+    return buildFail('更新门店营业状态失败：' + (error.errMsg || error.message || error), 'UPDATE_STORE_STATUS_ERROR')
   }
 }
 
@@ -2084,8 +2334,16 @@ exports.main = async (event) => {
       return getAdminUserManageData()
     case 'getAdminPackageManageData':
       return getAdminPackageManageData()
+    case 'getAdminStoreManageData':
+      return getAdminStoreManageData()
     case 'createPackage':
       return createPackage(event)
+    case 'createStore':
+      return createStore(event)
+    case 'updateStore':
+      return updateStore(event)
+    case 'updateStoreStatus':
+      return updateStoreStatus(event)
     case 'getCoachClassViewData':
       return getCoachClassViewData(event)
     case 'getCoachScheduleViewData':

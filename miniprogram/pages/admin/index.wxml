@@ -50,19 +50,29 @@
     </view>
 
     <view class="card">
-      <view class="headline-row">
-        <view class="section-title">AUDIT LOG · 课时派发审计</view>
-        <button class="secondary-button export-button" bindtap="onExport">导出</button>
-      </view>
-      <view wx:for="{{pageData.auditLogs}}" wx:key="id" class="audit-item">
-        <view class="audit-top-row">
-          <view class="audit-time">{{item.time}}</view>
-          <view class="audit-paytype">{{item.payType}}</view>
+      <view class="collapsible-header" bindtap="onToggleAuditLogs">
+        <view class="collapsible-title">
+          <view class="section-title">AUDIT LOG · 课时派发审计</view>
+          <view class="collapsible-summary">{{pageData.auditLogs ? pageData.auditLogs.length : 0}} 条记录</view>
         </view>
-        <view class="audit-main-text">操作人 {{item.operatorName}} 为学员 {{item.targetName}} 派发 {{item.packageName}}</view>
-        <view class="audit-remark">备注：{{item.remark}}</view>
-        <view class="audit-amount">￥{{item.amount}}</view>
+        <view class="audit-header-actions">
+          <button wx:if="{{auditLogsExpanded}}" class="secondary-button export-button" catchtap="onExport">导出</button>
+          <view class="collapse-toggle">
+            <view class="collapse-chevron {{auditLogsExpanded ? 'expanded' : ''}}"></view>
+          </view>
+        </view>
       </view>
+      <block wx:if="{{auditLogsExpanded}}">
+        <view wx:for="{{pageData.auditLogs}}" wx:key="id" class="audit-item">
+          <view class="audit-top-row">
+            <view class="audit-time">{{item.time}}</view>
+            <view class="audit-paytype">{{item.payType}}</view>
+          </view>
+          <view class="audit-main-text">操作人 {{item.operatorName}} 为学员 {{item.targetName}} 派发 {{item.packageName}}</view>
+          <view class="audit-remark">备注：{{item.remark}}</view>
+          <view class="audit-amount">￥{{item.amount}}</view>
+        </view>
+      </block>
     </view>
 
     <view class="card">
@@ -80,9 +90,9 @@
           <view class="admin-card-title">套餐上下架</view>
           <view class="admin-card-desc">面向价目板配置</view>
         </view>
-        <view class="admin-tool-card">
+        <view class="admin-tool-card" bindtap="onOpenStoreManage">
           <view class="admin-card-title">门店管理</view>
-          <view class="admin-card-desc">班次 / 场地池</view>
+          <view class="admin-card-desc">门店资料 / 营业状态</view>
         </view>
       </view>
     </view>

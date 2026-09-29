@@ -19,6 +19,7 @@ Page({
     runtime: {},
     pageData: {},
     pageLoading: false,
+    pricingExpanded: false,
   },
 
   onShow() {
@@ -120,6 +121,12 @@ Page({
     wx.showToast({
       title: '消息中心稍后开放',
       icon: 'none',
+    })
+  },
+
+  onTogglePricing() {
+    this.setData({
+      pricingExpanded: !this.data.pricingExpanded,
     })
   },
 

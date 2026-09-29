@@ -101,14 +101,20 @@
   </view>
 
   <view class="card">
-    <view class="headline-row">
-      <view>
+    <view class="collapsible-header" bindtap="onTogglePricing">
+      <view class="collapsible-title">
         <view class="eyebrow">PRICING</view>
         <view class="home-section-name">价目表</view>
+        <view class="collapsible-summary">{{pageData.packages ? pageData.packages.length : 0}} 个套餐</view>
       </view>
-      <view class="card-desc">线下了解</view>
+      <view class="pricing-header-side">
+        <view class="card-desc">线下了解</view>
+        <view class="collapse-toggle">
+          <view class="collapse-chevron {{pricingExpanded ? 'expanded' : ''}}"></view>
+        </view>
+      </view>
     </view>
-    <view class="pricing-list">
+    <view wx:if="{{pricingExpanded}}" class="pricing-list">
       <view wx:for="{{pageData.packages}}" wx:key="id" class="pricing-item">
         <view>
           <view class="pricing-tag {{item.type === 'private' ? 'is-private' : 'is-group'}}">{{item.type === 'private' ? 'EXCLUSIVE' : 'GROUP'}}</view>

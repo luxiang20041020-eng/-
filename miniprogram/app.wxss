@@ -176,6 +176,54 @@ button::after {
   gap: 16rpx;
 }
 
+.headline-row > view:first-child,
+.collapsible-title {
+  min-width: 0;
+}
+
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+
+.collapsible-title {
+  flex: 1;
+}
+
+.collapse-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 56rpx;
+  width: 56rpx;
+  height: 56rpx;
+  border: 1rpx solid #e7ebf2;
+  border-radius: 50%;
+  background: #f8f9fc;
+}
+
+.collapse-chevron {
+  width: 14rpx;
+  height: 14rpx;
+  border-right: 3rpx solid #697386;
+  border-bottom: 3rpx solid #697386;
+  transform: rotate(45deg) translate(-2rpx, -2rpx);
+  transition: transform 180ms ease;
+}
+
+.collapse-chevron.expanded {
+  transform: rotate(225deg) translate(-2rpx, -2rpx);
+}
+
+.collapsible-summary {
+  margin-top: 8rpx;
+  color: #7d8798;
+  font-size: 21rpx;
+  line-height: 1.45;
+}
+
 .card {
   margin-top: 22rpx;
   padding: 26rpx;
@@ -361,6 +409,17 @@ button::after {
   min-height: 160rpx;
 }
 
+.form-input {
+  max-width: 100%;
+  min-width: 0;
+  height: 82rpx;
+  min-height: 82rpx;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 82rpx;
+  overflow: hidden;
+}
+
 .input-placeholder,
 .coach-search-placeholder {
   color: #9aa3b2;
@@ -373,6 +432,7 @@ button::after {
 .field-label,
 .filter-label {
   font-size: 25rpx;
+  line-height: 1.4;
   color: #07142f;
   font-weight: 900;
 }

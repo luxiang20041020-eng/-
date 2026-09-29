@@ -76,8 +76,28 @@ async function getAdminPackageManageData(payload) {
   return unwrapResult(response)
 }
 
+async function getAdminStoreManageData(payload) {
+  const response = await callBusinessCore('getAdminStoreManageData', payload)
+  return unwrapResult(response)
+}
+
 async function createPackage(payload) {
   const response = await callBusinessCore('createPackage', payload)
+  return unwrapResult(response)
+}
+
+async function createStore(payload) {
+  const response = await callBusinessCore('createStore', payload)
+  return unwrapResult(response)
+}
+
+async function updateStore(payload) {
+  const response = await callBusinessCore('updateStore', payload)
+  return unwrapResult(response)
+}
+
+async function updateStoreStatus(payload) {
+  const response = await callBusinessCore('updateStoreStatus', payload)
   return unwrapResult(response)
 }
 
@@ -144,7 +164,11 @@ module.exports = {
   getAdminDashboardData,
   getAdminUserManageData,
   getAdminPackageManageData,
+  getAdminStoreManageData,
   createPackage,
+  createStore,
+  updateStore,
+  updateStoreStatus,
   getCoachClassViewData,
   getCoachScheduleViewData,
   distributeAsset,

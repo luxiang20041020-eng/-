@@ -25,6 +25,11 @@ const businessApi = require('./utils/business-api')
 
 const AUTH_REFRESH_INTERVAL = 60000
 const VIEW_CACHE_TTL = 5 * 60 * 1000
+const SELECTED_STORE_STORAGE_KEY = 'selectedStoreId'
+
+function getSelectedStoreStorageKey(userId) {
+  return userId ? SELECTED_STORE_STORAGE_KEY + ':' + userId : SELECTED_STORE_STORAGE_KEY
+}
 
 function deepClone(data) {
   return JSON.parse(JSON.stringify(data))
@@ -100,10 +105,14 @@ function buildClassSummary(schedule, roster) {
 
 App({
   onLaunch() {
+    const storedStoreId = wx.getStorageSync(SELECTED_STORE_STORAGE_KEY)
+    const initialStoreId = STORE_LIST.some((item) => item.id === storedStoreId)
+      ? storedStoreId
+      : STORE_LIST[0].id
     this.globalData = {
       env: 'cloud1-d0go5nfchb64419d5',
       role: 'client',
-      selectedStoreId: STORE_LIST[0].id,
+      selectedStoreId: initialStoreId,
       selectedCoachClassId: TODAY_CLASSES[0].id,
       stores: deepClone(STORE_LIST),
       userProfile: buildGuestUserProfile(),
@@ -220,7 +229,16 @@ App({
   },
 
   switchStore(storeId) {
-    this.globalData.selectedStoreId = storeId
+    const targetStore = this.globalData.stores.find((item) => item.id === storeId)
+    if (!targetStore) {
+      return this.getRuntimeSnapshot()
+    }
+    this.globalData.selectedStoreId = targetStore.id
+    wx.setStorageSync(SELECTED_STORE_STORAGE_KEY, targetStore.id)
+    const userId = this.globalData.userProfile && this.globalData.userProfile.id
+    if (userId) {
+      wx.setStorageSync(getSelectedStoreStorageKey(userId), targetStore.id)
+    }
     return this.getRuntimeSnapshot()
   },
 
@@ -244,26 +262,38 @@ App({
     this.globalData.role = normalizedProfile.role || 'client'
     this.globalData.userProfile = normalizedProfile
     const sessionStoreId = sessionData && sessionData.currentStore ? sessionData.currentStore.id : ''
+    const savedUserStoreId = currentUserId ? wx.getStorageSync(getSelectedStoreStorageKey(currentUserId)) : ''
     const shouldKeepSelectedStore = previousUserId && previousUserId === currentUserId
     const candidateStoreId = shouldKeepSelectedStore
       ? (this.globalData.selectedStoreId || normalizedProfile.homeStoreId || sessionStoreId)
-      : (normalizedProfile.homeStoreId || sessionStoreId || this.globalData.selectedStoreId)
+      : (savedUserStoreId || normalizedProfile.homeStoreId || sessionStoreId || this.globalData.selectedStoreId)
     const hasCandidateStore = normalizedStores.some((item) => item.id === candidateStoreId)
 
     this.globalData.selectedStoreId = hasCandidateStore
       ? candidateStoreId
       : (normalizedStores[0] ? normalizedStores[0].id : '')
+    if (this.globalData.selectedStoreId) {
+      wx.setStorageSync(SELECTED_STORE_STORAGE_KEY, this.globalData.selectedStoreId)
+      wx.setStorageSync(getSelectedStoreStorageKey(currentUserId), this.globalData.selectedStoreId)
+    }
     this.globalData.lastAuthSyncAt = Date.now()
     this.syncCurrentUserAssetsFromMember()
     return this.getRuntimeSnapshot()
   },
 
   resetGuestSession() {
+    const previousStoreId = this.globalData.selectedStoreId
+    const guestStores = this.globalData.stores && this.globalData.stores.length
+      ? this.globalData.stores
+      : STORE_LIST
+    const hasPreviousStore = guestStores.some((item) => item.id === previousStoreId)
     this.globalData.isAuthenticated = false
     this.globalData.authMode = 'demo'
     this.globalData.role = 'client'
     this.globalData.userProfile = buildGuestUserProfile()
-    this.globalData.selectedStoreId = STORE_LIST[0] ? STORE_LIST[0].id : ''
+    this.globalData.selectedStoreId = hasPreviousStore
+      ? previousStoreId
+      : (guestStores[0] ? guestStores[0].id : '')
     this.globalData.lastAuthSyncAt = Date.now()
     this.globalData.viewCache = {}
     this.syncCurrentUserAssetsFromMember()

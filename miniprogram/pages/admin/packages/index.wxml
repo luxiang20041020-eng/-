@@ -36,43 +36,53 @@
     </view>
 
     <view class="card">
-      <view class="section-title section-title-no-gap">FILTER · 套餐筛选</view>
-      <view class="create-entry" bindtap="onOpenCreatePopup">
-        <view class="create-entry-mark">+</view>
-        <view class="create-entry-main">
-          <view class="create-entry-kicker">CREATE PACKAGE</view>
-          <view class="create-entry-title">新建套餐</view>
-          <view class="create-entry-desc">新增团课或私教套餐，并决定是否立即上架。</view>
+      <view class="collapsible-header" bindtap="onToggleFilters">
+        <view class="collapsible-title">
+          <view class="section-title section-title-no-gap">FILTER · 套餐筛选</view>
+          <view class="collapsible-summary">当前显示 {{visiblePackages.length}} 个套餐</view>
         </view>
-        <view class="create-entry-arrow">></view>
-      </view>
-      <input
-        class="form-input"
-        value="{{keyword}}"
-        bindinput="onKeywordInput"
-        placeholder="输入套餐名搜索"
-        placeholder-class="input-placeholder"
-      />
-      <view class="filter-row">
-        <view class="filter-label">状态</view>
-        <view class="filter-chip-row">
-          <view class="outline-chip {{statusFilter === 'all' ? 'active' : ''}}" data-value="all" bindtap="onStatusFilterChange">全部</view>
-          <view class="outline-chip {{statusFilter === 'active' ? 'active' : ''}}" data-value="active" bindtap="onStatusFilterChange">已上架</view>
-          <view class="outline-chip {{statusFilter === 'inactive' ? 'active' : ''}}" data-value="inactive" bindtap="onStatusFilterChange">已下架</view>
+        <view class="collapse-toggle">
+          <view class="collapse-chevron {{filtersExpanded ? 'expanded' : ''}}"></view>
         </view>
       </view>
-      <view class="filter-row">
-        <view class="filter-label">类型</view>
-        <view class="filter-chip-row">
-          <view class="outline-chip {{typeFilter === 'all' ? 'active' : ''}}" data-value="all" bindtap="onTypeFilterChange">全部</view>
-          <view class="outline-chip {{typeFilter === 'group' ? 'active' : ''}}" data-value="group" bindtap="onTypeFilterChange">团课</view>
-          <view class="outline-chip {{typeFilter === 'private' ? 'active' : ''}}" data-value="private" bindtap="onTypeFilterChange">私教</view>
+      <block wx:if="{{filtersExpanded}}">
+        <view class="create-entry" bindtap="onOpenCreatePopup">
+          <view class="create-entry-mark">+</view>
+          <view class="create-entry-main">
+            <view class="create-entry-kicker">CREATE PACKAGE</view>
+            <view class="create-entry-title">新建套餐</view>
+            <view class="create-entry-desc">新增团课或私教套餐，并决定是否立即上架。</view>
+          </view>
+          <view class="create-entry-arrow">></view>
         </view>
-      </view>
-      <view class="headline-row toolbar-row">
-        <view class="card-desc">当前显示 {{visiblePackages.length}} 个套餐</view>
-        <button wx:if="{{keyword}}" class="secondary-button clear-button" bindtap="onClearKeyword">清空</button>
-      </view>
+        <input
+          class="form-input"
+          value="{{keyword}}"
+          bindinput="onKeywordInput"
+          placeholder="输入套餐名搜索"
+          placeholder-class="input-placeholder"
+        />
+        <view class="filter-row">
+          <view class="filter-label">状态</view>
+          <view class="filter-chip-row">
+            <view class="outline-chip {{statusFilter === 'all' ? 'active' : ''}}" data-value="all" bindtap="onStatusFilterChange">全部</view>
+            <view class="outline-chip {{statusFilter === 'active' ? 'active' : ''}}" data-value="active" bindtap="onStatusFilterChange">已上架</view>
+            <view class="outline-chip {{statusFilter === 'inactive' ? 'active' : ''}}" data-value="inactive" bindtap="onStatusFilterChange">已下架</view>
+          </view>
+        </view>
+        <view class="filter-row">
+          <view class="filter-label">类型</view>
+          <view class="filter-chip-row">
+            <view class="outline-chip {{typeFilter === 'all' ? 'active' : ''}}" data-value="all" bindtap="onTypeFilterChange">全部</view>
+            <view class="outline-chip {{typeFilter === 'group' ? 'active' : ''}}" data-value="group" bindtap="onTypeFilterChange">团课</view>
+            <view class="outline-chip {{typeFilter === 'private' ? 'active' : ''}}" data-value="private" bindtap="onTypeFilterChange">私教</view>
+          </view>
+        </view>
+        <view class="headline-row toolbar-row">
+          <view class="card-desc">当前显示 {{visiblePackages.length}} 个套餐</view>
+          <button wx:if="{{keyword}}" class="secondary-button clear-button" bindtap="onClearKeyword">清空</button>
+        </view>
+      </block>
     </view>
 
     <view wx:if="{{loading}}" class="page-loading">正在读取套餐列表...</view>

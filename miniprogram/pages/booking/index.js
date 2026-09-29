@@ -149,12 +149,6 @@ Page({
     }
   },
 
-  onSwitchStore(event) {
-    const app = getApp()
-    app.switchStore(event.currentTarget.dataset.storeId)
-    this.syncPageData()
-  },
-
   onTypeChange(event) {
     this.setData({
       filters: Object.assign({}, this.data.filters, {

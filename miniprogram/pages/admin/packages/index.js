@@ -73,6 +73,7 @@ Page({
     keyword: '',
     statusFilter: 'all',
     typeFilter: 'all',
+    filtersExpanded: false,
     showCreatePopup: false,
     createForm: buildDefaultCreateForm(),
   },
@@ -194,6 +195,12 @@ Page({
   onTypeFilterChange(event) {
     this.refreshVisiblePackages({
       typeFilter: event.currentTarget.dataset.value,
+    })
+  },
+
+  onToggleFilters() {
+    this.setData({
+      filtersExpanded: !this.data.filtersExpanded,
     })
   },
 

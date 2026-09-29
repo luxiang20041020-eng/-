@@ -11,6 +11,7 @@ Page({
     pageData: {},
     hasPermission: false,
     bootstrapLoading: false,
+    auditLogsExpanded: false,
   },
 
   onShow() {
@@ -81,6 +82,12 @@ Page({
     })
   },
 
+  onToggleAuditLogs() {
+    this.setData({
+      auditLogsExpanded: !this.data.auditLogsExpanded,
+    })
+  },
+
   onOpenUserManage() {
     wx.navigateTo({
       url: '/pages/admin/users/index',
@@ -90,6 +97,12 @@ Page({
   onOpenPackageManage() {
     wx.navigateTo({
       url: '/pages/admin/packages/index',
+    })
+  },
+
+  onOpenStoreManage() {
+    wx.navigateTo({
+      url: '/pages/admin/stores/index',
     })
   },
 
