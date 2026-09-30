@@ -17,6 +17,9 @@ const COLLECTIONS = {
   BOOKING: 'biz_booking',
 }
 
+// 同一热实例共享初始化结果；失败时清空 Promise，让下一次请求可以重试。
+let databaseReadyPromise = null
+
 const ASSET_TYPE = {
   GROUP: 1,
   PRIVATE: 2,
@@ -516,18 +519,10 @@ async function tryCreateCollection(collectionName) {
     await db.createCollection(collectionName)
     return { collectionName, created: true, status: 'created' }
   } catch (error) {
-    const message = String(error && error.errMsg ? error.errMsg : error)
-    const errorCode = String(error && error.errCode ? error.errCode : '')
-    // 云开发在“集合已存在”场景下返回值并不稳定，可能是英文提示、错误码，
-    // 也可能混有 "Table exist" / "COLLECTION_ALREADY_EXIST" 等文本，这里统一按幂等成功处理。
-    if (
-      message.includes('already exists') ||
-      message.includes('COLLECTION_ALREADY_EXIST') ||
-      message.includes('Table exist') ||
-      message.includes('resource system error') ||
-      errorCode === '-501001'
-    ) {
-      return { collectionName, created: false, status: 'exists', rawError: message, rawErrorCode: errorCode }
+    // 不把泛化错误码或 resource system error 当作“已存在”。只有实际可访问才算成功。
+    const inspection = await inspectCollection(collectionName)
+    if (inspection.ok) {
+      return { collectionName, created: false, status: 'exists' }
     }
     throw error
   }
@@ -557,29 +552,26 @@ async function seedCollectionIfEmpty(collectionName, docs) {
     return { collectionName, seeded: false, total: 0, insertedCount: 0, insertedIds: [] }
   }
 
-  const countResult = await db.collection(collectionName).count()
-  if (countResult.total === 0) {
-    for (const doc of docs) {
-      await db.collection(collectionName).add({ data: doc })
-    }
-
-    return {
-      collectionName,
-      seeded: true,
-      total: docs.length,
-      insertedCount: docs.length,
-      insertedIds: docs.map((item) => item._id),
-    }
-  }
-
   const insertedIds = []
   for (const doc of docs) {
     const existsResult = await db.collection(collectionName).where({ _id: doc._id }).count()
     if (existsResult.total > 0) {
       continue
     }
-    await db.collection(collectionName).add({ data: doc })
-    insertedIds.push(doc._id)
+    try {
+      await db.collection(collectionName).add({ data: doc })
+      insertedIds.push(doc._id)
+    } catch (error) {
+      // 多个冷实例可能同时插入固定 ID。仅忽略已确认落库的重复键错误。
+      const message = String(error.errMsg || error.message || error)
+      if (!/duplicate|already exists|document.*exist/i.test(message)) {
+        throw error
+      }
+      const existing = await db.collection(collectionName).where({ _id: doc._id }).count()
+      if (!existing.total) {
+        throw error
+      }
+    }
   }
 
   const finalCount = await db.collection(collectionName).count()
@@ -601,24 +593,22 @@ async function getFirstUserByWhere(where) {
   return list[0] || null
 }
 
-async function ensureBaseCollectionsAndSeeds() {
-  const createResults = []
-  for (const collectionName of Object.values(COLLECTIONS)) {
-    createResults.push(await tryCreateCollection(collectionName))
+async function ensureBaseCollectionsAndSeeds({ includeDemo = false } = {}) {
+  const createResults = await Promise.all(Object.values(COLLECTIONS).map(tryCreateCollection))
+
+  const seedResults = await Promise.all([
+    seedCollectionIfEmpty(COLLECTIONS.STORE, storeSeeds),
+    seedCollectionIfEmpty(COLLECTIONS.PACKAGE, packageSeeds),
+  ])
+  // 正式启动只准备基础配置，不创建虚拟人员、余额、排课和预约。
+  if (includeDemo) {
+    seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.USER, userSeeds))
+    seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.USER_ASSET, userAssetSeeds))
+    seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.CLASS_SCHEDULE, scheduleSeeds))
+    seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.BOOKING, bookingSeeds))
   }
 
-  const seedResults = []
-  seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.STORE, storeSeeds))
-  seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.PACKAGE, packageSeeds))
-  seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.USER, userSeeds))
-  seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.USER_ASSET, userAssetSeeds))
-  seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.CLASS_SCHEDULE, scheduleSeeds))
-  seedResults.push(await seedCollectionIfEmpty(COLLECTIONS.BOOKING, bookingSeeds))
-
-  const inspectResults = []
-  for (const collectionName of Object.values(COLLECTIONS)) {
-    inspectResults.push(await inspectCollection(collectionName))
-  }
+  const inspectResults = await Promise.all(Object.values(COLLECTIONS).map(inspectCollection))
 
   const failedCollections = inspectResults.filter((item) => !item.ok)
   if (failedCollections.length) {
@@ -632,6 +622,22 @@ async function ensureBaseCollectionsAndSeeds() {
     seedResults,
     inspectResults,
   }
+}
+
+function ensureDatabaseReady() {
+  if (!databaseReadyPromise) {
+    databaseReadyPromise = ensureBaseCollectionsAndSeeds().catch((error) => {
+      databaseReadyPromise = null
+      throw error
+    })
+  }
+  return databaseReadyPromise
+}
+
+function isConfiguredAdminPhone(phone) {
+  // 只能使用云端环境变量与微信验证的手机号，不能接受客户端指定角色。
+  const adminPhones = String(process.env.ADMIN_PHONE_NUMBERS || '').split(/[,;\s]+/).filter(Boolean)
+  return adminPhones.includes(phone)
 }
 
 function validateDistributionPayload(payload) {
@@ -1807,13 +1813,20 @@ async function getCoachScheduleViewData(event) {
 }
 
 async function getBootstrapData() {
-  const result = await ensureBaseCollectionsAndSeeds()
-  const wxContext = cloud.getWXContext()
-  return buildSuccess({
-    envId: wxContext.ENV || cloud.DYNAMIC_CURRENT_ENV,
-    collections: COLLECTIONS,
-    ...result,
-  })
+  try {
+    await ensureAdminOperator()
+    const result = await ensureBaseCollectionsAndSeeds({
+      includeDemo: process.env.ENABLE_DEMO_SEEDS === 'true',
+    })
+    const wxContext = cloud.getWXContext()
+    return buildSuccess({
+      envId: wxContext.ENV || cloud.DYNAMIC_CURRENT_ENV,
+      collections: COLLECTIONS,
+      ...result,
+    })
+  } catch (error) {
+    return buildFail('数据库检查失败：' + (error.errMsg || error.message || error), 'BOOTSTRAP_ERROR')
+  }
 }
 
 async function getCurrentUserSession() {
@@ -1918,17 +1931,20 @@ async function loginWithPhone(event) {
       is_deleted: false,
       phone: purePhoneNumber,
     })
+    const role = isConfiguredAdminPhone(purePhoneNumber) ? 3 : (currentUser ? currentUser.role : 1)
 
     if (currentUser) {
       await db.collection(COLLECTIONS.USER).doc(currentUser._id).update({
         data: {
           openid: wxContext.OPENID,
+          role,
           status: 1,
           updated_at: db.serverDate(),
         },
       })
       currentUser = Object.assign({}, currentUser, {
         openid: wxContext.OPENID,
+        role,
         status: 1,
       })
     } else {
@@ -1939,7 +1955,7 @@ async function loginWithPhone(event) {
         phone: purePhoneNumber,
         real_name: realName,
         avatar_url: '',
-        role: 1,
+        role,
         home_store_id: payload.storeId || defaultStoreId,
         status: 1,
         created_at: db.serverDate(),
@@ -2308,7 +2324,13 @@ async function createCoachSchedule(event) {
   }
 }
 
-exports.main = async (event) => {
+exports.main = async (event = {}) => {
+  try {
+    // 在任何登录查询、鉴权或业务读写之前初始化，避免依赖管理员页面。
+    await ensureDatabaseReady()
+  } catch (error) {
+    return buildFail('数据库自动初始化失败：' + (error.errMsg || error.message || error), 'DATABASE_INIT_ERROR')
+  }
   switch (event.action) {
     case 'bootstrap':
       return getBootstrapData()

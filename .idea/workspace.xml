@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="100e687d-5462-4a43-87c9-89b5c23af30d" name="更改" comment="文字修改">
-      <change beforePath="$PROJECT_DIR$/cloudfunctions/businessCore/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/cloudfunctions/businessCore/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/miniprogram/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/miniprogram/pages/profile/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/pages/profile/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/miniprogram/pages/profile/index.wxml" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/pages/profile/index.wxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/miniprogram/pages/profile/index.wxss" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/pages/profile/index.wxss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/miniprogram/utils/business-api.js" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/utils/business-api.js" afterDir="false" />
-    </list>
+    <list default="true" id="100e687d-5462-4a43-87c9-89b5c23af30d" name="更改" comment="9.29" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,6 +13,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "luxiang33333"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/luxiang20041020-eng/-.git",
+    "accountId": "cc8fb851-b9cf-4756-a2e5-24b353fd4e4a"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
 }</component>
@@ -71,6 +76,7 @@
       <workItem from="1783302029207" duration="5000" />
       <workItem from="1783415548917" duration="3089000" />
       <workItem from="1783568361044" duration="601000" />
+      <workItem from="1790680314685" duration="661000" />
     </task>
     <task id="LOCAL-00001" summary="new">
       <option name="closed" value="true" />
@@ -224,7 +230,15 @@
       <option name="project" value="LOCAL" />
       <updated>1783425233449</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="9.29">
+      <option name="closed" value="true" />
+      <created>1790680333951</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1790680333951</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -258,6 +272,7 @@
     <MESSAGE value="用户隐私" />
     <MESSAGE value="发课" />
     <MESSAGE value="文字修改" />
-    <option name="LAST_COMMIT_MESSAGE" value="文字修改" />
+    <MESSAGE value="9.29" />
+    <option name="LAST_COMMIT_MESSAGE" value="9.29" />
   </component>
 </project>

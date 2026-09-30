@@ -133,7 +133,7 @@ Page({
         return item.collectionName + '：' + (item.ok ? ('可访问，记录数 ' + item.total) : ('校验失败 ' + (item.error || '未知错误')))
       })
       wx.showModal({
-        title: '初始化完成',
+        title: '数据库检查完成',
         content:
           '当前云环境：' + (result.envId || '未知') +
           '\n集合结果：' + createSummary.join('、') +
@@ -143,7 +143,7 @@ Page({
       })
     } catch (error) {
       wx.showToast({
-        title: error.message || '初始化失败',
+        title: error.message || '数据库检查失败',
         icon: 'none',
       })
     } finally {

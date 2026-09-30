@@ -20,7 +20,7 @@
         <view class="admin-tool-label">STORE</view>
         <view class="admin-tool-value">{{pageData.currentStore.name}}</view>
       </view>
-      <button class="secondary-button admin-mini-btn" loading="{{bootstrapLoading}}" bindtap="onBootstrap">初始化</button>
+      <button class="secondary-button admin-mini-btn" loading="{{bootstrapLoading}}" bindtap="onBootstrap">检查数据库</button>
     </view>
 
     <view class="card">
@@ -79,8 +79,8 @@
       <view class="section-title">TOOLS · 运营工具</view>
       <view class="admin-tools-grid">
         <view class="admin-tool-card primary" bindtap="onBootstrap">
-          <view class="admin-card-title">发布系统公告</view>
-          <view class="admin-card-desc">云端初始化与基础播报</view>
+          <view class="admin-card-title">检查数据库</view>
+          <view class="admin-card-desc">校验云端集合与基础配置</view>
         </view>
         <view class="admin-tool-card" bindtap="onOpenUserManage">
           <view class="admin-card-title">人员权限管理</view>

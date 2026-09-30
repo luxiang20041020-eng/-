@@ -110,7 +110,7 @@ App({
       ? storedStoreId
       : STORE_LIST[0].id
     this.globalData = {
-      env: 'cloud1-d0go5nfchb64419d5',
+      env: 'cloud1-d2g8aw97349a6c619',
       role: 'client',
       selectedStoreId: initialStoreId,
       selectedCoachClassId: TODAY_CLASSES[0].id,
