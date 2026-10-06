@@ -251,7 +251,6 @@ App({
   completeLogout() {
     this.resetGuestSession()
     this.globalData.sessionDismissed = true
-    wx.setStorageSync(SESSION_DISMISSED_STORAGE_KEY, true)
     this.globalData.selectedCoachClassId = ''
     this.globalData.members = []
     this.globalData.myBookings = []
@@ -262,6 +261,10 @@ App({
     this.globalData.auditOverview = { addedPrivateLessons: 0, addedGroupLessons: 0, incomeAmount: 0, writeOffCount: 0 }
     this.globalData.trainingStats = { monthLessons: 0, streakDays: 0, totalLessons: 0 }
     this.globalData.assets = { privateCount: 0, groupCount: 0, privateExpiry: '', groupExpiry: '' }
+    // 云端已经退出，本地存储异常也不能使页面残留登录资料。
+    try { wx.setStorageSync(SESSION_DISMISSED_STORAGE_KEY, true) } catch (error) {
+      console.warn('退出状态未能保存到本地')
+    }
     return this.getRuntimeSnapshot()
   },
 

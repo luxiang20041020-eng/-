@@ -226,6 +226,16 @@ test('退出后页面跳转失败仍保持游客状态并清空资料', async ()
   assert.equal(calls.toasts.at(-1).title, '已退出登录，请返回首页')
 })
 
+test('已有资料保存请求时不能同时退出并接收旧登录态', async () => {
+  let writes = 0
+  const { page, app, calls } = loggedProfile({ logout: async () => { writes += 1 } })
+  page.data.nicknameSubmitting = true
+  await page.onLogout()
+  assert.equal(writes, 0)
+  assert.equal(app.globalData.isAuthenticated, true)
+  assert.equal(calls.toasts.at(-1).title, '请等待当前操作完成后退出')
+})
+
 test('全部业务页面模板绑定的事件均存在', () => {
   const config = JSON.parse(fs.readFileSync(path.join(root, 'app.json'), 'utf8'))
   for (const name of config.pages) {

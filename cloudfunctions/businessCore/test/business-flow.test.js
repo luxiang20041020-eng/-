@@ -165,6 +165,40 @@ test('退出清除当前微信身份的全部历史绑定，不影响其他微�
   assert.equal((await main({ action: 'logout', payload: { userId: 'other-user', openid: 'other-openid' } })).success, true)
   assert.equal((await main({ action: 'getCurrentUserSession' })).data.loggedIn, false)
   assert.equal(users.get('other-user').openid, 'other-openid')
+  assert.equal((await main({ action: 'logout' })).success, true)
+})
+
+test('退出清理部分失败会回滚全部绑定，重试后可正常退出', async () => {
+  const { state, main, id } = await fixture()
+  state.collections.get('app_user').set('historical', { ...state.collections.get('app_user').get(id), _id: 'historical' })
+  const originalCollection = state.db.collection
+  state.db.collection = (name) => {
+    const collection = originalCollection(name)
+    const originalDoc = collection.doc
+    collection.doc = (docId) => {
+      const doc = originalDoc(docId)
+      if (name === 'app_user' && docId === 'historical') doc.update = async () => { throw new Error('临时写入失败') }
+      return doc
+    }
+    return collection
+  }
+  assert.equal((await main({ action: 'logout' })).code, 'LOGOUT_ERROR')
+  assert.equal(state.collections.get('app_user').get(id).openid, 'real-openid')
+  assert.equal(state.collections.get('app_user').get('historical').openid, 'real-openid')
+  state.db.collection = originalCollection
+  assert.equal((await main({ action: 'logout' })).success, true)
+  assert.equal((await main({ action: 'getCurrentUserSession' })).data.loggedIn, false)
+})
+
+test('退出不会清除并发绑定到其他微信身份的账号', async () => {
+  const { state, main, id } = await fixture()
+  const originalTransaction = state.db.runTransaction
+  state.db.runTransaction = async (callback) => {
+    state.collections.get('app_user').get(id).openid = 'new-device-openid'
+    return originalTransaction(callback)
+  }
+  assert.equal((await main({ action: 'logout' })).success, true)
+  assert.equal(state.collections.get('app_user').get(id).openid, 'new-device-openid')
 })
 
 test('列表读取超过 SDK 默认上限时继续分页', async () => {
