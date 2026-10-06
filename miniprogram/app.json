@@ -14,14 +14,17 @@
     "pages/admin/stores/index"
   ],
   "window": {
-    "backgroundColor": "#f7f8fb",
+    "backgroundColor": "#f5f4ef",
     "backgroundTextStyle": "dark",
-    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarBackgroundColor": "#f5f4ef",
     "navigationBarTitleText": "ONE泰拳格斗馆",
     "navigationBarTextStyle": "black"
   },
   "__usePrivacyCheck__": true,
   "sitemapLocation": "sitemap.json",
   "style": "v2",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "usingComponents": {
+    "page-feedback": "/components/page-feedback/index"
+  }
 }

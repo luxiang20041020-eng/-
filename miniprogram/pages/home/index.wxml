@@ -1,133 +1,34 @@
-<view class="page-shell">
-  <view wx:if="{{pageLoading}}" class="page-loading">LOADING HOME DATA...</view>
-
-  <view class="home-top-shell">
-    <view class="headline-row">
-      <view class="home-store-trigger" bindtap="onOpenStorePicker">
-        <view class="home-store-pin">
-          <view class="home-store-pin-core"></view>
-        </view>
-        <view class="home-store-name">{{pageData.currentStore.name}}</view>
-        <view class="home-store-chevron"></view>
-      </view>
-      <view class="home-bell" bindtap="onBellTap">
-        <view class="home-bell-handle"></view>
-        <view class="home-bell-body"></view>
-        <view class="home-bell-clapper"></view>
-        <view class="home-bell-dot"></view>
-      </view>
-    </view>
-    <view class="home-hero-row">
-      <view class="home-hero-copy">
-        <view class="home-hero-kicker">EST. 2018 · CHENGDU</view>
-        <view class="home-hero-title">IRONFIST</view>
-        <view class="home-hero-subtitle">ONE · 泰拳搏击馆</view>
-      </view>
-      <view class="home-hero-stat">
-        <view class="home-hero-stat-value">{{pageData.coachCountText}}</view>
-        <view class="home-hero-stat-label">STAFF</view>
-      </view>
-    </view>
+<view class="page-shell home-page">
+  <view class="home-masthead">
+    <view class="home-brand"><text class="home-wordmark">ONE</text><text class="home-brand-caption">泰拳格斗馆</text></view>
+    <view class="home-store-trigger" bindtap="onOpenStorePicker" hover-class="tap-feedback"><text class="store-indicator"></text><text>{{pageData.currentStore.name || '选择门店'}}</text><text class="home-chevron">⌄</text></view>
   </view>
-
-  <view class="home-event-card">
-    <view class="home-event-copy">
-      <view class="home-event-kicker">EVENT</view>
-      <view class="home-event-title">{{pageData.heroNotice}}</view>
-      <view class="home-event-desc"></view>
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
+  <view class="home-hero">
+    <image class="home-hero-image" src="/images/gym-interior-1.jpg" mode="aspectFill"></image>
+    <view class="home-hero-shade"></view>
+    <view class="home-hero-content">
+      <view class="home-hero-kicker">ONE / MUAY THAI CLUB</view>
+      <view class="home-hero-title"><view>每一次出拳，</view><view>都更进一步。</view></view>
+      <view class="home-hero-subtitle">专注当下，练出自己的节奏。</view>
+      <button class="home-hero-cta" data-type="group" bindtap="goBooking" hover-class="tap-feedback">预约下一次训练 <text>↗</text></button>
     </view>
-    <view class="home-event-index">01</view>
+    <view class="home-hero-bottom"><text>团体训练 · 专属指导</text><text>KEEP SHOWING UP.</text></view>
   </view>
-
-  <view class="home-event-pager">
-    <view class="home-event-pager-item active"></view>
-    <view class="home-event-pager-item"></view>
+  <view class="home-notice" bindtap="onBellTap" hover-class="tap-feedback"><view class="notice-dot"></view><text class="notice-copy">{{pageData.heroNotice}}</text><text>›</text></view>
+  <view class="home-section-head"><view class="section-heading">你的训练，从这里开始</view><text class="home-small-label">TRAINING</text></view>
+  <view class="home-training-grid">
+    <view class="home-training-card" data-type="group" bindtap="goBooking" hover-class="tap-feedback"><view class="training-number">01 <text>↗</text></view><view class="training-title">团体训练</view><view class="training-description">一起进步，保持热爱</view><view class="training-tag">查看团课场次</view></view>
+    <view class="home-training-card training-private" data-type="private" bindtap="goBooking" hover-class="tap-feedback"><view class="training-number">02 <text>↗</text></view><view class="training-title">专属训练</view><view class="training-description">专注你的动作与目标</view><view class="training-tag">查看专属场次</view></view>
   </view>
-
-  <view class="home-access-grid">
-    <view class="home-access-item" bindtap="goBooking">
-      <view class="home-access-icon icon-calendar">
-        <view class="icon-calendar-top"></view>
-        <view class="icon-calendar-grid"></view>
-      </view>
-      <view class="home-access-kicker">GROUP</view>
-      <view class="home-access-title">团体预约</view>
-    </view>
-    <view class="home-access-item" bindtap="goBooking">
-      <view class="home-access-icon icon-user">
-        <view class="icon-user-head"></view>
-        <view class="icon-user-body"></view>
-      </view>
-      <view class="home-access-kicker">PT</view>
-      <view class="home-access-title">专属预约</view>
-    </view>
-    <view class="home-access-item" bindtap="goMySchedule">
-      <view class="home-access-icon icon-list">
-        <view class="icon-list-row"></view>
-        <view class="icon-list-row"></view>
-        <view class="icon-list-row"></view>
-      </view>
-      <view class="home-access-kicker">MINE</view>
-      <view class="home-access-title">我的预约</view>
-    </view>
-    <view class="home-access-item" bindtap="goIdentityQr">
-      <view class="home-access-icon icon-qr">
-        <view class="icon-qr-box box-1"></view>
-        <view class="icon-qr-box box-2"></view>
-        <view class="icon-qr-box box-3"></view>
-        <view class="icon-qr-box box-4"></view>
-      </view>
-      <view class="home-access-kicker">QR</view>
-      <view class="home-access-title">身份码</view>
-    </view>
+  <view class="home-member-links"><view bindtap="goMySchedule" hover-class="tap-feedback"><text class="member-link-title">我的预约</text><text class="member-link-desc">查看训练安排</text><text class="member-link-arrow">›</text></view><view bindtap="goIdentityQr" hover-class="tap-feedback"><text class="member-link-title">到店身份码</text><text class="member-link-desc">出示给场馆人员</text><text class="member-link-arrow">›</text></view></view>
+  <view class="home-section-head"><view class="section-heading">在这里，认真训练</view><view class="inline-link" data-index="0" bindtap="onPreviewGallery">查看实景 ↗</view></view>
+  <scroll-view class="facility-scroll" scroll-x="true" show-scrollbar="false"><view wx:for="{{pageData.galleryList}}" wx:key="*this" class="facility-card" data-index="{{index}}" bindtap="onPreviewGallery" hover-class="tap-feedback"><image class="facility-image" src="/images/gym-interior-{{index + 1}}.jpg" mode="aspectFill"></image><view class="facility-caption"><text>0{{index + 1}}</text><text>{{item}}</text></view></view></scroll-view>
+  <view class="card home-pricing">
+    <view class="collapsible-header" bindtap="onTogglePricing" hover-class="tap-feedback"><view><view class="section-heading">选择适合你的训练计划</view><view class="page-caption">{{pageData.packages.length || 0}} 个套餐 · 到馆咨询购买</view></view><view class="collapse-toggle"><view class="collapse-chevron {{pricingExpanded ? 'expanded' : ''}}"></view></view></view>
+    <view wx:if="{{pricingExpanded}}" class="pricing-list"><view wx:for="{{pageData.packages}}" wx:key="id" class="pricing-item"><view><view class="pricing-tag">{{item.type === 'private' ? '专属训练' : '团体训练'}}</view><view class="pricing-name">{{item.name}}</view><view class="pricing-meta">{{item.lessons}} 次训练</view></view><view class="pricing-price-wrap"><view class="pricing-price">¥{{item.price}}</view><view class="pricing-note">到馆购买</view></view></view><view wx:if="{{!pageData.packages.length}}" class="empty-text">套餐整理中，欢迎到馆咨询</view></view>
   </view>
-
-  <view class="card">
-    <view class="headline-row">
-      <view>
-        <view class="eyebrow">FACILITY</view>
-        <view class="home-section-name">馆内实景</view>
-      </view>
-      <view class="section-link">VIEW ALL</view>
-    </view>
-    <view class="facility-grid">
-      <view wx:for="{{pageData.galleryList}}" wx:key="*this" class="facility-card {{index === 0 ? 'facility-card-main' : ''}}">
-        <image class="facility-image" src="/images/gym-interior-{{index + 1}}.jpg" mode="aspectFill"></image>
-        <view class="facility-shade"></view>
-        <view class="facility-index">0{{index + 1}}</view>
-        <view class="facility-name">{{item}}</view>
-      </view>
-    </view>
-  </view>
-
-  <view class="card">
-    <view class="collapsible-header" bindtap="onTogglePricing">
-      <view class="collapsible-title">
-        <view class="eyebrow">PRICING</view>
-        <view class="home-section-name">价目表</view>
-        <view class="collapsible-summary">{{pageData.packages ? pageData.packages.length : 0}} 个套餐</view>
-      </view>
-      <view class="pricing-header-side">
-        <view class="card-desc">线下了解</view>
-        <view class="collapse-toggle">
-          <view class="collapse-chevron {{pricingExpanded ? 'expanded' : ''}}"></view>
-        </view>
-      </view>
-    </view>
-    <view wx:if="{{pricingExpanded}}" class="pricing-list">
-      <view wx:for="{{pageData.packages}}" wx:key="id" class="pricing-item">
-        <view>
-          <view class="pricing-tag {{item.type === 'private' ? 'is-private' : 'is-group'}}">{{item.type === 'private' ? 'EXCLUSIVE' : 'GROUP'}}</view>
-          <view class="pricing-name">{{item.name}}</view>
-          <view class="pricing-meta">{{item.lessons}} TIMES · CODE-00{{index + 1}}</view>
-        </view>
-        <view class="pricing-price-wrap">
-          <view class="pricing-price">￥{{item.price}}</view>
-          <view class="pricing-note">仅线下</view>
-        </view>
-      </view>
-    </view>
-  </view>
-
-  <app-tabbar current="/pages/home/index"></app-tabbar>
+  <view class="home-address" wx:if="{{pageData.currentStore.address}}" bindtap="onOpenLocation" hover-class="tap-feedback"><view class="section-heading">{{pageData.currentStore.name}}</view><view class="page-caption">{{pageData.currentStore.address}}</view><view class="inline-link">查看位置与路线 ↗</view></view>
+  <view class="home-footer">ONE · 每一次坚持，都算数。</view>
+  <app-tabbar id="tabbar" current="/pages/home/index"></app-tabbar>
 </view>

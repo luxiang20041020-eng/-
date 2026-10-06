@@ -1,7 +1,8 @@
 <view class="page-shell">
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header">
     <view>
-      <view class="eyebrow">ADMIN · PACKAGE MATRIX</view>
+      <view class="eyebrow">门店运营管理</view>
       <view class="page-title">套餐上下架</view>
       <view class="page-subtitle">控制首页价目表与派课入口里可见的套餐。</view>
     </view>
@@ -9,26 +10,26 @@
   </view>
 
   <view wx:if="{{!hasPermission}}" class="card">
-    <view class="section-title">ACCESS DENIED</view>
+    <view class="section-title">访问权限提示</view>
     <view class="card-desc">当前账号不是管理员，无法调整套餐上下架状态。</view>
   </view>
 
   <block wx:else>
     <view class="card">
-      <view class="section-title">OVERVIEW · 套餐概览</view>
+      <view class="section-title">训练套餐概览</view>
       <view class="metric-grid">
         <view class="metric-item">
-          <view class="metric-label">TOTAL</view>
+          <view class="metric-label">总计</view>
           <view class="metric-value">{{pageData.stats.total}}</view>
           <view class="metric-note">全部套餐</view>
         </view>
         <view class="metric-item">
-          <view class="metric-label">ONLINE</view>
+          <view class="metric-label">已上架</view>
           <view class="metric-value">{{pageData.stats.activeCount}}</view>
           <view class="metric-note">已上架</view>
         </view>
         <view class="metric-item">
-          <view class="metric-label">OFFLINE</view>
+          <view class="metric-label">已下架</view>
           <view class="metric-value">{{pageData.stats.inactiveCount}}</view>
           <view class="metric-note">已下架</view>
         </view>
@@ -38,7 +39,7 @@
     <view class="card">
       <view class="collapsible-header" bindtap="onToggleFilters">
         <view class="collapsible-title">
-          <view class="section-title section-title-no-gap">FILTER · 套餐筛选</view>
+          <view class="section-title section-title-no-gap">筛选套餐</view>
           <view class="collapsible-summary">当前显示 {{visiblePackages.length}} 个套餐</view>
         </view>
         <view class="collapse-toggle">
@@ -49,7 +50,7 @@
         <view class="create-entry" bindtap="onOpenCreatePopup">
           <view class="create-entry-mark">+</view>
           <view class="create-entry-main">
-            <view class="create-entry-kicker">CREATE PACKAGE</view>
+            <view class="create-entry-kicker">补充训练权益</view>
             <view class="create-entry-title">新建套餐</view>
             <view class="create-entry-desc">新增团课或私教套餐，并决定是否立即上架。</view>
           </view>
@@ -95,7 +96,7 @@
       <view wx:for="{{visiblePackages}}" wx:key="id" class="card package-card">
         <view class="headline-row package-head">
           <view class="package-title-wrap">
-            <view class="pricing-tag {{item.type === 'private' ? 'is-private' : 'is-group'}}">{{item.type === 'private' ? 'PRIVATE' : 'GROUP'}}</view>
+            <view class="pricing-tag {{item.type === 'private' ? 'is-private' : 'is-group'}}">{{item.type === 'private' ? '专属' : '团体'}}</view>
             <view class="package-name">{{item.name}}</view>
           </view>
           <view class="package-status-chip status-{{item.status === 1 ? 'active' : 'inactive'}}">{{item.statusLabel}}</view>
@@ -133,7 +134,7 @@
     <view class="modal-panel" catchtap="noop">
       <view class="headline-row">
         <view>
-          <view class="section-title section-title-no-gap">CREATE · 新建套餐</view>
+          <view class="section-title section-title-no-gap">套餐配置</view>
           <view class="card-desc">新建后会按上架状态进入首页价目表与派课入口。</view>
         </view>
         <view class="modal-close" bindtap="onCloseCreatePopup">×</view>
@@ -188,7 +189,7 @@
       <view class="field-block">
         <view class="row-between">
           <view class="field-label">创建后立即上架</view>
-          <switch checked="{{createForm.status === 1}}" color="#ff1f4f" bindchange="onCreateStatusChange" />
+          <switch checked="{{createForm.status === 1}}" color="#c7452d" bindchange="onCreateStatusChange" />
         </view>
       </view>
 

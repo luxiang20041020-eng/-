@@ -1,7 +1,8 @@
 <view class="page-shell">
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header">
     <view>
-      <view class="eyebrow">ADMIN · USER ROLE MATRIX</view>
+      <view class="eyebrow">门店运营管理</view>
       <view class="page-title">人员权限管理</view>
       <view class="page-subtitle">直接基于云端 app_user 调整用户身份权限。</view>
     </view>
@@ -9,13 +10,13 @@
   </view>
 
   <view wx:if="{{!hasPermission}}" class="card">
-    <view class="section-title">ACCESS DENIED</view>
+    <view class="section-title">访问权限提示</view>
     <view class="card-desc">当前账号不是管理员，无法查看或修改人员权限。</view>
   </view>
 
   <block wx:else>
     <view class="card">
-      <view class="section-title">SEARCH · 人员筛选</view>
+      <view class="section-title">人员筛选</view>
       <input
         class="form-input"
         value="{{keyword}}"

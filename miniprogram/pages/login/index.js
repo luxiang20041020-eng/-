@@ -9,6 +9,13 @@ Page({
     privacyContractName: '用户隐私保护协议',
   },
 
+  onLoad(options) {
+    const destinations = { booking: '/pages/booking/index?type=' + (options.type === 'private' ? 'private' : 'group'), profile: '/pages/profile/index' }
+    this.returnUrl = destinations[options.returnTo] || '/pages/home/index'
+  },
+
+  goBrowse() { wx.reLaunch({ url: '/pages/home/index' }) },
+
   onShow() {
     this.checkPrivacyAuthorization()
     this.tryRestoreSession()
@@ -49,7 +56,6 @@ Page({
   },
 
   onAgreePrivacyAuthorization(event) {
-    console.log('agreePrivacyAuthorization detail:', event.detail)
     this.setData({
       needPrivacyAuthorization: false,
       loginError: '',
@@ -57,10 +63,7 @@ Page({
   },
 
   onRejectPrivacyAuthorization() {
-    wx.showToast({
-      title: '同意隐私协议后才能使用手机号登录',
-      icon: 'none',
-    })
+    this.goBrowse()
   },
 
   async tryRestoreSession() {
@@ -73,7 +76,7 @@ Page({
     try {
       const runtime = await app.getRuntimeSnapshotAsync({ force: true })
       if (runtime.isAuthenticated) {
-        wx.reLaunch({ url: '/pages/home/index' })
+        wx.reLaunch({ url: this.returnUrl || '/pages/home/index' })
         return
       }
     } catch (error) {
@@ -86,7 +89,6 @@ Page({
   },
 
   async onGetPhoneNumber(event) {
-    console.log('getPhoneNumber detail:', event.detail)
 
     if (this.data.submitting) {
       return
@@ -123,7 +125,7 @@ Page({
         title: '登录成功',
         icon: 'success',
       })
-      wx.reLaunch({ url: '/pages/home/index' })
+      wx.reLaunch({ url: this.returnUrl || '/pages/home/index' })
     } catch (error) {
       this.setData({
         loginError: error && error.message ? error.message : '登录失败，请稍后重试',

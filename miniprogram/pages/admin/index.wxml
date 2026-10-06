@@ -1,48 +1,49 @@
 <view class="page-shell">
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header">
-    <view class="eyebrow">AUDIT · 对账 · 全馆统计</view>
+    <view class="eyebrow">门店经营与训练数据</view>
     <view class="page-title">数据看板</view>
   </view>
 
   <view wx:if="{{!hasPermission}}" class="card">
-    <view class="section-title">ACCESS DENIED</view>
-    <view class="card-desc">当前身份不是管理员，此页面仅 Role=3 可见。请去“我的”页切换角色后再验收。</view>
+    <view class="section-title">访问权限提示</view>
+    <view class="card-desc">运营看板仅对管理员开放，请联系场馆确认账号权限。</view>
   </view>
 
   <block wx:else>
     <view class="card admin-toolbar-card">
       <view class="admin-toolbar-left">
-        <view class="admin-tool-label">DATE</view>
-        <view class="admin-tool-value">2026-04-24</view>
+        <view class="admin-tool-label">日期</view>
+        <view class="admin-tool-value">{{pageData.dateLabel}}</view>
       </view>
       <view class="admin-toolbar-mid"> </view>
-      <view class="admin-toolbar-left">
-        <view class="admin-tool-label">STORE</view>
+      <view class="admin-toolbar-left" bindtap="onOpenStorePicker">
+        <view class="admin-tool-label">门店</view>
         <view class="admin-tool-value">{{pageData.currentStore.name}}</view>
       </view>
       <button class="secondary-button admin-mini-btn" loading="{{bootstrapLoading}}" bindtap="onBootstrap">检查数据库</button>
     </view>
 
     <view class="card">
-      <view class="section-title">OVERVIEW · 今日概览</view>
+      <view class="section-title">今日概览</view>
       <view class="metric-grid">
         <view class="metric-item">
-          <view class="metric-label">OFFLINE AMOUNT</view>
+          <view class="metric-label">线下实收</view>
           <view class="metric-value">{{pageData.auditOverview.incomeText}}</view>
-          <view class="metric-note">线下收款总额</view>
+          <view class="metric-note">今日线下实收</view>
         </view>
         <view class="metric-item">
-          <view class="metric-label">CHECK-IN</view>
+          <view class="metric-label">到场核销</view>
           <view class="metric-value">{{pageData.auditOverview.writeOffCount}}</view>
           <view class="metric-note">今日核销</view>
         </view>
         <view class="metric-item">
-          <view class="metric-label">GROUP</view>
+          <view class="metric-label">团体训练</view>
           <view class="metric-value">{{pageData.auditOverview.addedGroupLessons}}<text class="metric-unit">节</text></view>
           <view class="metric-note">新增团课课时</view>
         </view>
         <view class="metric-item">
-          <view class="metric-label">PRIVATE</view>
+          <view class="metric-label">专属训练</view>
           <view class="metric-value">{{pageData.auditOverview.addedPrivateLessons}}<text class="metric-unit">节</text></view>
           <view class="metric-note">新增私教课时</view>
         </view>
@@ -52,18 +53,18 @@
     <view class="card">
       <view class="collapsible-header" bindtap="onToggleAuditLogs">
         <view class="collapsible-title">
-          <view class="section-title">AUDIT LOG · 课时派发审计</view>
+          <view class="section-title">权益派发记录</view>
           <view class="collapsible-summary">{{pageData.auditLogs ? pageData.auditLogs.length : 0}} 条记录</view>
         </view>
         <view class="audit-header-actions">
-          <button wx:if="{{auditLogsExpanded}}" class="secondary-button export-button" catchtap="onExport">导出</button>
+          <button wx:if="{{auditLogsExpanded}}" class="secondary-button export-button" catchtap="onExport">复制记录</button>
           <view class="collapse-toggle">
             <view class="collapse-chevron {{auditLogsExpanded ? 'expanded' : ''}}"></view>
           </view>
         </view>
       </view>
       <block wx:if="{{auditLogsExpanded}}">
-        <view wx:for="{{pageData.auditLogs}}" wx:key="id" class="audit-item">
+        <view wx:if="{{!pageData.auditLogs.length}}" class="empty-state"><view class="empty-state-title">暂无权益派发记录</view><view class="empty-state-desc">完成首次派发后，收款与操作记录会显示在这里。</view></view><view wx:for="{{pageData.auditLogs}}" wx:key="id" class="audit-item">
           <view class="audit-top-row">
             <view class="audit-time">{{item.time}}</view>
             <view class="audit-paytype">{{item.payType}}</view>
@@ -76,19 +77,19 @@
     </view>
 
     <view class="card">
-      <view class="section-title">TOOLS · 运营工具</view>
+      <view class="section-title">管理门店</view>
       <view class="admin-tools-grid">
-        <view class="admin-tool-card primary" bindtap="onBootstrap">
-          <view class="admin-card-title">检查数据库</view>
-          <view class="admin-card-desc">校验云端集合与基础配置</view>
+        <view class="admin-tool-card primary" bindtap="onOpenOperations">
+          <view class="admin-card-title">训练运营</view>
+          <view class="admin-card-desc">派发权益、排课与到场核销</view>
         </view>
         <view class="admin-tool-card" bindtap="onOpenUserManage">
           <view class="admin-card-title">人员权限管理</view>
-          <view class="admin-card-desc">用户 / 角色矩阵</view>
+          <view class="admin-card-desc">管理人员与账号权限</view>
         </view>
         <view class="admin-tool-card" bindtap="onOpenPackageManage">
           <view class="admin-card-title">套餐上下架</view>
-          <view class="admin-card-desc">面向价目板配置</view>
+          <view class="admin-card-desc">训练套餐与展示价格</view>
         </view>
         <view class="admin-tool-card" bindtap="onOpenStoreManage">
           <view class="admin-card-title">门店管理</view>

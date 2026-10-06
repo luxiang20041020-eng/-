@@ -1,6 +1,7 @@
 <view class="page-shell">
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header">
-    <view class="eyebrow">PROFILE · 资产 · 身份码</view>
+    <view class="eyebrow">我的训练档案</view>
     <view class="page-title">我的</view>
   </view>
 
@@ -21,7 +22,7 @@
       <view class="profile-facts">
         <view class="profile-fact-row">
           <view class="profile-fact-label">手机号</view>
-          <view class="profile-fact-value">{{runtime.userProfile.phone || '未绑定'}}</view>
+          <view class="profile-fact-value">{{maskedPhone}}</view>
         </view>
         <view class="profile-fact-row">
           <view class="profile-fact-label">当前门店</view>
@@ -62,10 +63,10 @@
 
   <block wx:if="{{runtime.isAuthenticated}}">
   <view class="card">
-    <view class="section-title">MY ASSETS · 我的权益</view>
+    <view class="section-title">我的训练权益</view>
     <view class="metric-grid">
       <view class="metric-item">
-        <view class="metric-label">PRIVATE</view>
+        <view class="metric-label">专属训练</view>
         <view class="metric-value">{{pageData.assets.privateCount}}<text class="metric-unit">次</text></view>
         <view class="metric-note">专属权益</view>
         <view class="metric-expiry {{pageData.assets.privateExpiry ? '' : 'metric-expiry-none'}}">
@@ -73,7 +74,7 @@
         </view>
       </view>
       <view class="metric-item">
-        <view class="metric-label">GROUP</view>
+        <view class="metric-label">团体训练</view>
         <view class="metric-value">{{pageData.assets.groupCount}}<text class="metric-unit">次</text></view>
         <view class="metric-note">团体权益</view>
         <view class="metric-expiry {{pageData.assets.groupExpiry ? '' : 'metric-expiry-none'}}">
@@ -81,33 +82,15 @@
         </view>
       </view>
     </view>
-    <view class="card-desc">权益自购买日起 365 天内有效，跨门店通用。预约开始前 2 小时内不可取消。</view>
+    <view class="card-desc">权益有效期以到期日期为准，预约开课前 2 小时可取消。</view>
   </view>
 
-  <view class="card">
+  <view class="card" id="bookings-section">
     <view class="headline-row">
-      <view class="section-title">IDENTITY QR</view>
-      <view class="card-desc">AUTO 60S</view>
+      <view class="section-heading">我的预约</view>
+      <view class="card-desc">训练安排与记录</view>
     </view>
-    <view class="qr-frame">
-      <view class="qr-inner">
-        <view class="qr-code-box">
-          <image wx:if="{{qrCodeImageSrc}}" class="qr-code-image" src="{{qrCodeImageSrc}}" mode="aspectFit" show-menu-by-longpress="true"></image>
-          <view wx:elif="{{qrCodeLoading}}" class="qr-placeholder">二维码生成中...</view>
-          <view wx:else class="qr-placeholder">{{qrCodeError || '二维码暂不可用'}}</view>
-        </view>
-        <view class="qr-code-text">{{dynamicCode}}</view>
-      </view>
-      <view wx:if="{{qrCodeError}}" class="qr-error-text">{{qrCodeError}}</view>
-      <view class="card-desc">馆内核验演示态字段，校验后动态刷新。</view>
-    </view>
-  </view>
-
-  <view class="card">
-    <view class="headline-row">
-      <view class="section-title">MY BOOKINGS · 我的预约</view>
-      <view class="card-desc">近 30 天</view>
-    </view>
+    <view wx:if="{{!pageBusy && !pageError && !pageData.myBookings.length}}" class="empty-state"><view class="empty-state-title">你的训练计划，从下一次开始</view><view class="empty-state-desc">选一个合适的场次，让坚持发生。</view><navigator class="inline-link" url="/pages/booking/index">去预约训练 →</navigator></view>
     <view wx:for="{{pageData.myBookings}}" wx:key="id" class="booking-item">
       <view class="booking-date-block">
         <view class="booking-date-day">{{item.dateDay}}</view>
@@ -116,16 +99,18 @@
       <view class="booking-main-block">
         <view class="headline-row">
           <view class="booking-title-text">{{item.title}}</view>
-          <view class="status-chip">{{item.status}}</view>
+          <view class="status-chip {{item.status === '待到店' ? 'active' : ''}}">{{item.status}}</view>
         </view>
-        <view class="card-desc">{{item.timeRange}}</view>
-        <button wx:if="{{item.status === '待到店'}}" class="secondary-button booking-cancel-btn" data-booking-id="{{item.id}}" bindtap="onCancelBooking">取消预约</button>
+        <view class="card-desc">{{item.timeRange}}</view><view wx:if="{{item.status === '待到店' && !item.canCancel}}" class="page-caption">{{item.cancelHint}}</view>
+        <button wx:if="{{item.canCancel}}" class="secondary-button booking-cancel-btn" loading="{{cancellingBookingId === item.id}}" disabled="{{cancellingBookingId || pageBusy || pageError}}" data-booking-id="{{item.id}}" bindtap="onCancelBooking">取消预约</button>
       </view>
     </view>
   </view>
 
-  <view class="card">
-    <view class="section-title">STATS · 到店统计</view>
+  <view class="card" id="identity-section"><view class="collapsible-header" bindtap="onToggleIdentity"><view><view class="section-heading">到店身份码</view><view class="page-caption">需要时展开，出示给场馆人员</view></view><view class="collapse-toggle"><view class="collapse-chevron {{identityExpanded ? 'expanded' : ''}}"></view></view></view><view wx:if="{{identityExpanded}}" class="qr-frame"><view class="qr-inner"><view class="qr-code-box"><image wx:if="{{qrCodeImageSrc}}" class="qr-code-image" src="{{qrCodeImageSrc}}" mode="aspectFit"></image><view wx:elif="{{qrCodeLoading}}" class="qr-placeholder">正在准备身份码…</view><view wx:else class="qr-placeholder">{{qrCodeError || '点击重试生成身份码'}}</view></view><button wx:if="{{qrCodeError}}" class="secondary-button" bindtap="onRetryQr">重新生成</button><view class="page-caption">仅用于展示身份，到场由工作人员确认。</view></view></view></view>
+
+  <view class="card" id="training-stats">
+    <view class="section-title">训练足迹</view>
     <view class="profile-stats-grid">
       <view class="stats-item">
         <view class="stats-value">{{pageData.trainingStats.monthLessons}}</view>
@@ -133,23 +118,23 @@
       </view>
       <view class="stats-item">
         <view class="stats-value">{{pageData.trainingStats.streakDays}}</view>
-        <view class="stats-note">坚持天数</view>
+        <view class="stats-note">累计到店天数</view>
       </view>
       <view class="stats-item">
-        <view class="stats-value">{{pageData.trainingStats.monthLessons + pageData.trainingStats.streakDays}}</view>
-        <view class="stats-note">累计活跃</view>
+        <view class="stats-value">{{pageData.trainingStats.totalLessons || 0}}</view>
+        <view class="stats-note">累计训练</view>
       </view>
     </view>
     <view class="menu-list">
-      <view class="menu-item"><text>预约与核销规则</text><text class="menu-arrow">></text></view>
-      <view class="menu-item"><text>我的到店趋势</text><text class="menu-arrow">></text></view>
-      <view class="menu-item"><text>消息与公告</text><text class="menu-arrow">></text></view>
-      <view class="menu-item"><text>帮助与客服</text><text class="menu-arrow">></text></view>
+      <view class="menu-item" bindtap="onShowRules" hover-class="tap-feedback"><text>预约与核销规则</text><text class="menu-arrow">></text></view>
+      <view class="menu-item" bindtap="onShowTrend" hover-class="tap-feedback"><text>我的到店趋势</text><text class="menu-arrow">></text></view>
+      <view class="menu-item" bindtap="onShowNotices" hover-class="tap-feedback"><text>消息与公告</text><text class="menu-arrow">></text></view>
+      <view class="menu-item" bindtap="onShowHelp" hover-class="tap-feedback"><text>帮助与客服</text><text class="menu-arrow">></text></view>
     </view>
   </view>
 
   <view class="card logout-card">
-    <button class="logout-button" bindtap="onLogout">退出登录</button>
+    <button class="logout-button" loading="{{loggingOut}}" disabled="{{loggingOut}}" bindtap="onLogout">退出登录</button>
   </view>
   </block>
 

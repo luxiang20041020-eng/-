@@ -1,4 +1,5 @@
 <view class="page-shell">
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header">
     <view>
       <view class="page-title">课时派发</view>
@@ -57,7 +58,7 @@
     </view>
 
     <view class="field-block">
-      <view class="field-label">课时到期日期 <text style="color:#ff1f4f">*</text></view>
+      <view class="field-label">课时到期日期 <text style="color:#c7452d">*</text></view>
       <picker mode="date" value="{{expiryDate}}" start="{{minExpiryDate}}" bindchange="onExpiryDateChange">
         <view class="form-input picker-display {{expiryDate ? '' : 'placeholder'}}">
           {{expiryDate ? expiryDate : '请选择到期日期'}}
@@ -81,6 +82,6 @@
       <textarea class="form-textarea" placeholder="如：活动赠送、续费已转财务" value="{{remark}}" bindinput="onRemarkInput"></textarea>
     </view>
 
-    <button class="primary-button" bindtap="onSubmit">确认派发</button>
+    <button class="primary-button" loading="{{submitting}}" disabled="{{submitting || pageBusy || pageError}}" bindtap="onSubmit">确认派发</button>
   </view>
 </view>

@@ -1,10 +1,16 @@
+const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
+const { confirmAction } = require('../../../utils/interaction')
 
 function buildClassCacheKey(classId) {
   return 'workspace:class:' + (classId || 'selected')
 }
 
-Page({
+function emptyClass(classId) {
+  return { classInfo: { id: classId || '', title: '训练名单', bookedCount: 0, checkedCount: 0, absentCount: 0 }, roster: [] }
+}
+
+Page(withPageState({
   data: {
     runtime: {},
     pageData: {},
@@ -55,9 +61,10 @@ Page({
       if (this._syncRequestId !== requestId) {
         return
       }
+      this.setData({ pageError: error.message || "加载失败，请重试" })
       this.setData({
         runtime,
-        pageData: app.getClassCheckinPageData(this.data.classId),
+        pageData: this.data.pageData.classInfo ? this.data.pageData : emptyClass(this.data.classId),
       })
     }
   },
@@ -71,41 +78,39 @@ Page({
     const cachedPageData = app.getViewCache(buildClassCacheKey(classId))
     this.setData({
       runtime,
-      pageData: cachedPageData || app.getClassCheckinPageData(this.data.classId),
+      pageData: cachedPageData || emptyClass(classId),
     })
     return Boolean(cachedPageData)
   },
 
   async onUpdateStatus(event) {
+    if (this.data.submittingBookingId || this.data.pageBusy || this.data.pageError) return
     const { bookingId, status } = event.currentTarget.dataset
     const app = getApp()
-    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
-    if (!runtime.isAuthenticated) {
-      wx.reLaunch({ url: '/pages/login/index' })
-      return
-    }
     let result = null
-
-    if (this.data.submittingBookingId === bookingId) {
-      return
-    }
-
     this.setData({ submittingBookingId: bookingId })
 
     try {
+      if (status !== '已核销') {
+        const member = (this.data.pageData.roster || []).find((item) => item.bookingId === bookingId)
+        const confirmed = await confirmAction({ title: '确认记录缺席', content: (member && member.nickname || '该学员') + '将被标记为缺席，已扣课时不会自动返还。' })
+        if (!confirmed) return
+      }
+      const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+      if (!runtime.isAuthenticated) {
+        wx.reLaunch({ url: '/pages/login/index' })
+        return
+      }
       await businessApi.writeOffBooking({
         bookingId,
         operatorId: runtime.userProfile.id,
         status: status === '已核销' ? 2 : 5,
       })
-      result = app.applyCloudCheckinStatus(this.data.pageData.classInfo.id, bookingId, status)
+      result = { ok: true, message: status === '已核销' ? '到场已确认' : '缺席已记录' }
     } catch (error) {
-      result = app.updateCheckinStatus(this.data.pageData.classInfo.id, bookingId, status)
-      if (result.ok) {
-        result.message = result.message + '（当前使用本地演示数据）'
-      } else if (error && error.message) {
-        result.message = result.message + '；云端返回：' + error.message
-      }
+      result = { ok: false, message: error.message || "核销失败，请重试" }
+    } finally {
+      this.setData({ submittingBookingId: '' })
     }
 
     wx.showToast({ title: result.message, icon: result.ok ? 'success' : 'none' })
@@ -116,7 +121,6 @@ Page({
       app.removeViewCacheByPrefix('admin:dashboard:')
       this.syncPageData()
     }
-    this.setData({ submittingBookingId: '' })
   },
 
   applyLocalRosterStatus(bookingId, nextStatus) {
@@ -141,4 +145,4 @@ Page({
       }),
     })
   },
-})
+}))

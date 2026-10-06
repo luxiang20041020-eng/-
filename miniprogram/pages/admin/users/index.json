@@ -2,5 +2,6 @@
   "usingComponents": {
     "app-tabbar": "/components/app-tabbar/index"
   },
-  "navigationBarTitleText": "人员权限管理"
+  "navigationBarTitleText": "人员权限管理",
+  "enablePullDownRefresh": true
 }

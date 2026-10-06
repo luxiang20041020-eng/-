@@ -1,4 +1,6 @@
 const cloud = require('wx-server-sdk')
+const crypto = require('crypto')
+const { PUBLIC_ACTIONS, authorizeRequest, parseBusinessTime, businessDate, canCancel } = require('./request-policy')
 
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV,
@@ -411,9 +413,9 @@ const HOME_NOTICES = [
 ]
 
 const HOME_GALLERY = [
-  '拳台区 / 标准赛台 / 录像回放',
-  '力量区 / 壶铃雪橇 / 体能区',
-  '沙袋区 / 实战靶区 / 专属区域',
+  '拳台训练区',
+  '力量与体能区',
+  '沙袋训练区',
 ]
 
 const COACH_QUICK_ACTIONS = [
@@ -427,6 +429,12 @@ function buildSuccess(data) {
     success: true,
     data,
   }
+}
+
+async function runBusinessTransaction(callback) {
+  const response = await db.runTransaction(callback)
+  // 兼容 SDK 直接返回回调值和 { result, errMsg } 两种事务结果。
+  return response && response.errMsg && Object.prototype.hasOwnProperty.call(response, 'result') ? response.result : response
 }
 
 function buildFail(message, code = 'BUSINESS_FAIL') {
@@ -739,8 +747,7 @@ function getWeekdayLabelByDateTime(dateTimeString) {
 }
 
 async function listCollection(collectionName, where = {}) {
-  const res = await db.collection(collectionName).where(where).get()
-  return res.data || []
+  return listAllCollection(collectionName, where)
 }
 
 async function listAllCollection(collectionName, where = {}, options = {}) {
@@ -778,6 +785,8 @@ function buildStoreView(store) {
     id: store._id,
     name: store.name,
     address: store.address,
+    longitude: store.longitude,
+    latitude: store.latitude,
   }
 }
 
@@ -807,6 +816,30 @@ async function getCurrentAuthedUser() {
     status: 1,
     openid: wxContext.OPENID,
   })
+}
+
+async function logoutCurrentUser() {
+  const openid = cloud.getWXContext().OPENID
+  if (!openid) return buildSuccess({ loggedIn: false })
+  try {
+    // 退出不受账号状态影响，且须清理同一微信身份的历史绑定。
+    const users = await listCollection(COLLECTIONS.USER, { openid })
+    if (!users.length) return buildSuccess({ loggedIn: false })
+    await runBusinessTransaction(async (transaction) => {
+      for (const user of users) {
+        const current = (await transaction.collection(COLLECTIONS.USER).doc(user._id).get()).data
+        // 不清除并发登录时已经绑定到其他微信身份的账号。
+        if (current && current.openid === openid) {
+          await transaction.collection(COLLECTIONS.USER).doc(user._id).update({
+            data: { openid: '', updated_at: db.serverDate() },
+          })
+        }
+      }
+    })
+    return buildSuccess({ loggedIn: false })
+  } catch (error) {
+    return buildFail('退出未完成，请重试', 'LOGOUT_ERROR')
+  }
 }
 
 async function ensureAdminOperator() {
@@ -912,14 +945,18 @@ function buildAssetView(assetList) {
   const result = {
     privateCount: 0,
     groupCount: 0,
+    privateExpiry: '',
+    groupExpiry: '',
   }
 
   assetList.forEach((item) => {
     if (Number(item.asset_type) === ASSET_TYPE.PRIVATE) {
-      result.privateCount = Number(item.balance || 0)
+      result.privateCount = item.expiry_date && item.expiry_date < businessDate() ? 0 : Number(item.balance || 0)
+      result.privateExpiry = item.expiry_date || ''
     }
     if (Number(item.asset_type) === ASSET_TYPE.GROUP) {
-      result.groupCount = Number(item.balance || 0)
+      result.groupCount = item.expiry_date && item.expiry_date < businessDate() ? 0 : Number(item.balance || 0)
+      result.groupExpiry = item.expiry_date || ''
     }
   })
 
@@ -928,8 +965,8 @@ function buildAssetView(assetList) {
 
 async function getBookingViewData(event) {
   const payload = event.payload || {}
-  if (!payload.userId || !payload.storeId) {
-    return buildFail('userId 和 storeId 不能为空', 'INVALID_BOOKING_VIEW_PAYLOAD')
+  if (!payload.storeId) {
+    return buildFail('请先选择门店', 'INVALID_BOOKING_VIEW_PAYLOAD')
   }
 
   try {
@@ -946,8 +983,8 @@ async function getBookingViewData(event) {
       listCollection(COLLECTIONS.STORE, { is_deleted: false, status: 1 }),
       listCollection(COLLECTIONS.USER, { is_deleted: false, status: 1, role: 2 }),
       listCollection(COLLECTIONS.CLASS_SCHEDULE, { is_deleted: false, store_id: payload.storeId }),
-      listCollection(COLLECTIONS.BOOKING, { is_deleted: false, user_id: payload.userId }),
-      listCollection(COLLECTIONS.USER_ASSET, { is_deleted: false, user_id: payload.userId }),
+      payload.userId ? listCollection(COLLECTIONS.BOOKING, { is_deleted: false, user_id: payload.userId }) : [],
+      payload.userId ? listCollection(COLLECTIONS.USER_ASSET, { is_deleted: false, user_id: payload.userId }) : [],
     ])
 
     const pendingBookingIdSet = new Set(
@@ -957,9 +994,10 @@ async function getBookingViewData(event) {
 
     const visibleSchedules = schedules
       .filter((item) => Number(item.status) !== SCHEDULE_STATUS.COACH_CANCELLED)
+      .filter((item) => parseBusinessTime(item.start_time) > Date.now())
       .filter((item) => !filters.type || mapAssetTypeToPageType(item.class_type) === filters.type)
       .filter((item) => filters.coachId === 'all' || item.coach_id === filters.coachId)
-      .filter((item) => !filters.dateKey || formatDateKey(item.start_time) === filters.dateKey)
+      .filter((item) => !filters.dateKey || String(item.start_time).slice(0, 10) === filters.dateKey)
       .sort((left, right) => String(left.start_time).localeCompare(String(right.start_time)))
       .map((item) => ({
         id: item._id,
@@ -982,7 +1020,7 @@ async function getBookingViewData(event) {
 
     const dateMap = new Map()
     schedules.forEach((item) => {
-      const key = formatDateKey(item.start_time)
+      const key = String(item.start_time).slice(0, 10)
       if (!key || dateMap.has(key)) {
         return
       }
@@ -1026,9 +1064,9 @@ async function getHomeViewData(event) {
     ])
 
     return buildSuccess({
-      currentStore: buildStoreView(stores.find((item) => item._id === payload.storeId)),
+      currentStore: buildStoreView(stores.find((item) => item._id === payload.storeId) || stores[0]),
       stores: stores.map(buildStoreView),
-      notices: HOME_NOTICES.slice(),
+      notices: ['预约开课前 2 小时可免费取消，已扣权益自动退回。', '团体训练与专属训练，按自己的节奏安排。'],
       galleryList: HOME_GALLERY.slice(),
       packages: packages.map((item) => ({
         id: item._id,
@@ -1059,6 +1097,11 @@ async function getProfileViewData(event) {
 
     const scheduleMap = new Map(schedules.map((item) => [item._id, item]))
     const writtenOffCount = bookings.filter((item) => Number(item.status) === BOOKING_STATUS.WRITTEN_OFF).length
+    const attendanceDays = new Set(bookings.filter((item) => Number(item.status) === BOOKING_STATUS.WRITTEN_OFF)
+      .map((item) => businessDate(item.writeoff_time || schedules.find((schedule) => schedule._id === item.schedule_id)?.start_time)).filter(Boolean))
+    const monthKey = businessDate().slice(0, 7)
+    const monthLessons = bookings.filter((item) => Number(item.status) === BOOKING_STATUS.WRITTEN_OFF &&
+      businessDate(item.writeoff_time || scheduleMap.get(item.schedule_id)?.start_time).slice(0, 7) === monthKey).length
     const currentStore = userRes.data ? await getDocById(COLLECTIONS.STORE, userRes.data.home_store_id) : null
 
     return buildSuccess({
@@ -1076,12 +1119,15 @@ async function getProfileViewData(event) {
             dateLabel: schedule ? formatDateLabel(schedule.start_time) : '',
             timeRange: schedule ? formatTimeRange(schedule.start_time, schedule.end_time) : '',
             status: mapBookingStatusToLabel(item.status),
+            canCancel: Number(item.status) === BOOKING_STATUS.PENDING && Boolean(schedule) && canCancel(schedule.start_time),
+            cancelHint: schedule && !canCancel(schedule.start_time) ? '开课前 2 小时内不可取消' : '',
           }
         }),
       trainingStats: {
-        monthLessons: writtenOffCount,
-        streakDays: writtenOffCount > 0 ? writtenOffCount + 3 : 0,
-        nextTarget: writtenOffCount >= 12 ? '本月目标已完成，继续保持到店节奏。' : '本月再完成 ' + Math.max(0, 12 - writtenOffCount) + ' 次预约即可达到目标。',
+        monthLessons,
+        streakDays: attendanceDays.size,
+        totalLessons: writtenOffCount,
+        nextTarget: monthLessons >= 12 ? '本月目标已完成，继续保持训练节奏。' : '本月再完成 ' + Math.max(0, 12 - monthLessons) + ' 次训练即可达到目标。',
       },
     })
   } catch (error) {
@@ -1105,6 +1151,7 @@ async function getWorkspaceViewData(event) {
 
     const todayClasses = schedules
       .filter((item) => Number(item.status) !== SCHEDULE_STATUS.COACH_CANCELLED)
+      .filter((item) => businessDate(item.start_time) === businessDate())
       .sort((left, right) => String(left.start_time).localeCompare(String(right.start_time)))
       .map((item) => {
         const roster = bookings.filter((booking) => booking.schedule_id === item._id)
@@ -1124,6 +1171,10 @@ async function getWorkspaceViewData(event) {
       currentStore,
       quickActions: COACH_QUICK_ACTIONS.slice(),
       todayClasses,
+      summary: {
+        bookedCount: todayClasses.reduce((total, item) => total + item.bookedCount, 0),
+        pendingCount: todayClasses.reduce((total, item) => total + item.bookedCount - item.checkedCount - item.absentCount, 0),
+      },
     })
   } catch (error) {
     return buildFail('读取工作台失败：' + (error.errMsg || error.message || error), 'WORKSPACE_VIEW_ERROR')
@@ -1202,63 +1253,45 @@ async function getDistributeViewData(event) {
 
 async function getAdminDashboardData(event) {
   const payload = event.payload || {}
-
   try {
     await ensureAdminOperator()
-    const [logs, bookings, packages, stores, users] = await Promise.all([
+    const [logs, bookings, packages, stores, users, schedules] = await Promise.all([
       listCollection(COLLECTIONS.USER_ASSET_LOG, { is_deleted: false }),
       listCollection(COLLECTIONS.BOOKING, { is_deleted: false }),
-      listCollection(COLLECTIONS.PACKAGE, { is_deleted: false, status: 1 }),
+      listCollection(COLLECTIONS.PACKAGE, { is_deleted: false }),
       listCollection(COLLECTIONS.STORE, { is_deleted: false, status: 1 }),
-      listCollection(COLLECTIONS.USER, { is_deleted: false, status: 1 }),
+      listCollection(COLLECTIONS.USER, { is_deleted: false }),
+      listCollection(COLLECTIONS.CLASS_SCHEDULE, { is_deleted: false }),
     ])
-
+    const store = stores.find((item) => item._id === payload.storeId) || stores[0]
+    const storeId = store ? store._id : ''
     const packageMap = new Map(packages.map((item) => [item._id, item]))
     const userMap = new Map(users.map((item) => [item._id, item]))
-    let addedPrivateLessons = 0
-    let addedGroupLessons = 0
-    let incomeAmount = 0
-
-    logs.forEach((item) => {
-      if (Number(item.operate_type) !== OPERATE_TYPE.COACH_DISTRIBUTE) {
-        return
-      }
-      const packageInfo = packageMap.get(item.ref_biz_id)
-      if (packageInfo) {
-        if (Number(packageInfo.asset_type) === ASSET_TYPE.PRIVATE) {
-          addedPrivateLessons += Number(item.amount || 0)
-        } else {
-          addedGroupLessons += Number(item.amount || 0)
-        }
-      }
-      incomeAmount += Number(item.offline_amount || 0)
-    })
-
+    const scheduleMap = new Map(schedules.map((item) => [item._id, item]))
+    const auditLogs = logs.filter((item) => Number(item.operate_type) === OPERATE_TYPE.COACH_DISTRIBUTE &&
+      (item.store_id || userMap.get(item.operator_id)?.home_store_id) === storeId)
+    const todayLogs = auditLogs.filter((item) => businessDate(item.created_at) === businessDate())
+    const sum = (type) => todayLogs.filter((item) => Number(item.asset_type || packageMap.get(item.ref_biz_id)?.asset_type) === type)
+      .reduce((total, item) => total + Number(item.amount || 0), 0)
+    const income = todayLogs.reduce((total, item) => total + Number(item.offline_amount || 0), 0)
     return buildSuccess({
-      currentStore: buildStoreView(stores.find((item) => item._id === payload.storeId) || stores[0]),
+      currentStore: buildStoreView(store), dateLabel: businessDate(),
       auditOverview: {
-        addedPrivateLessons,
-        addedGroupLessons,
-        writeOffCount: bookings.filter((item) => Number(item.status) === BOOKING_STATUS.WRITTEN_OFF).length,
-        incomeText: '￥' + incomeAmount.toFixed(2),
+        addedPrivateLessons: sum(ASSET_TYPE.PRIVATE), addedGroupLessons: sum(ASSET_TYPE.GROUP),
+        writeOffCount: bookings.filter((item) => Number(item.status) === BOOKING_STATUS.WRITTEN_OFF &&
+          scheduleMap.get(item.schedule_id)?.store_id === storeId && businessDate(item.writeoff_time) === businessDate()).length,
+        incomeText: '￥' + income.toFixed(2),
       },
-      auditLogs: logs
-        .slice()
-        .reverse()
-        .slice(0, 20)
-        .map((item) => ({
-          id: item._id,
-          operatorName: userMap.get(item.operator_id)?.real_name || item.operator_id,
-          packageName: packageMap.get(item.ref_biz_id)?.name || item.ref_biz_id,
-          targetName: userMap.get(item.user_id)?.real_name || item.user_id,
-          amount: Number(item.offline_amount || 0),
-          payType: item.pay_type || '未记录',
-          remark: item.remark || '',
-          time: String(item.created_at || '').slice(11, 19) || '--:--:--',
-        })),
+      auditLogs: auditLogs.sort((a, b) => parseBusinessTime(b.created_at) - parseBusinessTime(a.created_at)).slice(0, 20).map((item) => ({
+        id: item._id, operatorName: userMap.get(item.operator_id)?.real_name || '场馆人员',
+        packageName: packageMap.get(item.ref_biz_id)?.name || '历史套餐',
+        targetName: userMap.get(item.user_id)?.real_name || '学员', amount: Number(item.offline_amount || 0),
+        payType: item.pay_type || '未记录', remark: item.remark || '',
+        time: businessDate(item.created_at),
+      })),
     })
   } catch (error) {
-    return buildFail('读取管理员看板失败：' + (error.errMsg || error.message || error), 'ADMIN_VIEW_ERROR')
+    return buildFail('读取看板失败：' + (error.errMsg || error.message || error), 'ADMIN_VIEW_ERROR')
   }
 }
 
@@ -1638,7 +1671,7 @@ async function createPackage(event) {
   if (!['group', 'private'].includes(packageType)) {
     return buildFail('套餐类型非法', 'INVALID_CREATE_PACKAGE_PAYLOAD')
   }
-  if (!Number.isFinite(lessons) || lessons <= 0) {
+  if (!Number.isInteger(lessons) || lessons <= 0) {
     return buildFail('权益次数必须大于 0', 'INVALID_CREATE_PACKAGE_PAYLOAD')
   }
   if (!Number.isFinite(price) || price < 0) {
@@ -1742,6 +1775,9 @@ async function getCoachClassViewData(event) {
     const schedule = scheduleRes.data
     if (!schedule) {
       return buildFail('排课不存在', 'CLASS_NOT_FOUND')
+    }
+    if (Number(event.operator.role) !== 3 && schedule.coach_id !== event.operator._id) {
+      return buildFail('只能查看自己的训练名单', 'FORBIDDEN')
     }
 
     const userMap = new Map(users.map((item) => [item._id, item]))
@@ -1934,6 +1970,9 @@ async function loginWithPhone(event) {
     const role = isConfiguredAdminPhone(purePhoneNumber) ? 3 : (currentUser ? currentUser.role : 1)
 
     if (currentUser) {
+      if (Number(currentUser.status) !== 1) {
+        return buildFail('账号已停用，请联系场馆管理员', 'ACCOUNT_DISABLED')
+      }
       await db.collection(COLLECTIONS.USER).doc(currentUser._id).update({
         data: {
           openid: wxContext.OPENID,
@@ -1948,7 +1987,7 @@ async function loginWithPhone(event) {
         status: 1,
       })
     } else {
-      const userId = 'u_' + Date.now()
+      const userId = 'u_' + crypto.createHash('sha256').update(purePhoneNumber).digest('hex').slice(0, 24)
       const realName = payload.realName || ('新会员' + purePhoneNumber.slice(-4))
       const nextUser = {
         openid: wxContext.OPENID,
@@ -1999,10 +2038,20 @@ async function createAssetDistribution(event) {
     }
 
     const packageData = packageRecord.data
+    const storeId = payload.storeId || event.operator.home_store_id
+    const store = storeId ? (await getDocById(COLLECTIONS.STORE, storeId)).data : null
+    if (!store || Number(store.status) !== 1 || store.is_deleted) return buildFail('请选择正在营业的门店', 'STORE_NOT_AVAILABLE')
     const assetDocId = buildAssetDocId(payload.userId, packageData.asset_type)
     const lessonCount = Number(packageData.course_count)
+    const expiryDate = payload.expiryDate || businessDate(Date.now() + Number(packageData.valid_days || 365) * 86400000)
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(expiryDate) || expiryDate < businessDate()) {
+      return buildFail('请选择有效的权益到期日期', 'INVALID_EXPIRY_DATE')
+    }
+    if (!Number.isFinite(Number(payload.offlineAmount)) || Number(payload.offlineAmount) < 0) {
+      return buildFail('实收金额必须为非负数', 'INVALID_AMOUNT')
+    }
 
-    const transactionResult = await db.runTransaction(async (transaction) => {
+    const transactionResult = await runBusinessTransaction(async (transaction) => {
       let assetData = null
 
       try {
@@ -2020,6 +2069,7 @@ async function createAssetDistribution(event) {
             asset_type: packageData.asset_type,
             balance: lessonCount,
             total_earned: lessonCount,
+            expiry_date: expiryDate,
             created_at: db.serverDate(),
             updated_at: db.serverDate(),
             is_deleted: false,
@@ -2030,6 +2080,7 @@ async function createAssetDistribution(event) {
           data: {
             balance: _.inc(lessonCount),
             total_earned: _.inc(lessonCount),
+            expiry_date: assetData.expiry_date && assetData.expiry_date > expiryDate ? assetData.expiry_date : expiryDate,
             updated_at: db.serverDate(),
           },
         })
@@ -2045,6 +2096,8 @@ async function createAssetDistribution(event) {
           remark: payload.remark || ('线下收款 ' + payload.payType + ' ￥' + normalizeAmount(payload.offlineAmount)),
           offline_amount: normalizeAmount(payload.offlineAmount),
           pay_type: payload.payType,
+          store_id: storeId,
+          asset_type: packageData.asset_type,
           created_at: db.serverDate(),
           updated_at: db.serverDate(),
           is_deleted: false,
@@ -2075,12 +2128,17 @@ async function createClientBooking(event) {
   }
 
   try {
-    const result = await db.runTransaction(async (transaction) => {
+    const result = await runBusinessTransaction(async (transaction) => {
       const scheduleRes = await transaction.collection(COLLECTIONS.CLASS_SCHEDULE).doc(payload.scheduleId).get()
       const scheduleData = scheduleRes.data
       if (!scheduleData) {
         throw new Error('排课不存在')
       }
+      if (scheduleData.is_deleted || parseBusinessTime(scheduleData.start_time) <= Date.now() || !Number.isFinite(parseBusinessTime(scheduleData.start_time))) {
+        throw new Error('该场次已开始或不可预约，请选择其他时间')
+      }
+      const store = (await transaction.collection(COLLECTIONS.STORE).doc(scheduleData.store_id).get()).data
+      if (!store || store.is_deleted || Number(store.status) !== 1) throw new Error('门店已暂停营业，请选择其他门店')
       if (scheduleData.status !== SCHEDULE_STATUS.OPEN && scheduleData.status !== SCHEDULE_STATUS.FULL) {
         throw new Error('当前排课状态不可预约')
       }
@@ -2105,6 +2163,9 @@ async function createClientBooking(event) {
       if (!assetData || Number(assetData.balance) <= 0) {
         throw new Error('可用权益不足')
       }
+      if (assetData.is_deleted || (assetData.expiry_date && assetData.expiry_date < businessDate())) {
+        throw new Error('权益已到期，请联系场馆续课')
+      }
 
       const nextBookedCount = Number(scheduleData.booked_count) + 1
       await transaction.collection(COLLECTIONS.USER_ASSET).doc(assetDocId).update({
@@ -2120,7 +2181,7 @@ async function createClientBooking(event) {
           updated_at: db.serverDate(),
         },
       })
-      const bookingDocId = payload.clientBookingId || ('booking_' + Date.now())
+      const bookingDocId = 'booking_' + crypto.randomBytes(16).toString('hex')
       await transaction.collection(COLLECTIONS.BOOKING).doc(bookingDocId).set({
         data: {
           schedule_id: payload.scheduleId,
@@ -2164,163 +2225,115 @@ async function createClientBooking(event) {
 
 async function cancelClientBooking(event) {
   const payload = event.payload || {}
-  if (!payload.bookingId || !payload.operatorId) {
-    return buildFail('bookingId 和 operatorId 不能为空', 'INVALID_CANCEL_PAYLOAD')
-  }
-
+  if (!payload.bookingId) return buildFail('请选择要取消的预约', 'INVALID_CANCEL_PAYLOAD')
   try {
-    const bookingRes = await getDocById(COLLECTIONS.BOOKING, payload.bookingId)
-    const bookingData = bookingRes.data
-    if (!bookingData) {
-      return buildFail('预约记录不存在', 'BOOKING_NOT_FOUND')
-    }
-    if (bookingData.status !== BOOKING_STATUS.PENDING) {
-      return buildFail('当前预约状态不可取消', 'BOOKING_STATUS_INVALID')
-    }
-
-    const scheduleRes = await getDocById(COLLECTIONS.CLASS_SCHEDULE, bookingData.schedule_id)
-    const scheduleData = scheduleRes.data
-    if (!scheduleData) {
-      return buildFail('关联排课不存在', 'SCHEDULE_NOT_FOUND')
-    }
-
-    const assetType = mapClassTypeToAssetType(scheduleData.class_type)
-    const assetDocId = buildAssetDocId(bookingData.user_id, assetType)
-
-    const result = await db.runTransaction(async (transaction) => {
+    const result = await runBusinessTransaction(async (transaction) => {
+      const bookingData = (await transaction.collection(COLLECTIONS.BOOKING).doc(payload.bookingId).get()).data
+      if (!bookingData || bookingData.is_deleted) throw new Error('预约记录不存在')
+      if (bookingData.user_id !== event.operator._id) throw new Error('只能取消自己的预约')
+      if (Number(bookingData.status) !== BOOKING_STATUS.PENDING) throw new Error('该预约已处理，请刷新后查看')
+      const scheduleData = (await transaction.collection(COLLECTIONS.CLASS_SCHEDULE).doc(bookingData.schedule_id).get()).data
+      if (!scheduleData) throw new Error('关联场次不存在，请联系场馆')
+      if (!canCancel(scheduleData.start_time)) throw new Error('开课前 2 小时内不可取消，请联系场馆')
+      const assetDocId = buildAssetDocId(bookingData.user_id, mapClassTypeToAssetType(scheduleData.class_type))
+      const asset = (await transaction.collection(COLLECTIONS.USER_ASSET).doc(assetDocId).get()).data
+      if (!asset) throw new Error('权益记录不存在，请联系场馆')
       const nextBookedCount = Math.max(0, Number(scheduleData.booked_count) - 1)
       await transaction.collection(COLLECTIONS.BOOKING).doc(payload.bookingId).update({
-        data: {
-          status: BOOKING_STATUS.CLIENT_CANCELLED,
-          updated_at: db.serverDate(),
-        },
+        data: { status: BOOKING_STATUS.CLIENT_CANCELLED, updated_at: db.serverDate() },
       })
       await transaction.collection(COLLECTIONS.USER_ASSET).doc(assetDocId).update({
-        data: {
-          balance: _.inc(1),
-          updated_at: db.serverDate(),
-        },
+        data: { balance: _.inc(1), updated_at: db.serverDate() },
       })
       await transaction.collection(COLLECTIONS.CLASS_SCHEDULE).doc(bookingData.schedule_id).update({
-        data: {
-          booked_count: nextBookedCount,
-          status: SCHEDULE_STATUS.OPEN,
-          updated_at: db.serverDate(),
-        },
+        data: { booked_count: nextBookedCount, status: scheduleData.status === SCHEDULE_STATUS.FULL ? SCHEDULE_STATUS.OPEN : scheduleData.status, updated_at: db.serverDate() },
       })
-      await transaction.collection(COLLECTIONS.USER_ASSET_LOG).add({
-        data: {
-          user_id: bookingData.user_id,
-          operate_type: OPERATE_TYPE.CLIENT_CANCEL,
-          amount: 1,
-          operator_id: payload.operatorId,
-          ref_biz_id: bookingData.schedule_id,
-          remark: payload.remark || '客户取消预约退课',
-          created_at: db.serverDate(),
-          updated_at: db.serverDate(),
-          is_deleted: false,
-        },
-      })
-
-      return {
-        assetDocId,
-        nextBookedCount,
-      }
+      await transaction.collection(COLLECTIONS.USER_ASSET_LOG).add({ data: {
+        user_id: bookingData.user_id, operate_type: OPERATE_TYPE.CLIENT_CANCEL, amount: 1,
+        operator_id: event.operator._id, ref_biz_id: bookingData.schedule_id,
+        remark: '客户取消预约退课', created_at: db.serverDate(), updated_at: db.serverDate(), is_deleted: false,
+      } })
+      return { assetDocId, nextBookedCount }
     })
-
-    return buildSuccess({
-      message: '取消成功',
-      ...result,
-    })
+    return buildSuccess({ message: '预约已取消，1 次权益已退回', ...result })
   } catch (error) {
-    return buildFail('取消失败：' + (error.errMsg || error.message || error), 'CANCEL_BOOKING_ERROR')
+    return buildFail(error.errMsg || error.message || '取消失败，请重试', 'CANCEL_BOOKING_ERROR')
   }
 }
 
 async function writeOffBooking(event) {
   const payload = event.payload || {}
-  if (!payload.bookingId || !payload.operatorId) {
-    return buildFail('bookingId 和 operatorId 不能为空', 'INVALID_WRITEOFF_PAYLOAD')
-  }
-
   const targetStatus = Number(payload.status || BOOKING_STATUS.WRITTEN_OFF)
-  if (![BOOKING_STATUS.WRITTEN_OFF, BOOKING_STATUS.ABSENT].includes(targetStatus)) {
-    return buildFail('status 仅支持已核销或缺席', 'WRITEOFF_STATUS_INVALID')
+  if (!payload.bookingId || ![BOOKING_STATUS.WRITTEN_OFF, BOOKING_STATUS.ABSENT].includes(targetStatus)) {
+    return buildFail('请选择预约及有效的核销状态', 'INVALID_WRITEOFF_PAYLOAD')
   }
-
   try {
-    const bookingRes = await getDocById(COLLECTIONS.BOOKING, payload.bookingId)
-    const bookingData = bookingRes.data
-    if (!bookingData) {
-      return buildFail('预约记录不存在', 'BOOKING_NOT_FOUND')
-    }
-    if (bookingData.status !== BOOKING_STATUS.PENDING) {
-      return buildFail('当前预约状态不可核销', 'BOOKING_STATUS_INVALID')
-    }
-
-    await db.runTransaction(async (transaction) => {
-      await transaction.collection(COLLECTIONS.BOOKING).doc(payload.bookingId).update({
-        data: {
-          status: targetStatus,
-          writeoff_time: db.serverDate(),
-          updated_at: db.serverDate(),
-        },
-      })
+    await runBusinessTransaction(async (transaction) => {
+      const booking = (await transaction.collection(COLLECTIONS.BOOKING).doc(payload.bookingId).get()).data
+      if (!booking || booking.is_deleted) throw new Error('预约记录不存在')
+      if (Number(booking.status) !== BOOKING_STATUS.PENDING) throw new Error('该预约已处理，请刷新名单')
+      const schedule = (await transaction.collection(COLLECTIONS.CLASS_SCHEDULE).doc(booking.schedule_id).get()).data
+      if (!schedule || (Number(event.operator.role) !== 3 && schedule.coach_id !== event.operator._id)) {
+        throw new Error('只能核销自己负责的场次')
+      }
+      await transaction.collection(COLLECTIONS.BOOKING).doc(payload.bookingId).update({ data: {
+        status: targetStatus, writeoff_time: db.serverDate(), writeoff_operator_id: event.operator._id, updated_at: db.serverDate(),
+      } })
     })
-
-    return buildSuccess({
-      message: targetStatus === BOOKING_STATUS.WRITTEN_OFF ? '核销成功' : '缺席已记录',
-      bookingId: payload.bookingId,
-      status: targetStatus,
-    })
+    return buildSuccess({ message: targetStatus === BOOKING_STATUS.WRITTEN_OFF ? '到场已确认' : '缺席已记录', bookingId: payload.bookingId, status: targetStatus })
   } catch (error) {
-    return buildFail('核销失败：' + (error.errMsg || error.message || error), 'WRITEOFF_BOOKING_ERROR')
+    return buildFail(error.errMsg || error.message || '核销失败，请重试', 'WRITEOFF_BOOKING_ERROR')
   }
 }
 
 async function createCoachSchedule(event) {
   const payload = event.payload || {}
-  if (!payload.storeId || !payload.coachId || !payload.title || !payload.startTime || !payload.endTime) {
-    return buildFail('storeId、coachId、title、startTime、endTime 不能为空', 'INVALID_SCHEDULE_PAYLOAD')
+  const title = String(payload.title || '').trim()
+  const startTime = parseBusinessTime(payload.startTime)
+  const endTime = parseBusinessTime(payload.endTime)
+  const capacity = Number(payload.maxCapacity)
+  if (!payload.storeId || !title || title.length > 60 || !payload.coachId) return buildFail('请补全门店与训练主题，主题最多 60 个字', 'INVALID_SCHEDULE_PAYLOAD')
+  if (!Number.isFinite(startTime) || !Number.isFinite(endTime) || startTime <= Date.now() || endTime <= startTime) {
+    return buildFail('请选择未来的训练时间，结束时间应晚于开始时间', 'INVALID_SCHEDULE_TIME')
   }
-
+  if (!Number.isInteger(capacity) || capacity < 1 || capacity > 100) return buildFail('预约人数应为 1 至 100 的整数', 'INVALID_CAPACITY')
+  if (![1, 2].includes(Number(payload.classType))) return buildFail('请选择正确的训练类型', 'INVALID_CLASS_TYPE')
   try {
-    const classType = mapClassTypeToAssetType(payload.classType)
-    const storeRecord = await getDocById(COLLECTIONS.STORE, payload.storeId)
-    const storeData = storeRecord.data
-    if (!storeData || storeData.status !== 1 || storeData.is_deleted) {
-      return buildFail('门店不存在或不可用', 'STORE_NOT_AVAILABLE')
+    const store = (await getDocById(COLLECTIONS.STORE, payload.storeId)).data
+    const coach = (await getDocById(COLLECTIONS.USER, payload.coachId)).data
+    if (!store || Number(store.status) !== 1 || store.is_deleted) return buildFail('门店当前不可用，请重新选择', 'STORE_NOT_AVAILABLE')
+    if (!coach || ![2, 3].includes(Number(coach.role)) || Number(coach.status) !== 1 || coach.is_deleted) return buildFail('请选择可排课的场馆人员', 'COACH_NOT_AVAILABLE')
+    const count = payload.repeatWeekly === true ? 4 : 1
+    const slots = Array.from({ length: count }, (_, index) => ({ start: startTime + index * 7 * 86400000, end: endTime + index * 7 * 86400000 }))
+    const existing = await listCollection(COLLECTIONS.CLASS_SCHEDULE, { is_deleted: false, coach_id: payload.coachId })
+    if (slots.some((slot) => existing.some((item) => Number(item.status) !== SCHEDULE_STATUS.COACH_CANCELLED &&
+      parseBusinessTime(item.start_time) < slot.end && parseBusinessTime(item.end_time) > slot.start))) {
+      return buildFail('与已有排课时间重叠，请调整时间后重试', 'SCHEDULE_CONFLICT')
     }
-
-    const storeName = payload.storeName || storeData.name
-    const maxCapacity = Number(payload.maxCapacity || (classType === ASSET_TYPE.PRIVATE ? 1 : 15))
-    const addRes = await db.collection(COLLECTIONS.CLASS_SCHEDULE).add({
-      data: {
-        store_id: payload.storeId,
-        store_name: storeName,
-        coach_id: payload.coachId,
-        class_type: classType,
-        title: payload.title,
-        start_time: payload.startTime,
-        end_time: payload.endTime,
-        max_capacity: maxCapacity,
-        booked_count: 0,
-        status: SCHEDULE_STATUS.OPEN,
-        venue: storeName,
-        week_day: Number(payload.weekDay || 0),
-        repeat_weekly: Boolean(payload.repeatWeekly),
-        created_at: db.serverDate(),
-        updated_at: db.serverDate(),
-        is_deleted: false,
-      },
+    const format = (time) => new Date(time + 8 * 3600000).toISOString().slice(0, 19).replace('T', ' ')
+    const scheduleIds = await runBusinessTransaction(async (transaction) => {
+      // 排课共享教练记录作为并发冲突点；事务重试时重新检查已发布时段。
+      await transaction.collection(COLLECTIONS.USER).doc(payload.coachId).get()
+      const latest = await listCollection(COLLECTIONS.CLASS_SCHEDULE, { is_deleted: false, coach_id: payload.coachId })
+      if (slots.some((slot) => latest.some((item) => Number(item.status) !== SCHEDULE_STATUS.COACH_CANCELLED &&
+        parseBusinessTime(item.start_time) < slot.end && parseBusinessTime(item.end_time) > slot.start))) throw new Error('与已有排课时间重叠，请调整时间')
+      await transaction.collection(COLLECTIONS.USER).doc(payload.coachId).update({ data: { schedule_revision: _.inc(1) } })
+      const ids = []
+      for (const slot of slots) {
+        const result = await transaction.collection(COLLECTIONS.CLASS_SCHEDULE).add({ data: {
+          store_id: store._id, store_name: store.name, coach_id: payload.coachId,
+          class_type: Number(payload.classType), title, start_time: format(slot.start), end_time: format(slot.end),
+          max_capacity: capacity, booked_count: 0, status: SCHEDULE_STATUS.OPEN, venue: store.name,
+          week_day: Number(payload.weekDay || 0), repeat_weekly: count === 4,
+          created_at: db.serverDate(), updated_at: db.serverDate(), is_deleted: false,
+        } })
+        ids.push(result._id)
+      }
+      return ids
     })
-
-    return buildSuccess({
-      message: '排课创建成功',
-      scheduleId: addRes._id,
-    })
+    return buildSuccess({ message: count === 4 ? '已发布连续 4 周的训练场次' : '训练场次已发布', scheduleId: scheduleIds[0], scheduleIds })
   } catch (error) {
-    return buildFail('排课创建失败：' + (error.errMsg || error.message || error), 'CREATE_SCHEDULE_ERROR')
+    return buildFail('排课未保存：' + (error.errMsg || error.message || error), 'CREATE_SCHEDULE_ERROR')
   }
 }
 
@@ -2331,7 +2344,16 @@ exports.main = async (event = {}) => {
   } catch (error) {
     return buildFail('数据库自动初始化失败：' + (error.errMsg || error.message || error), 'DATABASE_INIT_ERROR')
   }
+  try {
+    const needsUser = !PUBLIC_ACTIONS.has(event.action) || event.action === 'getBookingViewData'
+    const currentUser = needsUser ? await getCurrentAuthedUser() : null
+    event = authorizeRequest(event, currentUser)
+  } catch (error) {
+    return buildFail(error.message || '身份验证失败，请重试', error.code || 'AUTH_ERROR')
+  }
   switch (event.action) {
+    case 'logout':
+      return logoutCurrentUser()
     case 'bootstrap':
       return getBootstrapData()
     case 'getCurrentUserSession':

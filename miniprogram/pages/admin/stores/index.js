@@ -1,3 +1,4 @@
+const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
 
 const ADMIN_STORES_CACHE_KEY = 'admin:stores'
@@ -24,7 +25,7 @@ function normalizePageData(pageData) {
   }
 }
 
-Page({
+Page(withPageState({
   data: {
     runtime: {},
     pageData: normalizePageData(),
@@ -87,6 +88,7 @@ Page({
       if (this._syncRequestId !== requestId) {
         return
       }
+      this.setData({ pageError: error.message || "加载失败，请重试" })
       this.setData({ loading: false })
       if (!this.data.pageData.stores.length) {
         wx.showToast({
@@ -265,6 +267,7 @@ Page({
   },
 
   async submitStoreStatus(targetStore, nextStatus) {
+    if (this.data.submitting) return
     this.setData({ submitting: true })
     try {
       await businessApi.updateStoreStatus({
@@ -296,4 +299,4 @@ Page({
     await app.getRuntimeSnapshotAsync({ force: true })
     await this.syncPageData()
   },
-})
+}))

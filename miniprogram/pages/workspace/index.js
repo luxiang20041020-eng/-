@@ -1,3 +1,4 @@
+const withPageState = require('../../utils/page-state')
 const businessApi = require('../../utils/business-api')
 
 function decorateTodayClass(item) {
@@ -21,7 +22,7 @@ function buildWorkspaceCacheKey(runtime) {
   return 'workspace:' + userId + ':' + storeId
 }
 
-Page({
+Page(withPageState({
   data: {
     runtime: {},
     pageData: {},
@@ -66,17 +67,18 @@ Page({
       this.setData({
         runtime,
         pageData: decorateWorkspacePageData(pageData),
-        hasPermission: runtime.role === 'coach',
+        hasPermission: ['coach', 'admin'].includes(runtime.role),
         avatarText: runtime.userProfile.nickname ? runtime.userProfile.nickname.slice(0, 1) : '教',
       })
     } catch (error) {
       if (this._syncRequestId !== requestId) {
         return
       }
+      this.setData({ pageError: error.message || "加载失败，请重试" })
       this.setData({
         runtime,
         pageData: decorateWorkspacePageData(app.getWorkspacePageData()),
-        hasPermission: runtime.role === 'coach',
+        hasPermission: ['coach', 'admin'].includes(runtime.role),
         avatarText: runtime.userProfile.nickname ? runtime.userProfile.nickname.slice(0, 1) : '教',
       })
     } finally {
@@ -95,7 +97,7 @@ Page({
     this.setData({
       runtime,
       pageData: decorateWorkspacePageData(pageData),
-      hasPermission: runtime.role === 'coach',
+      hasPermission: ['coach', 'admin'].includes(runtime.role),
       avatarText: runtime.userProfile.nickname ? runtime.userProfile.nickname.slice(0, 1) : '教',
       pageLoading: false,
     })
@@ -105,6 +107,12 @@ Page({
 
   onTapAction(event) {
     const { actionId } = event.currentTarget.dataset
+    if (actionId === 'class') {
+      const next = (this.data.pageData.todayClasses || []).find((item) => item.bookedCount > item.checkedCount + item.absentCount)
+      if (next) this.goClassDetail({ currentTarget: { dataset: { classId: next.id } } })
+      else wx.showToast({ title: '今日没有待核销的场次', icon: 'none' })
+      return
+    }
     const routeMap = {
       distribute: '/pages/workspace/distribute/index',
       class: '/pages/workspace/class/index',
@@ -124,4 +132,4 @@ Page({
       url: '/pages/workspace/class/index?classId=' + classId,
     })
   },
-})
+}))

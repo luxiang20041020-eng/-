@@ -1,3 +1,4 @@
 {
-  "navigationBarTitleText": "课时派发"
+  "navigationBarTitleText": "课时派发",
+  "enablePullDownRefresh": true
 }

@@ -1,7 +1,8 @@
 <view class="page-shell">
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header">
     <view>
-      <view class="eyebrow">ADMIN · STORE NETWORK</view>
+      <view class="eyebrow">门店运营管理</view>
       <view class="page-title">门店管理</view>
       <view class="page-subtitle">维护首页可选门店、营业状态与场馆地址。</view>
     </view>
@@ -9,26 +10,26 @@
   </view>
 
   <view wx:if="{{!hasPermission}}" class="card">
-    <view class="section-title">ACCESS DENIED</view>
+    <view class="section-title">访问权限提示</view>
     <view class="card-desc">当前账号不是管理员，无法管理门店。</view>
   </view>
 
   <block wx:else>
     <view class="card">
-      <view class="section-title">OVERVIEW · 门店概览</view>
+      <view class="section-title">门店概览</view>
       <view class="metric-grid">
         <view class="metric-item">
-          <view class="metric-label">TOTAL</view>
+          <view class="metric-label">总计</view>
           <view class="metric-value">{{pageData.stats.total}}</view>
           <view class="metric-note">全部门店</view>
         </view>
         <view class="metric-item">
-          <view class="metric-label">OPEN</view>
+          <view class="metric-label">营业中</view>
           <view class="metric-value">{{pageData.stats.activeCount}}</view>
           <view class="metric-note">营业中</view>
         </view>
         <view class="metric-item">
-          <view class="metric-label">CLOSED</view>
+          <view class="metric-label">已停用</view>
           <view class="metric-value">{{pageData.stats.inactiveCount}}</view>
           <view class="metric-note">已停用</view>
         </view>
@@ -38,7 +39,7 @@
     <view class="card create-store-entry" bindtap="onOpenCreatePopup">
       <view class="create-store-mark">+</view>
       <view class="create-store-main">
-        <view class="section-title">CREATE STORE</view>
+        <view class="section-title">创建训练空间</view>
         <view class="create-store-title">新增门店</view>
         <view class="card-desc">录入门店名称、地址和地图坐标。</view>
       </view>
@@ -96,7 +97,7 @@
     <view class="modal-panel" catchtap="noop">
       <view class="headline-row">
         <view class="modal-heading">
-          <view class="section-title">{{editingStoreId ? 'EDIT STORE' : 'CREATE STORE'}}</view>
+          <view class="section-title">{{editingStoreId ? '更新门店资料' : '创建训练空间'}}</view>
           <view class="modal-title">{{editingStoreId ? '编辑门店资料' : '新增门店'}}</view>
         </view>
         <view class="modal-close" bindtap="onCloseStorePopup">×</view>
@@ -126,7 +127,7 @@
       <view wx:if="{{!editingStoreId}}" class="field-block">
         <view class="row-between">
           <view class="field-label">创建后立即营业</view>
-          <switch checked="{{storeForm.status === 1}}" color="#ff1f4f" bindchange="onCreateStatusChange" />
+          <switch checked="{{storeForm.status === 1}}" color="#c7452d" bindchange="onCreateStatusChange" />
         </view>
       </view>
 

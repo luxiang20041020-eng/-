@@ -2,6 +2,9 @@
   flex-wrap: wrap;
 }
 
+.time-picker-row { display: flex; gap: 20rpx; }
+.time-picker-row picker { flex: 1; }
+
 .store-picker {
   display: flex;
   align-items: center;
@@ -14,26 +17,26 @@
 }
 
 .store-picker-value {
-  color: #07142f;
+  color: #20251f;
   font-size: 26rpx;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .store-picker-value.placeholder {
-  color: #9aa3b2;
+  color: #979b90;
 }
 
 .store-picker-arrow {
   margin-left: 16rpx;
-  color: #7d8798;
+  color: #7c8076;
   font-size: 28rpx;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .plan-item {
   margin-top: 18rpx;
   padding: 20rpx;
-  border: 1rpx solid #eef1f6;
-  border-radius: 28rpx;
+  border: 1rpx solid #e9e9e1;
+  border-radius: 16rpx;
   background: #ffffff;
 }

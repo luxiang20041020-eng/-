@@ -1,3 +1,4 @@
+const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
 
 function normalizePageData(pageData) {
@@ -31,7 +32,7 @@ function buildVisibleUsers(users, keyword) {
 
 const ADMIN_USERS_CACHE_KEY = 'admin:users'
 
-Page({
+Page(withPageState({
   data: {
     runtime: {},
     pageData: normalizePageData(),
@@ -99,6 +100,7 @@ Page({
       if (this._syncRequestId !== requestId) {
         return
       }
+      this.setData({ pageError: error.message || "加载失败，请重试" })
       this.setData({
         runtime,
         hasPermission: true,
@@ -188,6 +190,7 @@ Page({
   },
 
   async submitRoleChange(targetUser, selectedRole) {
+    if (this.data.submittingUserId) return
     this.setData({ submittingUserId: targetUser.id })
     try {
       await businessApi.updateUserRole({
@@ -212,4 +215,4 @@ Page({
       this.setData({ submittingUserId: '' })
     }
   },
-})
+}))

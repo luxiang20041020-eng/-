@@ -1,4 +1,6 @@
+const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
+const { confirmAction } = require('../../../utils/interaction')
 
 const WEEKDAY_OPTIONS = [
   { value: 1, label: '周一' },
@@ -75,21 +77,25 @@ function buildScheduleCacheKey(runtime, storeId) {
   return 'workspace:schedule:' + userId + ':' + (storeId || 'default')
 }
 
-Page({
+Page(withPageState({
   data: {
     runtime: {},
+    submitting: false,
     pageData: {},
     weekDay: 1,
     weekLabel: '周一',
     dateLabel: getNextDateByWeekday(1).monthDay,
     fullDate: getNextDateByWeekday(1).fullDate,
     timeRange: '19:00 - 20:30',
+    startTime: '19:00',
+    endTime: '20:30',
+    minDate: getNextDateByWeekday(new Date().getDay()).fullDate,
     title: '',
     type: 'group',
     storeId: '',
     selectedStoreName: '',
     selectedStoreAddress: '',
-    repeatWeekly: true,
+    repeatWeekly: false,
     weekOptions: WEEKDAY_OPTIONS,
   },
 
@@ -136,6 +142,7 @@ Page({
       if (this._syncRequestId !== requestId) {
         return
       }
+      this.setData({ pageError: error.message || "加载失败，请重试" })
       const localPageData = normalizeSchedulePageData(app.getScheduleManagePageData(targetStoreId), runtime)
       const selection = getStoreSelection(localPageData, targetStoreId)
       this.setData({
@@ -174,6 +181,21 @@ Page({
 
   onTypeChange(event) {
     this.setData({ type: event.currentTarget.dataset.type })
+  },
+
+  onDateChange(event) {
+    const fullDate = event.detail.value
+    const date = new Date(fullDate + 'T12:00:00+08:00')
+    const weekDay = date.getDay()
+    const option = WEEKDAY_OPTIONS.find((item) => item.value === weekDay)
+    this.setData({ fullDate, dateLabel: fullDate.slice(5).replace('-', '/'), weekDay, weekLabel: option.label })
+  },
+
+  onTimeChange(event) {
+    const field = event.currentTarget.dataset.field
+    if (!['startTime', 'endTime'].includes(field)) return
+    this.setData({ [field]: event.detail.value })
+    this.setData({ timeRange: this.data.startTime + ' - ' + this.data.endTime })
   },
 
   onWeekChange(event) {
@@ -219,54 +241,48 @@ Page({
   },
 
   async onSubmit() {
-    const app = getApp()
-    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
-    if (!runtime.isAuthenticated) {
-      wx.reLaunch({ url: '/pages/login/index' })
-      return
-    }
+    if (this.data.submitting || this.data.pageError || this.data.pageBusy) return
     const selectedStore = (this.data.pageData.stores || []).find((item) => item.id === this.data.storeId)
       || this.data.pageData.currentStore
 
-    if (!this.data.title || !selectedStore || !selectedStore.id) {
+    if (!this.data.title.trim() || !selectedStore || !selectedStore.id) {
       wx.showToast({ title: '请补全训练主题并选择门店', icon: 'none' })
       return
     }
 
-    const localPayload = {
-      storeId: selectedStore.id,
-      storeName: selectedStore.name,
-      weekLabel: this.data.weekLabel,
-      dateLabel: this.data.dateLabel,
-      timeRange: this.data.timeRange,
-      title: this.data.title,
-      type: this.data.type,
-      venue: selectedStore.name,
-      repeatWeekly: this.data.repeatWeekly,
+    if (this.data.endTime <= this.data.startTime) {
+      wx.showToast({ title: '结束时间须晚于开始时间', icon: 'none' })
+      return
     }
+    const app = getApp()
+    this.setData({ submitting: true })
     let result = null
 
     try {
+      const confirmed = await confirmAction({ title: '确认发布排课', content: this.data.title.trim() + '\n' + selectedStore.name + ' · ' + this.data.fullDate + '\n' + this.data.timeRange + (this.data.repeatWeekly ? '\n将连续发布 4 周的场次。' : '\n发布后学员即可预约。') })
+      if (!confirmed) return
+      const runtime = await app.getRuntimeSnapshotAsync({ force: true })
+      if (!runtime.isAuthenticated) {
+        wx.reLaunch({ url: '/pages/login/index' })
+        return
+      }
       const cloudResult = await businessApi.createCoachSchedule({
         storeId: selectedStore.id,
         storeName: selectedStore.name,
         coachId: runtime.userProfile.id,
         classType: this.data.type === 'group' ? 1 : 2,
-        title: this.data.title,
-        startTime: this.data.fullDate + ' ' + this.data.timeRange.split(' - ')[0] + ':00',
-        endTime: this.data.fullDate + ' ' + this.data.timeRange.split(' - ')[1] + ':00',
+        title: this.data.title.trim(),
+        startTime: this.data.fullDate + ' ' + this.data.startTime + ':00',
+        endTime: this.data.fullDate + ' ' + this.data.endTime + ':00',
         maxCapacity: this.data.type === 'group' ? 15 : 1,
         weekDay: this.data.weekDay,
         repeatWeekly: this.data.repeatWeekly,
       })
-      result = app.createCoachSchedule(Object.assign({}, localPayload, { planId: cloudResult.scheduleId }))
+      result = { ok: true, message: cloudResult.message || '排课已发布' }
     } catch (error) {
-      result = app.createCoachSchedule(localPayload)
-      if (result.ok) {
-        result.message = result.message + '（当前使用本地演示数据）'
-      } else if (error && error.message) {
-        result.message = result.message + '；云端返回：' + error.message
-      }
+      result = { ok: false, message: error.message || "排课未保存，请重试" }
+    } finally {
+      this.setData({ submitting: false })
     }
 
     wx.showToast({ title: result.message, icon: result.ok ? 'success' : 'none' })
@@ -279,4 +295,4 @@ Page({
       this.syncPageData(selectedStore.id)
     }
   },
-})
+}))

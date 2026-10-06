@@ -1,3 +1,4 @@
+const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
 
 function formatPrice(price) {
@@ -61,7 +62,7 @@ function buildVisiblePackages(packages, filters) {
 
 const ADMIN_PACKAGES_CACHE_KEY = 'admin:packages'
 
-Page({
+Page(withPageState({
   data: {
     runtime: {},
     pageData: normalizePageData(),
@@ -133,6 +134,7 @@ Page({
       if (this._syncRequestId !== requestId) {
         return
       }
+      this.setData({ pageError: error.message || "加载失败，请重试" })
       this.setData({
         runtime,
         hasPermission: true,
@@ -272,6 +274,7 @@ Page({
   },
 
   async submitPackageStatus(targetPackage, nextStatus) {
+    if (this.data.submittingPackageId || this.data.creatingPackage) return
     this.setData({ submittingPackageId: targetPackage.id })
     try {
       await businessApi.updatePackageStatus({
@@ -321,9 +324,9 @@ Page({
       })
       return
     }
-    if (!Number.isFinite(lessons) || lessons <= 0) {
+    if (!Number.isInteger(lessons) || lessons <= 0) {
       wx.showToast({
-        title: '课时数必须大于 0',
+        title: '课时数须为正整数',
         icon: 'none',
       })
       return
@@ -367,4 +370,4 @@ Page({
       this.setData({ creatingPackage: false })
     }
   },
-})
+}))

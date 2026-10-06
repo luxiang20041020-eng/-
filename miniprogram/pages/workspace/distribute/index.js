@@ -1,14 +1,16 @@
+const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
+const { confirmAction } = require('../../../utils/interaction')
 
 function addDays(days) {
   const date = new Date()
   date.setDate(date.getDate() + days)
-  return date.toISOString().slice(0, 10)
+  return date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(date.getDate()).padStart(2,'0')
 }
 
 // 日期选择器的最小可选日期（今天）
 function todayStr() {
-  return new Date().toISOString().slice(0, 10)
+  return addDays(0)
 }
 
 function buildDistributeCacheKey(runtime, keyword) {
@@ -52,9 +54,10 @@ function normalizePageData(pageData, fallbackStore) {
   })
 }
 
-Page({
+Page(withPageState({
   data: {
     runtime: {},
+    submitting: false,
     pageData: {},
     keyword: '',
     selectedMemberId: '',
@@ -70,6 +73,14 @@ Page({
 
   onShow() {
     this.syncPageData()
+  },
+
+  onHide() {
+    if (this._keywordTimer) clearTimeout(this._keywordTimer)
+  },
+
+  onUnload() {
+    if (this._keywordTimer) clearTimeout(this._keywordTimer)
   },
 
   async syncPageData() {
@@ -113,6 +124,7 @@ Page({
       if (this._syncRequestId !== requestId) {
         return
       }
+      this.setData({ pageError: error.message || "加载失败，请重试" })
       this.setData({
         runtime,
         pageData: normalizePageData(app.getDistributePageData(this.data.keyword), runtime.currentStore),
@@ -179,7 +191,8 @@ Page({
     this.setData({ remark: event.detail.value })
   },
 
-  onSubmit() {
+  async onSubmit() {
+    if (this.data.submitting || this.data.pageError || this.data.pageBusy) return
     if (!this.data.selectedMemberId || !this.data.selectedPackageId) {
       wx.showToast({ title: '请先选择学员和套餐', icon: 'none' })
       return
@@ -192,8 +205,8 @@ Page({
       wx.showToast({ title: '到期日期不能早于今天', icon: 'none' })
       return
     }
-    if (Number(this.data.amount) < 0) {
-      wx.showToast({ title: '实收金额不能小于 0', icon: 'none' })
+    if (!String(this.data.amount).trim() || !Number.isFinite(Number(this.data.amount)) || Number(this.data.amount) < 0) {
+      wx.showToast({ title: '请输入有效实收金额，赠课可填 0', icon: 'none' })
       return
     }
 
@@ -204,15 +217,11 @@ Page({
       return
     }
 
-    wx.showModal({
-      title: '确认派发',
-      content: '即将为 ' + member.nickname + ' 派发【' + targetPackage.name + '】并记录审计流水，是否确认？',
-      success: async (res) => {
-        if (!res.confirm) {
-          return
-        }
-
-        const app = getApp()
+    const app = getApp()
+    this.setData({ submitting: true })
+    try {
+        const confirmed = await confirmAction({ title: '确认派发', content: member.nickname + ' · ' + targetPackage.name + '\n' + targetPackage.lessons + ' 节' + targetPackage.typeLabel + '，到期 ' + this.data.expiryDate + '\n实收 ¥' + Number(this.data.amount).toFixed(2) + ' · ' + this.data.payType })
+        if (!confirmed) return
         const runtime = await app.getRuntimeSnapshotAsync({ force: true })
         if (!runtime.isAuthenticated) {
           wx.reLaunch({ url: '/pages/login/index' })
@@ -233,6 +242,7 @@ Page({
         try {
           await businessApi.distributeAsset({
             userId: localPayload.memberId,
+            storeId: runtime.currentStore.id,
             packageId: localPayload.packageId,
             expiryDate: localPayload.expiryDate,
             operatorId: runtime.userProfile.id,
@@ -245,13 +255,7 @@ Page({
             message: '已为' + member.nickname + '派发 ' + targetPackage.lessons + ' 节' + targetPackage.typeLabel,
           }
         } catch (error) {
-          // 云端未部署或初始化未完成时，先走本地态，保证工作台链路可持续验收。
-          result = app.submitDistribution(localPayload)
-          if (result.ok) {
-            result.message = result.message + '（当前使用本地演示数据）'
-          } else if (error && error.message) {
-            result.message = result.message + '；云端返回：' + error.message
-          }
+          result = { ok: false, message: error.message || "派发失败，请重试" }
         }
 
         wx.showToast({ title: result.message, icon: result.ok ? 'success' : 'none' })
@@ -271,7 +275,10 @@ Page({
           })
           this.syncPageData()
         }
-      },
-    })
+    } catch (error) {
+      wx.showToast({ title: error.message || '派发失败，请重试', icon: 'none' })
+    } finally {
+      this.setData({ submitting: false })
+    }
   },
-})
+}))

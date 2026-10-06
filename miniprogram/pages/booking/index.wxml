@@ -1,17 +1,18 @@
 <view class="page-shell">
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header">
-    <view class="eyebrow">BOOKING · 选场次 · 使用权益</view>
+    <view class="eyebrow">安排下一次训练</view>
     <view class="headline-row booking-title-row">
-      <view class="page-title">预约大厅</view>
-      <view class="filter-mark">FLT</view>
+      <view class="page-title">训练预约</view>
+      <view class="store-badge" bindtap="onOpenStorePicker">{{runtime.currentStore.name}} ⌄</view>
     </view>
-    <view class="page-subtitle">{{pageData.currentStore.name}} · 当前余额 G {{pageData.assets.groupCount}} / P {{pageData.assets.privateCount}}</view>
+    <view class="page-subtitle" wx:if="{{runtime.isAuthenticated}}">可用权益：团课 {{pageData.assets.groupCount || 0}} 次 · 专属 {{pageData.assets.privateCount || 0}} 次</view><view class="page-subtitle" wx:else>先找到适合你的时间，登录后即可预约。</view>
   </view>
 
   <view class="card">
     <view class="booking-type-switch">
-      <view class="booking-type-tab {{pageData.filters.type === 'group' ? 'active' : ''}}" data-type="group" bindtap="onTypeChange">团体 GROUP</view>
-      <view class="booking-type-tab {{pageData.filters.type === 'private' ? 'active' : ''}}" data-type="private" bindtap="onTypeChange">专属 EXCLUSIVE</view>
+      <view class="booking-type-tab {{pageData.filters.type === 'group' ? 'active' : ''}}" data-type="group" bindtap="onTypeChange">团体训练</view>
+      <view class="booking-type-tab {{pageData.filters.type === 'private' ? 'active' : ''}}" data-type="private" bindtap="onTypeChange">专属训练</view>
     </view>
 
     <view class="headline-row booking-filter-row">
@@ -31,8 +32,8 @@
   </view>
 
   <view class="card">
-    <view class="section-title">SLOT BOARD</view>
-    <view wx:if="{{pageData.schedules.length === 0}}" class="empty-text">当前门店在所选日期暂无可预约场次，请切换日期。</view>
+    <view class="section-title">可预约场次</view>
+    <view wx:if="{{!pageBusy && !pageError && pageData.schedules.length === 0}}" class="empty-state"><view class="empty-state-title">这一天还没有安排训练</view><view class="empty-state-desc">试试其他日期，或切换门店和场馆人员。</view><button class="secondary-button" bindtap="onResetFilters">查看今日全部场次</button></view>
     <view wx:for="{{pageData.schedules}}" wx:key="id" class="booking-schedule-card">
       <view class="booking-time-block">
         <view class="booking-time-main">{{item.timeStart}}</view>
@@ -44,13 +45,13 @@
             <view class="pricing-tag {{item.type === 'private' ? 'is-private' : 'is-group'}}">{{item.typeLabel}}</view>
           </view>
           <view class="booking-card-status {{item.isFull ? 'is-disabled' : item.isBooked ? 'is-booked' : ''}}">
-            {{item.isBooked ? '已预约' : item.isFull ? '已满员' : '立即预约'}}
+            {{item.isBooked ? '已预约' : item.isFull ? '已满员' : '可预约'}}
           </view>
         </view>
         <view class="booking-card-title">{{item.title}}</view>
         <view class="booking-card-meta">{{item.coachName}} · {{item.venue}}</view>
         <view class="capacity-row">
-          <view class="capacity-label">CAPACITY</view>
+          <view class="capacity-label">预约人数</view>
           <view class="capacity-value">{{item.progressText}}</view>
         </view>
         <view class="progress-track">
@@ -61,9 +62,9 @@
           data-schedule-id="{{item.id}}"
           data-title="{{item.title}}"
           bindtap="onBook"
-          disabled="{{item.isBooked || item.isFull}}"
+          loading="{{bookingId === item.id}}" disabled="{{item.isBooked || item.isFull || bookingId || pageBusy || pageError}}"
         >
-          {{item.isBooked ? '已预约' : item.isFull ? '当前满员' : '立即预约 · 使用 1 次权益'}}
+          {{bookingId === item.id ? '正在预约' : item.isBooked ? '已预约' : item.isFull ? '当前满员' : runtime.isAuthenticated ? '预约 · 使用 1 次权益' : '登录后预约'}}
         </button>
       </view>
     </view>
@@ -81,7 +82,7 @@
     <input class="coach-search-input" placeholder="搜索姓名、岗位、项目" placeholder-class="coach-search-placeholder" value="{{coachKeyword}}" bindinput="onCoachKeywordInput" />
     <scroll-view class="coach-drawer-scroll" scroll-y="true">
       <view class="coach-option-item {{pageData.filters.coachId === 'all' ? 'active' : ''}}" data-coach-id="all" bindtap="onCoachChange">
-        <view class="coach-option-avatar">ALL</view>
+        <view class="coach-option-avatar">全部</view>
         <view class="coach-option-main">
           <view class="coach-option-name">全部人员</view>
           <view class="coach-option-meta">当前筛选结果 {{pageData.resultCount}} 个场次</view>

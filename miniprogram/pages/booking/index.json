@@ -2,5 +2,6 @@
   "usingComponents": {
     "app-tabbar": "/components/app-tabbar/index"
   },
-  "navigationBarTitleText": "预约大厅"
+  "navigationBarTitleText": "预约大厅",
+  "enablePullDownRefresh": true
 }

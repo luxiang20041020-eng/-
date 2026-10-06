@@ -4,7 +4,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  background: rgba(7, 20, 47, 0.45);
+  background: rgba(32, 37, 31, 0.45);
   backdrop-filter: blur(10px);
   z-index: 1;
 }
@@ -17,7 +17,7 @@
   height: 44rpx;
   padding: 10rpx;
   border-radius: 50%;
-  background: #f3f5f9;
+  background: #eeeee7;
 }
 
 .install_tip_detail {
@@ -26,23 +26,23 @@
   bottom: 28rpx;
   left: 28rpx;
   padding: 58rpx 36rpx 52rpx;
-  border: 1rpx solid #ffe1e8;
-  border-radius: 38rpx;
+  border: 1rpx solid #ecd8cf;
+  border-radius: 16rpx;
   background: #ffffff;
-  box-shadow: 0 30rpx 80rpx rgba(8, 20, 47, 0.18);
+  box-shadow: 0 30rpx 80rpx rgba(32, 37, 31, 0.18);
   z-index: 9;
 }
 
 .install_tip_detail_title {
-  color: #07142f;
-  font-weight: 900;
+  color: #20251f;
+  font-weight: 600;
   font-size: 38rpx;
   text-align: left;
 }
 
 .install_tip_detail_tip {
   margin-top: 20rpx;
-  color: #697386;
+  color: #73786e;
   font-size: 25rpx;
   line-height: 1.7;
   text-align: left;
@@ -58,14 +58,14 @@
   flex: 1;
   min-height: 82rpx;
   line-height: 82rpx;
-  border-radius: 26rpx;
-  color: #07142f;
-  font-weight: 900;
-  background: #f3f5f9;
+  border-radius: 16rpx;
+  color: #20251f;
+  font-weight: 600;
+  background: #eeeee7;
   text-align: center;
 }
 
 .install_tip_detail_button_primary {
-  background: #ff1f4f;
+  background: #c7452d;
   color: #ffffff;
 }

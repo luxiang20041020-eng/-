@@ -1,106 +1,20 @@
-.login-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-bottom: 80rpx;
-  background:
-    linear-gradient(180deg, #ffffff 0%, #fff7f9 48%, #f4f6fb 100%);
-}
-
-.login-hero {
-  position: relative;
-  padding: 0 4rpx;
-}
-
-.login-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #ff1f4f;
-  font-size: 20rpx;
-  letter-spacing: 7rpx;
-  font-weight: 900;
-}
-
-.login-title {
-  margin-top: 22rpx;
-  color: #07142f;
-  font-size: 66rpx;
-  line-height: 1.08;
-  font-weight: 900;
-  font-style: italic;
-  text-shadow: 6rpx 0 0 #ff8b5d;
-}
-
-.login-subtitle {
-  max-width: 560rpx;
-  margin-top: 22rpx;
-  color: #697386;
-  font-size: 27rpx;
-  line-height: 1.65;
-  font-weight: 700;
-}
-
-.login-card {
-  position: relative;
-  overflow: hidden;
-  margin-top: 42rpx;
-  border-color: #ffe1e8;
-  background:
-    repeating-linear-gradient(45deg, rgba(255, 31, 79, 0.04) 0, rgba(255, 31, 79, 0.04) 10rpx, transparent 10rpx, transparent 28rpx),
-    #ffffff;
-}
-
-.login-card::after {
-  content: '01';
-  position: absolute;
-  right: 20rpx;
-  bottom: -32rpx;
-  color: rgba(255, 31, 79, 0.07);
-  font-size: 146rpx;
-  font-weight: 900;
-  font-style: italic;
-}
-
-.login-tip {
-  position: relative;
-  z-index: 1;
-  margin-top: 18rpx;
-  color: #07142f;
-  font-size: 28rpx;
-  line-height: 1.5;
-  font-weight: 900;
-}
-
-.login-button {
-  position: relative;
-  z-index: 1;
-  margin-top: 32rpx;
-}
-
-.login-error {
-  position: relative;
-  z-index: 1;
-  margin-top: 20rpx;
-  color: #ff1f4f;
-  font-size: 24rpx;
-  line-height: 1.6;
-  font-weight: 800;
-}
-
+.login-page { padding:32rpx 32rpx calc(48rpx + env(safe-area-inset-bottom)); background:#f5f4ef; }
+.login-hero { position:relative; height:540rpx; overflow:hidden; border-radius:16rpx; padding:40rpx 32rpx; background:#20251f; }
+.login-cover,.login-cover-shade { position:absolute; left:0; top:0; width:100%; height:100%; }.login-cover-shade { background:linear-gradient(90deg,rgba(19,26,17,.94),rgba(19,26,17,.35)); }
+.login-badge,.login-title,.login-subtitle { position:relative; }.login-badge { color:#d2d6c6; font-size:21rpx; letter-spacing:3rpx; }.login-title { margin-top:72rpx; color:#fffef5; font-size:54rpx; line-height:1.4; font-weight:600; }.login-subtitle { color:#c9cdbd; font-size:24rpx; margin-top:28rpx; }
+.login-card { margin-top:28rpx; padding:32rpx; }.login-tip { color:#7c8076; font-size:25rpx; line-height:1.7; margin-top:16rpx; }.login-button { margin-top:30rpx; }.login-error { color:#a23926; font-size:24rpx; margin-top:20rpx; line-height:1.6; }.login-browse { margin-top:28rpx; line-height:80rpx; color:#68715e; font-size:25rpx; }
 .privacy-mask {
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 20;
+  z-index: 220;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   padding: 28rpx;
-  background: rgba(7, 20, 47, 0.45);
+  background: rgba(32, 37, 31, 0.45);
   backdrop-filter: blur(10px);
 }
 
@@ -108,30 +22,30 @@
   width: 100%;
   max-width: 660rpx;
   padding: 34rpx 32rpx 30rpx;
-  border: 1rpx solid #ffe1e8;
-  border-radius: 38rpx;
+  border: 1rpx solid #ecd8cf;
+  border-radius: 16rpx;
   background: #ffffff;
-  box-shadow: 0 30rpx 80rpx rgba(8, 20, 47, 0.18);
+  box-shadow: 0 30rpx 80rpx rgba(32, 37, 31, 0.18);
 }
 
 .privacy-title {
-  color: #07142f;
+  color: #20251f;
   font-size: 34rpx;
   line-height: 1.35;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .privacy-content {
   margin-top: 22rpx;
-  color: #697386;
+  color: #73786e;
   font-size: 26rpx;
   line-height: 1.7;
   text-align: left;
 }
 
 .privacy-link {
-  color: #ff1f4f;
-  font-weight: 900;
+  color: #c7452d;
+  font-weight: 600;
 }
 
 .privacy-actions {
@@ -149,20 +63,20 @@
   min-height: 86rpx;
   margin: 0;
   padding: 0 18rpx;
-  border-radius: 28rpx;
+  border-radius: 16rpx;
   font-size: 26rpx;
   line-height: 1.2;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .privacy-cancel {
-  border: 1rpx solid #e7ebf2;
-  background: #f8f9fc;
-  color: #07142f;
+  border: 1rpx solid #e1e3d9;
+  background: #f7f7f2;
+  color: #20251f;
 }
 
 .privacy-confirm {
-  background: #ff1f4f;
+  background: #c7452d;
   color: #ffffff;
-  box-shadow: 0 18rpx 36rpx rgba(255, 31, 79, 0.22);
+  box-shadow: 0 18rpx 36rpx rgba(199, 69, 45, 0.22);
 }

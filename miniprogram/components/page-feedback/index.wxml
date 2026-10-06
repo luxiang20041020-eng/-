@@ -1,0 +1,5 @@
+<view wx:if="{{error}}" class="feedback-error">
+  <view class="feedback-copy"><view class="feedback-title">暂时没有同步成功</view><view class="feedback-description">{{error}}</view></view>
+  <button class="feedback-retry" bindtap="onRetry">重试</button>
+</view>
+<view wx:elif="{{loading}}" class="feedback-loading"><view class="feedback-dot"></view><text>正在同步最新数据</text></view>

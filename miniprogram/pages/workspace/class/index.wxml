@@ -1,4 +1,5 @@
 <view class="page-shell">
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header">
     <view>
       <view class="page-title">到场核销</view>

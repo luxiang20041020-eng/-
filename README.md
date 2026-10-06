@@ -38,10 +38,28 @@
 本地回归测试使用 Node.js 内置测试运行器和模拟云 SDK，无需安装依赖：
 
 ```sh
-node --test cloudfunctions/businessCore/test/bootstrap.test.js
+node --test cloudfunctions/businessCore/test/bootstrap.test.js cloudfunctions/businessCore/test/business-flow.test.js tests/miniprogram/interaction.test.js
 ```
 
 这些测试验证业务逻辑；部署后仍需在目标微信云环境验证云函数权限、超时配置和真实手机号授权。
+
+## 设计与交互
+
+生产小程序的 12 个页面统一采用深墨色、暖白与朱红，保留 ONE 品牌。首页的团体与专属训练分别进入对应场次；游客可浏览真实排课，登录后回到原预约入口。个人中心优先展示权益与预约，身份码按需展开。
+
+数据页支持加载反馈、失败重试和下拉刷新。预约、退课、派发、核销和排课都以云端写入成功为准，不再退回本地模拟成功。排课使用日期与时间选择器，每周重复明确生成连续 4 周场次；派发与缺席操作会提示具体对象和结果。
+
+后端统一按微信 OPENID 验证身份和角色，检查权益到期、开课时间、预约归属、取消时限、重复核销及排课冲突。看板展示当前门店的当日真实数据，可复制当前展示的权益流水。旧数据无 `expiry_date` 时继续兼容为未设置到期日。
+
+本地布局预览直接渲染页面的 WXML/WXSS，并使用独立示例数据，不调用云函数：
+
+```sh
+node tools/preview-miniprogram.js
+```
+
+访问 `http://127.0.0.1:4318` 选择页面；`?state=guest`、`?state=empty`、`?state=error` 分别预览游客、空数据和失败状态，管理页的 `?popup=1` 可预览表单弹窗。截图位于 `artifacts/design`。此预览用于检查布局，实际微信组件、隐私授权、身份二维码和云端事务仍须在微信开发者工具与真机验收。
+
+更新时需重新上传部署整个 `cloudfunctions/businessCore` 目录（包含 `request-policy.js`），并重新编译上传 `miniprogram`。不用清空现有数据库。
 
 参考：[微信云开发文档](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/basis/getting-started.html)、[云调用权限配置](https://docs.cloudbase.net/faq/knowledge/cloud-call-604101-permission-error)。
 

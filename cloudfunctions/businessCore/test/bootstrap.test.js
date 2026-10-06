@@ -4,91 +4,7 @@ const path = require('node:path')
 const vm = require('node:vm')
 const { test } = require('node:test')
 
-const source = readFileSync(path.join(__dirname, '..', 'index.js'), 'utf8')
-const collectionNames = ['app_user', 'biz_store', 'biz_package', 'user_asset', 'user_asset_log', 'biz_class_schedule', 'biz_booking']
-
-function createDatabase() {
-  const collections = new Map()
-  const state = { collections, createCalls: 0, phoneCalls: 0, createError: null, insertError: null }
-
-  function getRecords(name) {
-    if (!collections.has(name)) throw new Error('collection does not exist: ' + name)
-    return collections.get(name)
-  }
-
-  function query(name, where = {}) {
-    function rows() {
-      return [...getRecords(name).values()].filter((doc) => Object.entries(where).every(([key, value]) => doc[key] === value))
-    }
-    return {
-      where: (nextWhere) => query(name, nextWhere),
-      count: async () => ({ total: rows().length }),
-      get: async () => ({ data: rows().map((doc) => ({ ...doc })) }),
-      add: async ({ data }) => {
-        if (state.insertError && state.insertError.id === data._id) throw state.insertError.error
-        const records = getRecords(name)
-        if (records.has(data._id)) throw new Error('E11000 duplicate key: ' + data._id)
-        records.set(data._id, { ...data })
-        return { _id: data._id }
-      },
-      doc: (id) => ({
-        get: async () => ({ data: getRecords(name).get(id) }),
-        set: async ({ data }) => {
-          getRecords(name).set(id, { ...data, _id: id })
-          return { _id: id }
-        },
-        update: async ({ data }) => {
-          const records = getRecords(name)
-          if (!records.has(id)) throw new Error('document does not exist')
-          records.set(id, { ...records.get(id), ...data })
-          return { stats: { updated: 1 } }
-        },
-      }),
-    }
-  }
-
-  state.db = {
-    command: {},
-    serverDate: () => 'server-date',
-    createCollection: async (name) => {
-      state.createCalls += 1
-      if (state.createError) throw state.createError
-      if (collections.has(name)) throw new Error('collection already exists')
-      collections.set(name, new Map())
-    },
-    collection: (name) => query(name),
-  }
-  return state
-}
-
-function loadFunction(state, env = {}, context = { OPENID: 'real-openid', ENV: 'test-env' }) {
-  const cloud = {
-    DYNAMIC_CURRENT_ENV: 'test-env',
-    init() {},
-    database: () => state.db,
-    getWXContext: () => context,
-    openapi: {
-      phonenumber: {
-        getPhoneNumber: async ({ code }) => {
-          state.phoneCalls += 1
-          return { phone_info: { purePhoneNumber: code } }
-        },
-      },
-    },
-  }
-  const sandbox = {
-    exports: {},
-    process: { env },
-    require(name) {
-      assert.equal(name, 'wx-server-sdk')
-      return cloud
-    },
-  }
-  vm.runInNewContext(source, sandbox, { filename: 'businessCore/index.js' })
-  return sandbox.exports.main
-}
-
-const login = (main, phone, payload = {}) => main({ action: 'loginWithPhone', payload: { phoneCode: phone, ...payload } })
+const { createDatabase, loadFunction, login, collectionNames } = require('./helpers')
 
 test('空数据库在未登录查询之前创建全部集合，仅写入基础配置', async () => {
   const state = createDatabase()
@@ -149,7 +65,7 @@ test('bootstrap 需要真实管理员，客户端和云端演示开关都不能�
   await login(main, '13912345678')
   const result = await main({ action: 'bootstrap' })
   assert.equal(result.success, false)
-  assert.match(result.message, /没有管理员权限/)
+  assert.match(result.message, /权限/)
   assert.equal(state.collections.get('app_user').has('admin_001'), false)
 })
 

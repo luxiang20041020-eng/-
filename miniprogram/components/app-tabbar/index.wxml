@@ -6,9 +6,11 @@
       class="tab-item {{item.path === current ? 'is-active' : ''}}"
       data-path="{{item.path}}"
       bindtap="onTap"
+      hover-class="tab-pressed"
+      aria-label="{{item.label}}"
+      aria-role="button"
     >
       <view class="tab-symbol tab-symbol-{{item.key}}"></view>
-      <view class="tab-icon">{{item.iconText}}</view>
       <text class="tab-label">{{item.label}}</text>
     </view>
   </view>

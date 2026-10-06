@@ -2,5 +2,6 @@
   "usingComponents": {
     "app-tabbar": "/components/app-tabbar/index"
   },
-  "navigationBarTitleText": "工作台"
+  "navigationBarTitleText": "工作台",
+  "enablePullDownRefresh": true
 }

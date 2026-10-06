@@ -1,7 +1,7 @@
 .roster-item {
   margin-top: 18rpx;
   padding: 20rpx;
-  border: 1rpx solid #eef1f6;
-  border-radius: 28rpx;
+  border: 1rpx solid #e9e9e1;
+  border-radius: 16rpx;
   background: #ffffff;
 }

@@ -1,3 +1,4 @@
+const withPageState = require('../../utils/page-state')
 const businessApi = require('../../utils/business-api')
 
 function buildAdminDashboardCacheKey(runtime) {
@@ -5,7 +6,7 @@ function buildAdminDashboardCacheKey(runtime) {
   return 'admin:dashboard:' + storeId
 }
 
-Page({
+Page(withPageState({
   data: {
     runtime: {},
     pageData: {},
@@ -51,6 +52,7 @@ Page({
       if (this._syncRequestId !== requestId) {
         return
       }
+      this.setData({ pageError: error.message || "加载失败，请重试" })
       this.setData({
         runtime,
         pageData: app.getAdminPageData(),
@@ -76,10 +78,18 @@ Page({
   },
 
   onExport() {
-    wx.showToast({
-      title: '导出能力将在 P2 对接云函数',
-      icon: 'none',
-    })
+    const rows = (this.data.pageData.auditLogs || []).map((item) => [item.time, item.operatorName, item.targetName, item.packageName, item.amount, item.payType, item.remark].map((value) => String(value || '').replace(/[\t\r\n]/g, ' ')).join('\t'))
+    if (!rows.length) { wx.showToast({ title: '暂无记录可复制', icon: 'none' }); return }
+    wx.setClipboardData({ data: '日期\t操作人\t学员\t套餐\t实收金额\t收款方式\t备注\n' + rows.join('\n'), success: () => wx.showToast({ title: '已复制，可粘贴到表格', icon: 'none' }) })
+  },
+
+  onOpenOperations() { wx.navigateTo({ url: '/pages/workspace/index' }) },
+
+  onOpenStorePicker() {
+    const stores = this.data.runtime.stores || []
+    wx.showActionSheet({ itemList: stores.map((item) => item.name), success: (result) => {
+      if (stores[result.tapIndex]) { getApp().switchStore(stores[result.tapIndex].id); this.syncPageData() }
+    } })
   },
 
   onToggleAuditLogs() {
@@ -150,4 +160,4 @@ Page({
       this.setData({ bootstrapLoading: false })
     }
   },
-})
+}))

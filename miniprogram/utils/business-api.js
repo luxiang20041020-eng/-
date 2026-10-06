@@ -1,17 +1,31 @@
+const pendingReads = new Map()
+
 function callBusinessCore(action, payload) {
-  return wx.cloud.callFunction({
+  const isRead = action.indexOf('get') === 0
+  const key = action + ':' + JSON.stringify(payload || {})
+  if (isRead && pendingReads.has(key)) return pendingReads.get(key)
+  const request = wx.cloud.callFunction({
     name: 'businessCore',
     data: {
       action,
       payload,
     },
+  }).catch(() => {
+    throw Object.assign(new Error('服务暂时无法连接，请检查网络后重试'), { code: 'NETWORK_ERROR' })
   })
+  if (isRead) {
+    pendingReads.set(key, request)
+    request.then(() => pendingReads.delete(key), () => pendingReads.delete(key))
+  }
+  return request
 }
 
 function unwrapResult(response) {
   const result = response && response.result ? response.result : response
   if (!result || !result.success) {
-    throw new Error(result && result.message ? result.message : '业务云函数调用失败')
+    const message = result && result.code === 'DATABASE_INIT_ERROR' ? '服务正在准备中，请稍后重试' :
+      (result && result.message ? result.message : '操作未完成，请重试')
+    throw Object.assign(new Error(message), { code: result && result.code || 'BUSINESS_ERROR' })
   }
   return result.data
 }
@@ -34,6 +48,10 @@ async function getIdentityQrCode(payload) {
 async function loginWithPhone(payload) {
   const response = await callBusinessCore('loginWithPhone', payload)
   return unwrapResult(response)
+}
+
+async function logout() {
+  return unwrapResult(await callBusinessCore('logout'))
 }
 
 async function getHomeViewData(payload) {
@@ -152,6 +170,7 @@ async function updatePackageStatus(payload) {
 }
 
 module.exports = {
+  logout,
   bootstrapCollections,
   getCurrentUserSession,
   getIdentityQrCode,

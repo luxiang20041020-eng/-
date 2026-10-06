@@ -1,14 +1,15 @@
 <view class="page-shell login-page">
   <view class="login-hero">
-    <view class="login-badge">IRONFIST</view>
-    <view class="login-title">欢迎来到ONE泰拳格斗馆</view>
-    <view class="login-subtitle">使用微信绑定手机号一键登录，进入预约、排课与核销工作台。</view>
+    <image class="login-cover" src="/images/gym-interior-2.jpg" mode="aspectFill"></image><view class="login-cover-shade"></view>
+    <view class="login-badge">ONE / MUAY THAI</view>
+    <view class="login-title"><view>你的下一次突破，</view><view>从这里开始。</view></view>
+    <view class="login-subtitle">欢迎来到 ONE 泰拳格斗馆</view>
   </view>
 
   <view class="card login-card">
-    <view class="section-title">WECHAT LOGIN</view>
+    <view class="section-heading">登录，开启你的训练</view>
     <view wx:if="{{checkingSession}}" class="login-tip">正在检查登录状态...</view>
-    <view wx:else class="login-tip">认证完成后将自动同步你的门店、角色与用户昵称。</view>
+    <view wx:else class="login-tip">用微信绑定手机号，查看权益和训练安排。</view>
     <button
       class="primary-button login-button"
       open-type="getPhoneNumber"
@@ -18,9 +19,10 @@
     >
       {{submitting ? '登录中...' : '手机号一键登录'}}
     </button>
-    <view wx:if="{{loginError}}" class="login-error">{{loginError}}</view>
+    <view wx:if="{{loginError}}" class="login-error">{{loginError}}<view class="inline-link" bindtap="tryRestoreSession">重新检查连接</view></view>
     <view class="card-desc">点击即表示同意通过微信授权手机号完成登录绑定。</view>
   </view>
+  <button class="login-browse" bindtap="goBrowse">先逛逛，看看训练场次 →</button>
 
   <view wx:if="{{needPrivacyAuthorization}}" class="privacy-mask">
     <view class="privacy-panel">

@@ -1,31 +1,10 @@
-const {
-  ROLE_LIST,
-  STORE_LIST,
-  ROLE_USER_MAP,
-  USER_PROFILE,
-  MEMBER_LIST,
-  ASSET_PACKAGE_OPTIONS,
-  BANNERS,
-  PRICE_PACKAGES,
-  GALLERY_LIST,
-  COACH_LIST,
-  BOOKING_DATES,
-  SCHEDULE_LIST,
-  MY_BOOKINGS,
-  CLASS_ROSTER_MAP,
-  COACH_SCHEDULE_BOARD,
-  INITIAL_ASSETS,
-  TODAY_CLASSES,
-  COACH_QUICK_ACTIONS,
-  AUDIT_OVERVIEW,
-  AUDIT_LOGS,
-  TRAINING_STATS,
-} = require('./utils/mock-data')
+const { ROLE_LIST, STORE_LIST, GALLERY_LIST, COACH_QUICK_ACTIONS } = require('./utils/app-config')
 const businessApi = require('./utils/business-api')
 
 const AUTH_REFRESH_INTERVAL = 60000
 const VIEW_CACHE_TTL = 5 * 60 * 1000
 const SELECTED_STORE_STORAGE_KEY = 'selectedStoreId'
+const SESSION_DISMISSED_STORAGE_KEY = 'one.sessionDismissed'
 
 function getSelectedStoreStorageKey(userId) {
   return userId ? SELECTED_STORE_STORAGE_KEY + ':' + userId : SELECTED_STORE_STORAGE_KEY
@@ -39,25 +18,8 @@ function formatMoney(amount) {
   return Number(amount || 0).toFixed(2)
 }
 
-function addDays(days) {
-  const date = new Date()
-  date.setDate(date.getDate() + days)
-  return date.toISOString().slice(0, 10)
-}
-
-// 取两个 YYYY-MM-DD 字符串中较晚的一个
-function laterDate(a, b) {
-  if (!a) return b
-  if (!b) return a
-  return a > b ? a : b
-}
-
 function getRoleMeta(role) {
   return ROLE_LIST.find((item) => item.value === role) || ROLE_LIST[0]
-}
-
-function getRoleUserProfile(role) {
-  return deepClone(ROLE_USER_MAP[role] || USER_PROFILE)
 }
 
 function buildGuestUserProfile() {
@@ -85,10 +47,6 @@ function normalizeCloudUserProfile(profile) {
   }
 }
 
-function getAssetKeyByType(type) {
-  return type === 'group' ? 'groupCount' : 'privateCount'
-}
-
 function getAssetLabelByType(type) {
   return type === 'group' ? '团体' : '专属'
 }
@@ -113,30 +71,31 @@ App({
       env: 'cloud1-d2g8aw97349a6c619',
       role: 'client',
       selectedStoreId: initialStoreId,
-      selectedCoachClassId: TODAY_CLASSES[0].id,
+      selectedCoachClassId: '',
       stores: deepClone(STORE_LIST),
       userProfile: buildGuestUserProfile(),
       isAuthenticated: false,
-      authMode: 'demo',
+      sessionDismissed: Boolean(wx.getStorageSync(SESSION_DISMISSED_STORAGE_KEY)),
+      authMode: 'cloud',
       lastAuthSyncAt: 0,
       viewCache: {},
-      members: deepClone(MEMBER_LIST),
-      packageOptions: deepClone(ASSET_PACKAGE_OPTIONS),
-      banners: deepClone(BANNERS),
-      packages: deepClone(PRICE_PACKAGES),
+      members: [],
+      packageOptions: [],
+      banners: [],
+      packages: [],
       galleryList: deepClone(GALLERY_LIST),
-      coaches: deepClone(COACH_LIST),
-      bookingDates: deepClone(BOOKING_DATES),
-      schedules: deepClone(SCHEDULE_LIST),
-      myBookings: deepClone(MY_BOOKINGS),
-      classRosterMap: deepClone(CLASS_ROSTER_MAP),
-      coachScheduleBoard: deepClone(COACH_SCHEDULE_BOARD),
-      assets: deepClone(INITIAL_ASSETS),
-      todayClasses: deepClone(TODAY_CLASSES),
+      coaches: [],
+      bookingDates: [],
+      schedules: [],
+      myBookings: [],
+      classRosterMap: {},
+      coachScheduleBoard: [],
+      assets: { privateCount: 0, groupCount: 0, privateExpiry: '', groupExpiry: '' },
+      todayClasses: [],
       coachQuickActions: deepClone(COACH_QUICK_ACTIONS),
-      auditOverview: deepClone(AUDIT_OVERVIEW),
-      auditLogs: deepClone(AUDIT_LOGS),
-      trainingStats: deepClone(TRAINING_STATS),
+      auditOverview: { addedPrivateLessons: 0, addedGroupLessons: 0, incomeAmount: 0, writeOffCount: 0 },
+      auditLogs: [],
+      trainingStats: { monthLessons: 0, streakDays: 0, totalLessons: 0 },
     }
 
     if (wx.cloud && this.globalData.env) {
@@ -148,7 +107,7 @@ App({
   },
 
   getCurrentStore() {
-    return this.globalData.stores.find((item) => item.id === this.globalData.selectedStoreId) || this.globalData.stores[0]
+    return this.globalData.stores.find((item) => item.id === this.globalData.selectedStoreId) || this.globalData.stores[0] || { id: '', name: '暂无营业门店', address: '' }
   },
 
   getMemberById(memberId) {
@@ -207,25 +166,10 @@ App({
       userProfile: deepClone(this.globalData.userProfile),
       tabItems: this.getTabItems(),
       roleList: this.globalData.isAuthenticated ? [deepClone(roleMeta)] : deepClone(ROLE_LIST),
-      allowRoleSwitch: !this.globalData.isAuthenticated,
+      allowRoleSwitch: false,
       isAuthenticated: this.globalData.isAuthenticated,
       authMode: this.globalData.authMode,
     }
-  },
-
-  switchRole(role) {
-    if (this.globalData.isAuthenticated) {
-      return this.getRuntimeSnapshot()
-    }
-    const roleMeta = getRoleMeta(role)
-    const nextProfile = getRoleUserProfile(roleMeta.value)
-    this.globalData.role = roleMeta.value
-    this.globalData.userProfile = nextProfile
-    if (nextProfile.homeStoreId) {
-      this.globalData.selectedStoreId = nextProfile.homeStoreId
-    }
-    this.syncCurrentUserAssetsFromMember()
-    return this.getRuntimeSnapshot()
   },
 
   switchStore(storeId) {
@@ -243,6 +187,7 @@ App({
   },
 
   applyCloudSession(sessionData) {
+    this._authVersion = (this._authVersion || 0) + 1
     const normalizedProfile = normalizeCloudUserProfile(sessionData && sessionData.userProfile)
     const normalizedStores = sessionData && sessionData.stores && sessionData.stores.length
       ? deepClone(sessionData.stores)
@@ -257,6 +202,8 @@ App({
       return this.getRuntimeSnapshot()
     }
 
+    this.globalData.sessionDismissed = false
+    wx.setStorageSync(SESSION_DISMISSED_STORAGE_KEY, false)
     this.globalData.isAuthenticated = true
     this.globalData.authMode = 'cloud'
     this.globalData.role = normalizedProfile.role || 'client'
@@ -282,13 +229,14 @@ App({
   },
 
   resetGuestSession() {
+    this._authVersion = (this._authVersion || 0) + 1
     const previousStoreId = this.globalData.selectedStoreId
     const guestStores = this.globalData.stores && this.globalData.stores.length
       ? this.globalData.stores
       : STORE_LIST
     const hasPreviousStore = guestStores.some((item) => item.id === previousStoreId)
     this.globalData.isAuthenticated = false
-    this.globalData.authMode = 'demo'
+    this.globalData.authMode = 'cloud'
     this.globalData.role = 'client'
     this.globalData.userProfile = buildGuestUserProfile()
     this.globalData.selectedStoreId = hasPreviousStore
@@ -297,6 +245,23 @@ App({
     this.globalData.lastAuthSyncAt = Date.now()
     this.globalData.viewCache = {}
     this.syncCurrentUserAssetsFromMember()
+    return this.getRuntimeSnapshot()
+  },
+
+  completeLogout() {
+    this.resetGuestSession()
+    this.globalData.sessionDismissed = true
+    wx.setStorageSync(SESSION_DISMISSED_STORAGE_KEY, true)
+    this.globalData.selectedCoachClassId = ''
+    this.globalData.members = []
+    this.globalData.myBookings = []
+    this.globalData.classRosterMap = {}
+    this.globalData.coachScheduleBoard = []
+    this.globalData.todayClasses = []
+    this.globalData.auditLogs = []
+    this.globalData.auditOverview = { addedPrivateLessons: 0, addedGroupLessons: 0, incomeAmount: 0, writeOffCount: 0 }
+    this.globalData.trainingStats = { monthLessons: 0, streakDays: 0, totalLessons: 0 }
+    this.globalData.assets = { privateCount: 0, groupCount: 0, privateExpiry: '', groupExpiry: '' }
     return this.getRuntimeSnapshot()
   },
 
@@ -340,6 +305,7 @@ App({
   },
 
   async refreshUserSession(options = {}) {
+    if (this.globalData.sessionDismissed) return false
     const force = Boolean(options.force)
     if (this._authRefreshingPromise) {
       return this._authRefreshingPromise
@@ -349,8 +315,10 @@ App({
     }
 
     this._authRefreshingPromise = (async () => {
+      const authVersion = this._authVersion || 0
       try {
         const sessionData = await businessApi.getCurrentUserSession()
+        if ((this._authVersion || 0) !== authVersion) return this.globalData.isAuthenticated
         if (sessionData && sessionData.loggedIn && sessionData.userProfile) {
           this.applyCloudSession(sessionData)
           return true
@@ -427,7 +395,7 @@ App({
       {
         type: 'group',
         coachId: 'all',
-        dateKey: this.globalData.bookingDates[0].key,
+        dateKey: (this.globalData.bookingDates[0] || {}).key || '',
       },
       filters || {}
     )
@@ -466,186 +434,6 @@ App({
       assets: deepClone(this.globalData.assets),
       currentStore: state.currentStore,
     }
-  },
-
-  createBooking(scheduleId, options = {}) {
-    const targetSchedule = this.globalData.schedules.find((item) => item.id === scheduleId)
-    if (!targetSchedule) {
-      return { ok: false, message: '排课不存在' }
-    }
-
-    const assetKey = getAssetKeyByType(targetSchedule.type)
-    const assetLabel = getAssetLabelByType(targetSchedule.type)
-    const hasBooking = this.globalData.myBookings.some((item) => item.scheduleId === scheduleId && item.status === '待到店')
-
-    if (hasBooking) {
-      return { ok: false, message: '该场次已预约，无需重复提交' }
-    }
-
-    if (this.globalData.assets[assetKey] <= 0) {
-      return { ok: false, message: assetLabel + '权益不足，无法预约' }
-    }
-
-    if (targetSchedule.bookedCount >= targetSchedule.capacity) {
-      return { ok: false, message: '当前时段已满员，请选择其他时间段' }
-    }
-
-    // 这里用内存态模拟生产环境中的“使用权益 + 占位”原子事务，后续接云函数时应替换为服务端事务。
-    targetSchedule.bookedCount += 1
-    this.globalData.assets[assetKey] -= 1
-    const currentUser = this.getCurrentUserMember()
-    if (currentUser) {
-      currentUser[assetKey] = this.globalData.assets[assetKey]
-    }
-
-    const bookingRecord = {
-      id: options.bookingId || ('booking_' + Date.now()),
-      scheduleId: targetSchedule.id,
-      userId: this.globalData.userProfile.id,
-      userName: this.globalData.userProfile.nickname,
-      title: targetSchedule.title,
-      type: targetSchedule.type,
-      dateLabel: targetSchedule.dateLabel,
-      timeRange: targetSchedule.timeRange,
-      status: '待到店',
-    }
-    this.globalData.myBookings.unshift(bookingRecord)
-
-    if (!this.globalData.classRosterMap[targetSchedule.id]) {
-      this.globalData.classRosterMap[targetSchedule.id] = []
-    }
-    this.globalData.classRosterMap[targetSchedule.id].push({
-      bookingId: bookingRecord.id,
-      userId: bookingRecord.userId,
-      userName: bookingRecord.userName,
-      phone: this.globalData.userProfile.phone,
-      status: '待核销',
-    })
-
-    return { ok: true, message: '预约成功，已使用 1 次' + assetLabel + '权益' }
-  },
-
-  applyCloudBookingSuccess(scheduleId, options = {}) {
-    const targetSchedule = this.globalData.schedules.find((item) => item.id === scheduleId)
-    if (!targetSchedule) {
-      return { ok: true, message: '预约成功' }
-    }
-
-    const assetKey = getAssetKeyByType(targetSchedule.type)
-    const assetLabel = getAssetLabelByType(targetSchedule.type)
-    const userId = this.globalData.userProfile.id
-    const existingBooking = this.globalData.myBookings.find(
-      (item) => item.userId === userId && item.scheduleId === scheduleId && item.status === '待到店'
-    )
-    const bookingId = options.bookingId || (existingBooking ? existingBooking.id : ('booking_' + Date.now()))
-
-    if (!existingBooking) {
-      const bookingRecord = {
-        id: bookingId,
-        scheduleId: targetSchedule.id,
-        userId,
-        userName: this.globalData.userProfile.nickname,
-        title: targetSchedule.title,
-        type: targetSchedule.type,
-        dateLabel: targetSchedule.dateLabel,
-        timeRange: targetSchedule.timeRange,
-        status: '待到店',
-      }
-      this.globalData.myBookings.unshift(bookingRecord)
-    }
-
-    if (!this.globalData.classRosterMap[targetSchedule.id]) {
-      this.globalData.classRosterMap[targetSchedule.id] = []
-    }
-    const existsInRoster = this.globalData.classRosterMap[targetSchedule.id].some((item) => item.bookingId === bookingId)
-    if (!existsInRoster) {
-      this.globalData.classRosterMap[targetSchedule.id].push({
-        bookingId,
-        userId,
-        userName: this.globalData.userProfile.nickname,
-        phone: this.globalData.userProfile.phone,
-        status: '待核销',
-      })
-    }
-
-    const currentUser = this.getCurrentUserMember()
-    const shouldDecreaseAsset = !existingBooking && this.globalData.assets[assetKey] > 0
-    if (shouldDecreaseAsset) {
-      this.globalData.assets[assetKey] -= 1
-      if (currentUser) {
-        currentUser[assetKey] = this.globalData.assets[assetKey]
-      }
-    }
-
-    if (!existingBooking && targetSchedule.bookedCount < targetSchedule.capacity) {
-      targetSchedule.bookedCount += 1
-    }
-
-    return { ok: true, message: '预约成功，已使用 1 次' + assetLabel + '权益' }
-  },
-
-  cancelBooking(bookingId) {
-    const booking = this.globalData.myBookings.find((item) => item.id === bookingId)
-    if (!booking || booking.status !== '待到店') {
-      return { ok: false, message: '当前预约状态不可取消' }
-    }
-
-    const schedule = this.globalData.schedules.find((item) => item.id === booking.scheduleId)
-    const assetKey = getAssetKeyByType(booking.type)
-    const assetLabel = getAssetLabelByType(booking.type)
-
-    booking.status = '已取消'
-    this.globalData.assets[assetKey] += 1
-    const currentUser = this.getCurrentUserMember()
-    if (currentUser) {
-      currentUser[assetKey] = this.globalData.assets[assetKey]
-    }
-
-    if (schedule && schedule.bookedCount > 0) {
-      schedule.bookedCount -= 1
-    }
-
-    const roster = this.globalData.classRosterMap[booking.scheduleId] || []
-    const targetRoster = roster.find((item) => item.bookingId === bookingId)
-    if (targetRoster) {
-      targetRoster.status = '已取消'
-    }
-
-    return { ok: true, message: '取消成功，已退回 1 次' + assetLabel + '权益' }
-  },
-
-  applyCloudCancelSuccess(bookingId) {
-    const booking = this.globalData.myBookings.find((item) => item.id === bookingId)
-    if (!booking) {
-      return { ok: true, message: '取消成功' }
-    }
-
-    if (booking.status === '已取消') {
-      return { ok: true, message: '取消成功' }
-    }
-
-    const schedule = this.globalData.schedules.find((item) => item.id === booking.scheduleId)
-    const assetKey = getAssetKeyByType(booking.type)
-    const assetLabel = getAssetLabelByType(booking.type)
-    booking.status = '已取消'
-    this.globalData.assets[assetKey] += 1
-
-    const currentUser = this.getCurrentUserMember()
-    if (currentUser) {
-      currentUser[assetKey] = this.globalData.assets[assetKey]
-    }
-
-    if (schedule && schedule.bookedCount > 0) {
-      schedule.bookedCount -= 1
-    }
-
-    const roster = this.globalData.classRosterMap[booking.scheduleId] || []
-    const targetRoster = roster.find((item) => item.bookingId === bookingId)
-    if (targetRoster) {
-      targetRoster.status = '已取消'
-    }
-
-    return { ok: true, message: '取消成功，已退回 1 次' + assetLabel + '权益' }
   },
 
   getProfilePageData() {
@@ -687,134 +475,6 @@ App({
     }
   },
 
-  submitDistribution(payload) {
-    let member = this.getMemberById(payload.memberId)
-    let packageOption = this.globalData.packageOptions.find((item) => item.id === payload.packageId)
-    const memberSnapshot = payload.memberSnapshot || {}
-    const packageSnapshot = payload.packageSnapshot || {}
-
-    if (!member && memberSnapshot.id) {
-      member = {
-        id: memberSnapshot.id,
-        nickname: memberSnapshot.nickname || memberSnapshot.name || '未命名学员',
-        phone: memberSnapshot.phone || '',
-        privateCount: Number(memberSnapshot.privateCount || 0),
-        groupCount: Number(memberSnapshot.groupCount || 0),
-        privateExpiry: memberSnapshot.privateExpiry || '',
-        groupExpiry: memberSnapshot.groupExpiry || '',
-      }
-      this.globalData.members.unshift(member)
-    }
-
-    if (!packageOption && packageSnapshot.id) {
-      packageOption = {
-        id: packageSnapshot.id,
-        name: packageSnapshot.name || '未命名套餐',
-        type: packageSnapshot.type || 'private',
-        lessons: Number(packageSnapshot.lessons || 0),
-        price: Number(packageSnapshot.price || 0),
-        validDays: Number(packageSnapshot.validDays || 0),
-      }
-      this.globalData.packageOptions.unshift(packageOption)
-    }
-
-    if (!member || !packageOption) {
-      return { ok: false, message: '学员或套餐不存在' }
-    }
-
-    const assetKey = getAssetKeyByType(packageOption.type)
-    const expiryKey = packageOption.type === 'group' ? 'groupExpiry' : 'privateExpiry'
-    member[assetKey] += Number(packageOption.lessons)
-    // 取新到期日与现有到期日中较晚的一个，保护用户现有权益
-    member[expiryKey] = laterDate(member[expiryKey] || '', payload.expiryDate || '')
-
-    if (member.id === this.globalData.userProfile.id) {
-      this.globalData.assets[assetKey] = member[assetKey]
-      this.globalData.assets[expiryKey] = member[expiryKey]
-    }
-
-    if (packageOption.type === 'private') {
-      this.globalData.auditOverview.addedPrivateLessons += Number(packageOption.lessons)
-    } else {
-      this.globalData.auditOverview.addedGroupLessons += Number(packageOption.lessons)
-    }
-    this.globalData.auditOverview.incomeAmount += Number(payload.amount)
-
-    // 派课必须留审计日志，后续接云数据库时这里会落到独立流水集合。
-    this.globalData.auditLogs.unshift({
-      id: 'log_' + Date.now(),
-      operatorName: this.globalData.userProfile.nickname || '操作人',
-      packageName: packageOption.name,
-      targetName: member.nickname,
-      amount: Number(payload.amount),
-      payType: payload.payType,
-      remark: payload.remark || '线下录入',
-      time: new Date().toTimeString().slice(0, 8),
-    })
-
-    return {
-      ok: true,
-      message: '已为' + member.nickname + '派发 ' + packageOption.lessons + ' 节' + getAssetLabelByType(packageOption.type),
-    }
-  },
-
-  getClassCheckinPageData(classId) {
-    const targetClassId = classId || this.globalData.selectedCoachClassId
-    this.globalData.selectedCoachClassId = targetClassId
-    const schedule = this.globalData.schedules.find((item) => item.id === targetClassId)
-    const roster = this.globalData.classRosterMap[targetClassId] || []
-
-    return {
-      classInfo: buildClassSummary(schedule || this.globalData.todayClasses[0], roster),
-      roster: deepClone(roster),
-      currentStore: this.getCurrentStore(),
-    }
-  },
-
-  updateCheckinStatus(classId, bookingId, nextStatus) {
-    const roster = this.globalData.classRosterMap[classId] || []
-    const target = roster.find((item) => item.bookingId === bookingId)
-    if (!target) {
-      return { ok: false, message: '名单记录不存在' }
-    }
-
-    if (target.status === nextStatus) {
-      return { ok: false, message: '当前状态无需重复操作' }
-    }
-
-    target.status = nextStatus
-
-    const myBooking = this.globalData.myBookings.find((item) => item.id === bookingId)
-    if (myBooking) {
-      myBooking.status = nextStatus === '已核销' ? '已完成' : '已缺席'
-    }
-
-    if (nextStatus === '已核销') {
-      this.globalData.auditOverview.writeOffCount += 1
-    }
-
-    return { ok: true, message: nextStatus === '已核销' ? '核销完成' : '已标记缺席' }
-  },
-
-  applyCloudCheckinStatus(classId, bookingId, nextStatus) {
-    const roster = this.globalData.classRosterMap[classId] || []
-    const target = roster.find((item) => item.bookingId === bookingId)
-    if (target) {
-      target.status = nextStatus
-    }
-
-    const myBooking = this.globalData.myBookings.find((item) => item.id === bookingId)
-    if (myBooking) {
-      myBooking.status = nextStatus === '已核销' ? '已完成' : '已缺席'
-    }
-
-    if (nextStatus === '已核销') {
-      this.globalData.auditOverview.writeOffCount += 1
-    }
-
-    return { ok: true, message: nextStatus === '已核销' ? '核销完成' : '已标记缺席' }
-  },
-
   getScheduleManagePageData(storeId) {
     const targetStoreId = storeId || this.globalData.selectedStoreId
     const currentStore = this.globalData.stores.find((item) => item.id === targetStoreId) || this.getCurrentStore()
@@ -823,27 +483,6 @@ App({
       currentStore: deepClone(currentStore),
       stores: deepClone(this.globalData.stores),
     }
-  },
-
-  createCoachSchedule(payload) {
-    const targetStore = this.globalData.stores.find((item) => item.id === payload.storeId) || this.getCurrentStore()
-    const storeName = payload.storeName || (targetStore ? targetStore.name : '') || payload.venue || ''
-    const plan = {
-      id: payload.planId || ('plan_' + Date.now()),
-      storeId: payload.storeId || (targetStore ? targetStore.id : ''),
-      storeName,
-      weekLabel: payload.weekLabel,
-      dateLabel: payload.dateLabel,
-      timeRange: payload.timeRange,
-      title: payload.title,
-      type: payload.type,
-      venue: storeName,
-      repeatWeekly: Boolean(payload.repeatWeekly),
-      status: '已发布',
-    }
-    this.globalData.coachScheduleBoard.unshift(plan)
-
-    return { ok: true, message: '排课已新增，可继续补充云端落库' }
   },
 
   getAdminPageData() {

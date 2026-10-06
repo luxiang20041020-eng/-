@@ -3,8 +3,8 @@
   gap: 22rpx;
   align-items: flex-start;
   padding: 28rpx;
-  border-color: #ffe1e8;
-  background: #fffafa;
+  border-color: #ecd8cf;
+  background: #fbfaf6;
 }
 
 .profile-hero > .avatar-square {
@@ -31,8 +31,8 @@
   min-width: 0;
   font-size: 36rpx;
   line-height: 1.25;
-  color: #07142f;
-  font-weight: 900;
+  color: #20251f;
+  font-weight: 600;
   word-break: break-word;
 }
 
@@ -40,10 +40,10 @@
   flex-shrink: 0;
   padding: 6rpx 12rpx;
   border-radius: 999rpx;
-  background: #ff1f4f;
+  background: #c7452d;
   color: #ffffff;
-  font-size: 18rpx;
-  font-weight: 900;
+  font-size: 22rpx;
+  font-weight: 600;
 }
 
 .profile-edit-button {
@@ -56,13 +56,13 @@
   min-height: 42rpx;
   margin: 0;
   padding: 0;
-  border: 1rpx solid #ffd2dc;
+  border: 1rpx solid #ecd8cf;
   border-radius: 999rpx;
-  background: #fff7f9;
-  color: #ff1f4f;
-  font-size: 18rpx;
+  background: #fcf2ed;
+  color: #c7452d;
+  font-size: 22rpx;
   line-height: 1;
-  font-weight: 900;
+  font-weight: 600;
   letter-spacing: 1rpx;
 }
 
@@ -92,20 +92,20 @@
 .profile-fact-label {
   flex: 0 0 96rpx;
   width: 96rpx;
-  color: #9aa3b2;
+  color: #979b90;
 }
 
 .profile-fact-value {
   flex: 1;
   min-width: 0;
-  color: #5f697c;
-  font-weight: 800;
+  color: #686f61;
+  font-weight: 600;
   word-break: break-word;
 }
 
 .profile-level {
   margin-top: 12rpx;
-  color: #7d8798;
+  color: #7c8076;
   font-size: 21rpx;
   line-height: 1.45;
   font-weight: 700;
@@ -117,29 +117,29 @@
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 30;
+  z-index: 230;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 48rpx 28rpx;
-  background: rgba(7, 20, 47, 0.45);
+  background: rgba(32, 37, 31, 0.45);
 }
 
 .nickname-panel {
   width: 100%;
   max-width: 660rpx;
   padding: 34rpx 32rpx 30rpx;
-  border: 1rpx solid #ffe1e8;
-  border-radius: 34rpx;
+  border: 1rpx solid #ecd8cf;
+  border-radius: 16rpx;
   background: #ffffff;
-  box-shadow: 0 30rpx 80rpx rgba(8, 20, 47, 0.18);
+  box-shadow: 0 30rpx 80rpx rgba(32, 37, 31, 0.18);
 }
 
 .nickname-title {
-  color: #07142f;
+  color: #20251f;
   font-size: 34rpx;
   line-height: 1.35;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .nickname-input {
@@ -147,20 +147,20 @@
   height: 92rpx;
   margin-top: 26rpx;
   padding: 0 24rpx;
-  border: 1rpx solid #e7ebf2;
-  border-radius: 26rpx;
-  background: #f8f9fc;
-  color: #07142f;
+  border: 1rpx solid #e1e3d9;
+  border-radius: 16rpx;
+  background: #f7f7f2;
+  color: #20251f;
   font-size: 28rpx;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .nickname-error {
   margin-top: 16rpx;
-  color: #ff1f4f;
+  color: #c7452d;
   font-size: 24rpx;
   line-height: 1.5;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .nickname-actions {
@@ -178,22 +178,22 @@
   min-height: 86rpx;
   margin: 0;
   padding: 0 18rpx;
-  border-radius: 28rpx;
+  border-radius: 16rpx;
   font-size: 26rpx;
   line-height: 1.2;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .nickname-cancel {
-  border: 1rpx solid #e7ebf2;
-  background: #f8f9fc;
-  color: #07142f;
+  border: 1rpx solid #e1e3d9;
+  background: #f7f7f2;
+  color: #20251f;
 }
 
 .nickname-confirm {
-  background: #ff1f4f;
+  background: #c7452d;
   color: #ffffff;
-  box-shadow: 0 18rpx 36rpx rgba(255, 31, 79, 0.22);
+  box-shadow: 0 18rpx 36rpx rgba(199, 69, 45, 0.22);
 }
 
 .nickname-cancel::after,
@@ -203,8 +203,8 @@
 
 .qr-frame {
   margin-top: 16rpx;
-  border-radius: 32rpx;
-  background: #f8f9fc;
+  border-radius: 16rpx;
+  background: #f7f7f2;
   overflow: hidden;
 }
 
@@ -218,11 +218,11 @@
   justify-content: center;
   min-height: 420rpx;
   padding: 24rpx;
-  border: 2rpx solid #ff1f4f;
-  border-radius: 28rpx;
+  border: 2rpx solid #c7452d;
+  border-radius: 16rpx;
   background:
-    linear-gradient(90deg, rgba(7, 20, 47, 0.04) 50%, transparent 50%),
-    linear-gradient(rgba(7, 20, 47, 0.04) 50%, transparent 50%),
+    linear-gradient(90deg, rgba(32, 37, 31, 0.04) 50%, transparent 50%),
+    linear-gradient(rgba(32, 37, 31, 0.04) 50%, transparent 50%),
     #ffffff;
   background-size: 20rpx 20rpx;
 }
@@ -238,8 +238,8 @@
   word-break: break-all;
   font-size: 24rpx;
   line-height: 1.8;
-  color: #07142f;
-  font-weight: 900;
+  color: #20251f;
+  font-weight: 600;
 }
 
 .qr-code-text {
@@ -248,15 +248,15 @@
   word-break: break-all;
   font-size: 20rpx;
   line-height: 1.7;
-  color: #7d8798;
+  color: #7c8076;
 }
 
 .qr-error-text {
   margin: 0 26rpx 12rpx;
   font-size: 20rpx;
   line-height: 1.6;
-  color: #ff1f4f;
-  font-weight: 800;
+  color: #c7452d;
+  font-weight: 600;
 }
 
 .booking-item {
@@ -264,8 +264,8 @@
   gap: 18rpx;
   margin-top: 18rpx;
   padding: 18rpx;
-  border: 1rpx solid #eef1f6;
-  border-radius: 28rpx;
+  border: 1rpx solid #e9e9e1;
+  border-radius: 16rpx;
   background: #ffffff;
 }
 
@@ -277,16 +277,16 @@
 .booking-date-day {
   font-size: 50rpx;
   line-height: 1;
-  color: #07142f;
-  font-weight: 900;
+  color: #20251f;
+  font-weight: 600;
 }
 
 .booking-date-month {
   margin-top: 8rpx;
-  font-size: 18rpx;
+  font-size: 22rpx;
   letter-spacing: 2rpx;
-  color: #7d8798;
-  font-weight: 900;
+  color: #7c8076;
+  font-weight: 600;
 }
 
 .booking-main-block {
@@ -299,8 +299,8 @@
   padding-right: 14rpx;
   font-size: 29rpx;
   line-height: 1.35;
-  color: #07142f;
-  font-weight: 900;
+  color: #20251f;
+  font-weight: 600;
 }
 
 .booking-cancel-btn {
@@ -322,12 +322,12 @@
 .metric-expiry {
   margin-top: 8rpx;
   font-size: 21rpx;
-  color: #ff1f4f;
-  font-weight: 800;
+  color: #c7452d;
+  font-weight: 600;
 }
 
 .metric-expiry-none {
-  color: #7d8798;
+  color: #7c8076;
 }
 
 .login-guide-card {
@@ -342,14 +342,20 @@
   width: 100%;
   height: 88rpx;
   line-height: 88rpx;
-  border: 1rpx solid #ffd2dc;
-  border-radius: 28rpx;
-  background: #fff1f5;
-  color: #ff1f4f;
+  border: 1rpx solid #ecd8cf;
+  border-radius: 16rpx;
+  background: #f9eae4;
+  color: #c7452d;
   font-size: 28rpx;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .logout-button::after {
   border: none;
 }
+
+.profile-name-row { flex-wrap: wrap; }
+.profile-edit-button { min-height: 56rpx; font-size: 22rpx; }
+.qr-code-box { background: #ffffff; border: 1rpx solid #e1e3d9; }
+.profile-stats-grid .stats-note { font-size: 21rpx; color: #73786e; line-height: 1.5; }
+.nickname-mask { z-index: 230; }

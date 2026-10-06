@@ -1,4 +1,5 @@
 <view class="page-shell">
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header">
     <view>
       <view class="page-title">排课管理</view>
@@ -16,16 +17,21 @@
       </view>
     </view>
     <view class="field-block">
-      <view class="field-label">自动日期</view>
-      <view class="readonly-value">{{dateLabel}} · {{weekLabel}}</view>
+      <view class="field-label">训练日期</view>
+      <picker mode="date" value="{{fullDate}}" start="{{minDate}}" bindchange="onDateChange">
+        <view class="readonly-value">{{fullDate}} · {{weekLabel}} <text class="inline-link">更改</text></view>
+      </picker>
     </view>
     <view class="field-block">
       <view class="field-label">时间段</view>
-      <input class="form-input" data-field="timeRange" value="{{timeRange}}" bindinput="onInput" />
+      <view class="time-picker-row">
+        <picker mode="time" value="{{startTime}}" data-field="startTime" bindchange="onTimeChange"><view class="readonly-value">{{startTime}} 开始</view></picker>
+        <picker mode="time" value="{{endTime}}" data-field="endTime" bindchange="onTimeChange"><view class="readonly-value">{{endTime}} 结束</view></picker>
+      </view>
     </view>
     <view class="field-block">
       <view class="field-label">训练主题</view>
-      <input class="form-input" data-field="title" value="{{title}}" bindinput="onInput" placeholder="如：泰拳基础步法" />
+      <input class="form-input" data-field="title" value="{{title}}" maxlength="60" bindinput="onInput" placeholder="如：泰拳基础步法" />
     </view>
     <view class="field-block">
       <view class="field-label">训练类型</view>
@@ -46,16 +52,17 @@
     </view>
     <view class="field-block">
       <view class="row-between">
-        <view class="field-label">每周固定时间排课</view>
-        <switch checked="{{repeatWeekly}}" color="#ff1f4f" bindchange="onRepeatWeeklyChange" />
+        <view class="field-label">每周重复，连续 4 周</view>
+        <switch checked="{{repeatWeekly}}" color="#c7452d" bindchange="onRepeatWeeklyChange" />
       </view>
-      <view class="card-desc">开启后将按所选星期与当前时间段生成固定周排课规则。</view>
+      <view class="card-desc">开启后将一次发布所选日期及随后 3 周的同一时段。</view>
     </view>
-    <button class="primary-button" bindtap="onSubmit">确认新增排课</button>
+    <button class="primary-button" loading="{{submitting}}" disabled="{{submitting || pageBusy || pageError}}" bindtap="onSubmit">确认新增排课</button>
   </view>
 
   <view class="card">
     <view class="card-title">近期排课</view>
+    <view wx:if="{{!pageData.plans.length}}" class="empty-state"><view class="empty-title">尚未发布排课</view><view>选择日期与时段，发布第一场训练。</view></view>
     <view wx:for="{{pageData.plans}}" wx:key="id" class="plan-item">
       <view class="row-between">
         <view class="schedule-title">{{item.title}}</view>

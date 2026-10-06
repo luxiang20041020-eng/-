@@ -1,14 +1,14 @@
 <view class="page-shell">
-  <view wx:if="{{pageLoading}}" class="page-loading">LOADING WORKSPACE...</view>
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
 
   <view class="page-header">
-    <view class="eyebrow">WORKSPACE · 派课 · 核销 · 排课</view>
-    <view class="page-title">教练工作台</view>
+    <view class="eyebrow">今日训练运营</view>
+    <view class="page-title">训练工作台</view>
   </view>
 
   <view wx:if="{{!hasPermission}}" class="card">
-    <view class="section-title">ACCESS DENIED</view>
-    <view class="card-desc">当前身份不是教练，此页面仅 Role=2 可见。请去“我的”页切换角色后再验收。</view>
+    <view class="section-title">访问权限提示</view>
+    <view class="card-desc">训练工作台仅对场馆人员开放，请联系管理员确认账号权限。</view>
   </view>
 
   <block wx:else>
@@ -16,14 +16,14 @@
       <view class="avatar-square">{{avatarText}}</view>
       <view class="coach-hero-main">
         <view class="coach-hero-name">{{runtime.userProfile.nickname}} 的工作台</view>
-        <view class="card-desc">今日 {{pageData.todayClasses.length}} 节课 · {{pageData.currentStore.name}} · Role 2</view>
+        <view class="card-desc">今日 {{pageData.todayClasses.length}} 节课 · {{pageData.currentStore.name}}</view>
       </view>
     </view>
 
     <view class="card">
       <view class="stats-grid coach-stat-grid">
         <view class="stats-item">
-          <view class="stats-value">{{pageData.todayClasses.length * 6 || 0}}</view>
+          <view class="stats-value">{{pageData.summary.bookedCount || 0}}</view>
           <view class="stats-note">今日预约</view>
         </view>
         <view class="stats-item">
@@ -31,14 +31,14 @@
           <view class="stats-note">日排班</view>
         </view>
         <view class="stats-item">
-          <view class="stats-value">{{pageData.todayClasses.length ? pageData.todayClasses[0].checkedCount + pageData.todayClasses[0].absentCount : 0}}</view>
+          <view class="stats-value">{{pageData.summary.pendingCount || 0}}</view>
           <view class="stats-note">待处理</view>
         </view>
       </view>
     </view>
 
     <view class="card">
-      <view class="section-title">QUICK ACTIONS · 核心操作</view>
+      <view class="section-title">常用操作</view>
       <view class="workspace-action-grid">
         <view
           wx:for="{{pageData.quickActions}}"
@@ -47,7 +47,7 @@
           data-action-id="{{item.id}}"
           bindtap="onTapAction"
         >
-          <view class="workspace-action-top">{{index === 0 ? 'SCAN' : index === 1 ? 'NEW' : 'ENTRY'}}</view>
+          <view class="workspace-action-top">0{{index + 1}}</view>
           <view class="workspace-action-title">{{item.title}}</view>
           <view class="workspace-action-desc">{{item.desc}}</view>
         </view>
@@ -56,10 +56,10 @@
 
     <view class="card">
       <view class="headline-row">
-        <view class="section-title">TODAY · 今日训练</view>
-        <view class="card-desc">{{pageData.todayClasses.length}} CLASSES</view>
+        <view class="section-title">今日训练</view>
+        <view class="card-desc">{{pageData.todayClasses.length}} 节课</view>
       </view>
-      <view wx:for="{{pageData.todayClasses}}" wx:key="id" class="today-class-card" data-class-id="{{item.id}}" bindtap="goClassDetail">
+      <view wx:if="{{!pageBusy && !pageError && !pageData.todayClasses.length}}" class="empty-state"><view class="empty-state-title">今天还没有安排训练</view><view class="empty-state-desc">新增排课后，学员就能在预约大厅看到场次。</view></view><view wx:for="{{pageData.todayClasses}}" wx:key="id" class="today-class-card" data-class-id="{{item.id}}" bindtap="goClassDetail">
         <view class="today-class-time">
           <view class="today-class-time-main">{{item.timeStart}}</view>
           <view class="today-class-time-sub">{{item.timeEnd}}</view>

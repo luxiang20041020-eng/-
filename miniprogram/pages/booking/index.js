@@ -1,4 +1,6 @@
+const withPageState = require('../../utils/page-state')
 const businessApi = require('../../utils/business-api')
+const { confirmAction } = require('../../utils/interaction')
 
 const WEEKDAY_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
 
@@ -7,7 +9,7 @@ function pad2(value) {
 }
 
 function getDateKey(date) {
-  return pad2(date.getMonth() + 1) + '-' + pad2(date.getDate())
+  return date.getFullYear() + '-' + pad2(date.getMonth() + 1) + '-' + pad2(date.getDate())
 }
 
 function buildNextSevenDays() {
@@ -84,7 +86,7 @@ function buildBookingCacheKey(runtime, filters) {
   ].join(':')
 }
 
-Page({
+Page(withPageState({
   data: {
     runtime: {},
     pageData: {},
@@ -95,9 +97,18 @@ Page({
     },
     coachPickerVisible: false,
     coachKeyword: '',
+    bookingId: '',
+  },
+
+  onLoad(options) {
+    this.setData({ filters: Object.assign({}, this.data.filters, {
+      type: options.type === 'private' ? 'private' : 'group', dateKey: buildNextSevenDays()[0].key,
+    }) })
   },
 
   onShow() {
+    const today = buildNextSevenDays()[0].key
+    if (this.data.filters.dateKey < today) this.setData({ filters: Object.assign({}, this.data.filters, { dateKey: today }) })
     this.syncPageData()
   },
 
@@ -124,6 +135,7 @@ Page({
 
     try {
       const runtime = await app.getRuntimeSnapshotAsync()
+      if (this._syncRequestId !== requestId) return
       const pageData = await businessApi.getBookingViewData({
         userId: app.globalData.userProfile.id,
         storeId: runtime.currentStore.id,
@@ -141,6 +153,7 @@ Page({
       if (this._syncRequestId !== requestId) {
         return
       }
+      this.setData({ pageError: error.message || "加载失败，请重试" })
       const runtime = app.getRuntimeSnapshot()
       this.setData({
         runtime,
@@ -157,6 +170,17 @@ Page({
     }, () => {
       this.syncPageData()
     })
+  },
+
+  onOpenStorePicker() {
+    const stores = this.data.runtime.stores || []
+    wx.showActionSheet({ itemList: stores.map((item) => item.name), success: (result) => {
+      if (stores[result.tapIndex]) { getApp().switchStore(stores[result.tapIndex].id); this.syncPageData() }
+    } })
+  },
+
+  onResetFilters() {
+    this.setData({ filters: { type: this.data.filters.type, coachId: 'all', dateKey: buildNextSevenDays()[0].key } }, () => this.syncPageData())
   },
 
   onOpenCoachPicker() {
@@ -204,70 +228,36 @@ Page({
   },
 
   async onBook(event) {
-    if (this._isBooking) return
+    if (this._isBooking || this.data.pageBusy || this.data.pageError) return
     const app = getApp()
-    const runtime = await app.getRuntimeSnapshotAsync({ force: true })
-    if (!runtime.isAuthenticated) {
-      wx.showModal({
-        title: '请先登录',
-        content: '预约需要登录，是否前往登录？',
-        confirmText: '去登录',
-        success: (res) => {
-          if (res.confirm) {
-            wx.navigateTo({ url: '/pages/login/index' })
-          }
-        },
-      })
+    if (!this.data.runtime.isAuthenticated) {
+      wx.navigateTo({ url: '/pages/login/index?returnTo=booking&type=' + this.data.filters.type })
       return
     }
-    const { scheduleId, title } = event.currentTarget.dataset
-    const schedule = this.data.pageData.schedules.find((item) => item.id === scheduleId)
-    if (!schedule || schedule.isBooked || schedule.isFull) {
+    const scheduleId = event.currentTarget.dataset.scheduleId
+    const schedule = (this.data.pageData.schedules || []).find((item) => item.id === scheduleId)
+    if (!schedule || schedule.isBooked || schedule.isFull) return
+    const balance = schedule.type === 'group' ? this.data.pageData.assets.groupCount : this.data.pageData.assets.privateCount
+    if (Number(balance) < 1) {
+      wx.showModal({ title: '训练权益不足', content: '此场次需要 1 次' + schedule.typeLabel + '权益。请到馆购买或联系场馆人员补充权益。', showCancel: false, confirmText: '知道了' })
       return
     }
-
-    const assetText = schedule.type === 'group' ? this.data.pageData.assets.groupCount : this.data.pageData.assets.privateCount
-    wx.showModal({
-      title: '确认预约',
-      content: '当前剩余权益 ' + assetText + ' 次，确认预约《' + title + '》吗？',
-      success: async (res) => {
-        if (!res.confirm) return
-        if (this._isBooking) return
-        this._isBooking = true
-
-        let result = null
-        try {
-          const cloudResult = await businessApi.createBooking({
-            userId: app.globalData.userProfile.id,
-            scheduleId,
-            remark: '小程序预约',
-          })
-          result = app.applyCloudBookingSuccess(scheduleId, {
-            bookingId: cloudResult.bookingId,
-          })
-        } catch (error) {
-          // 云端未部署或集合未初始化时，先回退到本地内存态，避免当前演示链路中断。
-          result = app.createBooking(scheduleId)
-          if (result.ok) {
-            result.message = result.message + '（当前使用本地演示数据）'
-          } else if (error && error.message) {
-            result.message = result.message + '；云端返回：' + error.message
-          }
-        } finally {
-          this._isBooking = false
-        }
-
-        wx.showToast({
-          title: result.message,
-          icon: result.ok ? 'success' : 'none',
-        })
-        if (result.ok) {
-          const userId = app.globalData.userProfile.id || 'guest'
-          app.removeViewCacheByPrefix('booking:' + userId + ':')
-          app.removeViewCacheByPrefix('profile:' + userId)
-        }
-        this.syncPageData()
-      },
-    })
+    this._isBooking = true
+    try {
+      const confirmed = await confirmAction({ title: '确认这次训练', confirmText: '确认预约',
+        content: schedule.title + '\n' + schedule.dateLabel + ' ' + schedule.timeRange + '\n' + schedule.venue + '\n将扣除 1 次权益，剩余 ' + (Number(balance) - 1) + ' 次。开课前 2 小时可取消。' })
+      if (!confirmed) return
+      this.setData({ bookingId: scheduleId })
+      const result = await businessApi.createBooking({ scheduleId, remark: '小程序预约' })
+      app.removeViewCacheByPrefix('booking:')
+      app.removeViewCacheByPrefix('profile:')
+      wx.showToast({ title: result.message || '预约成功', icon: 'success' })
+      await this.syncPageData()
+    } catch (error) {
+      wx.showModal({ title: '预约未完成', content: error.message, showCancel: false, confirmText: '知道了' })
+    } finally {
+      this._isBooking = false
+      this.setData({ bookingId: '' })
+    }
   },
-})
+}))

@@ -1,12 +1,10 @@
+const withPageState = require('../../utils/page-state')
 const businessApi = require('../../utils/business-api')
 
 function decorateHomePageData(pageData) {
   const safeData = pageData || {}
-  const coachCount = (safeData.packages || []).length + 4
   return Object.assign({}, safeData, {
-    heroNotice: safeData.notices && safeData.notices.length ? safeData.notices[0] : '门店活动信息待发布',
-    coachCount,
-    coachCountText: String(coachCount).padStart(2, '0'),
+    heroNotice: safeData.notices && safeData.notices.length ? safeData.notices[0] : '安排下一次训练，从选择适合的场次开始。',
   })
 }
 
@@ -14,7 +12,7 @@ function buildHomeCacheKey(runtime) {
   return 'home:' + (runtime && runtime.currentStore ? runtime.currentStore.id : 'default')
 }
 
-Page({
+Page(withPageState({
   data: {
     runtime: {},
     pageData: {},
@@ -54,6 +52,7 @@ Page({
 
     try {
       const runtime = await app.getRuntimeSnapshotAsync()
+      if (this._syncRequestId !== requestId) return
       const pageData = await businessApi.getHomeViewData({
         storeId: runtime.currentStore.id,
       })
@@ -65,10 +64,15 @@ Page({
         runtime: Object.assign({}, runtime, { stores: pageData.stores || runtime.stores }),
         pageData: decorateHomePageData(pageData),
       })
+      app.globalData.stores = pageData.stores || []
+      if (pageData.currentStore) app.switchStore(pageData.currentStore.id)
+      const tabbar = this.selectComponent('#tabbar')
+      if (tabbar) tabbar.syncTabs()
     } catch (error) {
       if (this._syncRequestId !== requestId) {
         return
       }
+      this.setData({ pageError: error.message || "加载失败，请重试" })
       const runtime = app.getRuntimeSnapshot()
       this.setData({
         runtime,
@@ -118,10 +122,7 @@ Page({
   },
 
   onBellTap() {
-    wx.showToast({
-      title: '消息中心稍后开放',
-      icon: 'none',
-    })
+    wx.showModal({ title: '训练小贴士', content: (this.data.pageData.notices || []).join('\n\n') || '欢迎到馆了解适合自己的训练计划。', showCancel: false, confirmText: '知道了' })
   },
 
   onTogglePricing() {
@@ -130,15 +131,30 @@ Page({
     })
   },
 
-  goBooking() {
-    wx.redirectTo({ url: '/pages/booking/index' })
+  goBooking(event) {
+    const type = event && event.currentTarget.dataset.type || 'group'
+    wx.redirectTo({ url: '/pages/booking/index?type=' + type })
   },
 
   goMySchedule() {
-    wx.redirectTo({ url: '/pages/profile/index' })
+    wx.redirectTo({ url: '/pages/profile/index?section=bookings' })
   },
 
   goIdentityQr() {
-    wx.redirectTo({ url: '/pages/profile/index' })
+    wx.redirectTo({ url: '/pages/profile/index?section=identity' })
   },
-})
+
+  onPreviewGallery(event) {
+    const urls = [1, 2, 3].map((index) => '/images/gym-interior-' + index + '.jpg')
+    wx.previewImage({ current: urls[Number(event.currentTarget.dataset.index) || 0], urls })
+  },
+
+  onOpenLocation() {
+    const store = this.data.pageData.currentStore || {}
+    if (Number.isFinite(store.latitude) && Number.isFinite(store.longitude)) {
+      wx.openLocation({ latitude: store.latitude, longitude: store.longitude, name: store.name, address: store.address, scale: 16 })
+    } else if (store.address) {
+      wx.setClipboardData({ data: store.address })
+    }
+  },
+}))
