@@ -194,6 +194,124 @@ function manualPage(api = {}, storage = new Map()) {
   return result
 }
 
+function adminManagePage(type, api = {}) {
+  const result = harness('pages/admin/' + type + '/index.js', api)
+  result.page.data.hasPermission = true
+  result.page.syncPageData = async () => {}
+  return result
+}
+
+test('人员管理组合筛选身份、状态与关键词，角色统计不随筛选丢失', () => {
+  const { page } = adminManagePage('users')
+  page.data.pageData.users = [
+    { id: 'a', name: '管理员', role: 3, status: 1 },
+    { id: 'b', name: '李教练', phone: '13912345678', homeStoreName: '高新店', role: 2, status: 1 },
+    { id: 'c', name: '停用教练', role: 2, status: 0 },
+  ]
+  page.onRoleFilter({ currentTarget: { dataset: { value: '2' } } })
+  page.onStatusFilter({ currentTarget: { dataset: { value: '1' } } })
+  page.onKeywordInput({ detail: { value: '高新' } })
+  assert.equal(page.data.visibleUsers.length, 1)
+  assert.equal(page.data.roleCounts.coach, 2)
+  assert.match(page.data.visibleUsers[0].permissionSummary, /核销/)
+  page.onResetFilters()
+  assert.equal(page.data.visibleUsers.length, 3)
+})
+
+test('人员改权保护当前管理员，取消确认保留权限与编辑面板', async () => {
+  let writes = 0
+  const { page, wx, calls } = adminManagePage('users', { updateUserRole: async () => { writes += 1 } })
+  const current = { id: 'self', name: '管理员', role: 3, roleLabel: '管理员', status: 1 }
+  const target = { id: 'target', name: '教练', phone: '13812345678', role: 2, roleLabel: '教练', status: 1 }
+  Object.assign(page.data.pageData, { currentUserId: 'self', users: [current, target] })
+  page.onChangeRole({ currentTarget: { dataset: { userId: 'self' } } })
+  assert.equal(page.data.roleEditorUser, null)
+  page.onChangeRole({ currentTarget: { dataset: { userId: 'target' } } })
+  page.onChooseRole({ currentTarget: { dataset: { value: 3 } } })
+  wx.showModal = (options) => { calls.modals.push(options); options.success({ confirm: false }) }
+  await page.onConfirmRole()
+  assert.equal(writes, 0)
+  assert.equal(page.data.roleEditorUser.id, 'target')
+  assert.match(calls.modals[0].content, /13812345678/)
+  assert.match(calls.modals[0].content, /管理人员权限/)
+  assert.equal(page.data.submittingUserId, '')
+})
+
+test('人员改权确认期间锁定角色，成功后立即刷新卡片和人数', async () => {
+  let resolveWrite
+  let startWrite
+  const started = new Promise((resolve) => { startWrite = resolve })
+  let writes = 0
+  const { page } = adminManagePage('users', { updateUserRole: () => { writes += 1; startWrite(); return new Promise((resolve) => { resolveWrite = resolve }) } })
+  page.data.pageData.currentUserId = 'self'
+  page.data.pageData.users = [{ id: 'target', name: '学员', role: 1, roleLabel: '客户', status: 1 }]
+  page.onChangeRole({ currentTarget: { dataset: { userId: 'target' } } })
+  page.onChooseRole({ currentTarget: { dataset: { value: 2 } } })
+  const request = page.onConfirmRole()
+  await started
+  page.onChooseRole({ currentTarget: { dataset: { value: 3 } } })
+  await page.onConfirmRole()
+  assert.equal(page.data.nextRole, 2)
+  assert.equal(writes, 1)
+  resolveWrite({ user: { id: 'target', name: '学员', role: 2, roleLabel: '教练', status: 1 } })
+  await request
+  assert.equal(page.data.visibleUsers[0].role, 2)
+  assert.equal(page.data.roleCounts.coach, 1)
+  assert.equal(page.data.roleEditorUser, null)
+})
+
+test('套餐上下架确认期间阻止重复提交，失败保留状态，成功即时更新筛选统计', async () => {
+  let writes = 0
+  const { page, wx, calls } = adminManagePage('packages', { updatePackageStatus: async () => { writes += 1; throw new Error('保存失败') } })
+  page.data.pageData.packages = [{ id: 'pack', name: '私教卡', type: 'private', status: 1, statusLabel: '已上架', lessons: 12, price: 2400 }]
+  await Promise.all([page.onTogglePackageStatus({ currentTarget: { dataset: { packageId: 'pack' } } }), page.onTogglePackageStatus({ currentTarget: { dataset: { packageId: 'pack' } } })])
+  assert.equal(writes, 1)
+  assert.equal(page.data.pageData.packages[0].status, 1)
+  assert.equal(page.data.submittingPackageId, '')
+  assert.match(calls.modals[0].content, /已获得的课时仍可使用/)
+  wx.showModal = (options) => options.success({ confirm: false })
+  await page.onTogglePackageStatus({ currentTarget: { dataset: { packageId: 'pack' } } })
+  assert.equal(writes, 1)
+  const success = adminManagePage('packages', { updatePackageStatus: async () => ({ packageInfo: { id: 'pack', name: '私教卡', type: 'private', status: 0, lessons: 12, price: 2400, validDays: 90 } }) })
+  success.page.data.pageData.packages = page.data.pageData.packages
+  await success.page.onTogglePackageStatus({ currentTarget: { dataset: { packageId: 'pack' } } })
+  assert.equal(success.page.data.pageData.stats.inactiveCount, 1)
+  assert.equal(success.page.data.visiblePackages[0].actionText, '重新上架')
+  assert.equal(success.page.data.visiblePackages[0].validDays, 90)
+})
+
+test('套餐创建配置有效期，拒绝空金额和非法天数，提交期间冻结草稿', async () => {
+  let payload
+  let resolveWrite
+  let startWrite
+  const started = new Promise((resolve) => { startWrite = resolve })
+  const { page } = adminManagePage('packages', { createPackage: (value) => { payload = value; startWrite(); return new Promise((resolve) => { resolveWrite = resolve }) } })
+  page.onOpenCreatePopup()
+  assert.equal(page.data.createForm.status, 0)
+  page.onCreateTypeChange({ currentTarget: { dataset: { value: 'group' } } })
+  assert.equal(page.data.createForm.validDays, '180')
+  Object.assign(page.data.createForm, { name: '团课卡', lessons: '10', price: '', validDays: '90' })
+  await page.onSubmitCreatePackage()
+  assert.equal(payload, undefined)
+  page.data.createForm.price = '100.00'
+  page.data.createForm.validDays = '0'
+  await page.onSubmitCreatePackage()
+  assert.equal(payload, undefined)
+  page.data.createForm.validDays = '90'
+  const request = page.onSubmitCreatePackage()
+  await started
+  page.onCreateFieldInput({ currentTarget: { dataset: { field: 'name' } }, detail: { value: '另一个套餐' } })
+  page.onCloseCreatePopup()
+  assert.equal(page.data.createForm.name, '团课卡')
+  assert.equal(page.data.showCreatePopup, true)
+  assert.equal(payload.validDays, 90)
+  assert.equal(payload.status, 0)
+  resolveWrite({})
+  await request
+  assert.equal(page.data.showCreatePopup, false)
+  assert.equal(page.data.statusFilter, 'inactive')
+})
+
 function distributionPage(api = {}) {
   const result = harness('pages/workspace/distribute/index.js', api)
   const member = { id: 'student', nickname: '学员', phone: '13812345678', groupCount: 4, privateCount: 2, groupExpiry: '2099-12-31' }

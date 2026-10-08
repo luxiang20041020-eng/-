@@ -2,6 +2,13 @@
 
 项目使用微信小程序云开发，业务入口是 `cloudfunctions/businessCore`，`quickstartFunctions` 仅用于示例。
 
+## 使用说明
+
+- [管理员使用说明](docs/管理员使用说明.md)：人员权限、套餐管理、权益派发、排期、到场与线下人工核销、门店和看板。
+- [客户使用说明](docs/客户使用说明.md)：登录、权益、预约与取消、到店、线下预约和常见问题。
+
+同目录的 HTML 阅读版可直接打开，支持目录跳转和浏览器打印／保存为 PDF。修改 Markdown 后运行 `node tools/render-user-guides.js` 更新 HTML。
+
 ## 部署与首次启动
 
 1. 在微信开发者工具中开通或选择云开发环境，把 `miniprogram/app.js` 中的 `globalData.env` 设置为该环境 ID。

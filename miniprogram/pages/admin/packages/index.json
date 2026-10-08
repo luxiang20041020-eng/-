@@ -2,6 +2,6 @@
   "usingComponents": {
     "app-tabbar": "/components/app-tabbar/index"
   },
-  "navigationBarTitleText": "套餐上下架",
+  "navigationBarTitleText": "套餐管理",
   "enablePullDownRefresh": true
 }

@@ -879,6 +879,7 @@ function buildAdminPackageManageItem(packageDoc) {
     typeLabel: mapAssetTypeToLabel(packageDoc.asset_type),
     lessons: Number(packageDoc.course_count || 0),
     price: Number(packageDoc.display_price || 0),
+    validDays: Number(packageDoc.valid_days || (Number(packageDoc.asset_type) === ASSET_TYPE.GROUP ? 180 : 365)),
     status: Number(packageDoc.status || 0),
     statusLabel: buildPackageStatusLabel(packageDoc.status),
   }
@@ -1680,14 +1681,15 @@ async function createPackage(event) {
   const lessons = Number(payload.lessons)
   const price = Number(payload.price)
   const nextStatus = Number(payload.status)
+  const validDays = payload.validDays === undefined ? (packageType === 'group' ? 180 : 365) : Number(payload.validDays)
 
-  if (!packageName) {
+  if (!packageName || packageName.length > 60) {
     return buildFail('套餐名称不能为空', 'INVALID_CREATE_PACKAGE_PAYLOAD')
   }
   if (!['group', 'private'].includes(packageType)) {
     return buildFail('套餐类型非法', 'INVALID_CREATE_PACKAGE_PAYLOAD')
   }
-  if (!Number.isInteger(lessons) || lessons <= 0) {
+  if (!Number.isInteger(lessons) || lessons <= 0 || lessons > 10000) {
     return buildFail('权益次数必须大于 0', 'INVALID_CREATE_PACKAGE_PAYLOAD')
   }
   if (!Number.isFinite(price) || price < 0) {
@@ -1696,6 +1698,7 @@ async function createPackage(event) {
   if (![0, 1].includes(nextStatus)) {
     return buildFail('status 非法', 'INVALID_CREATE_PACKAGE_PAYLOAD')
   }
+  if (!Number.isInteger(validDays) || validDays < 1 || validDays > 3650) return buildFail('有效期须为 1 至 3650 天', 'INVALID_CREATE_PACKAGE_PAYLOAD')
 
   try {
     await ensureAdminOperator()
@@ -1705,6 +1708,7 @@ async function createPackage(event) {
         asset_type: packageType === 'group' ? ASSET_TYPE.GROUP : ASSET_TYPE.PRIVATE,
         course_count: Math.floor(lessons),
         display_price: Number(price.toFixed(2)),
+        valid_days: validDays,
         status: nextStatus,
         created_at: db.serverDate(),
         updated_at: db.serverDate(),
@@ -1720,6 +1724,7 @@ async function createPackage(event) {
         course_count: Math.floor(lessons),
         display_price: Number(price.toFixed(2)),
         status: nextStatus,
+        valid_days: validDays,
       }),
     })
   } catch (error) {

@@ -1,5 +1,6 @@
 const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
+const { confirmAction } = require('../../../utils/interaction')
 
 function formatPrice(price) {
   return Number(price || 0).toFixed(2)
@@ -11,7 +12,8 @@ function buildDefaultCreateForm() {
     type: 'private',
     lessons: '',
     price: '',
-    status: 1,
+    status: 0,
+    validDays: '365',
   }
 }
 
@@ -23,7 +25,7 @@ function normalizePageData(pageData) {
       activeCount: 0,
       inactiveCount: 0,
     }, safeData.stats || {}),
-    packages: safeData.packages || [],
+    packages: (safeData.packages || []).map((item) => Object.assign({}, item, { validDays: Number(item.validDays || (item.type === 'group' ? 180 : 365)) })),
   }
 }
 
@@ -86,6 +88,7 @@ Page(withPageState({
   async syncPageData() {
     const app = getApp()
     const initialRuntime = app.getRuntimeSnapshot()
+    if (!initialRuntime.isAuthenticated || initialRuntime.role !== 'admin') this.setData({ hasPermission: false, pageData: normalizePageData(), visiblePackages: [], showCreatePopup: false })
     const hadCachedData = this.hydratePageData(initialRuntime)
     const requestId = (this._syncRequestId || 0) + 1
     this._syncRequestId = requestId
@@ -122,7 +125,7 @@ Page(withPageState({
       if (this._syncRequestId !== requestId) {
         return
       }
-      app.setViewCache(ADMIN_PACKAGES_CACHE_KEY, pageData)
+      app.setViewCache(ADMIN_PACKAGES_CACHE_KEY + ':' + runtime.userProfile.id, pageData)
       this.setData({
         runtime,
         hasPermission: true,
@@ -154,7 +157,7 @@ Page(withPageState({
     if (!runtime || !runtime.isAuthenticated || runtime.role !== 'admin') {
       return false
     }
-    const cachedPageData = app.getViewCache(ADMIN_PACKAGES_CACHE_KEY)
+    const cachedPageData = app.getViewCache(ADMIN_PACKAGES_CACHE_KEY + ':' + runtime.userProfile.id)
     if (!cachedPageData) {
       return false
     }
@@ -187,6 +190,7 @@ Page(withPageState({
       keyword: '',
     })
   },
+  onResetFilters() { this.refreshVisiblePackages({ keyword: '', statusFilter: 'all', typeFilter: 'all' }) },
 
   onStatusFilterChange(event) {
     this.refreshVisiblePackages({
@@ -209,6 +213,7 @@ Page(withPageState({
   noop() {},
 
   onOpenCreatePopup() {
+    if (!this.data.hasPermission || this.data.submittingPackageId || this.data.creatingPackage || this.data.pageError || this.data.pageBusy) return
     this.setData({
       showCreatePopup: true,
       createForm: buildDefaultCreateForm(),
@@ -226,29 +231,34 @@ Page(withPageState({
   },
 
   onCreateFieldInput(event) {
+    if (this.data.creatingPackage) return
     const field = event.currentTarget.dataset.field
-    if (!field) {
+    if (!['name', 'lessons', 'price', 'validDays'].includes(field)) {
       return
     }
     this.setData({
-      ['createForm.' + field]: event.detail.value,
+      createForm: Object.assign({}, this.data.createForm, { [field]: event.detail.value }),
     })
   },
 
   onCreateTypeChange(event) {
+    if (this.data.creatingPackage) return
+    const type = event.currentTarget.dataset.value
+    if (!['group', 'private'].includes(type)) return
     this.setData({
-      'createForm.type': event.currentTarget.dataset.value,
+      createForm: Object.assign({}, this.data.createForm, { type, validDays: type === 'group' ? '180' : '365' }),
     })
   },
 
   onCreateStatusChange(event) {
+    if (this.data.creatingPackage) return
     this.setData({
-      'createForm.status': event.detail.value ? 1 : 0,
+      createForm: Object.assign({}, this.data.createForm, { status: event.detail.value ? 1 : 0 }),
     })
   },
 
-  onTogglePackageStatus(event) {
-    if (this.data.submittingPackageId || this.data.creatingPackage) {
+  async onTogglePackageStatus(event) {
+    if (this.data.submittingPackageId || this.data.creatingPackage || !this.data.hasPermission || this.data.pageError || this.data.pageBusy) {
       return
     }
 
@@ -259,28 +269,22 @@ Page(withPageState({
     }
 
     const isActive = Number(targetPackage.status) === 1
-    wx.showModal({
-      title: isActive ? '确认下架套餐' : '确认重新上架',
-      content: isActive
-        ? '下架后，首页价目表和派课入口将不再展示该套餐。'
-        : '上架后，该套餐会重新出现在首页价目表和派课入口中。',
-      success: (res) => {
-        if (!res.confirm) {
-          return
-        }
-        this.submitPackageStatus(targetPackage, isActive ? 0 : 1)
-      },
-    })
+    return this.submitPackageStatus(targetPackage, isActive ? 0 : 1)
   },
 
   async submitPackageStatus(targetPackage, nextStatus) {
-    if (this.data.submittingPackageId || this.data.creatingPackage) return
+    if (this.data.submittingPackageId || this.data.creatingPackage || !this.data.hasPermission || this.data.pageError || this.data.pageBusy) return
     this.setData({ submittingPackageId: targetPackage.id })
     try {
-      await businessApi.updatePackageStatus({
+      if (!await confirmAction({ title: nextStatus === 1 ? '确认上架套餐' : '确认下架套餐', content: targetPackage.name + '\n' + targetPackage.lessons + ' 节 · ¥' + formatPrice(targetPackage.price) + '\n' + (nextStatus === 1 ? '上架后展示在首页价目表，可用于权益派发。' : '下架后停止展示与新派发，学员已获得的课时仍可使用。') })) return
+      const result = await businessApi.updatePackageStatus({
         targetPackageId: targetPackage.id,
         nextStatus,
       })
+      const updatedPackage = result && result.packageInfo || Object.assign({}, targetPackage, { status: nextStatus, statusLabel: nextStatus === 1 ? '已上架' : '已下架' })
+      const packages = this.data.pageData.packages.map((item) => item.id === targetPackage.id ? updatedPackage : item)
+      this.setData({ pageData: normalizePageData({ packages, stats: { total: packages.length, activeCount: packages.filter((p) => Number(p.status) === 1).length, inactiveCount: packages.filter((p) => Number(p.status) !== 1).length } }) })
+      this.refreshVisiblePackages()
       wx.showToast({
         title: nextStatus === 1 ? '套餐已上架' : '套餐已下架',
         icon: 'success',
@@ -301,7 +305,7 @@ Page(withPageState({
   },
 
   async onSubmitCreatePackage() {
-    if (this.data.creatingPackage) {
+    if (this.data.creatingPackage || this.data.submittingPackageId || !this.data.hasPermission || this.data.pageError || this.data.pageBusy) {
       return
     }
 
@@ -309,10 +313,11 @@ Page(withPageState({
     const name = String(form.name || '').trim()
     const lessons = Number(form.lessons)
     const price = Number(form.price)
+    const validDays = Number(form.validDays)
 
-    if (!name) {
+    if (!name || name.length > 60) {
       wx.showToast({
-        title: '请输入套餐名称',
+        title: '套餐名称须为 1 至 60 个字',
         icon: 'none',
       })
       return
@@ -324,29 +329,34 @@ Page(withPageState({
       })
       return
     }
-    if (!Number.isInteger(lessons) || lessons <= 0) {
+    if (!Number.isInteger(lessons) || lessons <= 0 || lessons > 10000) {
       wx.showToast({
-        title: '课时数须为正整数',
+        title: '课时数须为 1 至 10000 的整数',
         icon: 'none',
       })
       return
     }
-    if (!Number.isFinite(price) || price < 0) {
+    if (!/^\d+(\.\d{1,2})?$/.test(String(form.price).trim())) {
       wx.showToast({
-        title: '展示价不能小于 0',
+        title: '请填写金额，最多两位小数',
         icon: 'none',
       })
       return
+    }
+    if (!Number.isInteger(validDays) || validDays < 1 || validDays > 3650) {
+      wx.showToast({ title: '有效期须为 1 至 3650 天', icon: 'none' }); return
     }
 
     this.setData({ creatingPackage: true })
     try {
+      if (!await confirmAction({ title: Number(form.status) === 1 ? '创建并上架套餐' : '创建下架套餐', content: name + '\n' + lessons + ' 节 · ¥' + formatPrice(price) + '\n有效期 ' + validDays + ' 天\n' + (Number(form.status) === 1 ? '创建后立即展示并可派发。' : '创建后暂不展示，审核内容后可再上架。') })) return
       await businessApi.createPackage({
         name,
         type: form.type,
         lessons: Math.floor(lessons),
         price,
         status: Number(form.status) === 1 ? 1 : 0,
+        validDays,
       })
       wx.showToast({
         title: '套餐已创建',
@@ -359,6 +369,7 @@ Page(withPageState({
       this.setData({
         showCreatePopup: false,
         createForm: buildDefaultCreateForm(),
+        keyword: '', statusFilter: Number(form.status) === 1 ? 'active' : 'inactive', typeFilter: 'all',
       })
       await this.syncPageData()
     } catch (error) {

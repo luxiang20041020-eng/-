@@ -154,6 +154,29 @@ test('派发权益保存到期日、金额和真实操作人', async () => {
   assert.equal([...state.collections.get('user_asset_log').values()][0].operator_id, id)
 })
 
+test('管理员不能撤销自身权限，教练不能调整他人身份', async () => {
+  const { main, id, state } = await fixture(3)
+  assert.equal((await main({ action: 'updateUserRole', payload: { targetUserId: id, nextRole: 1 } })).code, 'ADMIN_SELF_ROLE_LOCKED')
+  state.collections.get('app_user').get(id).role = 2
+  assert.equal((await main({ action: 'updateUserRole', payload: { targetUserId: 'other', nextRole: 3 } })).code, 'FORBIDDEN')
+})
+
+test('新建套餐有效期保存并用于派发默认日期，下架不会影响已有学员余额', async () => {
+  const { state, main } = await fixture(3)
+  const created = await main({ action: 'createPackage', payload: { name: '90 天团课', type: 'group', lessons: 10, price: 100, status: 1, validDays: 90 } })
+  assert.equal(created.success, true)
+  const id = created.data.packageInfo.id
+  assert.equal(created.data.packageInfo.validDays, 90)
+  assert.equal(state.collections.get('biz_package').get(id).valid_days, 90)
+  const distribute = await main({ action: 'getDistributeViewData', payload: { storeId: 'gaoxin' } })
+  assert.equal(distribute.data.packageOptions.find((item) => item.id === id).validDays, 90)
+  state.collections.get('user_asset').set('student_1', { _id: 'student_1', user_id: 'student', asset_type: 1, balance: 10, is_deleted: false })
+  assert.equal((await main({ action: 'updatePackageStatus', payload: { targetPackageId: id, nextStatus: 0 } })).success, true)
+  assert.equal(state.collections.get('user_asset').get('student_1').balance, 10)
+  const invalid = await main({ action: 'createPackage', payload: { name: '无效期', type: 'group', lessons: 10, price: 100, status: 0, validDays: 0 } })
+  assert.equal(invalid.code, 'INVALID_CREATE_PACKAGE_PAYLOAD')
+})
+
 test('权益派发搜索返回到期日，未搜索时不返回整库学员', async () => {
   const { state, main } = await fixture(2)
   state.collections.get('app_user').set('student', { _id: 'student', real_name: '测试学员', phone: '13899999999', role: 1, status: 1, is_deleted: false })

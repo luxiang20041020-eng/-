@@ -1,0 +1,59 @@
+.manage-page { padding: 24rpx 24rpx calc(166rpx + env(safe-area-inset-bottom)); }
+.manage-hero { padding: 30rpx; border-radius: 24rpx; background: #20251f; color: #fff; }
+.hero-eyebrow { color: #bdc2b6; font-size: 18rpx; letter-spacing: 3rpx; margin-bottom: 18rpx; }
+.hero-title { font-size: 42rpx; font-weight: 800; }
+.hero-caption { color: #bdc2b6; font-size: 23rpx; line-height: 1.6; margin-top: 14rpx; }
+.hero-badge { color: #d8dbd1; font-size: 21rpx; }
+.hero-add { margin: 0; border-radius: 12rpx; padding: 16rpx 20rpx; color: #fff; background: #c7452d; font-size: 23rpx; }
+.manage-filters { margin-top: 20rpx; background: #fff; padding: 24rpx; border-radius: 20rpx; border: 1rpx solid #e6e7df; }
+.manage-search { margin-top: 0; }
+.filter-strip { display: flex; gap: 10rpx; margin-top: 20rpx; }
+.filter-pill { flex: 1; text-align: center; padding: 16rpx 4rpx; border-radius: 12rpx; background: #f0f1e9; font-size: 23rpx; color: #7c8076; }
+.filter-pill.active { background: #20251f; color: #fff; font-weight: 600; }
+.filter-count { display: block; font-size: 30rpx; font-weight: 700; margin-top: 6rpx; }
+.small-filter-row { display: flex; flex-wrap: wrap; gap: 12rpx; margin-top: 22rpx; }
+.small-filter { font-size: 22rpx; color: #7c8076; padding: 10rpx 16rpx; border: 1rpx solid #e6e7df; border-radius: 10rpx; }
+.small-filter.active { border-color: #c7452d; background: #fcf0ea; color: #c7452d; }
+.list-heading { margin: 26rpx 4rpx 18rpx; display: flex; justify-content: space-between; align-items: center; }
+.section-title { font-size: 28rpx; font-weight: 700; }
+.muted { color: #7c8076; font-size: 23rpx; line-height: 1.6; }
+.text-action { margin: 0; padding: 10rpx 0; color: #c7452d; font-size: 23rpx; }
+.manage-card { background: #fff; padding: 26rpx; border-radius: 20rpx; border: 1rpx solid #e6e7df; margin-bottom: 18rpx; }
+.card-top { display: flex; gap: 18rpx; align-items: center; }
+.person-avatar { display: flex; align-items: center; justify-content: center; width: 68rpx; height: 68rpx; flex-shrink: 0; border-radius: 14rpx; background: #eaece4; color: #20251f; font-size: 30rpx; font-weight: 700; }
+.card-main { flex: 1; min-width: 0; }
+.item-name { font-size: 29rpx; font-weight: 700; word-break: break-all; }
+.item-subtitle { font-size: 23rpx; color: #7c8076; margin-top: 8rpx; }
+.role-label,.status-label { display: inline-block; font-size: 21rpx; border-radius: 8rpx; padding: 8rpx 12rpx; background: #eaece4; color: #526341; flex-shrink: 0; }
+.role-label.admin { color: #c7452d; background: #fcf0ea; }
+.role-label.coach { color: #20251f; background: #eaece4; }
+.status-label.inactive { color: #7c8076; background: #f0f1e9; }
+.self-label { font-size: 19rpx; color: #7c8076; margin-left: 12rpx; font-weight: 400; }
+.card-meta { display: flex; align-items: center; gap: 14rpx; font-size: 22rpx; color: #7c8076; margin-top: 22rpx; }
+.card-description { color: #7c8076; font-size: 22rpx; line-height: 1.6; margin-top: 18rpx; }
+.card-footer { display: flex; justify-content: space-between; align-items: center; gap: 20rpx; border-top: 1rpx solid #eeefe8; margin-top: 22rpx; padding-top: 18rpx; }
+.card-action { margin: 0; font-size: 23rpx; color: #c7452d; padding: 10rpx 0; }
+.manage-empty { text-align: center; padding: 46rpx 24rpx; border: 1rpx dashed #d7dacd; border-radius: 20rpx; }
+.manage-empty .muted { margin-top: 14rpx; }
+.sheet-mask { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 1000; display: flex; align-items: flex-end; background: rgba(16,22,15,.6); }
+.manage-sheet { width: 100%; height: 88vh; background: #f5f4ef; border-radius: 28rpx 28rpx 0 0; display: flex; flex-direction: column; overflow: hidden; }
+.sheet-header { padding: 28rpx; display: flex; justify-content: space-between; align-items: center; gap: 20rpx; border-bottom: 1rpx solid #dce0d3; flex-shrink: 0; }
+.sheet-header .muted { margin-top: 8rpx; }
+.sheet-close { margin: 0; font-size: 24rpx; padding: 14rpx; color: #7c8076; }
+.sheet-scroll { flex: 1; min-height: 0; height: 0; }
+.sheet-body { padding: 28rpx; }
+.sheet-actions { flex-shrink: 0; padding: 20rpx 28rpx calc(20rpx + env(safe-area-inset-bottom)); background: #fff; }
+.choice-card { background: #fff; border: 2rpx solid #e6e7df; border-radius: 18rpx; padding: 24rpx; margin-bottom: 16rpx; }
+.choice-card.selected { border-color: #c7452d; background: #fcf0ea; }
+.choice-card .muted { margin-top: 12rpx; }
+.change-preview { margin-top: 24rpx; border-radius: 16rpx; padding: 24rpx; background: #eaece4; font-size: 26rpx; line-height: 1.7; }
+.price-line { display: flex; align-items: baseline; justify-content: space-between; margin-top: 24rpx; gap: 20rpx; }
+.lesson-value { font-size: 42rpx; font-weight: 800; }
+.lesson-value text { font-size: 23rpx; font-weight: 400; }
+.price-value { font-size: 32rpx; font-weight: 700; }
+.form-columns { display: flex; gap: 20rpx; }
+.form-columns .field-block { flex: 1; min-width: 0; }
+.create-types { display: flex; gap: 14rpx; margin-top: 16rpx; }
+.create-types .small-filter { flex: 1; text-align: center; font-size: 25rpx; padding: 18rpx; }
+.status-setting { padding: 24rpx; margin-top: 24rpx; border-radius: 16rpx; background: #fff; }
+.status-setting .muted { margin-top: 12rpx; }

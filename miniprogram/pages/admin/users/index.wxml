@@ -1,83 +1,13 @@
-<view class="page-shell">
-  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
-  <view class="page-header">
-    <view>
-      <view class="eyebrow">门店运营管理</view>
-      <view class="page-title">人员权限管理</view>
-      <view class="page-subtitle">直接基于云端 app_user 调整用户身份权限。</view>
-    </view>
-    <view class="role-badge">管理员</view>
-  </view>
-
-  <view wx:if="{{!hasPermission}}" class="card">
-    <view class="section-title">访问权限提示</view>
-    <view class="card-desc">当前账号不是管理员，无法查看或修改人员权限。</view>
-  </view>
-
-  <block wx:else>
-    <view class="card">
-      <view class="section-title">人员筛选</view>
-      <input
-        class="form-input"
-        value="{{keyword}}"
-        bindinput="onKeywordInput"
-        placeholder="输入姓名 / 手机号 / 门店"
-        placeholder-class="input-placeholder"
-      />
-      <view class="headline-row toolbar-row">
-        <view class="card-desc">共 {{pageData.users.length}} 人，当前显示 {{visibleUsers.length}} 人</view>
-        <button wx:if="{{keyword}}" class="secondary-button clear-button" bindtap="onClearKeyword">清空</button>
-      </view>
-    </view>
-
-    <view wx:if="{{loading}}" class="page-loading">正在读取人员列表...</view>
-
-    <view wx:elif="{{!visibleUsers.length}}" class="card">
-      <view class="empty-text">暂无匹配人员</view>
-    </view>
-
-    <block wx:else>
-      <view wx:for="{{visibleUsers}}" wx:key="id" class="card user-card">
-        <view class="headline-row user-head">
-          <view class="user-main">
-            <view class="avatar-square user-avatar">{{item.avatarText}}</view>
-            <view class="user-text">
-              <view class="user-name-row">
-                <view class="user-name">{{item.name}}</view>
-                <view wx:if="{{item.id === pageData.currentUserId}}" class="info-chip self-chip">当前账号</view>
-              </view>
-              <view class="user-phone">{{item.phone || '未绑定手机号'}}</view>
-            </view>
-          </view>
-          <view class="user-side">
-            <view class="user-role-chip role-{{item.roleKey}}">{{item.roleLabel}}</view>
-            <view class="store-badge store-chip">{{item.homeStoreName || '未分配门店'}}</view>
-          </view>
-        </view>
-
-        <view class="meta-grid">
-          <view class="meta-item">
-            <view class="meta-label">账号状态</view>
-            <view class="meta-value">{{item.statusLabel}}</view>
-          </view>
-          <view class="meta-item">
-            <view class="meta-label">角色编码</view>
-            <view class="meta-value">{{item.role}}</view>
-          </view>
-        </view>
-
-        <button
-          class="secondary-button role-action-button"
-          data-user-id="{{item.id}}"
-          bindtap="onChangeRole"
-          loading="{{submittingUserId === item.id}}"
-          disabled="{{item.id === pageData.currentUserId || submittingUserId !== ''}}"
-        >
-          {{item.id === pageData.currentUserId ? '当前登录管理员不可在此页改权' : '更改身份权限'}}
-        </button>
-      </view>
-    </block>
+<view class="page-shell manage-page">
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry" />
+  <view class="manage-hero"><view class="hero-eyebrow">ONE / PEOPLE &amp; ACCESS</view><view class="row-between"><view class="hero-title">人员权限</view><text class="hero-badge">管理员</text></view><view class="hero-caption">清楚分工，让每个人拥有合适的权限。</view></view>
+  <view wx:if="{{!hasPermission && !pageBusy}}" class="manage-card"><view class="section-title">需要管理员权限</view><view class="card-description">当前账号无法查看或调整人员身份。</view></view>
+  <block wx:if="{{hasPermission}}">
+    <view class="manage-filters"><input class="form-input manage-search" maxlength="40" value="{{keyword}}" bindinput="onKeywordInput" placeholder="搜索姓名、手机号或门店" /><view class="filter-strip"><view class="filter-pill {{roleFilter === 'all' ? 'active' : ''}}" data-value="all" bindtap="onRoleFilter">全部<text class="filter-count">{{roleCounts.all}}</text></view><view class="filter-pill {{roleFilter === '1' ? 'active' : ''}}" data-value="1" bindtap="onRoleFilter">客户<text class="filter-count">{{roleCounts.client}}</text></view><view class="filter-pill {{roleFilter === '2' ? 'active' : ''}}" data-value="2" bindtap="onRoleFilter">教练<text class="filter-count">{{roleCounts.coach}}</text></view><view class="filter-pill {{roleFilter === '3' ? 'active' : ''}}" data-value="3" bindtap="onRoleFilter">管理员<text class="filter-count">{{roleCounts.admin}}</text></view></view><view class="small-filter-row"><view class="small-filter {{statusFilter === 'all' ? 'active' : ''}}" data-value="all" bindtap="onStatusFilter">全部状态</view><view class="small-filter {{statusFilter === '1' ? 'active' : ''}}" data-value="1" bindtap="onStatusFilter">正常账号</view><view class="small-filter {{statusFilter === '0' ? 'active' : ''}}" data-value="0" bindtap="onStatusFilter">停用账号</view></view></view>
+    <view class="list-heading"><view class="section-title">人员列表 <text class="muted">{{visibleUsers.length}} 人</text></view><button wx:if="{{keyword || roleFilter !== 'all' || statusFilter !== 'all'}}" class="text-action" bindtap="onResetFilters">重置筛选</button></view>
+    <view wx:if="{{!visibleUsers.length && !pageBusy && !pageError}}" class="manage-empty"><view class="section-title">暂无匹配人员</view><view class="muted">换个关键词，或调整身份与状态筛选。</view><button class="text-action" bindtap="onResetFilters">查看全部人员</button></view>
+    <view wx:for="{{visibleUsers}}" wx:key="id" class="manage-card"><view class="card-top"><view class="person-avatar">{{item.avatarText}}</view><view class="card-main"><view class="item-name">{{item.name}}<text wx:if="{{item.id === pageData.currentUserId}}" class="self-label">当前账号</text></view><view class="item-subtitle">{{item.phone || '未绑定手机号'}}</view></view><view class="role-label {{item.roleKey}}">{{item.roleLabel}}</view></view><view class="card-meta"><text class="status-label {{item.status === 1 ? '' : 'inactive'}}">{{item.statusLabel}}</text><text>{{item.homeStoreName || '未分配门店'}}</text></view><view class="card-description">{{item.permissionSummary}}</view><view class="card-footer"><view class="muted">{{item.id === pageData.currentUserId ? '当前账号的管理员权限已保护' : '调整身份与可用功能'}}</view><button wx:if="{{item.id !== pageData.currentUserId}}" class="card-action" data-user-id="{{item.id}}" loading="{{submittingUserId === item.id}}" disabled="{{submittingUserId || pageBusy || pageError}}" bindtap="onChangeRole">调整权限 ›</button></view></view>
   </block>
-
-  <app-tabbar id="tabbar" current="/pages/admin/index"></app-tabbar>
+  <view wx:if="{{roleEditorUser}}" class="sheet-mask"><view class="manage-sheet"><view class="sheet-header"><view><view class="section-title">调整身份权限</view><view class="muted">{{roleEditorUser.name}} · {{roleEditorUser.phone}}</view></view><button class="sheet-close" disabled="{{submittingUserId}}" bindtap="onCloseRoleEditor">关闭</button></view><scroll-view scroll-y class="sheet-scroll"><view class="sheet-body"><view wx:for="{{pageData.roleOptions}}" wx:key="value" class="choice-card {{nextRole === item.value ? 'selected' : ''}}" data-value="{{item.value}}" bindtap="onChooseRole"><view class="row-between"><view class="section-title">{{item.label}}</view><text class="change-link">{{nextRole === item.value ? '✓ 已选择' : ''}}</text></view><view class="muted">{{item.description}}</view></view><view class="change-preview"><view>{{roleEditorUser.roleLabel}} → {{selectedRole.label}}</view><view class="muted">身份变更不会改变已有课时和预约。{{roleEditorUser.status === 0 ? '此账号仍为停用状态，本次不会启用账号。' : ''}}</view></view></view></scroll-view><view class="sheet-actions"><button class="primary-button" disabled="{{submittingUserId || nextRole === roleEditorUser.role || pageBusy || pageError}}" loading="{{submittingUserId}}" bindtap="onConfirmRole">{{submittingUserId ? '正在更新…' : '确认变更权限'}}</button></view></view></view>
+  <app-tabbar id="tabbar" current="/pages/admin/index" />
 </view>
