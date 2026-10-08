@@ -31,41 +31,40 @@
     </scroll-view>
   </view>
 
-  <view class="card">
-    <view class="section-title">可预约场次</view>
+  <view class="booking-schedule-section">
+    <view class="booking-section-heading"><view class="section-title">可预约场次</view><text class="booking-section-hint">选择适合你的时间</text></view>
     <view wx:if="{{!pageBusy && !pageError && pageData.schedules.length === 0}}" class="empty-state"><view class="empty-state-title">这一天还没有安排训练</view><view class="empty-state-desc">试试其他日期，或切换门店和场馆人员。</view><button class="secondary-button" bindtap="onResetFilters">查看今日全部场次</button></view>
-    <view wx:for="{{pageData.schedules}}" wx:key="id" class="booking-schedule-card">
-      <view class="booking-time-block">
-        <view class="booking-time-main">{{item.timeStart}}</view>
-        <view class="booking-time-sub">{{item.timeEnd}}</view>
+    <view wx:for="{{pageData.schedules}}" wx:key="id" class="booking-schedule-card {{item.isBooked ? 'is-booked' : item.isFull ? 'is-full' : ''}}">
+      <view class="booking-card-header">
+        <view class="booking-time-range">
+          <text class="booking-time-main">{{item.timeStart}}</text>
+          <text class="booking-time-divider">—</text>
+          <text class="booking-time-end">{{item.timeEnd}}</text>
+        </view>
+        <view class="booking-card-status {{item.isBooked ? 'is-booked' : item.isFull ? 'is-disabled' : ''}}">
+          <view class="booking-status-dot"></view>
+          <text>{{item.isBooked ? '已预约' : item.isFull ? '已满员' : '可预约'}}</text>
+        </view>
       </view>
-      <view class="booking-card-main">
-        <view class="headline-row">
-          <view class="class-tags">
-            <view class="pricing-tag {{item.type === 'private' ? 'is-private' : 'is-group'}}">{{item.typeLabel}}</view>
-          </view>
-          <view class="booking-card-status {{item.isFull ? 'is-disabled' : item.isBooked ? 'is-booked' : ''}}">
-            {{item.isBooked ? '已预约' : item.isFull ? '已满员' : '可预约'}}
-          </view>
-        </view>
+      <view class="booking-card-info">
+        <view class="booking-course-type {{item.type === 'private' ? 'is-private' : ''}}">{{item.typeLabel}}</view>
         <view class="booking-card-title">{{item.title}}</view>
-        <view class="booking-card-meta">{{item.coachName}} · {{item.venue}}</view>
-        <view class="capacity-row">
-          <view class="capacity-label">预约人数</view>
-          <view class="capacity-value">{{item.progressText}}</view>
+        <view class="booking-card-meta"><text class="booking-meta-label">教练</text><text class="booking-meta-value">{{item.coachName}}</text></view>
+        <view class="booking-card-meta"><text class="booking-meta-label">门店</text><text class="booking-meta-value">{{item.venue}}</text></view>
+      </view>
+      <view class="booking-card-footer">
+        <view class="booking-capacity"><view class="capacity-label">预约人数</view><view class="capacity-value">{{item.progressText}}</view></view>
+        <view class="booking-action-area">
+          <button
+            size="mini"
+            class="booking-action-btn {{item.isBooked ? 'is-booked' : item.isFull ? 'is-full' : ''}}"
+            data-schedule-id="{{item.id}}"
+            data-title="{{item.title}}"
+            bindtap="onBook"
+            loading="{{bookingId === item.id}}" disabled="{{item.isBooked || item.isFull || bookingId || pageBusy || pageError}}"
+          >{{bookingId === item.id ? '正在预约' : item.isBooked ? '已预约' : item.isFull ? '当前满员' : runtime.isAuthenticated ? '预约训练' : '登录后预约'}}</button>
+          <view class="booking-action-hint">{{item.isBooked ? '请按时到馆训练' : item.isFull ? '试试其他场次' : '使用 1 次' + (item.type === 'private' ? '专属' : '团课') + '权益'}}</view>
         </view>
-        <view class="progress-track">
-          <view class="progress-bar" style="width: {{item.progressPercent}}%;"></view>
-        </view>
-        <button
-          class="{{item.isBooked ? 'secondary-button' : 'primary-button'}} booking-action-btn"
-          data-schedule-id="{{item.id}}"
-          data-title="{{item.title}}"
-          bindtap="onBook"
-          loading="{{bookingId === item.id}}" disabled="{{item.isBooked || item.isFull || bookingId || pageBusy || pageError}}"
-        >
-          {{bookingId === item.id ? '正在预约' : item.isBooked ? '已预约' : item.isFull ? '当前满员' : runtime.isAuthenticated ? '预约 · 使用 1 次权益' : '登录后预约'}}
-        </button>
       </view>
     </view>
   </view>

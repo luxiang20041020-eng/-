@@ -63,7 +63,10 @@ function renderNode(node, data) {
   }
   const tags = { view: 'div', text: 'span', 'scroll-view': 'div', image: 'img', navigator: 'a', picker: 'div', switch: 'input' }
   const tag = tags[node.tag] || node.tag
-  const attrs = Object.entries(node.attrs).filter(([key]) => ['class', 'style', 'id', 'src', 'placeholder', 'maxlength', 'value'].includes(key))
+  // 基础库给 button 添加尺寸类；普通 HTML 按钮缺少这层默认样式。
+  const renderAttrs = { ...node.attrs }
+  if (node.tag === 'button') renderAttrs.class = (renderAttrs.class || '') + (renderAttrs.size === 'mini' ? ' wx-button-size-mini' : ' wx-button-size-normal')
+  const attrs = Object.entries(renderAttrs).filter(([key]) => ['class', 'style', 'id', 'src', 'placeholder', 'maxlength', 'value', 'size'].includes(key))
     .map(([key, value]) => `${key}="${escape(bind(value, data))}"`).join(' ')
   const disabled = node.attrs.disabled && expression(node.attrs.disabled, data) ? ' disabled' : ''
   const handler = node.attrs.bindtap || node.attrs.catchtap || ''
@@ -105,6 +108,21 @@ function fixtures(page, search) {
   if (search.get('state') === 'error') data.pageError = '服务暂时无法连接，请检查网络后重试'
   if (search.get('popup')) { data.showCreatePopup = true; data.showStorePopup = true; data.showNicknameEditor = true }
   if (search.get('expanded')) { data.pricingExpanded = true; data.filtersExpanded = true; data.auditLogsExpanded = true; data.coachPickerVisible = true }
+  if (page === 'booking') {
+    const state = search.get('state')
+    data.pageData.schedules = data.pageData.schedules.map((item) => ({ ...item,
+      type: search.get('type') === 'private' ? 'private' : 'group',
+      typeLabel: search.get('type') === 'private' ? '专属训练' : '团体训练',
+      isBooked: state === 'booked',
+    }))
+    if (state === 'single') {
+      data.pageData.schedules = [{ ...data.pageData.schedules[0], title: '测试', coachName: '卢翔', venue: stores[1].name, bookedCount: 0, capacity: 15, progressText: '0 / 15 人' }]
+    }
+    if (state === 'long') data.pageData.schedules[0] = { ...data.pageData.schedules[0], title: '泰拳基础与核心体能专项训练 · 步法和拳腿衔接', coachName: '李教练（专项训练负责人）', venue: '高新旗舰店 · 拳台及综合体能训练区' }
+    if (state === 'submitting') data.bookingId = 's1'
+    if (state === 'loading') data.pageBusy = true
+    data.pageData.resultCount = data.pageData.schedules.length
+  }
   if (page === 'workspace/schedule') {
     const calendar = require('../miniprogram/utils/schedule-calendar')
     data.selectedDate = dateKey
@@ -181,12 +199,15 @@ function readStyles(file) {
   return fs.readFileSync(file, 'utf8').replace(/@import\s+["']([^"']+)["'];/g, (_, relative) => readStyles(path.resolve(path.dirname(file), relative)))
 }
 
+// 与本地微信基础库 2.32.3 / 3.16.2 的尺寸规则一致，避免漏检默认 184px 宽度。
+const nativeButtonStyles = 'button.wx-button-size-normal{margin-left:auto;margin-right:auto;width:184px}button.wx-button-size-mini{display:inline-block;font-size:13px;line-height:2.3;padding:0 1.34em}'
+
 function html(page, search = new URLSearchParams()) {
   const data = fixtures(page, search)
   const wxml = parseWxml(fs.readFileSync(path.join(mini, 'pages', page, 'index.wxml'), 'utf8'))
   const styles = ['app.wxss', 'components/app-tabbar/index.wxss', 'components/page-feedback/index.wxss', `pages/${page}/index.wxss`].map((file) => readStyles(path.join(mini, file))).join('\n').replace(/(-?\d+(?:\.\d+)?)rpx/g, 'calc($1 * var(--unit))').replace(/\bpage\s*\{/g, 'body {').replace(/(?<![\w-])view(?![\w-])/g, 'div').replace(/(?<![\w-])text(?![\w-])/g, 'span')
   const menu = pageNames.map((name) => `<a href="/preview/${name}">${name}</a>`).join('')
-  return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ONE · ${escape(page)} 布局预览</title><style>:root{--unit:calc(min(100vw,430px) / 750)}body{margin:0}main{max-width:430px;margin:auto}button{cursor:pointer;font-family:inherit}img{object-fit:cover}a{text-decoration:none;color:inherit}input,textarea{font-family:inherit}input{outline:none}nav{display:none}${styles}\n.tabbar-wrap{width:min(100vw,430px);right:auto;left:50%;transform:translateX(-50%)}.scroll-row,.facility-scroll{overflow-x:auto}.sheet-scroll{overflow-y:auto}.home-hero-cta{width:fit-content} [data-preview-action]{cursor:pointer}</style></head><body><nav>${menu}</nav><main>${renderChildren(wxml.children, data)}</main><script>document.addEventListener('click',function(event){const el=event.target.closest('[data-preview-action]');if(!el)return;const a=el.dataset.previewAction;const routes={goBooking:'/preview/booking?type='+(el.dataset.type||'group'),goMySchedule:'/preview/profile',goIdentityQr:'/preview/profile',goLogin:'/preview/login',goBrowse:'/preview/home',onOpenUserManage:'/preview/admin/users',onOpenPackageManage:'/preview/admin/packages',onOpenStoreManage:'/preview/admin/stores',onOpenOperations:'/preview/workspace',goClassDetail:'/preview/workspace/class'};if(routes[a])location.href=routes[a];else if(a==='onTap')location.href='/preview/'+el.dataset.path.replace('/pages/','').replace('/index','');else if(a==='onTapAction')location.href='/preview/workspace/'+el.dataset.actionId;else if(['onTogglePricing','onToggleFilters','onOpenCoachPicker','onToggleAuditLogs'].includes(a))location.search='?expanded=1';else if(['onOpenCreatePopup','onOpenCreate','onOpenCreateStore','onOpenCreatePopup','openNicknameEditor'].includes(a))location.search='?popup=1';else if(['onCloseCreatePopup','onCloseStorePopup','closeNicknameEditor','onCloseCoachPicker'].includes(a))location.search='';else if(a==='onViewAssets')location.search='?popup=assets';else if(a==='onCloseAssets')location.search='';else if(a==='onBook')alert('这是布局预览，不会提交真实预约。');});</script></body></html>`
+  return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ONE · ${escape(page)} 布局预览</title><style>:root{--unit:calc(min(100vw,430px) / 750)}body{margin:0}main{max-width:430px;margin:auto}button{cursor:pointer;font-family:inherit}img{object-fit:cover}a{text-decoration:none;color:inherit}input,textarea{font-family:inherit}input{outline:none}nav{display:none}${nativeButtonStyles}${styles}\n.tabbar-wrap{width:min(100vw,430px);right:auto;left:50%;transform:translateX(-50%)}.scroll-row,.facility-scroll{overflow-x:auto}.sheet-scroll{overflow-y:auto}.home-hero-cta{width:fit-content} [data-preview-action]{cursor:pointer}</style></head><body><nav>${menu}</nav><main>${renderChildren(wxml.children, data)}</main><script>document.addEventListener('click',function(event){const el=event.target.closest('[data-preview-action]');if(!el)return;const a=el.dataset.previewAction;const routes={goBooking:'/preview/booking?type='+(el.dataset.type||'group'),goMySchedule:'/preview/profile',goIdentityQr:'/preview/profile',goLogin:'/preview/login',goBrowse:'/preview/home',onOpenUserManage:'/preview/admin/users',onOpenPackageManage:'/preview/admin/packages',onOpenStoreManage:'/preview/admin/stores',onOpenOperations:'/preview/workspace',goClassDetail:'/preview/workspace/class'};if(routes[a])location.href=routes[a];else if(a==='onTap')location.href='/preview/'+el.dataset.path.replace('/pages/','').replace('/index','');else if(a==='onTapAction')location.href='/preview/workspace/'+el.dataset.actionId;else if(['onTogglePricing','onToggleFilters','onOpenCoachPicker','onToggleAuditLogs'].includes(a))location.search='?expanded=1';else if(['onOpenCreatePopup','onOpenCreate','onOpenCreateStore','onOpenCreatePopup','openNicknameEditor'].includes(a))location.search='?popup=1';else if(['onCloseCreatePopup','onCloseStorePopup','closeNicknameEditor','onCloseCoachPicker'].includes(a))location.search='';else if(a==='onViewAssets')location.search='?popup=assets';else if(a==='onCloseAssets')location.search='';else if(a==='onBook')alert('这是布局预览，不会提交真实预约。');});</script></body></html>`
 }
 
 if (require.main === module) {
