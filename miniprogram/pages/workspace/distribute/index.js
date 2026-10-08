@@ -15,7 +15,8 @@ function todayStr() {
 
 function buildDistributeCacheKey(runtime, keyword) {
   const storeId = runtime && runtime.currentStore && runtime.currentStore.id ? runtime.currentStore.id : 'default'
-  return 'workspace:distribute:' + storeId + ':' + String(keyword || '').trim()
+  const userId = runtime && runtime.userProfile ? runtime.userProfile.id : 'guest'
+  return 'workspace:distribute:' + userId + ':' + storeId + ':' + String(keyword || '').trim()
 }
 
 function normalizeMember(member) {
@@ -69,9 +70,17 @@ Page(withPageState({
     payType: '微信转账',
     remark: '',
     minExpiryDate: todayStr(),
+    step: 1,
+    packageType: 'all',
+    visiblePackages: [],
+    paymentOptions: ['微信转账', '支付宝', '现金', '银行卡', '赠课', '其他'],
+    preview: {},
+    receipt: null,
+    searching: false,
   },
 
   onShow() {
+    this.setData({ minExpiryDate: todayStr() })
     this.syncPageData()
   },
 
@@ -90,7 +99,13 @@ Page(withPageState({
     const requestId = (this._syncRequestId || 0) + 1
     this._syncRequestId = requestId
 
-    const runtime = await app.getRuntimeSnapshotAsync()
+    let runtime
+    try {
+      runtime = await app.getRuntimeSnapshotAsync()
+    } catch (error) {
+      if (this._syncRequestId === requestId) this.setData({ searching: false })
+      throw error
+    }
     if (this._syncRequestId !== requestId) {
       return
     }
@@ -119,7 +134,9 @@ Page(withPageState({
       this.setData({
         runtime,
         pageData: normalizedPageData,
+        searching: false,
       })
+      this.refreshPreview()
     } catch (error) {
       if (this._syncRequestId !== requestId) {
         return
@@ -127,8 +144,10 @@ Page(withPageState({
       this.setData({ pageError: error.message || "加载失败，请重试" })
       this.setData({
         runtime,
-        pageData: normalizePageData(app.getDistributePageData(this.data.keyword), runtime.currentStore),
+        pageData: normalizePageData(app.getViewCache(buildDistributeCacheKey(runtime, this.data.keyword)) || app.getDistributePageData(this.data.keyword), runtime.currentStore),
+        searching: false,
       })
+      this.refreshPreview()
     }
   },
 
@@ -142,11 +161,52 @@ Page(withPageState({
       runtime,
       pageData: normalizePageData(cachedPageData || app.getDistributePageData(this.data.keyword), runtime.currentStore),
     })
+    this.refreshPreview()
     return Boolean(cachedPageData)
   },
 
+  refreshPreview() {
+    const member = this.data.selectedMember
+    const pack = this.data.selectedPackage
+    const previousCount = member && pack ? Number(pack.type === 'group' ? member.groupCount : member.privateCount) || 0 : 0
+    const previousExpiry = member && pack ? (pack.type === 'group' ? member.groupExpiry : member.privateExpiry) : ''
+    const currentCount = previousExpiry && previousExpiry < todayStr() ? 0 : previousCount
+    this.setData({
+      visiblePackages: (this.data.pageData.packageOptions || []).filter((item) => this.data.packageType === 'all' || item.type === this.data.packageType),
+      preview: {
+        before: currentCount,
+        after: currentCount + (pack ? pack.lessons : 0),
+        expiry: previousExpiry && previousExpiry > this.data.expiryDate ? previousExpiry : this.data.expiryDate,
+        amount: Number.isFinite(Number(this.data.amount)) ? Number(this.data.amount).toFixed(2) : '—',
+      },
+    })
+  },
+  onPackageFilter(event) {
+    if (this.data.submitting) return
+    this.setData({ packageType: event.currentTarget.dataset.type })
+    this.refreshPreview()
+  },
+  onStep(event) {
+    if (this.data.submitting) return
+    const step = Number(event.currentTarget.dataset.step)
+    if (step >= 2 && !this.data.selectedMember) return wx.showToast({ title: '请先选择学员', icon: 'none' })
+    if (step >= 3 && !this.data.selectedPackage) return wx.showToast({ title: '请先选择套餐', icon: 'none' })
+    this.setData({ step })
+  },
+  onNext() { this.onStep({ currentTarget: { dataset: { step: this.data.step + 1 } } }) },
+  onBack() { this.onStep({ currentTarget: { dataset: { step: this.data.step - 1 } } }) },
+  onPaymentSelect(event) {
+    if (this.data.submitting) return
+    const payType = event.currentTarget.dataset.value
+    this.setData({ payType, amount: payType === '赠课' ? '0' : this.data.amount })
+    this.refreshPreview()
+  },
+  onContinueDistribute() { this.setData({ receipt: null, step: 1 }); this.syncPageData() },
+
   onKeywordInput(event) {
-    this.setData({ keyword: event.detail.value })
+    if (this.data.submitting) return
+    this._syncRequestId = (this._syncRequestId || 0) + 1
+    this.setData({ keyword: event.detail.value, searching: Boolean(event.detail.value.trim()), pageData: Object.assign({}, this.data.pageData, { members: [] }) })
     if (this._keywordTimer) clearTimeout(this._keywordTimer)
     this._keywordTimer = setTimeout(() => {
       this._keywordTimer = null
@@ -155,39 +215,54 @@ Page(withPageState({
   },
 
   onSelectMember(event) {
+    if (this.data.submitting || this.data.searching) return
     const memberId = event.currentTarget.dataset.memberId
     const selectedMember = (this.data.pageData.members || []).find((item) => item.id === memberId)
+    if (!selectedMember) return
+    if (this._keywordTimer) clearTimeout(this._keywordTimer)
+    this._syncRequestId = (this._syncRequestId || 0) + 1
     this.setData({
       selectedMemberId: memberId,
       selectedMember: selectedMember || null,
       keyword: '',
+      step: 2,
     })
+    this.refreshPreview()
   },
 
   onSelectPackage(event) {
+    if (this.data.submitting) return
     const packageId = event.currentTarget.dataset.packageId
     const targetPackage = (this.data.pageData.packageOptions || []).find((item) => item.id === packageId)
+    if (!targetPackage) return
     this.setData({
       selectedPackageId: packageId,
       selectedPackage: targetPackage || null,
       amount: targetPackage ? String(targetPackage.price) : this.data.amount,
       expiryDate: targetPackage && targetPackage.validDays ? addDays(targetPackage.validDays) : this.data.expiryDate,
     })
+    this.refreshPreview()
   },
 
   onExpiryDateChange(event) {
+    if (this.data.submitting) return
     this.setData({ expiryDate: event.detail.value })
+    this.refreshPreview()
   },
 
   onAmountInput(event) {
+    if (this.data.submitting) return
     this.setData({ amount: event.detail.value })
+    this.refreshPreview()
   },
 
   onPayTypeInput(event) {
+    if (this.data.submitting) return
     this.setData({ payType: event.detail.value })
   },
 
   onRemarkInput(event) {
+    if (this.data.submitting) return
     this.setData({ remark: event.detail.value })
   },
 
@@ -205,9 +280,12 @@ Page(withPageState({
       wx.showToast({ title: '到期日期不能早于今天', icon: 'none' })
       return
     }
-    if (!String(this.data.amount).trim() || !Number.isFinite(Number(this.data.amount)) || Number(this.data.amount) < 0) {
+    if (!/^\d+(\.\d{1,2})?$/.test(String(this.data.amount).trim())) {
       wx.showToast({ title: '请输入有效实收金额，赠课可填 0', icon: 'none' })
       return
+    }
+    if (!this.data.payType.trim() || (this.data.payType === '赠课' && Number(this.data.amount) !== 0)) {
+      wx.showToast({ title: '赠课金额须为 0，请核对收款方式', icon: 'none' }); return
     }
 
     const member = this.data.selectedMember || (this.data.pageData.members || []).find((item) => item.id === this.data.selectedMemberId)
@@ -218,31 +296,25 @@ Page(withPageState({
     }
 
     const app = getApp()
+    this.refreshPreview()
+    const preview = Object.assign({}, this.data.preview)
+    const snapshot = { memberId: member.id || this.data.selectedMemberId, packageId: targetPackage.id || this.data.selectedPackageId, expiryDate: this.data.expiryDate, amount: Number(this.data.amount), payType: this.data.payType, remark: this.data.remark, storeId: this.data.pageData.currentStore && this.data.pageData.currentStore.id }
     this.setData({ submitting: true })
     try {
-        const confirmed = await confirmAction({ title: '确认派发', content: member.nickname + ' · ' + targetPackage.name + '\n' + targetPackage.lessons + ' 节' + targetPackage.typeLabel + '，到期 ' + this.data.expiryDate + '\n实收 ¥' + Number(this.data.amount).toFixed(2) + ' · ' + this.data.payType })
+        const confirmed = await confirmAction({ title: '确认派发', content: member.nickname + ' · ' + member.phone + '\n' + targetPackage.name + '\n增加 ' + targetPackage.lessons + ' 节' + targetPackage.typeLabel + '，预计余额 ' + preview.after + ' 节\n到账有效期 ' + preview.expiry + '\n实收 ¥' + preview.amount + ' · ' + snapshot.payType })
         if (!confirmed) return
         const runtime = await app.getRuntimeSnapshotAsync({ force: true })
         if (!runtime.isAuthenticated) {
           wx.reLaunch({ url: '/pages/login/index' })
           return
         }
-        const localPayload = {
-          memberId: this.data.selectedMemberId,
-          packageId: this.data.selectedPackageId,
-          expiryDate: this.data.expiryDate,
-          amount: Number(this.data.amount || 0),
-          payType: this.data.payType || '微信转账',
-          remark: this.data.remark,
-          memberSnapshot: member,
-          packageSnapshot: targetPackage,
-        }
+        const localPayload = snapshot
         let result = null
 
         try {
-          await businessApi.distributeAsset({
+          const cloudResult = await businessApi.distributeAsset({
             userId: localPayload.memberId,
-            storeId: runtime.currentStore.id,
+            storeId: snapshot.storeId || runtime.currentStore.id,
             packageId: localPayload.packageId,
             expiryDate: localPayload.expiryDate,
             operatorId: runtime.userProfile.id,
@@ -252,6 +324,7 @@ Page(withPageState({
           })
           result = {
             ok: true,
+            expiry: cloudResult && cloudResult.expiryDate || preview.expiry,
             message: '已为' + member.nickname + '派发 ' + targetPackage.lessons + ' 节' + targetPackage.typeLabel,
           }
         } catch (error) {
@@ -264,6 +337,7 @@ Page(withPageState({
           app.removeViewCacheByPrefix('admin:dashboard:')
           app.removeViewCacheByPrefix('profile:' + localPayload.memberId)
           this.setData({
+            receipt: { name: member.nickname, phone: member.phone, packageName: targetPackage.name, lessons: targetPackage.lessons, typeLabel: targetPackage.typeLabel, amount: preview.amount, expiry: result.expiry, payType: snapshot.payType },
             selectedMemberId: '',
             selectedMember: null,
             selectedPackageId: '',
@@ -272,6 +346,7 @@ Page(withPageState({
             amount: '',
             payType: '微信转账',
             remark: '',
+            step: 1,
           })
           this.syncPageData()
         }

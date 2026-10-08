@@ -1,0 +1,10 @@
+.search-row { display: flex; gap: 16rpx; align-items: center; margin: 20rpx 0; }
+.input-field { flex: 1; min-width: 0; height: 80rpx; background: #f5f4ef; padding: 0 16rpx; border-radius: 12rpx; font-size: 26rpx; }
+.search-row button { flex-shrink: 0; }
+.member-option { padding: 24rpx 16rpx; border: 2rpx solid #e4e6df; border-radius: 12rpx; margin-top: 16rpx; }
+.member-option.selected { border-color: #c7452d; background: #fff7f3; }
+.selection-summary { margin-top: 24rpx; font-weight: 600; font-size: 26rpx; overflow-wrap: anywhere; }
+.form-label { margin: 24rpx 0 16rpx; font-size: 26rpx; font-weight: 600; }
+.picker-field { padding: 24rpx; background: #f5f4ef; border-radius: 12rpx; }
+.remark-field { box-sizing: border-box; width: 100%; height: 150rpx; padding: 20rpx; background: #f5f4ef; font-size: 26rpx; border-radius: 12rpx; margin-bottom: 24rpx; }
+.retry-note, .result-note { font-size: 26rpx; line-height: 1.6; padding: 20rpx 0; color: #c7452d; }

@@ -114,6 +114,7 @@ Page(withPageState({
       return
     }
     const routeMap = {
+      manual: '/pages/workspace/manual/index',
       distribute: '/pages/workspace/distribute/index',
       class: '/pages/workspace/class/index',
       schedule: '/pages/workspace/schedule/index',

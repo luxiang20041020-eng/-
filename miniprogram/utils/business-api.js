@@ -15,7 +15,8 @@ function callBusinessCore(action, payload) {
   })
   if (isRead) {
     pendingReads.set(key, request)
-    request.then(() => pendingReads.delete(key), () => pendingReads.delete(key))
+    const clear = () => { if (pendingReads.get(key) === request) pendingReads.delete(key) }
+    request.then(clear, clear)
   }
   return request
 }
@@ -170,6 +171,9 @@ async function updatePackageStatus(payload) {
 }
 
 module.exports = {
+  clearPendingReads: () => pendingReads.clear(),
+  getManualWriteOffViewData: async (payload) => unwrapResult(await callBusinessCore('getManualWriteOffViewData', payload)),
+  manualWriteOff: async (payload) => unwrapResult(await callBusinessCore('manualWriteOff', payload)),
   logout,
   bootstrapCollections,
   getCurrentUserSession,

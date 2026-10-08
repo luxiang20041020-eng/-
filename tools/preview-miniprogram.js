@@ -6,7 +6,7 @@ const vm = require('node:vm')
 const { createRequire } = require('node:module')
 const root = path.resolve(__dirname, '..')
 const mini = path.join(root, 'miniprogram')
-const pageNames = ['home', 'booking', 'profile', 'login', 'workspace', 'admin', 'admin/users', 'admin/packages', 'admin/stores', 'workspace/distribute', 'workspace/schedule', 'workspace/class']
+const pageNames = ['home', 'booking', 'profile', 'login', 'workspace', 'admin', 'admin/users', 'admin/packages', 'admin/stores', 'workspace/distribute', 'workspace/schedule', 'workspace/class', 'workspace/manual']
 const escape = (value) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 
 function parse(source) {
@@ -94,10 +94,45 @@ function fixtures(page, search) {
   const dates = Array.from({ length: 7 }, (_, index) => ({ key: index ? 'day' + index : dateKey, displayWeekday: ['今日', '周四', '周五', '周六', '周日', '周一', '周二'][index], displayMonthDay: index ? '10/' + String(index).padStart(2, '0') : '09/30' }))
   const data = { ...config.data, runtime, hasPermission: true, avatarText: '陈', maskedPhone: '138****5678', checkingSession: false, identityExpanded: false, selectedStoreName: stores[0].name, selectedStoreAddress: stores[0].address, visibleUsers: [{ id: 'u1', name: '陈一', avatarText: '陈', roleLabel: '客户', phone: '138****5678', statusLabel: '正常', homeStoreName: stores[0].name }], visiblePackages: packages }
   data.pageData = { ...data.pageData, currentStore: stores[0], stores, heroNotice: '开课前 2 小时可取消，权益自动退回。', notices: ['训练预约须知'], galleryList: ['拳台训练区', '力量与体能区', '沙袋训练区'], packages, assets, schedules, dates, selectedCoachName: '全部人员', resultCount: 2, filters: { type: search.get('type') || 'group', coachId: 'all', dateKey }, myBookings: [{ id: 'b1', title: '泰拳基础 · 步法与发力', dateDay: '30', dateText: '09/30', timeRange: '19:00 - 20:30', status: '待到店', canCancel: true }], trainingStats: { monthLessons: 6, streakDays: 18, totalLessons: 24 }, todayClasses: [schedules[0]], summary: { bookedCount: 6, pendingCount: 4 }, quickActions: [{ id: 'distribute', title: '权益派发', desc: '记录收款，为学员补充权益' }, { id: 'class', title: '到场核销', desc: '确认学员出勤与缺席' }, { id: 'schedule', title: '训练排课', desc: '安排下一次训练' }], dateLabel: dateKey, auditOverview: { incomeText: '￥1,280.00', writeOffCount: 12, addedPrivateLessons: 8, addedGroupLessons: 24 }, auditLogs: [], stats: { total: 2, activeCount: 2, inactiveCount: 0 }, users: data.visibleUsers, members: [{ id: 'u1', nickname: '陈一', avatarText: '陈', phone: '138****5678', groupCount: 8, privateCount: 12 }], packageOptions: packages, plans: [{ id: 's1', title: schedules[0].title, weekLabel: '周三', dateLabel: '09/30', timeRange: '19:00 - 20:30', venue: stores[0].name, status: '已发布', type: 'group' }], classInfo: { ...schedules[0], dateLabel: '09/30' }, roster: [{ bookingId: 'b1', userName: '陈一', phone: '138****5678', status: '待核销' }] }
+  if (page === 'workspace/manual') {
+    data.keyword = '陈一'
+    data.selectedMember = data.pageData.members[0]
+    data.pageData.classInfo = search.get('class') ? { ...schedules[0], classType: 1 } : null
+    data.classId = search.get('class') ? 's1' : ''
+    data.pendingRetry = search.get('state') === 'pending'
+  }
   if (search.get('state') === 'empty') { for (const key of ['schedules', 'myBookings', 'todayClasses', 'members', 'plans', 'roster']) data.pageData[key] = []; data.pageData.resultCount = 0 }
   if (search.get('state') === 'error') data.pageError = '服务暂时无法连接，请检查网络后重试'
   if (search.get('popup')) { data.showCreatePopup = true; data.showStorePopup = true; data.showNicknameEditor = true }
   if (search.get('expanded')) { data.pricingExpanded = true; data.filtersExpanded = true; data.auditLogsExpanded = true; data.coachPickerVisible = true }
+  if (page === 'workspace/schedule') {
+    const calendar = require('../miniprogram/utils/schedule-calendar')
+    data.selectedDate = dateKey
+    data.fullDate = dateKey
+    data.title = '泰拳基础 · 步法与发力'
+    data.editorOpen = Boolean(search.get('popup'))
+    data.repeatWeekly = Boolean(search.get('repeat'))
+    data.pageData.plans = search.get('state') === 'empty' ? [] : schedules.map((item, i) => ({ ...item, fullDate: dateKey, startTime: item.timeStart, endTime: item.timeEnd, type: i ? 'private' : 'group', status: '已发布' }))
+    Object.assign(data, calendar.calendar(data.pageData.plans, dateKey))
+    data.repeatDates = calendar.repeatDates(dateKey, data.repeatWeekly)
+    data.conflictPlans = search.get('state') === 'conflict' ? data.pageData.plans.slice(0, 1) : []
+  }
+  if (page === 'workspace/distribute') {
+    data.step = Number(search.get('step') || 1)
+    data.keyword = data.step === 1 && search.get('state') !== 'empty' ? '陈一' : ''
+    data.packageType = search.get('type') || 'all'
+    data.pageData.packageOptions = data.pageData.packageOptions.map((item) => ({ ...item, validDays: item.type === 'group' ? 180 : 365 }))
+    data.visiblePackages = data.pageData.packageOptions.filter((item) => data.packageType === 'all' || data.packageType === item.type)
+    if (data.step > 1) data.selectedMember = { ...data.pageData.members[0], avatarText: '陈', privateExpiry: '2027-09-30' }
+    if (data.step === 3) {
+      data.selectedPackage = data.pageData.packageOptions[0]
+      data.selectedPackageId = data.selectedPackage.id
+      data.amount = '5800'
+      data.expiryDate = '2027-09-30'
+      data.preview = { before: 12, after: 42, amount: '5800.00', expiry: data.expiryDate }
+    }
+    if (search.get('state') === 'receipt') data.receipt = { name: '陈一', phone: '13812345678', packageName: '30 次专属训练', lessons: 30, typeLabel: '私教', amount: '5800.00', expiry: '2027-09-30', payType: '微信转账' }
+  }
   return data
 }
 

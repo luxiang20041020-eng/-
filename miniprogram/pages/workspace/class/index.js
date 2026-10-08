@@ -123,6 +123,11 @@ Page(withPageState({
     }
   },
 
+  onManualWriteOff() {
+    const classId = this.data.classId || this.data.pageData.classInfo.id
+    if (classId) wx.navigateTo({ url: '/pages/workspace/manual/index?classId=' + encodeURIComponent(classId) })
+  },
+
   applyLocalRosterStatus(bookingId, nextStatus) {
     const roster = (this.data.pageData.roster || []).map((item) => {
       if (item.bookingId !== bookingId) {

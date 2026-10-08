@@ -141,7 +141,7 @@ App({
       { key: 'booking', label: '预约', path: '/pages/booking/index' },
     ]
 
-    if (role === 'coach') {
+    if (role === 'coach' || role === 'admin') {
       baseTabs.push({ key: 'workspace', label: '工作台', path: '/pages/workspace/index' })
     }
 
@@ -188,6 +188,8 @@ App({
 
   applyCloudSession(sessionData) {
     this._authVersion = (this._authVersion || 0) + 1
+    if (businessApi.clearPendingReads) businessApi.clearPendingReads()
+    this._authRefreshingPromise = null
     const normalizedProfile = normalizeCloudUserProfile(sessionData && sessionData.userProfile)
     const normalizedStores = sessionData && sessionData.stores && sessionData.stores.length
       ? deepClone(sessionData.stores)
@@ -230,6 +232,8 @@ App({
 
   resetGuestSession() {
     this._authVersion = (this._authVersion || 0) + 1
+    if (businessApi.clearPendingReads) businessApi.clearPendingReads()
+    this._authRefreshingPromise = null
     const previousStoreId = this.globalData.selectedStoreId
     const guestStores = this.globalData.stores && this.globalData.stores.length
       ? this.globalData.stores
@@ -248,7 +252,27 @@ App({
     return this.getRuntimeSnapshot()
   },
 
-  completeLogout() {
+  isLogoutInProgress() { return Boolean(this._logoutRequest) },
+
+  beginLogout(userId) {
+    if (this._logoutRequest || !this.globalData.isAuthenticated || this.globalData.userProfile.id !== userId) return null
+    this._authVersion = (this._authVersion || 0) + 1
+    this._authRefreshingPromise = null
+    if (businessApi.clearPendingReads) businessApi.clearPendingReads()
+    const request = { userId, authVersion: this._authVersion }
+    this._logoutRequest = request
+    return request
+  },
+
+  endLogout(request) {
+    if (this._logoutRequest === request) {
+      this._logoutRequest = null
+      this.globalData.lastAuthSyncAt = 0
+    }
+  },
+
+  completeLogout(request) {
+    if (request && (this._logoutRequest !== request || request.authVersion !== this._authVersion || request.userId !== this.globalData.userProfile.id)) return null
     this.resetGuestSession()
     this.globalData.sessionDismissed = true
     this.globalData.selectedCoachClassId = ''
@@ -309,6 +333,7 @@ App({
 
   async refreshUserSession(options = {}) {
     if (this.globalData.sessionDismissed) return false
+    if (this.isLogoutInProgress()) return this.globalData.isAuthenticated
     const force = Boolean(options.force)
     if (this._authRefreshingPromise) {
       return this._authRefreshingPromise
@@ -317,7 +342,7 @@ App({
       return this.globalData.isAuthenticated
     }
 
-    this._authRefreshingPromise = (async () => {
+    const refreshPromise = (async () => {
       const authVersion = this._authVersion || 0
       try {
         const sessionData = await businessApi.getCurrentUserSession()
@@ -330,12 +355,12 @@ App({
         return false
       } catch (error) {
         return this.globalData.isAuthenticated
-      } finally {
-        this._authRefreshingPromise = null
       }
     })()
-
-    return this._authRefreshingPromise
+    this._authRefreshingPromise = refreshPromise
+    try { return await refreshPromise } finally {
+      if (this._authRefreshingPromise === refreshPromise) this._authRefreshingPromise = null
+    }
   },
 
   async getRuntimeSnapshotAsync(options = {}) {

@@ -77,6 +77,17 @@
     </view>
 
     <view class="card">
+      <view class="section-title">最近人工核销</view>
+      <view wx:if="{{!pageData.manualWriteOffLogs.length}}" class="card-desc">暂无人工核销记录</view>
+      <view wx:for="{{pageData.manualWriteOffLogs}}" wx:key="id" class="audit-item">
+        <view class="schedule-title">{{item.targetName}} · {{item.title}}</view>
+        <view class="card-desc">{{item.time}} · 操作人 {{item.operatorName}} · {{item.deductionLabel}}</view>
+        <view class="card-desc">实际训练：{{item.trainingTime}}</view>
+        <view wx:if="{{item.remark}}" class="card-desc">备注：{{item.remark}}</view>
+      </view>
+    </view>
+
+    <view class="card">
       <view class="section-title">管理门店</view>
       <view class="admin-tools-grid">
         <view class="admin-tool-card primary" bindtap="onOpenOperations">

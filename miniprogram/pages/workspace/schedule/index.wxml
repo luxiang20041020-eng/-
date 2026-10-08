@@ -1,75 +1,22 @@
-<view class="page-shell">
-  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
-  <view class="page-header">
-    <view>
-      <view class="page-title">排课管理</view>
-      <view class="page-subtitle">{{pageData.currentStore.name}} · 维护近期发布训练安排并补录新排课。</view>
-    </view>
-    <view class="role-badge">教练</view>
-  </view>
-
-  <view class="card">
-    <view class="card-title">新增排课</view>
-    <view class="field-block">
-      <view class="field-label">选择星期</view>
-      <view class="button-row week-option-row" style="margin-top: 16rpx;">
-        <view wx:for="{{weekOptions}}" wx:key="value" class="outline-chip {{weekDay === item.value ? 'active' : ''}}" data-week-day="{{item.value}}" bindtap="onWeekChange">{{item.label}}</view>
-      </view>
-    </view>
-    <view class="field-block">
-      <view class="field-label">训练日期</view>
-      <picker mode="date" value="{{fullDate}}" start="{{minDate}}" bindchange="onDateChange">
-        <view class="readonly-value">{{fullDate}} · {{weekLabel}} <text class="inline-link">更改</text></view>
-      </picker>
-    </view>
-    <view class="field-block">
-      <view class="field-label">时间段</view>
-      <view class="time-picker-row">
-        <picker mode="time" value="{{startTime}}" data-field="startTime" bindchange="onTimeChange"><view class="readonly-value">{{startTime}} 开始</view></picker>
-        <picker mode="time" value="{{endTime}}" data-field="endTime" bindchange="onTimeChange"><view class="readonly-value">{{endTime}} 结束</view></picker>
-      </view>
-    </view>
-    <view class="field-block">
-      <view class="field-label">训练主题</view>
-      <input class="form-input" data-field="title" value="{{title}}" maxlength="60" bindinput="onInput" placeholder="如：泰拳基础步法" />
-    </view>
-    <view class="field-block">
-      <view class="field-label">训练类型</view>
-      <view class="button-row" style="margin-top: 16rpx;">
-        <view class="outline-chip {{type === 'group' ? 'active' : ''}}" data-type="group" bindtap="onTypeChange">团课</view>
-        <view class="outline-chip {{type === 'private' ? 'active' : ''}}" data-type="private" bindtap="onTypeChange">私教</view>
-      </view>
-    </view>
-    <view class="field-block">
-      <view class="field-label">门店选择（即场地）</view>
-      <view class="store-picker" bindtap="onStoreFieldTap">
-        <view class="store-picker-main">
-          <view class="store-picker-value {{selectedStoreName ? '' : 'placeholder'}}">{{selectedStoreName || '点击选择门店'}}</view>
-          <view wx:if="{{selectedStoreAddress}}" class="card-desc">{{selectedStoreAddress}}</view>
-        </view>
-        <view class="store-picker-arrow">></view>
-      </view>
-    </view>
-    <view class="field-block">
-      <view class="row-between">
-        <view class="field-label">每周重复，连续 4 周</view>
-        <switch checked="{{repeatWeekly}}" color="#c7452d" bindchange="onRepeatWeeklyChange" />
-      </view>
-      <view class="card-desc">开启后将一次发布所选日期及随后 3 周的同一时段。</view>
-    </view>
-    <button class="primary-button" loading="{{submitting}}" disabled="{{submitting || pageBusy || pageError}}" bindtap="onSubmit">确认新增排课</button>
-  </view>
-
-  <view class="card">
-    <view class="card-title">近期排课</view>
-    <view wx:if="{{!pageData.plans.length}}" class="empty-state"><view class="empty-title">尚未发布排课</view><view>选择日期与时段，发布第一场训练。</view></view>
-    <view wx:for="{{pageData.plans}}" wx:key="id" class="plan-item">
-      <view class="row-between">
-        <view class="schedule-title">{{item.title}}</view>
-        <view class="status-chip">{{item.status}}</view>
-      </view>
-      <view class="card-desc">{{item.weekLabel}} {{item.dateLabel}} · {{item.timeRange}}</view>
-      <view class="card-desc">{{item.type === 'group' ? '团课' : '私教'}} · {{item.venue}}<text wx:if="{{item.repeatWeekly}}"> · 每周固定</text></view>
-    </view>
-  </view>
+<view class="page-shell schedule-page">
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry" />
+  <view class="schedule-hero"><view class="hero-eyebrow">ONE / TRAINING SCHEDULE</view><view class="row-between"><view class="hero-title">排期管理</view><view class="hero-role">{{runtime.role === 'admin' ? '管理员兼教练' : '教练'}}</view></view><view class="hero-caption">查看我的课程，安排下一场训练。</view><view class="venue-selector" bindtap="onStoreFieldTap"><view><view class="venue-name">{{selectedStoreName || '选择门店'}}</view><view class="venue-address">{{selectedStoreAddress}}</view></view><text>切换 ›</text></view></view>
+  <view class="calendar-card"><view class="row-between"><view><view class="section-title">{{weekRange}}</view><view class="muted">本周 {{weekCount}} 场 · 我的排期</view></view><button class="today-button" bindtap="onToday">今天</button></view><view class="week-navigation"><button data-days="-7" bindtap="onShiftWeek">‹ 上周</button><picker mode="date" value="{{selectedDate}}" bindchange="onCalendarDateChange"><view>选择日期 ⌄</view></picker><button data-days="7" bindtap="onShiftWeek">下周 ›</button></view><view class="calendar-grid"><view wx:for="{{days}}" wx:key="key" class="calendar-day {{selectedDate === item.key ? 'selected' : ''}}" data-date="{{item.key}}" bindtap="onSelectDay"><view class="day-week">{{item.label}}</view><view class="day-number">{{item.day}}</view><view class="day-count">{{item.count ? item.count + '场' : '—'}}</view></view></view></view>
+  <view class="row-between agenda-heading"><view class="section-title">{{dayHeading}}</view><view class="muted">{{dayPlans.length}} 场</view></view>
+  <view class="type-tabs"><view class="type-tab {{filterType === 'all' ? 'active' : ''}}" data-type="all" bindtap="onFilter">全部</view><view class="type-tab {{filterType === 'group' ? 'active' : ''}}" data-type="group" bindtap="onFilter">团课</view><view class="type-tab {{filterType === 'private' ? 'active' : ''}}" data-type="private" bindtap="onFilter">私教</view></view>
+  <view wx:if="{{scheduleNotice}}" class="schedule-notice">{{scheduleNotice}}<button bindtap="onRetry">重新同步</button></view>
+  <view wx:if="{{!dayPlans.length && !pageBusy && !pageError && !scheduleNotice}}" class="agenda-empty"><view class="empty-symbol">＋</view><view class="section-title">当天暂无{{filterType === 'all' ? '课程' : (filterType === 'group' ? '团课' : '私教')}}</view><view class="muted">选择其他日期查看，或为这一天新增排期。</view><button class="empty-add" bindtap="onOpenEditor">新增排期</button></view>
+  <view wx:for="{{dayPlans}}" wx:key="id" class="agenda-item {{item.status === '已取消' ? 'cancelled' : ''}}"><view class="agenda-time"><view class="start-time">{{item.startTime}}</view><view class="end-time">{{item.endTime}}</view><view class="time-line" /></view><view class="agenda-content"><view class="row-between"><view class="class-type {{item.type}}">{{item.type === 'group' ? '团课' : '私教'}}</view><view class="class-status">{{item.status}}</view></view><view class="class-title">{{item.title}}</view><view class="muted">{{item.venue}}<text wx:if="{{item.repeatWeekly}}"> · 每周重复</text></view><view class="row-between class-footer"><view class="capacity-count">已约 {{item.bookedCount || 0}} / {{item.capacity || '—'}} 人</view><button wx:if="{{item.status !== '已取消'}}" class="roster-link" data-id="{{item.id}}" bindtap="onOpenClass">名单与核销 ›</button></view></view></view>
+  <view class="schedule-dock"><view><view class="dock-date">{{selectedDate}}</view><view class="muted">安排下一场训练</view></view><button class="dock-add" disabled="{{pageBusy || pageError}}" bindtap="onOpenEditor">＋ 新增排期</button></view>
+  <view wx:if="{{editorOpen}}" class="editor-overlay"><view class="editor-sheet"><view class="editor-header row-between"><view><view class="section-title">新增排期</view><view class="muted">{{selectedStoreName}} · {{runtime.userProfile.nickname}}</view></view><button class="close-editor" disabled="{{submitting}}" bindtap="onCloseEditor">关闭</button></view><scroll-view scroll-y class="editor-scroll"><view class="editor-body">
+    <view class="field-label">训练主题</view><input class="form-input" data-field="title" value="{{title}}" disabled="{{submitting}}" maxlength="60" bindinput="onInput" placeholder="如：泰拳基础步法" />
+    <view class="field-block"><view class="field-label">训练类型</view><view class="type-tabs editor-types"><view class="type-tab {{type === 'group' ? 'active' : ''}}" data-type="group" bindtap="onTypeChange">团课</view><view class="type-tab {{type === 'private' ? 'active' : ''}}" data-type="private" bindtap="onTypeChange">私教 · 1 对 1</view></view></view>
+    <view class="field-block"><view class="field-label">训练日期</view><picker mode="date" value="{{fullDate}}" start="{{minDate}}" disabled="{{submitting}}" bindchange="onDateChange"><view class="picker-value">{{fullDate}} · {{weekLabel}}<text>更改 ›</text></view></picker></view>
+    <view class="field-block"><view class="field-label">训练时段</view><view class="time-picker-row"><picker mode="time" value="{{startTime}}" disabled="{{submitting}}" data-field="startTime" bindchange="onTimeChange"><view class="time-value"><view class="muted">开始</view><view>{{startTime}}</view></view></picker><view class="time-divider">—</view><picker mode="time" value="{{endTime}}" disabled="{{submitting}}" data-field="endTime" bindchange="onTimeChange"><view class="time-value"><view class="muted">结束</view><view>{{endTime}}</view></view></picker></view></view>
+    <view wx:if="{{type === 'group'}}" class="field-block"><view class="field-label">预约人数上限</view><input class="form-input" type="number" maxlength="3" data-field="capacity" value="{{capacity}}" disabled="{{submitting}}" bindinput="onInput" placeholder="1 至 100 人" /></view>
+    <view class="field-block repeat-block"><view class="row-between"><view><view class="field-label">每周重复</view><view class="muted">同一星期、同一时段，连续 4 周</view></view><switch checked="{{repeatWeekly}}" disabled="{{submitting}}" color="#c7452d" bindchange="onRepeatWeeklyChange" /></view></view>
+    <view class="publish-preview"><view class="field-label">将发布 {{repeatDates.length}} 场训练</view><view class="muted">{{timeRange}} · {{type === 'group' ? capacity : 1}} 人 / 场</view><view class="repeat-dates"><text wx:for="{{repeatDates}}" wx:key="*this">{{item}}</text></view></view>
+    <view wx:if="{{conflictPlans.length}}" class="conflict-box"><view class="field-label">时间重叠，请调整时段</view><view wx:for="{{conflictPlans}}" wx:key="id">{{item.fullDate}} {{item.timeRange}} · {{item.title}}</view></view>
+    <view class="muted editor-note">其他门店的教练排期也会在发布时校验，避免同一时段重复排课。</view>
+  </view></scroll-view><view class="editor-actions"><button class="primary-button" loading="{{submitting}}" disabled="{{submitting || pageBusy || pageError || conflictPlans.length}}" bindtap="onSubmit">{{submitting ? '正在发布…' : '确认发布 ' + repeatDates.length + ' 场'}}</button></view></view></view>
 </view>

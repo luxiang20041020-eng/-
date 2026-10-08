@@ -1,87 +1,24 @@
-<view class="page-shell">
-  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
-  <view class="page-header">
-    <view>
-      <view class="page-title">课时派发</view>
-      <view class="page-subtitle">{{pageData.currentStore.name}} · 线下收款后给学员加课，并保留审计记录。</view>
+<view class="page-shell distribute-page">
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry" />
+  <view class="distribute-hero"><view class="hero-eyebrow">ONE / MEMBER BENEFITS</view><view class="row-between"><view class="hero-title">权益派发</view><view class="hero-role">{{runtime.role === 'admin' ? '管理员' : '教练'}}</view></view><view class="hero-caption">{{pageData.currentStore.name}} · 记录收款，为学员补充课时。</view></view>
+  <view wx:if="{{receipt}}" class="receipt-card"><view class="success-mark">✓</view><view class="receipt-title">权益已派发</view><view class="muted">{{receipt.name}} · {{receipt.phone}}</view><view class="receipt-lessons">＋{{receipt.lessons}}<text> 节{{receipt.typeLabel}}</text></view><view class="receipt-line"><text>套餐</text><text>{{receipt.packageName}}</text></view><view class="receipt-line"><text>到账有效期</text><text>{{receipt.expiry}}</text></view><view class="receipt-line"><text>{{receipt.payType}}</text><text>¥{{receipt.amount}}</text></view><view class="muted receipt-note">权益和收款记录已保存。</view><button class="primary-button" bindtap="onContinueDistribute">继续派发</button></view>
+  <block wx:else>
+    <view class="steps"><view class="step {{step === 1 ? 'active' : ''}}" data-step="1" bindtap="onStep"><text class="step-number">1</text>选学员</view><view class="step-line" /><view class="step {{step === 2 ? 'active' : ''}}" data-step="2" bindtap="onStep"><text class="step-number">2</text>选套餐</view><view class="step-line" /><view class="step {{step === 3 ? 'active' : ''}}" data-step="3" bindtap="onStep"><text class="step-number">3</text>收款与核对</view></view>
+    <view wx:if="{{selectedMember && step !== 1}}" class="member-summary" data-step="1" bindtap="onStep"><view class="member-avatar">{{selectedMember.avatarText}}</view><view class="summary-main"><view class="summary-name">{{selectedMember.nickname}}</view><view class="muted">{{selectedMember.phone}}</view></view><text class="change-link">更换 ›</text></view>
+    <view wx:if="{{step === 1}}" class="flow-card"><view class="section-title">派发给谁？</view><view class="muted">按姓名或手机号查找学员，核对号码后选择。</view><input class="form-input search-input" placeholder="输入姓名或手机号" maxlength="32" disabled="{{submitting}}" value="{{keyword}}" bindinput="onKeywordInput" />
+      <view wx:if="{{searching}}" class="search-state">正在查找学员…</view>
+      <view wx:elif="{{keyword && !pageError}}"><view wx:for="{{pageData.members}}" wx:key="id" class="member-option" data-member-id="{{item.id}}" bindtap="onSelectMember"><view class="row-between"><view><view class="summary-name">{{item.nickname}}</view><view class="muted">{{item.phone}}</view></view><text class="change-link">选择 ›</text></view><view class="balance-row"><text>团课 {{item.groupCount}} 节</text><text>私教 {{item.privateCount}} 节</text></view></view><view wx:if="{{!pageData.members.length && !pageBusy}}" class="search-state">未找到学员，换个姓名或手机号再试。</view></view>
+      <view wx:elif="{{!selectedMember}}" class="search-state">先选择学员，再为其派发权益。</view>
+      <view wx:if="{{selectedMember}}" class="selected-member"><view class="muted">当前已选</view><view class="summary-name">{{selectedMember.nickname}}</view><view class="muted">{{selectedMember.phone}}</view><view class="balance-row"><text>团课 {{selectedMember.groupCount}} 节</text><text>私教 {{selectedMember.privateCount}} 节</text></view></view>
     </view>
-    <view class="role-badge">教练</view>
-  </view>
-
-  <view class="card">
-    <view class="card-title">选择学员</view>
-
-    <view wx:if="{{selectedMember}}" class="selected-summary">
-      <view class="summary-avatar">{{selectedMember.avatarText}}</view>
-      <view class="summary-main">
-        <view class="summary-name">{{selectedMember.nickname}}</view>
-        <view class="summary-meta">{{selectedMember.phone}}</view>
-        <view class="summary-meta">私教 {{selectedMember.privateCount}} 节 · 团课 {{selectedMember.groupCount}} 节</view>
-      </view>
+    <view wx:if="{{step === 2}}" class="flow-card"><view class="section-title">选择要增加的权益</view><view class="muted">选择套餐后自动填入标准金额和有效期。</view><view class="type-tabs"><view class="type-tab {{packageType === 'all' ? 'active' : ''}}" data-type="all" bindtap="onPackageFilter">全部</view><view class="type-tab {{packageType === 'group' ? 'active' : ''}}" data-type="group" bindtap="onPackageFilter">团课</view><view class="type-tab {{packageType === 'private' ? 'active' : ''}}" data-type="private" bindtap="onPackageFilter">私教</view></view>
+      <view wx:for="{{visiblePackages}}" wx:key="id" class="package-option {{selectedPackageId === item.id ? 'selected' : ''}}" data-package-id="{{item.id}}" bindtap="onSelectPackage"><view class="row-between"><text class="package-type">{{item.typeLabel}}</text><text class="selection-mark">{{selectedPackageId === item.id ? '✓ 已选择' : '选择'}}</text></view><view class="package-name">{{item.name}}</view><view class="row-between"><view class="package-lessons">{{item.lessons}}<text> 节</text></view><view class="package-price">¥{{item.price}}</view></view><view class="muted">有效期 {{item.validDays}} 天 · 标准价</view></view>
+      <view wx:if="{{!visiblePackages.length && !pageBusy && !pageError}}" class="search-state">暂无可用套餐，请联系管理员上架。</view>
     </view>
-
-    <input class="form-input" placeholder="{{selectedMember ? '重新搜索学员' : '输入姓名或手机号搜索学员'}}" value="{{keyword}}" bindinput="onKeywordInput" />
-
-    <view wx:if="{{keyword}}" class="result-list">
-      <view wx:for="{{pageData.members}}" wx:key="id" class="member-item {{selectedMemberId === item.id ? 'is-selected' : ''}}" data-member-id="{{item.id}}" bindtap="onSelectMember">
-        <view class="row-between">
-          <view>
-            <view class="schedule-title">{{item.nickname}}</view>
-            <view class="member-phone">{{item.phone}}</view>
-          </view>
-          <view class="status-chip">{{selectedMemberId === item.id ? '已选' : '选择'}}</view>
-        </view>
-        <view class="card-desc">私教 {{item.privateCount}} 节<text wx:if="{{item.privateExpiry}}">（{{item.privateExpiry}} 到期）</text> · 团课 {{item.groupCount}} 节<text wx:if="{{item.groupExpiry}}">（{{item.groupExpiry}} 到期）</text></view>
-      </view>
-      <view wx:if="{{pageData.members.length === 0}}" class="empty-text">没有匹配到学员，请换姓名或手机号再试。</view>
+    <view wx:if="{{step === 3}}">
+      <view class="flow-card"><view class="row-between"><view class="section-title">记录线下收款</view><view class="change-link" data-step="2" bindtap="onStep">更换套餐 ›</view></view><view class="muted">{{selectedPackage.name}} · 增加 {{selectedPackage.lessons}} 节{{selectedPackage.typeLabel}}</view><view class="amount-label">实收金额（元）</view><view class="amount-field"><text>¥</text><input type="digit" maxlength="12" value="{{amount}}" disabled="{{submitting}}" bindinput="onAmountInput" placeholder="0.00" /></view><view class="muted">标准价 ¥{{selectedPackage.price}}，按实际收款填写。</view><view class="field-block"><view class="field-label">收款方式</view><view class="payment-grid"><view wx:for="{{paymentOptions}}" wx:key="*this" class="payment-option {{payType === item ? 'selected' : ''}}" data-value="{{item}}" bindtap="onPaymentSelect">{{item}}</view></view></view><view class="field-block"><view class="field-label">权益到期日</view><picker mode="date" value="{{expiryDate}}" start="{{minExpiryDate}}" disabled="{{submitting}}" bindchange="onExpiryDateChange"><view class="expiry-picker">{{expiryDate || '请选择日期'}}<text>更改 ›</text></view></picker><view class="muted">同类型权益合并，保留新旧到期日中较晚的日期。</view></view><view class="field-block"><view class="field-label">备注（选填）</view><textarea class="form-textarea" maxlength="200" value="{{remark}}" disabled="{{submitting}}" placeholder="如：续费、活动赠课、收款凭证编号" bindinput="onRemarkInput" /></view></view>
+      <view class="review-card"><view class="section-title">派发前核对</view><view class="balance-preview"><view><view class="muted">当前可用</view><view class="balance-number">{{preview.before}}</view></view><view class="balance-arrow">＋ {{selectedPackage.lessons}} →</view><view><view class="muted">预计到账后</view><view class="balance-number accented">{{preview.after}}<text> 节</text></view></view></view><view class="receipt-line"><text>权益类型</text><text>{{selectedPackage.typeLabel}}</text></view><view class="receipt-line"><text>到账有效期</text><text>{{preview.expiry}}</text></view><view class="receipt-line"><text>实收 / {{payType}}</text><text>¥{{preview.amount}}</text></view><view class="muted review-note">余额以派发时的实际记录为准；已过期课时不计入本次到账。</view></view>
     </view>
-
-    <view wx:elif="{{!selectedMember}}" class="search-hint">输入姓名或手机号后再展示匹配学员，避免整页被客户列表占满。</view>
-  </view>
-
-  <view class="card">
-    <view class="card-title">选择套餐</view>
-    <view wx:if="{{selectedPackage}}" class="selected-summary package-summary">
-      <view class="summary-main">
-        <view class="summary-name">{{selectedPackage.name}}</view>
-        <view class="summary-meta">{{selectedPackage.typeLabel}} · {{selectedPackage.lessons}} 节 · ￥{{selectedPackage.price}}</view>
-      </view>
-    </view>
-    <view class="package-list">
-    <view wx:for="{{pageData.packageOptions}}" wx:key="id" class="package-item {{selectedPackageId === item.id ? 'is-selected' : ''}}" data-package-id="{{item.id}}" bindtap="onSelectPackage">
-      <view class="row-between">
-        <view class="schedule-title">{{item.name}}</view>
-        <view class="status-chip">{{item.typeLabel}}</view>
-      </view>
-      <view class="card-desc">{{item.lessons}} 节 · 标准价 ￥{{item.price}} · 有效期 {{item.validDays}} 天</view>
-    </view>
-    </view>
-
-    <view class="field-block">
-      <view class="field-label">课时到期日期 <text style="color:#c7452d">*</text></view>
-      <picker mode="date" value="{{expiryDate}}" start="{{minExpiryDate}}" bindchange="onExpiryDateChange">
-        <view class="form-input picker-display {{expiryDate ? '' : 'placeholder'}}">
-          {{expiryDate ? expiryDate : '请选择到期日期'}}
-        </view>
-      </picker>
-      <view class="card-desc" wx:if="{{expiryDate}}">到期后剩余课时将自动失效，不可继续预约。</view>
-    </view>
-
-    <view class="field-block">
-      <view class="field-label">线下实收金额</view>
-      <input class="form-input" type="digit" placeholder="请输入金额" value="{{amount}}" bindinput="onAmountInput" />
-    </view>
-
-    <view class="field-block">
-      <view class="field-label">收款方式</view>
-      <input class="form-input" placeholder="如：微信转账 / 现金 / 赠课" value="{{payType}}" bindinput="onPayTypeInput" />
-    </view>
-
-    <view class="field-block">
-      <view class="field-label">派发备注</view>
-      <textarea class="form-textarea" placeholder="如：活动赠送、续费已转财务" value="{{remark}}" bindinput="onRemarkInput"></textarea>
-    </view>
-
-    <button class="primary-button" loading="{{submitting}}" disabled="{{submitting || pageBusy || pageError}}" bindtap="onSubmit">确认派发</button>
-  </view>
+    <view class="distribute-dock"><button wx:if="{{step > 1}}" class="back-button" disabled="{{submitting}}" bindtap="onBack">上一步</button><view wx:else class="dock-hint">{{selectedMember ? selectedMember.nickname : '尚未选择学员'}}</view><button wx:if="{{step < 3}}" class="next-button" disabled="{{pageBusy || pageError || (step === 1 ? !selectedMember : !selectedPackage)}}" bindtap="onNext">{{step === 1 ? '下一步 · 选套餐' : '下一步 · 记录收款'}}</button><button wx:else class="next-button" loading="{{submitting}}" disabled="{{submitting || pageBusy || pageError}}" bindtap="onSubmit">{{submitting ? '正在派发…' : '确认派发权益'}}</button></view>
+  </block>
 </view>

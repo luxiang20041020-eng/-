@@ -39,7 +39,7 @@ Page({
   onOpenPrivacyContract() {
     if (!wx.openPrivacyContract) {
       wx.showToast({
-        title: '当前微信版本暂不支持查看协议',
+        title: '当前版本暂不支持查看协议',
         icon: 'none',
       })
       return
@@ -89,6 +89,11 @@ Page({
   },
 
   async onGetPhoneNumber(event) {
+    const app = getApp()
+    if (app.isLogoutInProgress && app.isLogoutInProgress()) {
+      wx.showToast({ title: '正在退出登录，请稍后再登录', icon: 'none' })
+      return
+    }
 
     if (this.data.submitting) {
       return
@@ -117,10 +122,12 @@ Page({
     })
 
     try {
+      const authVersion = app._authVersion || 0
       const sessionData = await businessApi.loginWithPhone({
         phoneCode: detail.code,
       })
-      getApp().applyCloudSession(sessionData)
+      if ((app._authVersion || 0) !== authVersion || (app.isLogoutInProgress && app.isLogoutInProgress())) return
+      app.applyCloudSession(sessionData)
       wx.showToast({
         title: '登录成功',
         icon: 'success',

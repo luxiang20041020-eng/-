@@ -7,6 +7,7 @@
     "pages/workspace/index",
     "pages/workspace/distribute/index",
     "pages/workspace/class/index",
+    "pages/workspace/manual/index",
     "pages/workspace/schedule/index",
     "pages/admin/index",
     "pages/admin/users/index",

@@ -1,6 +1,6 @@
 const PUBLIC_ACTIONS = new Set(['getCurrentUserSession', 'loginWithPhone', 'getHomeViewData', 'getBookingViewData', 'logout'])
 const ADMIN_ACTIONS = new Set(['bootstrap', 'getAdminDashboardData', 'getAdminUserManageData', 'getAdminPackageManageData', 'getAdminStoreManageData', 'createPackage', 'createStore', 'updateStore', 'updateStoreStatus', 'updateUserRole', 'updatePackageStatus'])
-const STAFF_ACTIONS = new Set(['getWorkspaceViewData', 'getDistributeViewData', 'getCoachClassViewData', 'getCoachScheduleViewData', 'distributeAsset', 'writeOffBooking', 'createCoachSchedule'])
+const STAFF_ACTIONS = new Set(['getWorkspaceViewData', 'getDistributeViewData', 'getCoachClassViewData', 'getCoachScheduleViewData', 'getManualWriteOffViewData', 'manualWriteOff', 'distributeAsset', 'writeOffBooking', 'createCoachSchedule'])
 const MEMBER_ACTIONS = new Set(['getIdentityQrCode', 'getProfileViewData', 'updateUserProfile', 'createBooking', 'cancelBooking'])
 
 function reject(message, code) {

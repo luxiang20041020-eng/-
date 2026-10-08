@@ -1,6 +1,7 @@
 const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
 const { confirmAction } = require('../../../utils/interaction')
+const scheduleCalendar = require('../../../utils/schedule-calendar')
 
 const WEEKDAY_OPTIONS = [
   { value: 1, label: '周一' },
@@ -16,21 +17,6 @@ function pad2(value) {
   return String(value).padStart(2, '0')
 }
 
-function getNextDateByWeekday(weekDay) {
-  const today = new Date()
-  const currentWeekDay = today.getDay()
-  let diff = weekDay - currentWeekDay
-  if (diff < 0) {
-    diff += 7
-  }
-  const targetDate = new Date(today)
-  targetDate.setDate(today.getDate() + diff)
-  return {
-    monthDay: pad2(targetDate.getMonth() + 1) + '/' + pad2(targetDate.getDate()),
-    fullDate: targetDate.getFullYear() + '-' + pad2(targetDate.getMonth() + 1) + '-' + pad2(targetDate.getDate()),
-  }
-}
-
 function mapRuntimeStoreToOption(store) {
   return {
     id: store.id,
@@ -44,7 +30,7 @@ function normalizeSchedulePageData(pageData, runtime) {
   const fallbackStores = (runtime && runtime.stores ? runtime.stores : []).map(mapRuntimeStoreToOption)
   return Object.assign({}, safeData, {
     stores: safeData.stores && safeData.stores.length ? safeData.stores : fallbackStores,
-    plans: safeData.plans || [],
+    plans: (safeData.plans || []).map(scheduleCalendar.normalizePlan),
   })
 }
 
@@ -82,24 +68,33 @@ Page(withPageState({
     runtime: {},
     submitting: false,
     pageData: {},
-    weekDay: 1,
-    weekLabel: '周一',
-    dateLabel: getNextDateByWeekday(1).monthDay,
-    fullDate: getNextDateByWeekday(1).fullDate,
+    weekDay: new Date().getDay(),
+    weekLabel: WEEKDAY_OPTIONS.find((item) => item.value === new Date().getDay()).label,
+    dateLabel: pad2(new Date().getMonth() + 1) + '/' + pad2(new Date().getDate()),
+    fullDate: scheduleCalendar.dateKey(new Date()),
     timeRange: '19:00 - 20:30',
     startTime: '19:00',
     endTime: '20:30',
-    minDate: getNextDateByWeekday(new Date().getDay()).fullDate,
+    minDate: scheduleCalendar.dateKey(new Date()),
     title: '',
     type: 'group',
     storeId: '',
     selectedStoreName: '',
     selectedStoreAddress: '',
     repeatWeekly: false,
-    weekOptions: WEEKDAY_OPTIONS,
+    selectedDate: scheduleCalendar.dateKey(new Date()),
+    days: [], dayPlans: [], weekRange: '', dayHeading: '', weekCount: 0,
+    filterType: 'all', editorOpen: false, capacity: '15',
+    repeatDates: [], conflictPlans: [],
+    scheduleNotice: '',
   },
 
   onShow() {
+    const today = scheduleCalendar.dateKey(new Date())
+    if (!this._lastToday || this.data.selectedDate === this._lastToday) this.setData({ selectedDate: today })
+    this._lastToday = today
+    this.setData({ minDate: today })
+    this.refreshCalendar()
     this.syncPageData()
   },
 
@@ -129,6 +124,24 @@ Page(withPageState({
       if (this._syncRequestId !== requestId) {
         return
       }
+      // 旧接口仅有月/日；用服务端已确认的当天课程补齐，不能猜测年份。
+      let scheduleNotice = ''
+      if (pageData.plans.some((plan) => !plan.fullDate)) {
+        if (businessApi.getWorkspaceViewData) {
+          try {
+            const workspace = await businessApi.getWorkspaceViewData({ storeId: targetStoreId, coachId: runtime.userProfile.id })
+            if (this._syncRequestId !== requestId) return
+            const today = scheduleCalendar.fullDateKey(workspace.todayDate) || scheduleCalendar.dateKey(new Date())
+            const todayMap = new Map((workspace.todayClasses || []).map((plan) => [plan.id, plan]))
+            pageData.plans = pageData.plans.map((plan) => todayMap.has(plan.id) && !plan.fullDate
+              ? scheduleCalendar.normalizePlan(Object.assign({}, plan, todayMap.get(plan.id), { fullDate: today })) : plan)
+          } catch (error) {
+            if (this._syncRequestId !== requestId) return
+            scheduleNotice = '当天课程同步失败，请下拉刷新重试。'
+          }
+        }
+        if (!scheduleNotice && pageData.plans.some((plan) => !plan.fullDate)) scheduleNotice = '部分课程日期信息不完整，请刷新同步；当前仅显示日期已确认的课程。'
+      }
       const selection = getStoreSelection(pageData, targetStoreId)
       app.setViewCache(buildScheduleCacheKey(runtime, targetStoreId), pageData)
       this.setData({
@@ -137,13 +150,15 @@ Page(withPageState({
         storeId: selection.storeId,
         selectedStoreName: selection.selectedStoreName,
         selectedStoreAddress: selection.selectedStoreAddress,
+        scheduleNotice,
       })
+      this.refreshCalendar()
     } catch (error) {
       if (this._syncRequestId !== requestId) {
         return
       }
       this.setData({ pageError: error.message || "加载失败，请重试" })
-      const localPageData = normalizeSchedulePageData(app.getScheduleManagePageData(targetStoreId), runtime)
+      const localPageData = normalizeSchedulePageData(app.getViewCache(buildScheduleCacheKey(runtime, targetStoreId)) || app.getScheduleManagePageData(targetStoreId), runtime)
       const selection = getStoreSelection(localPageData, targetStoreId)
       this.setData({
         runtime,
@@ -152,6 +167,7 @@ Page(withPageState({
         selectedStoreName: selection.selectedStoreName,
         selectedStoreAddress: selection.selectedStoreAddress,
       })
+      this.refreshCalendar()
     }
   },
 
@@ -170,47 +186,83 @@ Page(withPageState({
       storeId: selection.storeId,
       selectedStoreName: selection.selectedStoreName,
       selectedStoreAddress: selection.selectedStoreAddress,
+      scheduleNotice: pageData.plans.some((plan) => !plan.fullDate) ? '课程日期信息正在同步，请稍候。' : '',
     })
+    this.refreshCalendar()
     return Boolean(cachedPageData)
   },
 
+  refreshCalendar() {
+    const plans = this.data.pageData.plans || []
+    this.setData(Object.assign(scheduleCalendar.calendar(plans, this.data.selectedDate, this.data.filterType), {
+      repeatDates: scheduleCalendar.repeatDates(this.data.fullDate, this.data.repeatWeekly),
+      conflictPlans: scheduleCalendar.conflicts(plans, this.data.fullDate, this.data.startTime, this.data.endTime, this.data.repeatWeekly),
+    }))
+  },
+  onSelectDay(event) {
+    this.setData({ selectedDate: event.currentTarget.dataset.date })
+    this.refreshCalendar()
+  },
+  onCalendarDateChange(event) {
+    this.setData({ selectedDate: event.detail.value })
+    this.refreshCalendar()
+  },
+  onShiftWeek(event) {
+    this.setData({ selectedDate: scheduleCalendar.shiftDate(this.data.selectedDate, Number(event.currentTarget.dataset.days)) })
+    this.refreshCalendar()
+  },
+  onToday() {
+    this.setData({ selectedDate: scheduleCalendar.dateKey(new Date()) })
+    this.refreshCalendar()
+  },
+  onFilter(event) {
+    this.setData({ filterType: event.currentTarget.dataset.type })
+    this.refreshCalendar()
+  },
+  onOpenEditor() {
+    if (this.data.submitting || this.data.pageBusy || this.data.pageError) return
+    const fullDate = this.data.selectedDate < this.data.minDate ? this.data.minDate : this.data.selectedDate
+    this.onDateChange({ detail: { value: fullDate } })
+    this.setData({ editorOpen: true })
+  },
+  onCloseEditor() { if (!this.data.submitting) this.setData({ editorOpen: false }) },
+  onOpenClass(event) {
+    wx.navigateTo({ url: '/pages/workspace/class/index?classId=' + encodeURIComponent(event.currentTarget.dataset.id) })
+  },
+
   onInput(event) {
+    if (this.data.submitting) return
     const { field } = event.currentTarget.dataset
+    if (!['title', 'capacity'].includes(field)) return
     this.setData({ [field]: event.detail.value })
   },
 
   onTypeChange(event) {
-    this.setData({ type: event.currentTarget.dataset.type })
+    if (this.data.submitting) return
+    const type = event.currentTarget.dataset.type
+    this.setData({ type, capacity: type === 'group' ? '15' : '1' })
   },
 
   onDateChange(event) {
+    if (this.data.submitting) return
     const fullDate = event.detail.value
-    const date = new Date(fullDate + 'T12:00:00+08:00')
-    const weekDay = date.getDay()
+    const weekDay = scheduleCalendar.parseDate(fullDate).getUTCDay()
     const option = WEEKDAY_OPTIONS.find((item) => item.value === weekDay)
     this.setData({ fullDate, dateLabel: fullDate.slice(5).replace('-', '/'), weekDay, weekLabel: option.label })
+    this.refreshCalendar()
   },
 
   onTimeChange(event) {
+    if (this.data.submitting) return
     const field = event.currentTarget.dataset.field
     if (!['startTime', 'endTime'].includes(field)) return
     this.setData({ [field]: event.detail.value })
     this.setData({ timeRange: this.data.startTime + ' - ' + this.data.endTime })
-  },
-
-  onWeekChange(event) {
-    const weekDay = Number(event.currentTarget.dataset.weekDay)
-    const nextDate = getNextDateByWeekday(weekDay)
-    const option = WEEKDAY_OPTIONS.find((item) => item.value === weekDay)
-    this.setData({
-      weekDay,
-      weekLabel: option ? option.label : '周一',
-      dateLabel: nextDate.monthDay,
-      fullDate: nextDate.fullDate,
-    })
+    this.refreshCalendar()
   },
 
   onStoreFieldTap() {
+    if (this.data.submitting || this.data.editorOpen) return
     const stores = this.data.pageData.stores || []
     if (!stores.length) {
       wx.showToast({ title: '暂无可选门店', icon: 'none' })
@@ -235,9 +287,11 @@ Page(withPageState({
   },
 
   onRepeatWeeklyChange(event) {
+    if (this.data.submitting) return
     this.setData({
       repeatWeekly: event.detail.value,
     })
+    this.refreshCalendar()
   },
 
   async onSubmit() {
@@ -254,12 +308,23 @@ Page(withPageState({
       wx.showToast({ title: '结束时间须晚于开始时间', icon: 'none' })
       return
     }
+    if (new Date(this.data.fullDate + 'T' + this.data.startTime + ':00+08:00').getTime() <= Date.now()) {
+      wx.showToast({ title: '请选择未来的训练时间', icon: 'none' }); return
+    }
+    const capacity = this.data.type === 'private' ? 1 : Number(this.data.capacity)
+    if (!Number.isInteger(capacity) || capacity < 1 || capacity > 100) {
+      wx.showToast({ title: '人数应为 1 至 100 的整数', icon: 'none' }); return
+    }
+    this.refreshCalendar()
+    if (this.data.conflictPlans.length) {
+      wx.showToast({ title: '与已有课程重叠，请调整时间', icon: 'none' }); return
+    }
     const app = getApp()
     this.setData({ submitting: true })
     let result = null
 
     try {
-      const confirmed = await confirmAction({ title: '确认发布排课', content: this.data.title.trim() + '\n' + selectedStore.name + ' · ' + this.data.fullDate + '\n' + this.data.timeRange + (this.data.repeatWeekly ? '\n将连续发布 4 周的场次。' : '\n发布后学员即可预约。') })
+      const confirmed = await confirmAction({ title: '确认发布排课', content: this.data.title.trim() + '\n' + selectedStore.name + ' · ' + capacity + ' 人\n' + this.data.timeRange + '\n' + this.data.repeatDates.join('、') + '\n发布后学员即可预约。' })
       if (!confirmed) return
       const runtime = await app.getRuntimeSnapshotAsync({ force: true })
       if (!runtime.isAuthenticated) {
@@ -274,7 +339,7 @@ Page(withPageState({
         title: this.data.title.trim(),
         startTime: this.data.fullDate + ' ' + this.data.startTime + ':00',
         endTime: this.data.fullDate + ' ' + this.data.endTime + ':00',
-        maxCapacity: this.data.type === 'group' ? 15 : 1,
+        maxCapacity: capacity,
         weekDay: this.data.weekDay,
         repeatWeekly: this.data.repeatWeekly,
       })
@@ -291,6 +356,9 @@ Page(withPageState({
       app.removeViewCacheByPrefix('booking:')
       this.setData({
         title: '',
+        editorOpen: false,
+        selectedDate: this.data.fullDate,
+        filterType: 'all',
       })
       this.syncPageData(selectedStore.id)
     }

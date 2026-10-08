@@ -348,16 +348,25 @@ Page(withPageState({
 
   async onLogout() {
     if (this.data.loggingOut) return
+    const app = getApp()
+    if (app.isLogoutInProgress()) return
     if (this.data.nicknameSubmitting || this.data.cancellingBookingId) {
       wx.showToast({ title: '请等待当前操作完成后退出', icon: 'none' })
       return
     }
     this.setData({ loggingOut: true })
+    const userId = app.globalData.userProfile.id
+    let logoutRequest
     try {
       if (!await confirmAction({ title: '退出登录', content: '退出后仍可浏览门店和训练场次。', confirmText: '退出登录' })) return
+      logoutRequest = app.beginLogout(userId)
+      if (!logoutRequest) {
+        wx.showToast({ title: '登录状态已变化，请重新操作', icon: 'none' })
+        return
+      }
       await businessApi.logout()
-      const app = getApp()
-      const runtime = app.completeLogout()
+      const runtime = app.completeLogout(logoutRequest)
+      if (!runtime) return
       // 页面跳转前先使旧查询失效并清空展示数据，跳转失败也保持游客状态。
       this._syncRequestId = (this._syncRequestId || 0) + 1
       this._pageRequest = (this._pageRequest || 0) + 1
@@ -369,11 +378,14 @@ Page(withPageState({
       wx.reLaunch({ url: '/pages/home/index', fail: () => wx.showToast({ title: '已退出登录，请返回首页', icon: 'none' }) })
     } catch (error) {
       wx.showToast({ title: error.message || '退出失败，请重试', icon: 'none' })
-    } finally { this.setData({ loggingOut: false }) }
+    } finally {
+      if (logoutRequest) app.endLogout(logoutRequest)
+      this.setData({ loggingOut: false })
+    }
   },
 
   async onCancelBooking(event) {
-    if (this.data.cancellingBookingId) return
+    if (this.data.cancellingBookingId || this.data.loggingOut) return
     const bookingId = event.currentTarget.dataset.bookingId
     const booking = (this.data.pageData.myBookings || []).find((item) => item.id === bookingId)
     if (!booking || !booking.canCancel) return

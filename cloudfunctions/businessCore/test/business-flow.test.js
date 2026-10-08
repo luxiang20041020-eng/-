@@ -3,6 +3,21 @@ const { test } = require('node:test')
 const { createDatabase, loadFunction, login } = require('./helpers')
 const { businessDate, parseBusinessTime, canCancel } = require('../request-policy')
 
+test('排期管理返回完整日历日期、时段与预约人数，排除人工核销场次', async () => {
+  const { state, main, id } = await fixture(3)
+  const schedule = state.collections.get('biz_class_schedule').get('slot')
+  state.collections.get('biz_class_schedule').set('manual', { ...schedule, _id: 'manual', manual_only: true })
+  const result = await main({ action: 'getCoachScheduleViewData', payload: { storeId: 'gaoxin', coachId: id } })
+  assert.equal(result.success, true)
+  assert.equal(result.data.plans.length, 1)
+  const plan = result.data.plans[0]
+  assert.equal(plan.fullDate, schedule.start_time.slice(0, 10))
+  assert.equal(plan.startTime, schedule.start_time.slice(11, 16))
+  assert.equal(plan.endTime, schedule.end_time.slice(11, 16))
+  assert.equal(plan.capacity, 15)
+  assert.equal(plan.bookedCount, 0)
+})
+
 async function fixture(role = 1) {
   const state = createDatabase()
   const context = { OPENID: 'real-openid', ENV: 'test-env' }
@@ -137,6 +152,30 @@ test('派发权益保存到期日、金额和真实操作人', async () => {
   assert.equal(result.success, true)
   assert.equal(state.collections.get('user_asset').get('student_2').expiry_date, '2099-12-31')
   assert.equal([...state.collections.get('user_asset_log').values()][0].operator_id, id)
+})
+
+test('权益派发搜索返回到期日，未搜索时不返回整库学员', async () => {
+  const { state, main } = await fixture(2)
+  state.collections.get('app_user').set('student', { _id: 'student', real_name: '测试学员', phone: '13899999999', role: 1, status: 1, is_deleted: false })
+  state.collections.get('user_asset').set('student_1', { _id: 'student_1', user_id: 'student', asset_type: 1, balance: 5, expiry_date: '2099-01-01', is_deleted: false })
+  const empty = await main({ action: 'getDistributeViewData', payload: { storeId: 'gaoxin' } })
+  assert.equal(empty.data.members.length, 0)
+  const search = await main({ action: 'getDistributeViewData', payload: { storeId: 'gaoxin', keyword: '测试' } })
+  assert.equal(search.data.members[0].groupExpiry, '2099-01-01')
+  assert.equal(search.data.members[0].groupCount, 5)
+})
+
+test('续费保留有效余额和较晚到期日，过期余额不会随派发恢复', async () => {
+  for (const expired of [false, true]) {
+    const { state, main } = await fixture(2)
+    state.collections.get('app_user').set('student', { _id: 'student', role: 1, status: 1, is_deleted: false })
+    state.collections.get('user_asset').set('student_2', { _id: 'student_2', user_id: 'student', asset_type: 2, balance: 8, total_earned: 8, expiry_date: expired ? '2020-01-01' : '2099-12-31', is_deleted: false })
+    const result = await main({ action: 'distributeAsset', payload: { userId: 'student', packageId: 'pkg_private_trial', expiryDate: '2099-01-01', offlineAmount: 99, payType: '现金' } })
+    assert.equal(result.success, true)
+    assert.equal(state.collections.get('user_asset').get('student_2').balance, expired ? 1 : 9)
+    assert.equal(result.data.expiryDate, expired ? '2099-01-01' : '2099-12-31')
+    assert.equal(state.collections.get('user_asset_log').size, 1)
+  }
 })
 
 test('退出后无法静默恢复，停用账号不能通过登录重新启用', async () => {

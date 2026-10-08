@@ -39,6 +39,7 @@ module.exports = {
     "沙袋区 / 实战靶区 / 专属区域"
   ],
   "COACH_QUICK_ACTIONS": [
+    { "id": "manual", "title": "人工核销", "desc": "登记线下预约学员的训练并扣减课时。" },
     {
       "id": "distribute",
       "title": "权益派发",
