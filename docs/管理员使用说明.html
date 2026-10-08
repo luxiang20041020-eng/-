@@ -2,77 +2,87 @@
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ONE 泰拳格斗馆小程序｜管理员使用说明</title>
 <style>
 :root{color-scheme:light;--ink:#20251f;--red:#c7452d;--paper:#f5f4ef}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;font-size:16px;line-height:1.85}.brand{background:var(--ink);color:white;padding:24px max(24px,calc((100vw - 1120px)/2));display:flex;align-items:center;justify-content:space-between;gap:20px}.brand-name{font-size:24px;font-weight:800;letter-spacing:3px}.brand-sub{color:#c4c9bd;font-size:12px;letter-spacing:2px}.print-button{border:1px solid #707864;background:transparent;color:white;padding:10px 16px;border-radius:8px;font:inherit;font-size:14px;cursor:pointer}.layout{display:grid;grid-template-columns:240px minmax(0,1fr);gap:32px;max-width:1120px;margin:32px auto;padding:0 24px 48px}nav{position:sticky;top:24px;align-self:start;font-size:14px}nav summary{font-weight:700;cursor:pointer;margin-bottom:12px}nav a{display:block;color:#626b56;text-decoration:none;padding:7px 10px;border-left:2px solid #dce0d3;line-height:1.6}nav a:hover{color:var(--red);border-color:var(--red);background:#fcece5}article{background:white;padding:36px 40px;border:1px solid #e6e7df;border-radius:16px;min-width:0}h1{font-size:29px;line-height:1.5;margin:0 0 18px;letter-spacing:-.4px}h2{font-size:23px;line-height:1.5;border-top:1px solid #e6e7df;padding-top:28px;margin:36px 0 16px;scroll-margin-top:24px}h3{font-size:18px;color:var(--red);margin:24px 0 12px}p{margin:12px 0}article>p:first-of-type{color:#7c8076;font-size:13px}ol{padding-left:26px;margin:14px 0}li{padding:4px 0 4px 4px}strong{color:var(--red)}.table-wrap{overflow-x:auto;margin:18px 0}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.7}th,td{text-align:left;vertical-align:top;padding:12px 14px;border:1px solid #dfe3d7}th{background:#eaece4;font-weight:700}td:first-child{width:27%;font-weight:600}tbody tr:nth-child(even){background:#fafbf7}footer{font-size:12px;color:#7c8076;border-top:1px solid #e6e7df;margin-top:36px;padding-top:16px}@media(max-width:760px){body{font-size:15px}.layout{display:block;padding:0 16px 32px;margin-top:20px}nav{position:static;margin-bottom:20px}nav a{padding:6px 10px}article{padding:24px 20px}h1{font-size:24px}h2{font-size:21px}.brand{padding:20px}.print-button{font-size:12px;padding:8px 10px}th,td{padding:10px}.brand-sub{font-size:10px}}@media print{@page{size:A4;margin:18mm}body{background:white;font-size:11pt;line-height:1.65}.brand{background:white;color:var(--ink);padding:0 0 12px;border-bottom:2px solid var(--red)}.brand-sub{color:#626b56}nav,.print-button{display:none}.layout{display:block;margin:0;padding:0;max-width:none}article{padding:20px 0 0;border:0;border-radius:0}h1{font-size:22pt}h2{font-size:16pt;break-after:avoid;page-break-after:avoid;padding-top:18px;margin-top:24px}h3{font-size:13pt;break-after:avoid;page-break-after:avoid}table{font-size:9pt}.table-wrap{overflow:visible}tr{break-inside:avoid;page-break-inside:avoid}thead{display:table-header-group}p,li{orphans:2;widows:2}footer{font-size:9pt}a{color:inherit;text-decoration:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-</style></head><body><header class="brand"><div><div class="brand-name">ONE</div><div class="brand-sub">MUAY THAI / 使用说明</div></div><button class="print-button" onclick="window.print()">打印 / 保存为 PDF</button></header><div class="layout"><nav aria-label="说明书目录"><details open><summary>操作目录</summary><a href="#section-1">1. 先了解你的管理入口</a><a href="#section-2">2. 登录与账号准备</a><a href="#section-3">3. 人员权限管理</a><a href="#section-6">4. 套餐新建与上下架</a><a href="#section-10">5. 权益派发：记录线下收款并给学员加课</a><a href="#section-14">6. 排期管理：以管理员身份执教</a><a href="#section-17">7. 到场核销与缺席登记</a><a href="#section-18">8. 线下人工预约的学员怎么核销</a><a href="#section-21">9. 门店与经营数据</a><a href="#section-24">10. 常见问题</a><a href="#section-25">11. 每日操作速查</a></details></nav><article><h1>ONE 泰拳格斗馆小程序｜管理员使用说明</h1>
+</style></head><body><header class="brand"><div><div class="brand-name">ONE</div><div class="brand-sub">MUAY THAI / 使用说明</div></div><button class="print-button" onclick="window.print()">打印 / 保存为 PDF</button></header><div class="layout"><nav aria-label="说明书目录"><details open><summary>操作目录</summary><a href="#section-1">1. 先了解你的管理入口</a><a href="#section-2">2. 登录与账号准备</a><a href="#section-3">3. 人员权限管理</a><a href="#section-8">4. 套餐新建与上下架</a><a href="#section-12">5. 权益派发：记录线下收款并给学员加课</a><a href="#section-16">6. 排期管理：以管理员身份执教</a><a href="#section-19">7. 到场核销与缺席登记</a><a href="#section-20">8. 线下人工预约的学员怎么核销</a><a href="#section-23">9. 门店与经营数据</a><a href="#section-26">10. 常见问题</a><a href="#section-27">11. 每日操作速查</a></details></nav><article><h1>ONE 泰拳格斗馆小程序｜管理员使用说明</h1>
 <p>版本：2026 年 10 月 8 日 · 适用对象：场馆管理员、前台负责人、兼任教练的管理员</p>
 <p>本说明对应项目当前代码中的功能。使用前请由项目负责人确认小程序和业务服务已同步更新；旧发布版本的页面可能与本说明不同。</p>
 <h2 id="section-1">1. 先了解你的管理入口</h2>
 <p>管理员既有经营管理权限，也可以充当教练。登录后，底部主要入口为：首页、预约、工作台、看板、我的。</p>
 <div class="table-wrap"><table><thead><tr><th>入口</th><th>主要用途</th></tr></thead><tbody><tr><td>首页</td><td>查看门店资料、训练介绍和套餐展示</td></tr><tr><td>预约</td><td>查看团体／专属训练场次，筛选门店、日期和教练</td></tr><tr><td>工作台</td><td>权益派发、本人排期、课程名单、到场及人工核销</td></tr><tr><td>看板</td><td>查看当前门店当日数据，进入人员、套餐和门店管理</td></tr><tr><td>我的</td><td>查看个人资料、权益、训练记录和退出登录</td></tr></tbody></table></div>
-<p>日常操作顺序通常是：确认门店 → 学员登录建档 → 线下收款并派发权益 → 发布排期 → 确认到场或人工核销 → 查看当天记录。</p>
+<p>日常操作顺序通常是：确认门店 → 学员登录或管理员录入建档 → 线下收款并派发权益 → 发布排期 → 确认到场或人工核销 → 查看当天记录。</p>
 <h2 id="section-2">2. 登录与账号准备</h2>
 <ol><li>打开小程序，进入“手机号快捷登录”。</li><li>如出现 ONE 隐私保护提示，阅读协议后选择“同意并继续”。</li><li>点击“手机号快捷登录”，完成手机号授权。</li><li>确认“工作台”和“看板”入口可见。</li></ol>
 <p>首次管理员账号由项目负责人配置。普通手机号首次登录通常成为客户账号，其他人员之后可由管理员调整身份。系统首次使用会自动准备基础数据，登录前无需先进入管理页或点击“检查数据库”。</p>
-<p>给新客户派课前，请客户先用本人手机号登录一次，建立账号。当前页面不支持管理员直接录入一个尚未登录过的新客户。</p>
+<p>给新客户派课前，可以请客户用本人手机号登录建档，也可以由管理员在“人员权限”页手动录入姓名、手机号和门店。手动录入后即可派课，无需等待客户首次登录。</p>
 <h2 id="section-3">3. 人员权限管理</h2>
 <p>入口：“看板” → “人员权限管理”，进入后页面标题为“人员权限”。</p>
 <h3 id="section-4">查找人员</h3>
 <ol><li>搜索姓名、手机号或门店名称。</li><li>按需要选择“客户”“教练”“管理员”。</li><li>可进一步筛选“正常账号”或“停用账号”。</li><li>“重置筛选”恢复全部人员。</li></ol>
 <p>卡片展示姓名、手机号、角色、账号状态、所属门店和权限范围。顶部人数为各身份总人数，列表人数为当前筛选结果。</p>
-<h3 id="section-5">调整身份权限</h3>
+<h3 id="section-5">手动录入新用户</h3>
+<ol><li>点击右上角“＋ 录入新用户”。</li><li>填写客户姓名（最多 20 个字）和本人 11 位手机号。</li><li>选择所属门店，仅可选择营业中的门店。</li><li>点击“保存用户档案”，成功后列表会定位到新用户。</li><li>如需给客户加课，进入“工作台 → 权益派发”按姓名或手机号搜索。</li></ol>
+<p>新档案身份为客户；需要教练或管理员功能时，在人员列表中调整权限。建档不会自动增加课时，也不会绑定录入人的微信账号。客户之后使用相同手机号授权登录，沿用原档案、权益和训练记录。</p>
+<p>重复手机号会提示“该手机号已建档”，请在列表核对已有档案。录入失败时表单会保留，可修正后再保存；网络异常后可在同一表单重试。没有可用门店时，请先在门店管理中启用门店。</p>
+<h3 id="section-6">查看每个客户的剩余套餐</h3>
+<p>在“看板 → 人员权限管理”找到客户，卡片的“剩余套餐”显示当前可用团课和私教次数；点击“查看详情”可查看两类课时的有效期、状态，以及最近 30 条套餐派发记录。</p>
+<p>同类型套餐的课时合并使用，剩余次数按团课／私教统计；派发记录保留原套餐名称、增加次数、金额和本次到期日。未购课、已用完和已过期会分别标明，过期次数不计入可用余额。旧派发记录没有保存到期日时显示“未记录”。停用客户也可查看余额，页面会提醒账号状态。</p>
+<p>点击“刷新套餐余额”读取最新记录。加载期间显示读取状态；读取失败会显示具体原因和重试入口，不会把失败显示为零课时。</p>
+<h3 id="section-7">调整身份权限</h3>
 <ol><li>找到目标人员，核对姓名和手机号。</li><li>点击“调整权限”。</li><li>阅读角色说明并选择新身份。</li><li>点击“确认变更权限”，再次核对人员和身份变化。</li><li>确认成功后，卡片及人数会更新。对方可重新进入小程序，必要时重新登录，以刷新功能入口。</li></ol>
 <div class="table-wrap"><table><thead><tr><th>身份</th><th>可使用的功能</th></tr></thead><tbody><tr><td>客户</td><td>浏览训练、预约课程、查看个人权益和记录</td></tr><tr><td>教练</td><td>客户功能，以及排期、课程核销、学员权益派发</td></tr><tr><td>管理员</td><td>教练功能，以及人员权限、套餐、门店管理和运营看板</td></tr></tbody></table></div>
 <p>当前登录管理员的自身权限受到保护，不能在本页撤销。身份变更不改变已有课时和预约；对停用账号改权也不会启用账号。本模块展示和筛选账号状态，但没有停用／启用账号的操作按钮。</p>
-<h2 id="section-6">4. 套餐新建与上下架</h2>
+<h2 id="section-8">4. 套餐新建与上下架</h2>
 <p>入口：“看板” → “套餐上下架”，进入后页面标题为“套餐管理”。</p>
-<h3 id="section-7">查看套餐</h3>
+<h3 id="section-9">查看套餐</h3>
 <p>通过名称搜索、上架状态和团课／私教类型筛选。每张套餐卡片显示课时数、展示价、默认有效期和上架状态。</p>
-<h3 id="section-8">新建套餐</h3>
+<h3 id="section-10">新建套餐</h3>
 <ol><li>点击右上角“＋ 新建套餐”。</li><li>填写名称，选择团课或私教。</li><li>填写课时数、展示价和默认有效期。</li><li>决定是否开启“创建后立即上架”。默认保持下架，可核对后再上架。</li><li>点击创建按钮，核对确认弹窗，提交。</li></ol>
 <p>名称最多 60 个字；课时数为 1～10000 的整数；有效期为 1～3650 天；价格可为 0，最多两位小数。切换套餐类型会将默认有效期重设为团课 180 天、私教 365 天，可再按实际方案修改。</p>
-<h3 id="section-9">上架或下架</h3>
+<h3 id="section-11">上架或下架</h3>
 <ol><li>在目标套餐卡片点击“重新上架”或“下架套餐”。</li><li>核对套餐名称、课时和价格，再确认操作。</li><li>成功后状态和统计立即更新；在状态筛选下，卡片可能移出当前列表。</li></ol>
 <p>上架后，套餐可在首页展示并用于权益派发。下架后停止展示和新派发，学员已经获得的课时仍按其原有权益规则使用。当前页面提供新建和上下架功能，没有编辑或删除已有套餐的入口。</p>
-<h2 id="section-10">5. 权益派发：记录线下收款并给学员加课</h2>
+<h2 id="section-12">5. 权益派发：记录线下收款并给学员加课</h2>
 <p>入口：“工作台” → 权益派发入口，进入“权益派发”页面。收款在线下完成，小程序记录实际收款并增加权益。</p>
-<h3 id="section-11">第一步：选学员</h3>
+<h3 id="section-13">第一步：选学员</h3>
 <p>输入姓名或手机号，核对号码后选中。页面显示学员当前团课、私教余额；选择后进入套餐步骤。</p>
-<h3 id="section-12">第二步：选套餐</h3>
+<h3 id="section-14">第二步：选套餐</h3>
 <p>按“全部／团课／私教”筛选，选择套餐，再点击“下一步 · 记录收款”。系统自动填写标准金额和到期日期。</p>
-<h3 id="section-13">第三步：收款与核对</h3>
+<h3 id="section-15">第三步：收款与核对</h3>
 <ol><li>按实际收款修改金额，最多两位小数。</li><li>选择收款方式：微信转账、支付宝、现金、银行卡、赠课或其他。</li><li>选择“赠课”时金额自动设为 0；赠课提交时金额须为 0。</li><li>核对或调整权益到期日，填写备注（选填）。</li><li>阅读“派发前核对”：当前可用、增加课时、预计到账余额、到账有效期及实收金额。</li><li>点击“确认派发权益”，核对学员姓名、手机号、套餐和金额，再确认。</li><li>看到“权益已派发”回执后，本次操作完成；可点击“继续派发”处理下一位学员。</li></ol>
 <p>同类型有效课时会合并，到账有效期保留新旧日期中较晚的一项；已过期课时不随续费恢复。核对页余额是预计值，实际记录以成功写入时为准。</p>
 <p>失败时选择和表单会保留。若网络中断、结果无法确认，请先查看看板派发记录及学员余额，确认是否已到账，再决定是否重新派发。</p>
-<h2 id="section-14">6. 排期管理：以管理员身份执教</h2>
+<h2 id="section-16">6. 排期管理：以管理员身份执教</h2>
 <p>入口：“工作台” → 排期入口，进入“排期管理”。这里显示本人在所选门店的课程；管理员可以用自己的账号担任教练。需要其他教练发布本人课程时，请其使用自己的账号排期。</p>
-<h3 id="section-15">查看排期</h3>
+<h3 id="section-17">查看排期</h3>
 <ol><li>在顶部确认门店，需要时点击“切换”。</li><li>周日历显示每天场次数；点击某一天查看该日课程。</li><li>使用“上周／下周”“选择日期”或“今天”定位日期。</li><li>可按全部、团课、私教筛选。</li><li>点击课程上的“名单与核销”查看学员名单。</li></ol>
 <p>若出现日期信息不完整或同步失败提示，点击“重新同步”或下拉刷新，不能将提示当作没有课程。</p>
-<h3 id="section-16">新增排期</h3>
+<h3 id="section-18">新增排期</h3>
 <ol><li>选定日期，点击“＋ 新增排期”。</li><li>填写训练主题、类型、日期及开始／结束时间。</li><li>团课设置人数上限，范围为 1～100；私教为 1 对 1。</li><li>如开启“每周重复”，系统将发布所选日及随后 3 周同一星期、同一时段的课程，共 4 场。</li><li>核对具体发布日期、时段及人数，再确认发布。</li></ol>
 <p>开始时间须在未来，结束时间须晚于开始时间。同一教练跨门店的时间重叠也会在发布时校验。当前页面不提供已发布课程的编辑或撤销入口。</p>
-<h2 id="section-17">7. 到场核销与缺席登记</h2>
+<h2 id="section-19">7. 到场核销与缺席登记</h2>
 <p>入口：工作台“今日训练”中的课程，或排期管理中的“名单与核销”。</p>
 <ol><li>核对课程主题、日期、时间和门店。</li><li>在预约名单中核对学员姓名和手机号。</li><li>实际到场后点击“确认到场”。</li><li>未到场的学员可点击“标记缺席”，阅读提示后确认。</li></ol>
 <p>小程序预约时已经扣减对应类型 1 课时，确认到场不再扣一次。标记缺席不会自动返还已扣课时。已核销或已缺席的记录不能再次处理；当前页面不提供撤销核销或修改已确认状态的按钮。</p>
 <p>管理员可处理可访问课程名单；教练只可处理自己负责的场次。客户的身份码用于展示和核对身份，出示二维码本身不会自动完成扣课或核销。</p>
-<h2 id="section-18">8. 线下人工预约的学员怎么核销</h2>
-<p>学员不必在小程序预约，但须已用手机号登录建档，并具有对应类型的有效课时。</p>
-<h3 id="section-19">情况一：参加已有排期，但不在预约名单中</h3>
+<h2 id="section-20">8. 线下人工预约的学员怎么核销</h2>
+<p>学员不必在小程序预约，但须已登录建档或由管理员手动录入，并具有对应类型的有效课时。</p>
+<h3 id="section-21">情况一：参加已有排期，但不在预约名单中</h3>
 <ol><li>打开本场课程的“到场核销”页面。</li><li>点击“补核销线下学员”。</li><li>输入至少两个字的姓名或手机号，点击搜索，选中学员。</li><li>核对本场信息，填写备注（选填）。</li><li>点击“确认到场并核销”，核对后提交。</li></ol>
 <p>无预约的学员扣减本类型 1 课时；若已有待核销预约，直接确认到场，不重复扣课。场次须已开始且未取消，未预约的补核销还会检查人数上限。</p>
-<h3 id="section-20">情况二：单独登记线下训练，没有预先排课</h3>
+<h3 id="section-22">情况二：单独登记线下训练，没有预先排课</h3>
 <ol><li>进入“工作台” → “人工核销”。</li><li>搜索并选定已建档学员。</li><li>选择团课或私教，填写实际训练日期和时间。</li><li>核对当前门店及执教账号，填写备注。</li><li>确认后扣减对应类型 1 课时，并保存训练记录。</li></ol>
 <p>只能登记已发生的训练，不能填写未来时间。同一学员、门店、类型和同一训练分钟的重复独立登记会被拦截。</p>
 <p>如果显示“本次核销结果待确认”，使用“重试并核对核销结果”继续原请求，不要改换学员或训练时间。系统会复用原请求，避免重复扣课；重新进入页面后仍可核对待确认请求。</p>
-<h2 id="section-21">9. 门店与经营数据</h2>
-<h3 id="section-22">门店管理</h3>
+<h2 id="section-23">9. 门店与经营数据</h2>
+<h3 id="section-24">门店管理</h3>
 <p>入口：“看板” → “门店管理”。可新增门店、编辑名称和地址、填写地图坐标，并停用或恢复营业。停用门店会从首页和预约选择中移除，历史人员及排课数据保留。</p>
-<h3 id="section-23">查看看板</h3>
+<h3 id="section-25">查看看板</h3>
 <p>确认看板顶部当前门店。页面显示该门店当天的线下实收、到场核销、新增团课和私教课时。</p>
 <p>展开“权益派发记录”可查看操作人、学员、套餐、金额、备注和收款方式；“复制记录”复制当前展示内容，便于粘贴整理，并非导出完整历史账单。“最近人工核销”展示线下训练登记情况。</p>
-<p>“检查数据库”用于检查及补齐基础配置，不是每天营业或登录前的必做步骤。</p>
-<h2 id="section-24">10. 常见问题</h2>
-<div class="table-wrap"><table><thead><tr><th>问题</th><th>处理方法</th></tr></thead><tbody><tr><td>搜不到新学员</td><td>请学员先用本人手机号登录；核对姓名或号码后重试。人工核销搜索至少两字</td></tr><tr><td>看不到管理入口</td><td>确认登录的是正确手机号；让管理员核对身份，必要时重新登录</td></tr><tr><td>角色降为客户后又恢复管理员</td><td>联系项目负责人检查管理员账号配置</td></tr><tr><td>派发后客户仍看不到课时</td><td>先核对手机号、套餐类型和回执；让客户下拉刷新“我的”，并查看派发记录</td></tr><tr><td>当天课程不显示</td><td>核对门店、日期、团课／私教筛选及是否为本人排期，再点击重新同步</td></tr><tr><td>人工核销提示余额不足或已过期</td><td>先核对对应类型权益；需要补课时的，应完成线下收款和权益派发</td></tr><tr><td>误派发、误核销、误标缺席</td><td>记录学员、时间和操作内容，联系场馆负责人及项目负责人核对处理；当前界面没有撤销按钮</td></tr><tr><td>退出登录失败</td><td>检查网络后重试；仍失败时记录错误提示并联系项目负责人</td></tr></tbody></table></div>
+<p>“检查服务”用于检查及补齐基础配置，不是每天营业或登录前的必做步骤。</p>
+<h2 id="section-26">10. 常见问题</h2>
+<p>操作提示会说明可确认的具体原因，例如手机号已建档、课时已过期、课时已用完、账号停用、场次满员、网络中断或请求超时，并给出下一步处理方式。较长提示会完整展示；内部技术信息由项目负责人查看。</p>
+<p>写入遇到网络中断或超时时，页面可能提示“结果尚未确认”：录入客户、人工核销应使用原表单／原请求重试核对；其他操作先刷新相关记录核对，避免重复提交。操作成功后刷新失败，会分别说明保存结果和刷新问题。</p>
+<div class="table-wrap"><table><thead><tr><th>问题</th><th>处理方法</th></tr></thead><tbody><tr><td>搜不到新学员</td><td>请学员用本人手机号登录，或在人员权限页录入新用户；核对姓名或号码后重试。人工核销搜索至少两字</td></tr><tr><td>看不到管理入口</td><td>确认登录的是正确手机号；让管理员核对身份，必要时重新登录</td></tr><tr><td>角色降为客户后又恢复管理员</td><td>联系项目负责人检查管理员账号配置</td></tr><tr><td>派发后客户仍看不到课时</td><td>先核对手机号、套餐类型和回执；让客户下拉刷新“我的”，并查看派发记录</td></tr><tr><td>当天课程不显示</td><td>核对门店、日期、团课／私教筛选及是否为本人排期，再点击重新同步</td></tr><tr><td>人工核销提示余额不足或已过期</td><td>先核对对应类型权益；需要补课时的，应完成线下收款和权益派发</td></tr><tr><td>误派发、误核销、误标缺席</td><td>记录学员、时间和操作内容，联系场馆负责人及项目负责人核对处理；当前界面没有撤销按钮</td></tr><tr><td>退出登录失败</td><td>检查网络后重试；仍失败时记录错误提示并联系项目负责人</td></tr></tbody></table></div>
 <p>退出入口：“我的”页面底部 → “退出登录” → 确认。退出不会删除账号、课时或训练记录。公共设备使用完毕后应退出自己的账号。</p>
-<h2 id="section-25">11. 每日操作速查</h2>
+<h2 id="section-27">11. 每日操作速查</h2>
 <div class="table-wrap"><table><thead><tr><th>时段</th><th>操作</th></tr></thead><tbody><tr><td>营业前</td><td>确认门店和本人当日排期，检查套餐上架状态</td></tr><tr><td>收款后</td><td>核对学员手机号，完成权益派发，确认成功回执</td></tr><tr><td>训练到场</td><td>已预约学员确认到场；线下预约按对应方式人工核销</td></tr><tr><td>训练结束</td><td>核对待核销名单，确认实际缺席人员</td></tr><tr><td>收工前</td><td>查看当日派发和核销记录，核对实收，退出公共设备上的账号</td></tr></tbody></table></div><footer>ONE 泰拳格斗馆 · 使用说明 · 2026-10-08</footer></article></div></body></html>

@@ -1,6 +1,7 @@
+const { getUserMessage } = require('../../../utils/user-feedback')
 const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
-const { confirmAction } = require('../../../utils/interaction')
+const { confirmAction, showFeedback, reLaunch } = require('../../../utils/interaction')
 
 function formatPrice(price) {
   return Number(price || 0).toFixed(2)
@@ -98,7 +99,7 @@ Page(withPageState({
       return
     }
     if (!runtime.isAuthenticated) {
-      wx.reLaunch({ url: '/pages/login/index' })
+      reLaunch({ url: '/pages/login/index' })
       return
     }
 
@@ -137,15 +138,15 @@ Page(withPageState({
       if (this._syncRequestId !== requestId) {
         return
       }
-      this.setData({ pageError: error.message || "加载失败，请重试" })
+      this.setData({ pageError: getUserMessage(error, "加载失败，请重试") })
       this.setData({
         runtime,
         hasPermission: true,
         loading: false,
       })
       if (!(this.data.pageData.packages || []).length) {
-        wx.showToast({
-          title: error.message || '读取套餐列表失败',
+        showFeedback({
+          title: getUserMessage(error, '读取套餐列表失败'),
           icon: 'none',
         })
       }
@@ -285,7 +286,7 @@ Page(withPageState({
       const packages = this.data.pageData.packages.map((item) => item.id === targetPackage.id ? updatedPackage : item)
       this.setData({ pageData: normalizePageData({ packages, stats: { total: packages.length, activeCount: packages.filter((p) => Number(p.status) === 1).length, inactiveCount: packages.filter((p) => Number(p.status) !== 1).length } }) })
       this.refreshVisiblePackages()
-      wx.showToast({
+      showFeedback({
         title: nextStatus === 1 ? '套餐已上架' : '套餐已下架',
         icon: 'success',
       })
@@ -295,8 +296,8 @@ Page(withPageState({
       app.removeViewCacheByPrefix('workspace:distribute:')
       await this.syncPageData()
     } catch (error) {
-      wx.showToast({
-        title: error.message || '更新套餐状态失败',
+      showFeedback({
+        title: getUserMessage(error, '更新套餐状态失败'),
         icon: 'none',
       })
     } finally {
@@ -316,35 +317,35 @@ Page(withPageState({
     const validDays = Number(form.validDays)
 
     if (!name || name.length > 60) {
-      wx.showToast({
+      showFeedback({
         title: '套餐名称须为 1 至 60 个字',
         icon: 'none',
       })
       return
     }
     if (!['group', 'private'].includes(form.type)) {
-      wx.showToast({
+      showFeedback({
         title: '请选择套餐类型',
         icon: 'none',
       })
       return
     }
     if (!Number.isInteger(lessons) || lessons <= 0 || lessons > 10000) {
-      wx.showToast({
+      showFeedback({
         title: '课时数须为 1 至 10000 的整数',
         icon: 'none',
       })
       return
     }
     if (!/^\d+(\.\d{1,2})?$/.test(String(form.price).trim())) {
-      wx.showToast({
+      showFeedback({
         title: '请填写金额，最多两位小数',
         icon: 'none',
       })
       return
     }
     if (!Number.isInteger(validDays) || validDays < 1 || validDays > 3650) {
-      wx.showToast({ title: '有效期须为 1 至 3650 天', icon: 'none' }); return
+      showFeedback({ title: '有效期须为 1 至 3650 天', icon: 'none' }); return
     }
 
     this.setData({ creatingPackage: true })
@@ -358,7 +359,7 @@ Page(withPageState({
         status: Number(form.status) === 1 ? 1 : 0,
         validDays,
       })
-      wx.showToast({
+      showFeedback({
         title: '套餐已创建',
         icon: 'success',
       })
@@ -373,8 +374,8 @@ Page(withPageState({
       })
       await this.syncPageData()
     } catch (error) {
-      wx.showToast({
-        title: error.message || '创建套餐失败',
+      showFeedback({
+        title: getUserMessage(error, '创建套餐失败'),
         icon: 'none',
       })
     } finally {

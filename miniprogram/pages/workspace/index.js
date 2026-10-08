@@ -1,3 +1,5 @@
+const { showFeedback, navigateTo, reLaunch } = require('../../utils/interaction')
+const { getUserMessage } = require('../../utils/user-feedback')
 const withPageState = require('../../utils/page-state')
 const businessApi = require('../../utils/business-api')
 
@@ -51,7 +53,7 @@ Page(withPageState({
       return
     }
     if (!runtime.isAuthenticated) {
-      wx.reLaunch({ url: '/pages/login/index' })
+      reLaunch({ url: '/pages/login/index' })
       return
     }
     this.hydratePageData(runtime)
@@ -74,7 +76,7 @@ Page(withPageState({
       if (this._syncRequestId !== requestId) {
         return
       }
-      this.setData({ pageError: error.message || "加载失败，请重试" })
+      this.setData({ pageError: getUserMessage(error, "加载失败，请重试") })
       this.setData({
         runtime,
         pageData: decorateWorkspacePageData(app.getWorkspacePageData()),
@@ -110,7 +112,7 @@ Page(withPageState({
     if (actionId === 'class') {
       const next = (this.data.pageData.todayClasses || []).find((item) => item.bookedCount > item.checkedCount + item.absentCount)
       if (next) this.goClassDetail({ currentTarget: { dataset: { classId: next.id } } })
-      else wx.showToast({ title: '今日没有待核销的场次', icon: 'none' })
+      else showFeedback({ title: '今日没有待核销的场次', icon: 'none' })
       return
     }
     const routeMap = {
@@ -124,12 +126,12 @@ Page(withPageState({
       return
     }
 
-    wx.navigateTo({ url: targetPath })
+    navigateTo({ url: targetPath })
   },
 
   goClassDetail(event) {
     const { classId } = event.currentTarget.dataset
-    wx.navigateTo({
+    navigateTo({
       url: '/pages/workspace/class/index?classId=' + classId,
     })
   },

@@ -1,3 +1,4 @@
+const { getUserMessage, transportError } = require('./user-feedback')
 const pendingReads = new Map()
 
 function callBusinessCore(action, payload) {
@@ -10,8 +11,14 @@ function callBusinessCore(action, payload) {
       action,
       payload,
     },
-  }).catch(() => {
-    throw Object.assign(new Error('服务暂时无法连接，请检查网络后重试'), { code: 'NETWORK_ERROR' })
+  }).then((response) => {
+    const result = response && response.result ? response.result : response
+    if (!result || typeof result.success !== 'boolean' || (result.success && (!result.data || typeof result.data !== 'object'))) {
+      throw new Error('服务未返回完整操作结果，请刷新记录后核对')
+    }
+    return response
+  }).catch((error) => {
+    throw transportError(error, action)
   })
   if (isRead) {
     pendingReads.set(key, request)
@@ -24,8 +31,7 @@ function callBusinessCore(action, payload) {
 function unwrapResult(response) {
   const result = response && response.result ? response.result : response
   if (!result || !result.success) {
-    const message = result && result.code === 'DATABASE_INIT_ERROR' ? '服务正在准备中，请稍后重试' :
-      (result && result.message ? result.message : '操作未完成，请重试')
+    const message = getUserMessage(result, '服务未返回操作结果，请刷新记录后核对')
     throw Object.assign(new Error(message), { code: result && result.code || 'BUSINESS_ERROR' })
   }
   return result.data
@@ -186,8 +192,10 @@ module.exports = {
   getDistributeViewData,
   getAdminDashboardData,
   getAdminUserManageData,
+  getAdminUserAssets: async (payload) => unwrapResult(await callBusinessCore('getAdminUserAssets', payload)),
   getAdminPackageManageData,
   getAdminStoreManageData,
+  createUser: async (payload) => unwrapResult(await callBusinessCore('createUser', payload)),
   createPackage,
   createStore,
   updateStore,

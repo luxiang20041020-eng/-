@@ -35,7 +35,15 @@ function createDatabase() {
         return { _id: data._id }
       },
       doc: (id) => ({
-        get: async () => ({ data: getRecords(name).get(id) }),
+        get: async () => {
+          const data = getRecords(name).get(id)
+          // 微信服务端 SDK 读取不存在的文档会拒绝，而非返回空 data。
+          if (!data) {
+            const message = 'document.get:fail document with _id\n' + id + ' does not exist'
+            throw Object.assign(new Error(message), { errMsg: message })
+          }
+          return { data }
+        },
         set: async ({ data }) => {
           getRecords(name).set(id, { ...data, _id: id })
           return { _id: id }
@@ -94,11 +102,13 @@ function loadFunction(state, env = {}, context = { OPENID: 'real-openid', ENV: '
   }
   const sandbox = {
     exports: {},
+    console: { warn() {}, error() {} },
     process: { env },
     require(name) {
       if (name === 'wx-server-sdk') return cloud
       if (name === 'crypto') return require('node:crypto')
       if (name === './request-policy') return require('../request-policy')
+      if (name === './user-feedback') return require('../user-feedback')
       throw new Error(name)
     },
   }
@@ -109,4 +119,17 @@ function loadFunction(state, env = {}, context = { OPENID: 'real-openid', ENV: '
 const login = (main, phone, payload = {}) => main({ action: 'loginWithPhone', payload: { phoneCode: phone, ...payload } })
 
 
-module.exports = { createDatabase, loadFunction, login, collectionNames }
+function failCollectionReads(state, name, message) {
+  const collection = state.db.collection
+  function wrap(query) {
+    const wrapped = { ...query, get: async () => { throw new Error(message) } }
+    for (const method of ['where', 'skip', 'limit', 'orderBy']) {
+      wrapped[method] = (...args) => wrap(query[method](...args))
+    }
+    return wrapped
+  }
+  state.db.collection = target => target === name ? wrap(collection(target)) : collection(target)
+  return () => { state.db.collection = collection }
+}
+
+module.exports = { createDatabase, loadFunction, login, collectionNames, failCollectionReads }

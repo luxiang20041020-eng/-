@@ -201,6 +201,84 @@ function adminManagePage(type, api = {}) {
   return result
 }
 
+function createUserPage(api = {}) {
+  const result = adminManagePage('users', api)
+  result.page.data.pageData.stores = [{ id: 'gaoxin', name: '高新店' }, { id: 'jingkai', name: '经开店' }]
+  result.page.data.runtime = { currentStore: { id: 'jingkai' } }
+  result.page.onOpenCreate()
+  result.page.onCreateInput({ currentTarget: { dataset: { field: 'name' } }, detail: { value: '  新学员  ' } })
+  result.page.onCreateInput({ currentTarget: { dataset: { field: 'phone' } }, detail: { value: '13911112222' } })
+  return result
+}
+
+test('新用户录入校验姓名、手机号与门店，未授权或没有门店时不打开表单', async () => {
+  let writes = 0
+  const { page } = createUserPage({ createUser: async () => { writes++ } })
+  for (const form of [{ name: ' ', phone: '13911112222', storeId: 'gaoxin' }, { name: '名'.repeat(21), phone: '13911112222', storeId: 'gaoxin' }, { name: '客户', phone: '12345678901', storeId: 'gaoxin' }, { name: '客户', phone: '13911112222', storeId: 'missing' }]) {
+    page.data.createForm = form
+    await page.onCreateUser()
+    assert.ok(page.data.createError)
+  }
+  assert.equal(writes, 0)
+  page.onCloseCreatePopup()
+  page.data.hasPermission = false
+  page.onOpenCreate()
+  assert.equal(page.data.showCreatePopup, false)
+  page.data.hasPermission = true
+  page.data.pageData.stores = []
+  page.onOpenCreate()
+  assert.equal(page.data.showCreatePopup, false)
+})
+
+test('录入期间冻结输入和关闭，重复提交只写一次，成功立即显示用户并清理缓存', async () => {
+  let resolve
+  const writes = []
+  const { page, calls } = createUserPage({ createUser: payload => { writes.push(payload); return new Promise(done => { resolve = done }) } })
+  assert.equal(page.data.createStoreName, '经开店')
+  page.data.keyword = '旧筛选'
+  page.data.roleFilter = '3'
+  page.data.statusFilter = '0'
+  const pending = page.onCreateUser()
+  await page.onCreateUser()
+  page.onCreateInput({ currentTarget: { dataset: { field: 'phone' } }, detail: { value: '13700000000' } })
+  page.onCreateStoreChange({ detail: { value: 0 } })
+  page.onCloseCreatePopup()
+  assert.equal(page.data.showCreatePopup, true)
+  assert.equal(page.data.createForm.phone, '13911112222')
+  assert.equal(page.data.createForm.storeId, 'jingkai')
+  assert.equal(writes.length, 1)
+  assert.equal(writes[0].name, '新学员')
+  assert.match(writes[0].requestId, /^[a-zA-Z0-9_-]{16,80}$/)
+  resolve({ user: { id: 'created-user', name: '新学员', phone: '13911112222', role: 1, status: 1 } })
+  await pending
+  assert.equal(page.data.showCreatePopup, false)
+  assert.equal(page.data.creatingUser, false)
+  assert.equal(page.data.visibleUsers[0].id, 'created-user')
+  assert.equal(page.data.roleCounts.client, 1)
+  assert.equal(page.data.roleFilter, 'all')
+  assert.equal(page.data.statusFilter, 'all')
+  assert.deepEqual(calls.invalidations, ['admin:', 'workspace:'])
+  assert.equal(calls.toasts[0].title, '用户已录入')
+})
+
+test('网络或号码重复失败保留录入草稿，重试复用请求号，编辑后更换请求号', async () => {
+  const writes = []
+  const { page } = createUserPage({ createUser: async payload => { writes.push(payload); throw new Error(writes.length === 1 ? '网络失败' : '该手机号已建档') } })
+  const requestId = page.data.createRequestId
+  await page.onCreateUser()
+  assert.equal(page.data.showCreatePopup, true)
+  assert.equal(page.data.creatingUser, false)
+  assert.equal(page.data.createForm.phone, '13911112222')
+  assert.equal(page.data.pageData.users.length, 0)
+  assert.match(page.data.createError, /网络失败/)
+  await page.onCreateUser()
+  assert.equal(writes[1].requestId, requestId)
+  assert.match(page.data.createError, /已建档/)
+  page.onCreateInput({ currentTarget: { dataset: { field: 'phone' } }, detail: { value: '13711112222' } })
+  assert.notEqual(page.data.createRequestId, requestId)
+  assert.equal(page.data.createError, '')
+})
+
 test('人员管理组合筛选身份、状态与关键词，角色统计不随筛选丢失', () => {
   const { page } = adminManagePage('users')
   page.data.pageData.users = [
@@ -216,6 +294,116 @@ test('人员管理组合筛选身份、状态与关键词，角色统计不随�
   assert.match(page.data.visibleUsers[0].permissionSummary, /核销/)
   page.onResetFilters()
   assert.equal(page.data.visibleUsers.length, 3)
+})
+
+function customerDetail(id, available = 8) {
+  return { user: { id, name: id, phone: '13911112222', role: 1, status: 1 },
+    balances: [{ type: 'group', available, expiry: '2099-12-31' }, { type: 'private', available: 0, expiry: '' }], records: [], note: '同类型套餐的课时合并使用' }
+}
+
+test('客户余额读取显示加载状态，成功更新列表摘要，不读取非客户', async () => {
+  let resolve
+  const calls = []
+  const { page } = adminManagePage('users', { getAdminUserAssets: payload => { calls.push(payload); return new Promise(done => { resolve = done }) } })
+  page.data.pageData.users = [{ id: 'customer', role: 1 }, { id: 'coach', role: 2 }]
+  page.onViewAssets({ currentTarget: { dataset: { userId: 'coach' } } })
+  assert.equal(calls.length, 0)
+  const pending = page.onViewAssets({ currentTarget: { dataset: { userId: 'customer' } } })
+  assert.equal(page.data.assetsLoading, true)
+  assert.equal(page.data.assetsDetail, null)
+  page.onRefreshAssets()
+  assert.equal(calls.length, 1)
+  resolve(customerDetail('customer'))
+  await pending
+  assert.equal(page.data.assetsLoading, false)
+  assert.equal(page.data.assetsDetail.balances[0].available, 8)
+  assert.equal(page.data.pageData.users[0].assets.groupCount, 8)
+})
+
+test('客户余额切换、关闭或离页后，迟到响应不能覆盖新客户或重新打开面板', async () => {
+  const pending = {}
+  const { page } = adminManagePage('users', { getAdminUserAssets: payload => new Promise(resolve => { pending[payload.targetUserId] = resolve }) })
+  page.data.pageData.users = [{ id: 'a', role: 1 }, { id: 'b', role: 1 }]
+  const first = page.onViewAssets({ currentTarget: { dataset: { userId: 'a' } } })
+  const second = page.onViewAssets({ currentTarget: { dataset: { userId: 'b' } } })
+  pending.b(customerDetail('b', 12))
+  await second
+  pending.a(customerDetail('a', 99))
+  await first
+  assert.equal(page.data.assetsUser.id, 'b')
+  assert.equal(page.data.assetsDetail.balances[0].available, 12)
+  const late = page.onRefreshAssets()
+  page.onHide()
+  pending.b(customerDetail('b', 15))
+  await late
+  assert.equal(page.data.assetsUser, null)
+  assert.equal(page.data.assetsDetail, null)
+  assert.equal(page.data.assetsLoading, false)
+})
+
+test('客户余额失败展示安全原因并可重试，不用旧数据或零余额充当成功', async () => {
+  let fail = true
+  const { page } = adminManagePage('users', { getAdminUserAssets: async () => { if (fail) throw new Error('document.get:fail network timeout _id internal'); return customerDetail('customer', 0) } })
+  page.data.pageData.users = [{ id: 'customer', role: 1 }]
+  await page.onViewAssets({ currentTarget: { dataset: { userId: 'customer' } } })
+  assert.match(page.data.assetsError, /请求超时/)
+  assert.equal(page.data.assetsDetail, null)
+  assert.equal(page.data.assetsLoading, false)
+  fail = false
+  await page.onRefreshAssets()
+  assert.equal(page.data.assetsError, '')
+  assert.equal(page.data.assetsDetail.balances[0].available, 0)
+})
+
+test('业务API防御旧服务内部错误，超时保留未确认写入状态，异常成功响应不能报成功', async () => {
+  const { exported, wx } = harness('utils/business-api.js')
+  wx.cloud.callFunction = async () => ({ result: { success: false, code: 'CREATE_USER_ERROR', message: 'document.get:fail document with _id u_secret does not exist' } })
+  await assert.rejects(exported.createUser({}), error => /记录已不存在/.test(error.message) && !/_id|document/.test(error.message))
+  wx.cloud.callFunction = async () => { throw { errMsg: 'cloud.callFunction:fail timeout' } }
+  await assert.rejects(exported.distributeAsset({}), error => error.code === 'REQUEST_TIMEOUT' && error.outcomeUnknown && /勿重复提交/.test(error.message))
+  wx.cloud.callFunction = async () => ({ result: { success: true } })
+  await assert.rejects(exported.createUser({}), error => /未返回完整操作结果/.test(error.message) && error.outcomeUnknown)
+})
+
+test('原生操作取消安静返回，复制失败及操作授权失败显示具体反馈', () => {
+  const { exported, wx, calls } = harness('utils/interaction.js')
+  wx.showActionSheet = (options) => options.fail({ errMsg: 'showActionSheet:fail cancel' })
+  exported.showActionSheet({ itemList: ['门店'] })
+  assert.equal(calls.toasts.length + calls.modals.length, 0)
+  wx.setClipboardData = (options) => options.fail({ errMsg: 'setClipboardData:fail system error' })
+  exported.setClipboardData({ data: '客户训练记录' })
+  assert.match(calls.toasts.at(-1).title, /内容未能复制/)
+  wx.openLocation = (options) => options.fail({ errMsg: 'openLocation:fail auth deny' })
+  exported.openLocation({ latitude: 34, longitude: 108 })
+  assert.match(calls.modals.at(-1).content, /未获得此操作授权/)
+})
+
+test('长操作原因完整展示，跳转失败显示业务反馈', () => {
+  const { exported, calls, wx } = harness('utils/interaction.js')
+  exported.showFeedback({ title: '该类型可用课时不足或已过期，请先派发权益', icon: 'none' })
+  assert.match(calls.modals[0].content, /请先派发权益/)
+  assert.equal(calls.toasts.length, 0)
+  wx.navigateTo = options => options.fail({ errMsg: 'navigateTo:fail page limit exceeded' })
+  exported.navigateTo({ url: '/pages/admin/users/index' })
+  assert.match(calls.modals.at(-1).content, /页面过多/)
+})
+
+test('人工核销超时保留原请求和冻结参数，避免未确认结果被当作业务失败清除', async () => {
+  const storage = new Map()
+  const { page } = manualPage({ manualWriteOff: async () => { throw Object.assign(new Error('请求超时，结果尚未确认'), { code: 'REQUEST_TIMEOUT', outcomeUnknown: true }) } }, storage)
+  await page.onSubmit()
+  assert.equal(page.data.submitting, false)
+  assert.equal(page.data.pendingRetry, true)
+  assert.ok(page._pendingPayload)
+  assert.ok(storage.get('one.manualPending.staff'))
+})
+
+test('服务检查显示业务结果，隐藏集合、云环境和记录数等内部信息', async () => {
+  const { page, calls } = harness('pages/admin/index.js', { bootstrapCollections: async () => ({ envId: 'internal-env', createResults: [{ collectionName: 'app_user' }], inspectResults: [{ collectionName: 'app_user', ok: true, total: 42 }] }) })
+  await page.onBootstrap()
+  assert.equal(page.data.bootstrapLoading, false)
+  assert.equal(calls.modals.at(-1).title, '服务检查完成')
+  assert.doesNotMatch(calls.modals.at(-1).content, /app_user|internal-env|数据库|集合|42/)
 })
 
 test('人员改权保护当前管理员，取消确认保留权限与编辑面板', async () => {
@@ -394,7 +582,8 @@ test('权益派发提交冻结表单并阻止重复点击，成功回执采用�
   assert.equal(page.data.receipt.expiry, '2099-12-31')
   assert.equal(page.data.receipt.amount, '100.00')
   assert.equal(page.data.selectedMemberId, '')
-  assert.equal(calls.invalidations.length, 3)
+  assert.equal(calls.invalidations.length, 4)
+  assert.ok(calls.invalidations.includes('admin:users'))
 })
 
 test('权益派发校验金额精度及赠课，失败保留草稿且不展示成功回执', async () => {
@@ -427,7 +616,8 @@ test('人工核销重复点击只提交一次，成功清除待处理请求并�
   assert.match(calls.modals[0].content, /扣减 1/)
   assert.equal(storage.size, 0)
   assert.equal(page.data.selectedMember, null)
-  assert.equal(calls.invalidations.length, 4)
+  assert.equal(calls.invalidations.length, 5)
+  assert.ok(calls.invalidations.includes('admin:users'))
 })
 
 test('人工核销网络中断后重新进页复用原请求，冻结参数避免重复扣课', async () => {
@@ -857,4 +1047,34 @@ test('全部数据页面在空缓存首次进入时可完成云端同步', async
     assert.equal(reads, 1, name + ' 应到达真实云请求')
     assert.equal(page.data.pageBusy, false)
   }
+})
+
+
+test('登录态刷新失败保留原账号并释放读取锁，可在恢复后重试', async () => {
+  let attempts = 0
+  const { page: app } = harness('app.js', { getCurrentUserSession: async () => {
+    if (++attempts === 1) throw new Error('请求超时，请检查网络后重试')
+    return { loggedIn: true, userProfile: { id: 'customer', nickname: '客户', role: 'client' } }
+  } })
+  app.onLaunch()
+  app.applyCloudSession({ loggedIn: true, userProfile: { id: 'customer', role: 'client' } })
+  await assert.rejects(app.refreshUserSession({ force: true }), /请求超时/)
+  assert.equal(app.globalData.isAuthenticated, true)
+  assert.equal(app.globalData.userProfile.id, 'customer')
+  assert.equal(app._authRefreshingPromise, null)
+  assert.equal(await app.refreshUserSession({ force: true }), true)
+  assert.equal(attempts, 2)
+})
+
+test('门店已保存后的刷新故障说明两个结果，不将保存误报为失败', async () => {
+  const { page, app } = harness('pages/admin/stores/index.js')
+  app.getRuntimeSnapshotAsync = async () => { throw new Error('document.get:fail network timeout') }
+  await page.refreshStoreState()
+  assert.match(page.data.pageError, /门店变更已保存，但刷新未完成/)
+  assert.match(page.data.pageError, /请求超时/)
+  assert.doesNotMatch(page.data.pageError, /document|数据库/)
+  app.getRuntimeSnapshotAsync = async () => ({ isAuthenticated: true })
+  page.syncPageData = async () => page.setData({ pageError: '请求超时，请检查网络后重试' })
+  await page.refreshStoreState()
+  assert.match(page.data.pageError, /^门店变更已保存，但刷新未完成：请求超时/)
 })

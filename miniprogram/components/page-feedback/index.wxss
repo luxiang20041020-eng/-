@@ -4,5 +4,25 @@
 .feedback-description { color: #93685e; font-size: 22rpx; line-height: 1.6; margin-top: 6rpx; word-break: break-word; }
 .feedback-retry { flex-shrink: 0; margin: 0; padding: 0 22rpx; background: #ffffff; border-radius: 10rpx; font-size: 24rpx; line-height: 70rpx; color: #932f20; }
 .feedback-retry::after { border: 1rpx solid #edd0c9; border-radius: 10rpx; }
-.feedback-loading { display: flex; gap: 12rpx; align-items: center; padding: 14rpx 0; color: #74776f; font-size: 22rpx; }
+.feedback-loading {
+  /* 同步提示脱离文档流，显示和隐藏时不挤动页面内容。 */
+  position: fixed;
+  left: 50%;
+  bottom: calc(166rpx + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 9;
+  display: flex;
+  gap: 12rpx;
+  align-items: center;
+  padding: 14rpx 24rpx;
+  border: 1rpx solid #e4e5dc;
+  border-radius: 999rpx;
+  background: #ffffff;
+  box-shadow: 0 6rpx 20rpx rgba(32, 37, 31, 0.08);
+  color: #74776f;
+  font-size: 22rpx;
+  line-height: 1.5;
+  white-space: nowrap;
+  pointer-events: none;
+}
 .feedback-dot { width: 12rpx; height: 12rpx; border-radius: 50%; background: #c7452d; }

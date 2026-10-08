@@ -1,6 +1,7 @@
+const { getUserMessage } = require('../../../utils/user-feedback')
 const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
-const { confirmAction } = require('../../../utils/interaction')
+const { confirmAction, showFeedback, navigateTo, reLaunch } = require('../../../utils/interaction')
 
 function buildClassCacheKey(classId) {
   return 'workspace:class:' + (classId || 'selected')
@@ -40,7 +41,7 @@ Page(withPageState({
       return
     }
     if (!runtime.isAuthenticated) {
-      wx.reLaunch({ url: '/pages/login/index' })
+      reLaunch({ url: '/pages/login/index' })
       return
     }
     this.hydratePageData(runtime)
@@ -61,7 +62,7 @@ Page(withPageState({
       if (this._syncRequestId !== requestId) {
         return
       }
-      this.setData({ pageError: error.message || "加载失败，请重试" })
+      this.setData({ pageError: getUserMessage(error, "加载失败，请重试") })
       this.setData({
         runtime,
         pageData: this.data.pageData.classInfo ? this.data.pageData : emptyClass(this.data.classId),
@@ -98,7 +99,7 @@ Page(withPageState({
       }
       const runtime = await app.getRuntimeSnapshotAsync({ force: true })
       if (!runtime.isAuthenticated) {
-        wx.reLaunch({ url: '/pages/login/index' })
+        reLaunch({ url: '/pages/login/index' })
         return
       }
       await businessApi.writeOffBooking({
@@ -108,24 +109,25 @@ Page(withPageState({
       })
       result = { ok: true, message: status === '已核销' ? '到场已确认' : '缺席已记录' }
     } catch (error) {
-      result = { ok: false, message: error.message || "核销失败，请重试" }
+      result = { ok: false, message: getUserMessage(error, "核销失败，请重试") }
     } finally {
       this.setData({ submittingBookingId: '' })
     }
 
-    wx.showToast({ title: result.message, icon: result.ok ? 'success' : 'none' })
+    showFeedback({ title: result.message, icon: result.ok ? 'success' : 'none' })
     if (result.ok) {
       this.applyLocalRosterStatus(bookingId, status)
       app.removeViewCacheByPrefix('workspace:')
       app.removeViewCacheByPrefix('profile:')
       app.removeViewCacheByPrefix('admin:dashboard:')
+      app.removeViewCacheByPrefix('admin:users')
       this.syncPageData()
     }
   },
 
   onManualWriteOff() {
     const classId = this.data.classId || this.data.pageData.classInfo.id
-    if (classId) wx.navigateTo({ url: '/pages/workspace/manual/index?classId=' + encodeURIComponent(classId) })
+    if (classId) navigateTo({ url: '/pages/workspace/manual/index?classId=' + encodeURIComponent(classId) })
   },
 
   applyLocalRosterStatus(bookingId, nextStatus) {

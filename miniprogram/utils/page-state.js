@@ -1,3 +1,4 @@
+const { getUserMessage } = require('./user-feedback')
 // 所有业务页共享加载、失败重试、下拉刷新与离页请求失效处理。
 function withPageState(definition) {
   const sync = definition.syncPageData
@@ -12,7 +13,7 @@ function withPageState(definition) {
       try {
         await sync.apply(this, args)
       } catch (error) {
-        if (this._pageRequest === request) this.setData({ pageError: error.message || '加载失败，请重试' })
+        if (this._pageRequest === request) this.setData({ pageError: getUserMessage(error, '加载失败，请重试') })
       } finally {
         if (this._pageRequest === request) this.setData({ pageBusy: false })
       }

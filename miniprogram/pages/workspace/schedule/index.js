@@ -1,6 +1,7 @@
+const { getUserMessage } = require('../../../utils/user-feedback')
 const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
-const { confirmAction } = require('../../../utils/interaction')
+const { confirmAction, showFeedback, navigateTo, reLaunch, showActionSheet } = require('../../../utils/interaction')
 const scheduleCalendar = require('../../../utils/schedule-calendar')
 
 const WEEKDAY_OPTIONS = [
@@ -111,7 +112,7 @@ Page(withPageState({
       return
     }
     if (!runtime.isAuthenticated) {
-      wx.reLaunch({ url: '/pages/login/index' })
+      reLaunch({ url: '/pages/login/index' })
       return
     }
     const targetStoreId = selectedStoreId || this.data.storeId || runtime.currentStore.id
@@ -157,7 +158,7 @@ Page(withPageState({
       if (this._syncRequestId !== requestId) {
         return
       }
-      this.setData({ pageError: error.message || "加载失败，请重试" })
+      this.setData({ pageError: getUserMessage(error, "加载失败，请重试") })
       const localPageData = normalizeSchedulePageData(app.getViewCache(buildScheduleCacheKey(runtime, targetStoreId)) || app.getScheduleManagePageData(targetStoreId), runtime)
       const selection = getStoreSelection(localPageData, targetStoreId)
       this.setData({
@@ -227,7 +228,7 @@ Page(withPageState({
   },
   onCloseEditor() { if (!this.data.submitting) this.setData({ editorOpen: false }) },
   onOpenClass(event) {
-    wx.navigateTo({ url: '/pages/workspace/class/index?classId=' + encodeURIComponent(event.currentTarget.dataset.id) })
+    navigateTo({ url: '/pages/workspace/class/index?classId=' + encodeURIComponent(event.currentTarget.dataset.id) })
   },
 
   onInput(event) {
@@ -265,11 +266,11 @@ Page(withPageState({
     if (this.data.submitting || this.data.editorOpen) return
     const stores = this.data.pageData.stores || []
     if (!stores.length) {
-      wx.showToast({ title: '暂无可选门店', icon: 'none' })
+      showFeedback({ title: '暂无可选门店', icon: 'none' })
       return
     }
 
-    wx.showActionSheet({
+    showActionSheet({
       itemList: stores.map((item) => item.name),
       success: (res) => {
         const selectedStore = stores[res.tapIndex]
@@ -300,24 +301,24 @@ Page(withPageState({
       || this.data.pageData.currentStore
 
     if (!this.data.title.trim() || !selectedStore || !selectedStore.id) {
-      wx.showToast({ title: '请补全训练主题并选择门店', icon: 'none' })
+      showFeedback({ title: '请补全训练主题并选择门店', icon: 'none' })
       return
     }
 
     if (this.data.endTime <= this.data.startTime) {
-      wx.showToast({ title: '结束时间须晚于开始时间', icon: 'none' })
+      showFeedback({ title: '结束时间须晚于开始时间', icon: 'none' })
       return
     }
     if (new Date(this.data.fullDate + 'T' + this.data.startTime + ':00+08:00').getTime() <= Date.now()) {
-      wx.showToast({ title: '请选择未来的训练时间', icon: 'none' }); return
+      showFeedback({ title: '请选择未来的训练时间', icon: 'none' }); return
     }
     const capacity = this.data.type === 'private' ? 1 : Number(this.data.capacity)
     if (!Number.isInteger(capacity) || capacity < 1 || capacity > 100) {
-      wx.showToast({ title: '人数应为 1 至 100 的整数', icon: 'none' }); return
+      showFeedback({ title: '人数应为 1 至 100 的整数', icon: 'none' }); return
     }
     this.refreshCalendar()
     if (this.data.conflictPlans.length) {
-      wx.showToast({ title: '与已有课程重叠，请调整时间', icon: 'none' }); return
+      showFeedback({ title: '与已有课程重叠，请调整时间', icon: 'none' }); return
     }
     const app = getApp()
     this.setData({ submitting: true })
@@ -328,7 +329,7 @@ Page(withPageState({
       if (!confirmed) return
       const runtime = await app.getRuntimeSnapshotAsync({ force: true })
       if (!runtime.isAuthenticated) {
-        wx.reLaunch({ url: '/pages/login/index' })
+        reLaunch({ url: '/pages/login/index' })
         return
       }
       const cloudResult = await businessApi.createCoachSchedule({
@@ -345,12 +346,12 @@ Page(withPageState({
       })
       result = { ok: true, message: cloudResult.message || '排课已发布' }
     } catch (error) {
-      result = { ok: false, message: error.message || "排课未保存，请重试" }
+      result = { ok: false, message: getUserMessage(error, "排课未保存，请重试") }
     } finally {
       this.setData({ submitting: false })
     }
 
-    wx.showToast({ title: result.message, icon: result.ok ? 'success' : 'none' })
+    showFeedback({ title: result.message, icon: result.ok ? 'success' : 'none' })
     if (result.ok) {
       app.removeViewCacheByPrefix('workspace:')
       app.removeViewCacheByPrefix('booking:')

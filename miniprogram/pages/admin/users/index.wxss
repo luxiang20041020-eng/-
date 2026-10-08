@@ -1,2 +1,20 @@
 @import "../../../styles/admin-management.wxss";
 .change-link { color: #c7452d; font-size: 23rpx; }
+.create-user-sheet .field-block:first-child { margin-top: 0; }
+.field-hint { margin-top: 12rpx; }
+.create-user-error { margin-top: 20rpx; padding: 18rpx 22rpx; border-radius: 12rpx; background: #fff5f1; color: #932f20; font-size: 24rpx; line-height: 1.6; }
+.customer-asset-entry { width: 100%; margin: 20rpx 0 0; padding: 20rpx; border: 1rpx solid #e6e7df; border-radius: 14rpx; background: #f5f5ef; text-align: left; color: #20251f; font-size: 24rpx; }
+.asset-entry-heading { display: flex; justify-content: space-between; align-items: center; gap: 12rpx; }
+.asset-entry-heading .section-title { flex: 1; min-width: 0; word-break: break-word; }
+.asset-entry-heading .change-link { flex-shrink: 0; }
+.asset-entry-counts { display: flex; gap: 24rpx; margin-top: 14rpx; color: #7c8076; font-size: 23rpx; }
+.asset-entry-counts text { color: #20251f; font-size: 34rpx; font-weight: 700; }
+.customer-balance-grid { display: flex; flex-direction: column; gap: 18rpx; }
+.customer-balance-card { padding: 24rpx; background: #fff; border: 1rpx solid #e6e7df; border-radius: 18rpx; }
+.customer-balance-value { font-size: 52rpx; font-weight: 700; margin: 20rpx 0 14rpx; }
+.customer-balance-value text { font-size: 23rpx; font-weight: 400; color: #7c8076; }
+.customer-balance-card.expired .customer-balance-value { color: #7c8076; }
+.expired-balance { color: #932f20; font-size: 23rpx; margin-top: 10rpx; line-height: 1.6; }
+.customer-assets-note { margin: 20rpx 0; }
+.customer-package-record { padding: 22rpx; border-radius: 16rpx; background: #fff; margin-bottom: 16rpx; }
+.customer-package-record .muted { margin-top: 8rpx; }

@@ -1,13 +1,65 @@
 <view class="page-shell manage-page">
   <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry" />
-  <view class="manage-hero"><view class="hero-eyebrow">ONE / PEOPLE &amp; ACCESS</view><view class="row-between"><view class="hero-title">人员权限</view><text class="hero-badge">管理员</text></view><view class="hero-caption">清楚分工，让每个人拥有合适的权限。</view></view>
+  <view class="manage-hero"><view class="hero-eyebrow">ONE / PEOPLE &amp; ACCESS</view><view class="row-between"><view class="hero-title">人员权限</view><button wx:if="{{hasPermission}}" class="hero-add" disabled="{{submittingUserId || creatingUser || pageBusy || pageError}}" bindtap="onOpenCreate">＋ 录入新用户</button><text wx:else class="hero-badge">管理员</text></view><view class="hero-caption">清楚分工，让每个人拥有合适的权限。</view></view>
   <view wx:if="{{!hasPermission && !pageBusy}}" class="manage-card"><view class="section-title">需要管理员权限</view><view class="card-description">当前账号无法查看或调整人员身份。</view></view>
   <block wx:if="{{hasPermission}}">
     <view class="manage-filters"><input class="form-input manage-search" maxlength="40" value="{{keyword}}" bindinput="onKeywordInput" placeholder="搜索姓名、手机号或门店" /><view class="filter-strip"><view class="filter-pill {{roleFilter === 'all' ? 'active' : ''}}" data-value="all" bindtap="onRoleFilter">全部<text class="filter-count">{{roleCounts.all}}</text></view><view class="filter-pill {{roleFilter === '1' ? 'active' : ''}}" data-value="1" bindtap="onRoleFilter">客户<text class="filter-count">{{roleCounts.client}}</text></view><view class="filter-pill {{roleFilter === '2' ? 'active' : ''}}" data-value="2" bindtap="onRoleFilter">教练<text class="filter-count">{{roleCounts.coach}}</text></view><view class="filter-pill {{roleFilter === '3' ? 'active' : ''}}" data-value="3" bindtap="onRoleFilter">管理员<text class="filter-count">{{roleCounts.admin}}</text></view></view><view class="small-filter-row"><view class="small-filter {{statusFilter === 'all' ? 'active' : ''}}" data-value="all" bindtap="onStatusFilter">全部状态</view><view class="small-filter {{statusFilter === '1' ? 'active' : ''}}" data-value="1" bindtap="onStatusFilter">正常账号</view><view class="small-filter {{statusFilter === '0' ? 'active' : ''}}" data-value="0" bindtap="onStatusFilter">停用账号</view></view></view>
     <view class="list-heading"><view class="section-title">人员列表 <text class="muted">{{visibleUsers.length}} 人</text></view><button wx:if="{{keyword || roleFilter !== 'all' || statusFilter !== 'all'}}" class="text-action" bindtap="onResetFilters">重置筛选</button></view>
     <view wx:if="{{!visibleUsers.length && !pageBusy && !pageError}}" class="manage-empty"><view class="section-title">暂无匹配人员</view><view class="muted">换个关键词，或调整身份与状态筛选。</view><button class="text-action" bindtap="onResetFilters">查看全部人员</button></view>
-    <view wx:for="{{visibleUsers}}" wx:key="id" class="manage-card"><view class="card-top"><view class="person-avatar">{{item.avatarText}}</view><view class="card-main"><view class="item-name">{{item.name}}<text wx:if="{{item.id === pageData.currentUserId}}" class="self-label">当前账号</text></view><view class="item-subtitle">{{item.phone || '未绑定手机号'}}</view></view><view class="role-label {{item.roleKey}}">{{item.roleLabel}}</view></view><view class="card-meta"><text class="status-label {{item.status === 1 ? '' : 'inactive'}}">{{item.statusLabel}}</text><text>{{item.homeStoreName || '未分配门店'}}</text></view><view class="card-description">{{item.permissionSummary}}</view><view class="card-footer"><view class="muted">{{item.id === pageData.currentUserId ? '当前账号的管理员权限已保护' : '调整身份与可用功能'}}</view><button wx:if="{{item.id !== pageData.currentUserId}}" class="card-action" data-user-id="{{item.id}}" loading="{{submittingUserId === item.id}}" disabled="{{submittingUserId || pageBusy || pageError}}" bindtap="onChangeRole">调整权限 ›</button></view></view>
+    <view wx:for="{{visibleUsers}}" wx:key="id" class="manage-card">
+      <view class="card-top"><view class="person-avatar">{{item.avatarText}}</view><view class="card-main"><view class="item-name">{{item.name}}<text wx:if="{{item.id === pageData.currentUserId}}" class="self-label">当前账号</text></view><view class="item-subtitle">{{item.phone || '未绑定手机号'}}</view></view><view class="role-label {{item.roleKey}}">{{item.roleLabel}}</view></view>
+      <view class="card-meta"><text class="status-label {{item.status === 1 ? '' : 'inactive'}}">{{item.statusLabel}}</text><text>{{item.homeStoreName || '未分配门店'}}</text></view>
+      <view class="card-description">{{item.permissionSummary}}</view>
+      <button wx:if="{{item.role === 1}}" class="customer-asset-entry" data-user-id="{{item.id}}" disabled="{{creatingUser || submittingUserId}}" bindtap="onViewAssets">
+        <view class="asset-entry-heading"><text>剩余套餐</text><text class="change-link">查看详情 ›</text></view>
+        <view wx:if="{{item.assets}}" class="asset-entry-counts"><view>团课 <text>{{item.assets.groupCount}}</text> 次</view><view>私教 <text>{{item.assets.privateCount}}</text> 次</view></view>
+        <view wx:else class="muted">查看剩余课时与有效期</view>
+      </button>
+      <view class="card-footer"><view class="muted">{{item.id === pageData.currentUserId ? '当前账号的管理员权限已保护' : '调整身份与可用功能'}}</view><button wx:if="{{item.id !== pageData.currentUserId}}" class="card-action" data-user-id="{{item.id}}" loading="{{submittingUserId === item.id}}" disabled="{{submittingUserId || pageBusy || pageError}}" bindtap="onChangeRole">调整权限 ›</button></view>
+    </view>
   </block>
   <view wx:if="{{roleEditorUser}}" class="sheet-mask"><view class="manage-sheet"><view class="sheet-header"><view><view class="section-title">调整身份权限</view><view class="muted">{{roleEditorUser.name}} · {{roleEditorUser.phone}}</view></view><button class="sheet-close" disabled="{{submittingUserId}}" bindtap="onCloseRoleEditor">关闭</button></view><scroll-view scroll-y class="sheet-scroll"><view class="sheet-body"><view wx:for="{{pageData.roleOptions}}" wx:key="value" class="choice-card {{nextRole === item.value ? 'selected' : ''}}" data-value="{{item.value}}" bindtap="onChooseRole"><view class="row-between"><view class="section-title">{{item.label}}</view><text class="change-link">{{nextRole === item.value ? '✓ 已选择' : ''}}</text></view><view class="muted">{{item.description}}</view></view><view class="change-preview"><view>{{roleEditorUser.roleLabel}} → {{selectedRole.label}}</view><view class="muted">身份变更不会改变已有课时和预约。{{roleEditorUser.status === 0 ? '此账号仍为停用状态，本次不会启用账号。' : ''}}</view></view></view></scroll-view><view class="sheet-actions"><button class="primary-button" disabled="{{submittingUserId || nextRole === roleEditorUser.role || pageBusy || pageError}}" loading="{{submittingUserId}}" bindtap="onConfirmRole">{{submittingUserId ? '正在更新…' : '确认变更权限'}}</button></view></view></view>
+  <view wx:if="{{showCreatePopup && hasPermission}}" class="sheet-mask">
+    <view class="manage-sheet create-user-sheet">
+      <view class="sheet-header"><view><view class="section-title">录入新用户</view><view class="muted">先建客户档案，再派发训练权益。</view></view><button class="sheet-close" disabled="{{creatingUser}}" bindtap="onCloseCreatePopup">关闭</button></view>
+      <scroll-view scroll-y class="sheet-scroll">
+        <view class="sheet-body">
+          <view class="field-block"><view class="field-label">姓名</view><input class="form-input" maxlength="20" value="{{createForm.name}}" data-field="name" bindinput="onCreateInput" disabled="{{creatingUser}}" placeholder="填写客户姓名" /></view>
+          <view class="field-block"><view class="field-label">手机号</view><input class="form-input" type="number" maxlength="11" value="{{createForm.phone}}" data-field="phone" bindinput="onCreateInput" disabled="{{creatingUser}}" placeholder="填写本人11位手机号" /><view class="muted field-hint">客户之后使用此手机号登录，将关联已有档案与权益。</view></view>
+          <view class="field-block"><view class="field-label">所属门店</view><picker mode="selector" range="{{pageData.stores}}" range-key="name" value="{{createStoreIndex}}" disabled="{{creatingUser}}" bindchange="onCreateStoreChange"><view class="store-picker row-between"><text>{{createStoreName || '请选择门店'}}</text><text>⌄</text></view></picker></view>
+          <view class="change-preview"><view>初始身份：客户</view><view class="muted">录入后可立即派发权益或登记线下训练。教练和管理员身份可在人员列表中调整。</view></view>
+          <view wx:if="{{createError}}" class="create-user-error">{{createError}}</view>
+        </view>
+      </scroll-view>
+      <view class="sheet-actions"><button class="primary-button" disabled="{{creatingUser || pageBusy || pageError}}" loading="{{creatingUser}}" bindtap="onCreateUser">{{creatingUser ? '正在录入…' : '保存用户档案'}}</button></view>
+    </view>
+  </view>
+  <view wx:if="{{assetsUser && hasPermission}}" class="sheet-mask">
+    <view class="manage-sheet customer-assets-sheet">
+      <view class="sheet-header"><view><view class="section-title">客户剩余套餐</view><view class="muted">{{assetsUser.name}} · {{assetsUser.phone}}</view></view><button class="sheet-close" bindtap="onCloseAssets">关闭</button></view>
+      <scroll-view scroll-y class="sheet-scroll">
+        <view class="sheet-body">
+          <view wx:if="{{assetsLoading}}" class="manage-empty"><view class="section-title">正在读取套餐余额…</view><view class="muted">请稍候，余额以最新记录为准。</view></view>
+          <view wx:elif="{{assetsError}}" class="create-user-error"><view>{{assetsError}}</view><button class="text-action" bindtap="onRefreshAssets">重新读取</button></view>
+          <block wx:elif="{{assetsDetail}}">
+            <view wx:if="{{assetsUser.status !== 1}}" class="create-user-error">此客户账号已停用，课时记录保留；当前无法预约或核销。</view>
+            <view class="customer-balance-grid">
+              <view wx:for="{{assetsDetail.balances}}" wx:key="type" class="customer-balance-card {{item.expired ? 'expired' : ''}}">
+                <view class="asset-entry-heading"><view class="section-title">{{item.label}}</view><text class="status-label {{item.available > 0 ? '' : 'inactive'}}">{{item.statusLabel}}</text></view>
+                <view class="customer-balance-value">{{item.available}}<text> 次可用</text></view>
+                <view class="muted">{{item.expiry ? '有效期至 ' + item.expiry : item.expiryLabel}}</view>
+                <view wx:if="{{item.expired && item.recordedBalance > 0}}" class="expired-balance">另有 {{item.recordedBalance}} 次已过期，无法使用。</view>
+              </view>
+            </view>
+            <view class="muted customer-assets-note">{{assetsDetail.note}}</view>
+            <view class="list-heading"><view class="section-title">套餐派发记录</view><text class="muted">最近 {{assetsDetail.records.length}} 笔</text></view>
+            <view wx:if="{{!assetsDetail.records.length}}" class="manage-empty"><view class="section-title">暂无套餐派发记录</view><view class="muted">已建档客户可前往工作台派发权益。</view></view>
+            <view wx:for="{{assetsDetail.records}}" wx:key="id" class="customer-package-record"><view class="asset-entry-heading"><view class="section-title">{{item.packageName}}</view><text class="change-link">＋{{item.lessons}} 次</text></view><view class="muted">{{item.typeLabel}} · {{item.time || '日期未记录'}}</view><view class="muted">实收 ¥{{item.amount}} · {{item.payType}}</view><view class="muted">{{item.expiry ? '本次派发有效期至 ' + item.expiry : '本次派发有效期未记录'}}</view></view>
+          </block>
+        </view>
+      </scroll-view>
+      <view class="sheet-actions"><button class="secondary-button" loading="{{assetsLoading}}" disabled="{{assetsLoading}}" bindtap="onRefreshAssets">{{assetsLoading ? '正在读取…' : '刷新套餐余额'}}</button></view>
+    </view>
+  </view>
   <app-tabbar id="tabbar" current="/pages/admin/index" />
 </view>

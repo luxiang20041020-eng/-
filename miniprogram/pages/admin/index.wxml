@@ -21,7 +21,7 @@
         <view class="admin-tool-label">门店</view>
         <view class="admin-tool-value">{{pageData.currentStore.name}}</view>
       </view>
-      <button class="secondary-button admin-mini-btn" loading="{{bootstrapLoading}}" bindtap="onBootstrap">检查数据库</button>
+      <button class="secondary-button admin-mini-btn" loading="{{bootstrapLoading}}" disabled="{{bootstrapLoading}}" bindtap="onBootstrap">{{bootstrapLoading ? '正在检查…' : '检查服务'}}</button>
     </view>
 
     <view class="card">

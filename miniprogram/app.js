@@ -354,7 +354,8 @@ App({
         this.resetGuestSession()
         return false
       } catch (error) {
-        return this.globalData.isAuthenticated
+        if ((this._authVersion || 0) !== authVersion) return this.globalData.isAuthenticated
+        throw error
       }
     })()
     this._authRefreshingPromise = refreshPromise

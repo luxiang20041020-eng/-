@@ -1,6 +1,7 @@
+const { getUserMessage } = require('../../../utils/user-feedback')
 const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
-const { confirmAction } = require('../../../utils/interaction')
+const { confirmAction, showFeedback, reLaunch } = require('../../../utils/interaction')
 
 function addDays(days) {
   const date = new Date()
@@ -110,11 +111,11 @@ Page(withPageState({
       return
     }
     if (!runtime.isAuthenticated) {
-      wx.reLaunch({ url: '/pages/login/index' })
+      reLaunch({ url: '/pages/login/index' })
       return
     }
     if (!['coach', 'admin'].includes(runtime.role)) {
-      wx.showToast({
+      showFeedback({
         title: '当前身份没有派课权限',
         icon: 'none',
       })
@@ -141,7 +142,7 @@ Page(withPageState({
       if (this._syncRequestId !== requestId) {
         return
       }
-      this.setData({ pageError: error.message || "加载失败，请重试" })
+      this.setData({ pageError: getUserMessage(error, "加载失败，请重试") })
       this.setData({
         runtime,
         pageData: normalizePageData(app.getViewCache(buildDistributeCacheKey(runtime, this.data.keyword)) || app.getDistributePageData(this.data.keyword), runtime.currentStore),
@@ -189,8 +190,8 @@ Page(withPageState({
   onStep(event) {
     if (this.data.submitting) return
     const step = Number(event.currentTarget.dataset.step)
-    if (step >= 2 && !this.data.selectedMember) return wx.showToast({ title: '请先选择学员', icon: 'none' })
-    if (step >= 3 && !this.data.selectedPackage) return wx.showToast({ title: '请先选择套餐', icon: 'none' })
+    if (step >= 2 && !this.data.selectedMember) return showFeedback({ title: '请先选择学员', icon: 'none' })
+    if (step >= 3 && !this.data.selectedPackage) return showFeedback({ title: '请先选择套餐', icon: 'none' })
     this.setData({ step })
   },
   onNext() { this.onStep({ currentTarget: { dataset: { step: this.data.step + 1 } } }) },
@@ -269,29 +270,29 @@ Page(withPageState({
   async onSubmit() {
     if (this.data.submitting || this.data.pageError || this.data.pageBusy) return
     if (!this.data.selectedMemberId || !this.data.selectedPackageId) {
-      wx.showToast({ title: '请先选择学员和套餐', icon: 'none' })
+      showFeedback({ title: '请先选择学员和套餐', icon: 'none' })
       return
     }
     if (!this.data.expiryDate) {
-      wx.showToast({ title: '请设置课时到期日期', icon: 'none' })
+      showFeedback({ title: '请设置课时到期日期', icon: 'none' })
       return
     }
     if (this.data.expiryDate < todayStr()) {
-      wx.showToast({ title: '到期日期不能早于今天', icon: 'none' })
+      showFeedback({ title: '到期日期不能早于今天', icon: 'none' })
       return
     }
     if (!/^\d+(\.\d{1,2})?$/.test(String(this.data.amount).trim())) {
-      wx.showToast({ title: '请输入有效实收金额，赠课可填 0', icon: 'none' })
+      showFeedback({ title: '请输入有效实收金额，赠课可填 0', icon: 'none' })
       return
     }
     if (!this.data.payType.trim() || (this.data.payType === '赠课' && Number(this.data.amount) !== 0)) {
-      wx.showToast({ title: '赠课金额须为 0，请核对收款方式', icon: 'none' }); return
+      showFeedback({ title: '赠课金额须为 0，请核对收款方式', icon: 'none' }); return
     }
 
     const member = this.data.selectedMember || (this.data.pageData.members || []).find((item) => item.id === this.data.selectedMemberId)
     const targetPackage = this.data.selectedPackage || (this.data.pageData.packageOptions || []).find((item) => item.id === this.data.selectedPackageId)
     if (!member || !targetPackage) {
-      wx.showToast({ title: '派发对象无效', icon: 'none' })
+      showFeedback({ title: '派发对象无效', icon: 'none' })
       return
     }
 
@@ -305,7 +306,7 @@ Page(withPageState({
         if (!confirmed) return
         const runtime = await app.getRuntimeSnapshotAsync({ force: true })
         if (!runtime.isAuthenticated) {
-          wx.reLaunch({ url: '/pages/login/index' })
+          reLaunch({ url: '/pages/login/index' })
           return
         }
         const localPayload = snapshot
@@ -328,13 +329,14 @@ Page(withPageState({
             message: '已为' + member.nickname + '派发 ' + targetPackage.lessons + ' 节' + targetPackage.typeLabel,
           }
         } catch (error) {
-          result = { ok: false, message: error.message || "派发失败，请重试" }
+          result = { ok: false, message: getUserMessage(error, "派发失败，请重试") }
         }
 
-        wx.showToast({ title: result.message, icon: result.ok ? 'success' : 'none' })
+        showFeedback({ title: result.message, icon: result.ok ? 'success' : 'none' })
         if (result.ok) {
           app.removeViewCacheByPrefix('workspace:')
           app.removeViewCacheByPrefix('admin:dashboard:')
+          app.removeViewCacheByPrefix('admin:users')
           app.removeViewCacheByPrefix('profile:' + localPayload.memberId)
           this.setData({
             receipt: { name: member.nickname, phone: member.phone, packageName: targetPackage.name, lessons: targetPackage.lessons, typeLabel: targetPackage.typeLabel, amount: preview.amount, expiry: result.expiry, payType: snapshot.payType },
@@ -351,7 +353,7 @@ Page(withPageState({
           this.syncPageData()
         }
     } catch (error) {
-      wx.showToast({ title: error.message || '派发失败，请重试', icon: 'none' })
+      showFeedback({ title: getUserMessage(error, '派发失败，请重试'), icon: 'none' })
     } finally {
       this.setData({ submitting: false })
     }

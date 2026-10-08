@@ -1,3 +1,5 @@
+const { redirectTo } = require('../../utils/interaction')
+
 Component({
   properties: {
     current: {
@@ -45,7 +47,7 @@ Component({
         return
       }
 
-      wx.redirectTo({ url: path })
+      redirectTo({ url: path })
     },
   },
 })

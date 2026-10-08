@@ -1,3 +1,5 @@
+const { showFeedback, reLaunch } = require('../../../utils/interaction')
+const { getUserMessage } = require('../../../utils/user-feedback')
 const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
 
@@ -53,7 +55,7 @@ Page(withPageState({
       return
     }
     if (!runtime.isAuthenticated) {
-      wx.reLaunch({ url: '/pages/login/index' })
+      reLaunch({ url: '/pages/login/index' })
       return
     }
     if (runtime.role !== 'admin') {
@@ -88,11 +90,11 @@ Page(withPageState({
       if (this._syncRequestId !== requestId) {
         return
       }
-      this.setData({ pageError: error.message || "加载失败，请重试" })
+      this.setData({ pageError: getUserMessage(error, "加载失败，请重试") })
       this.setData({ loading: false })
       if (!this.data.pageData.stores.length) {
-        wx.showToast({
-          title: error.message || '读取门店列表失败',
+        showFeedback({
+          title: getUserMessage(error, '读取门店列表失败'),
           icon: 'none',
         })
       }
@@ -210,7 +212,7 @@ Page(withPageState({
     }
     const payload = this.validateStoreForm()
     if (payload.error) {
-      wx.showToast({ title: payload.error, icon: 'none' })
+      showFeedback({ title: payload.error, icon: 'none' })
       return
     }
 
@@ -223,7 +225,7 @@ Page(withPageState({
       } else {
         await businessApi.createStore(payload)
       }
-      wx.showToast({
+      showFeedback({
         title: this.data.editingStoreId ? '门店资料已更新' : '门店已创建',
         icon: 'success',
       })
@@ -234,8 +236,8 @@ Page(withPageState({
       })
       await this.refreshStoreState()
     } catch (error) {
-      wx.showToast({
-        title: error.message || '保存门店失败',
+      showFeedback({
+        title: getUserMessage(error, '保存门店失败'),
         icon: 'none',
       })
     } finally {
@@ -274,14 +276,14 @@ Page(withPageState({
         targetStoreId: targetStore.id,
         nextStatus,
       })
-      wx.showToast({
+      showFeedback({
         title: nextStatus === 1 ? '门店已恢复营业' : '门店已停用',
         icon: 'success',
       })
       await this.refreshStoreState()
     } catch (error) {
-      wx.showToast({
-        title: error.message || '更新门店状态失败',
+      showFeedback({
+        title: getUserMessage(error, '更新门店状态失败'),
         icon: 'none',
       })
     } finally {
@@ -296,7 +298,12 @@ Page(withPageState({
     app.removeViewCacheByPrefix('booking:')
     app.removeViewCacheByPrefix('workspace:')
     app.removeViewCacheByPrefix('profile:')
-    await app.getRuntimeSnapshotAsync({ force: true })
-    await this.syncPageData()
+    try {
+      await app.getRuntimeSnapshotAsync({ force: true })
+      await this.syncPageData()
+      if (this.data.pageError) this.setData({ pageError: '门店变更已保存，但刷新未完成：' + this.data.pageError })
+    } catch (error) {
+      this.setData({ pageError: '门店变更已保存，但刷新未完成：' + getUserMessage(error, '请稍后重新读取门店资料') })
+    }
   },
 }))

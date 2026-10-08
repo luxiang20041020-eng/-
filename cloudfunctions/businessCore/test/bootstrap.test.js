@@ -87,7 +87,8 @@ test('真实建集合错误不能被泛化错误码吞掉，失败后可重试',
   const failure = await login(main, '13812345678')
   assert.equal(failure.success, false)
   assert.equal(failure.code, 'DATABASE_INIT_ERROR')
-  assert.match(failure.message, /permission denied/)
+  assert.match(failure.message, /暂未获准读取或保存资料/)
+  assert.doesNotMatch(failure.message, /permission denied|数据库|collection/)
   assert.equal(state.phoneCalls, 0)
   assert.equal(state.collections.size, 0)
   state.createError = null

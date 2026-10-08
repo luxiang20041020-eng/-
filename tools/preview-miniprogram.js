@@ -138,14 +138,36 @@ function fixtures(page, search) {
     data.pageData.users = [
       { id: 'sample-user', name: '陈一', phone: '13812345678', role: 3, roleKey: 'admin', roleLabel: '管理员', status: 1, statusLabel: '正常', homeStoreName: stores[0].name },
       { id: 'coach', name: '李教练', phone: '13912345678', role: 2, roleKey: 'coach', roleLabel: '教练', status: 1, statusLabel: '正常', homeStoreName: stores[1].name },
-      { id: 'member', name: '张同学', phone: '13612345678', role: 1, roleKey: 'client', roleLabel: '客户', status: 0, statusLabel: '停用', homeStoreName: stores[0].name },
+      { id: 'member', name: '张同学', phone: '13612345678', role: 1, roleKey: 'client', roleLabel: '客户', status: 1, statusLabel: '正常', homeStoreName: stores[0].name, assets },
     ]
     data.roleCounts = { all: 3, admin: 1, coach: 1, client: 1 }
     data.visibleUsers = search.get('state') === 'empty' ? [] : data.pageData.users.map((user) => ({ ...user, avatarText: user.name[0], permissionSummary: data.pageData.roleOptions.find((role) => role.value === user.role).description }))
-    if (search.get('popup')) {
+    if (search.get('popup') === 'assets') {
+      data.showCreatePopup = false
+      data.assetsUser = data.pageData.users[2]
+      const state = search.get('state')
+      data.assetsLoading = state === 'loading'
+      data.assetsError = state === 'error' ? '请求超时，请检查网络后重试' : ''
+      if (state === 'disabled') data.assetsUser = { ...data.assetsUser, status: 0 }
+      if (!data.assetsLoading && !data.assetsError) data.assetsDetail = {
+        user: data.assetsUser,
+        balances: [
+          { type: 'group', label: '团课', available: state === 'empty' ? 0 : 8, recordedBalance: 8, expiryLabel: state === 'empty' ? '尚未派发' : '2027-03-30', statusLabel: state === 'empty' ? '未购课' : '可用' },
+          { type: 'private', label: '私教', available: state === 'expired' || state === 'empty' ? 0 : 12, recordedBalance: 12, expired: state === 'expired', expiryLabel: state === 'empty' ? '尚未派发' : state === 'expired' ? '2026-09-30' : '2027-09-30', statusLabel: state === 'empty' ? '未购课' : state === 'expired' ? '已过期' : '可用' },
+        ],
+        records: state === 'empty' ? [] : Array.from({ length: 8 }, (_, i) => ({ id: 'record' + i, packageName: i ? '新人体验训练' : '30 次专属训练', typeLabel: '私教', lessons: i ? 1 : 30, time: '2026-09-30', amount: i ? '99.00' : '6000.00', payType: '微信转账', expiry: '2027-09-30' })),
+        note: '同类型套餐的课时合并使用，下方派发记录展示原套餐和增加课时。',
+      }
+    } else if (search.get('popup') === 'role') {
+      data.showCreatePopup = false
       data.roleEditorUser = data.pageData.users[1]
       data.nextRole = 3
       data.selectedRole = data.pageData.roleOptions[2]
+    } else if (search.get('popup')) {
+      data.createForm = { name: '新学员', phone: '13911112222', storeId: stores[0].id }
+      data.createStoreIndex = 0
+      data.createStoreName = stores[0].name
+      if (search.get('state') === 'duplicate') data.createError = '该手机号已建档，请在人员列表查找'
     }
   }
   if (page === 'admin/packages') {
@@ -164,7 +186,7 @@ function html(page, search = new URLSearchParams()) {
   const wxml = parseWxml(fs.readFileSync(path.join(mini, 'pages', page, 'index.wxml'), 'utf8'))
   const styles = ['app.wxss', 'components/app-tabbar/index.wxss', 'components/page-feedback/index.wxss', `pages/${page}/index.wxss`].map((file) => readStyles(path.join(mini, file))).join('\n').replace(/(-?\d+(?:\.\d+)?)rpx/g, 'calc($1 * var(--unit))').replace(/\bpage\s*\{/g, 'body {').replace(/(?<![\w-])view(?![\w-])/g, 'div').replace(/(?<![\w-])text(?![\w-])/g, 'span')
   const menu = pageNames.map((name) => `<a href="/preview/${name}">${name}</a>`).join('')
-  return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ONE · ${escape(page)} 布局预览</title><style>:root{--unit:calc(min(100vw,430px) / 750)}body{margin:0}main{max-width:430px;margin:auto}button{cursor:pointer;font-family:inherit}img{object-fit:cover}a{text-decoration:none;color:inherit}input,textarea{font-family:inherit}input{outline:none}nav{display:none}${styles}\n.tabbar-wrap{width:min(100vw,430px);right:auto;left:50%;transform:translateX(-50%)}.scroll-row,.facility-scroll{overflow-x:auto}.home-hero-cta{width:fit-content} [data-preview-action]{cursor:pointer}</style></head><body><nav>${menu}</nav><main>${renderChildren(wxml.children, data)}</main><script>document.addEventListener('click',function(event){const el=event.target.closest('[data-preview-action]');if(!el)return;const a=el.dataset.previewAction;const routes={goBooking:'/preview/booking?type='+(el.dataset.type||'group'),goMySchedule:'/preview/profile',goIdentityQr:'/preview/profile',goLogin:'/preview/login',goBrowse:'/preview/home',onOpenUserManage:'/preview/admin/users',onOpenPackageManage:'/preview/admin/packages',onOpenStoreManage:'/preview/admin/stores',onOpenOperations:'/preview/workspace',goClassDetail:'/preview/workspace/class'};if(routes[a])location.href=routes[a];else if(a==='onTap')location.href='/preview/'+el.dataset.path.replace('/pages/','').replace('/index','');else if(a==='onTapAction')location.href='/preview/workspace/'+el.dataset.actionId;else if(['onTogglePricing','onToggleFilters','onOpenCoachPicker','onToggleAuditLogs'].includes(a))location.search='?expanded=1';else if(['onOpenCreatePopup','onOpenCreate','onOpenCreateStore','onOpenCreatePopup','openNicknameEditor'].includes(a))location.search='?popup=1';else if(['onCloseCreatePopup','onCloseStorePopup','closeNicknameEditor','onCloseCoachPicker'].includes(a))location.search='';else if(a==='onBook')alert('这是布局预览，不会提交真实预约。');});</script></body></html>`
+  return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ONE · ${escape(page)} 布局预览</title><style>:root{--unit:calc(min(100vw,430px) / 750)}body{margin:0}main{max-width:430px;margin:auto}button{cursor:pointer;font-family:inherit}img{object-fit:cover}a{text-decoration:none;color:inherit}input,textarea{font-family:inherit}input{outline:none}nav{display:none}${styles}\n.tabbar-wrap{width:min(100vw,430px);right:auto;left:50%;transform:translateX(-50%)}.scroll-row,.facility-scroll{overflow-x:auto}.sheet-scroll{overflow-y:auto}.home-hero-cta{width:fit-content} [data-preview-action]{cursor:pointer}</style></head><body><nav>${menu}</nav><main>${renderChildren(wxml.children, data)}</main><script>document.addEventListener('click',function(event){const el=event.target.closest('[data-preview-action]');if(!el)return;const a=el.dataset.previewAction;const routes={goBooking:'/preview/booking?type='+(el.dataset.type||'group'),goMySchedule:'/preview/profile',goIdentityQr:'/preview/profile',goLogin:'/preview/login',goBrowse:'/preview/home',onOpenUserManage:'/preview/admin/users',onOpenPackageManage:'/preview/admin/packages',onOpenStoreManage:'/preview/admin/stores',onOpenOperations:'/preview/workspace',goClassDetail:'/preview/workspace/class'};if(routes[a])location.href=routes[a];else if(a==='onTap')location.href='/preview/'+el.dataset.path.replace('/pages/','').replace('/index','');else if(a==='onTapAction')location.href='/preview/workspace/'+el.dataset.actionId;else if(['onTogglePricing','onToggleFilters','onOpenCoachPicker','onToggleAuditLogs'].includes(a))location.search='?expanded=1';else if(['onOpenCreatePopup','onOpenCreate','onOpenCreateStore','onOpenCreatePopup','openNicknameEditor'].includes(a))location.search='?popup=1';else if(['onCloseCreatePopup','onCloseStorePopup','closeNicknameEditor','onCloseCoachPicker'].includes(a))location.search='';else if(a==='onViewAssets')location.search='?popup=assets';else if(a==='onCloseAssets')location.search='';else if(a==='onBook')alert('这是布局预览，不会提交真实预约。');});</script></body></html>`
 }
 
 if (require.main === module) {

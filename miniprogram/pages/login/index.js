@@ -1,3 +1,5 @@
+const { showFeedback, reLaunch } = require('../../utils/interaction')
+const { getUserMessage } = require('../../utils/user-feedback')
 const businessApi = require('../../utils/business-api')
 
 Page({
@@ -14,7 +16,7 @@ Page({
     this.returnUrl = destinations[options.returnTo] || '/pages/home/index'
   },
 
-  goBrowse() { wx.reLaunch({ url: '/pages/home/index' }) },
+  goBrowse() { reLaunch({ url: '/pages/home/index' }) },
 
   onShow() {
     this.checkPrivacyAuthorization()
@@ -38,7 +40,7 @@ Page({
 
   onOpenPrivacyContract() {
     if (!wx.openPrivacyContract) {
-      wx.showToast({
+      showFeedback({
         title: '当前版本暂不支持查看协议',
         icon: 'none',
       })
@@ -47,7 +49,7 @@ Page({
 
     wx.openPrivacyContract({
       fail: () => {
-        wx.showToast({
+        showFeedback({
           title: '协议打开失败，请稍后重试',
           icon: 'none',
         })
@@ -76,12 +78,12 @@ Page({
     try {
       const runtime = await app.getRuntimeSnapshotAsync({ force: true })
       if (runtime.isAuthenticated) {
-        wx.reLaunch({ url: this.returnUrl || '/pages/home/index' })
+        reLaunch({ url: this.returnUrl || '/pages/home/index' })
         return
       }
     } catch (error) {
       this.setData({
-        loginError: error && error.message ? error.message : '',
+        loginError: getUserMessage(error, ''),
       })
     } finally {
       this.setData({ checkingSession: false })
@@ -91,7 +93,7 @@ Page({
   async onGetPhoneNumber(event) {
     const app = getApp()
     if (app.isLogoutInProgress && app.isLogoutInProgress()) {
-      wx.showToast({ title: '正在退出登录，请稍后再登录', icon: 'none' })
+      showFeedback({ title: '正在退出登录，请稍后再登录', icon: 'none' })
       return
     }
 
@@ -100,7 +102,7 @@ Page({
     }
 
     if (this.data.needPrivacyAuthorization) {
-      wx.showToast({
+      showFeedback({
         title: '请先同意用户隐私保护协议',
         icon: 'none',
       })
@@ -109,8 +111,8 @@ Page({
 
     const detail = event.detail || {}
     if (!detail.code) {
-      wx.showToast({
-        title: detail.errMsg && detail.errMsg.includes('fail') ? '你已取消手机号授权' : '未获取到手机号授权码',
+      showFeedback({
+        title: /deny|cancel|拒绝|取消/i.test(detail.errMsg || '') ? '你已取消手机号授权' : getUserMessage(detail.errMsg, '未能获取手机号，请重新授权登录'),
         icon: 'none',
       })
       return
@@ -128,16 +130,16 @@ Page({
       })
       if ((app._authVersion || 0) !== authVersion || (app.isLogoutInProgress && app.isLogoutInProgress())) return
       app.applyCloudSession(sessionData)
-      wx.showToast({
+      showFeedback({
         title: '登录成功',
         icon: 'success',
       })
-      wx.reLaunch({ url: this.returnUrl || '/pages/home/index' })
+      reLaunch({ url: this.returnUrl || '/pages/home/index' })
     } catch (error) {
       this.setData({
-        loginError: error && error.message ? error.message : '登录失败，请稍后重试',
+        loginError: getUserMessage(error, '登录失败，请稍后重试'),
       })
-      wx.showToast({
+      showFeedback({
         title: this.data.loginError,
         icon: 'none',
       })

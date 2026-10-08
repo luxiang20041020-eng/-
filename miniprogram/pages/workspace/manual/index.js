@@ -1,6 +1,7 @@
+const { getUserMessage } = require('../../../utils/user-feedback')
 const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
-const { confirmAction } = require('../../../utils/interaction')
+const { confirmAction, showFeedback, reLaunch } = require('../../../utils/interaction')
 
 function nowFields() {
   const value = new Date(Date.now() + 8 * 3600000).toISOString()
@@ -19,7 +20,7 @@ Page(withPageState({
     this._syncRequestId = requestId
     const runtime = await getApp().getRuntimeSnapshotAsync()
     if (this._syncRequestId !== requestId) return
-    if (!runtime.isAuthenticated) { wx.reLaunch({ url: '/pages/login/index' }); return }
+    if (!runtime.isAuthenticated) { reLaunch({ url: '/pages/login/index' }); return }
     if (!['coach', 'admin'].includes(runtime.role)) throw new Error('此操作需要场馆人员权限')
     this.setData({ runtime })
     this._storageKey = 'one.manualPending.' + runtime.userProfile.id
@@ -57,9 +58,9 @@ Page(withPageState({
   async onSubmit() {
     if (this.data.submitting || this.data.pageBusy || this.data.pageError) return
     const member = this.data.selectedMember
-    if (!member) { wx.showToast({ title: '请先搜索并选择学员', icon: 'none' }); return }
+    if (!member) { showFeedback({ title: '请先搜索并选择学员', icon: 'none' }); return }
     if (!this.data.classId && new Date(this.data.date + 'T' + this.data.time + ':00+08:00').getTime() > Date.now()) {
-      wx.showToast({ title: '只能核销已发生的训练', icon: 'none' }); return
+      showFeedback({ title: '只能核销已发生的训练', icon: 'none' }); return
     }
     this.setData({ submitting: true, resultMessage: '' })
     try {
@@ -84,17 +85,17 @@ Page(withPageState({
       wx.removeStorageSync(this._storageKey)
       this._pendingPayload = null
       this.setData({ pendingRetry: false, selectedMember: null, remark: '', resultMessage: result.message })
-      for (const prefix of ['workspace:', 'profile:', 'booking:', 'admin:dashboard:']) getApp().removeViewCacheByPrefix(prefix)
-      wx.showToast({ title: '核销成功', icon: 'success' })
-      this.syncPageData().catch((error) => this.setData({ pageError: error.message }))
+      for (const prefix of ['workspace:', 'profile:', 'booking:', 'admin:dashboard:', 'admin:users']) getApp().removeViewCacheByPrefix(prefix)
+      showFeedback({ title: '核销成功', icon: 'success' })
+      this.syncPageData().catch((error) => this.setData({ pageError: getUserMessage(error) }))
     } catch (error) {
-      if (error.code && error.code !== 'NETWORK_ERROR') {
+      if (error.code && !error.outcomeUnknown && !['NETWORK_ERROR', 'REQUEST_TIMEOUT'].includes(error.code)) {
         wx.removeStorageSync(this._storageKey)
         this._pendingPayload = null
         this.setData({ pendingRetry: false })
       }
-      this.setData({ resultMessage: error.message || '核销结果未确认，请重试核对' })
-      wx.showToast({ title: error.message || '核销失败，请重试', icon: 'none' })
+      this.setData({ resultMessage: getUserMessage(error, '核销结果未确认，请重试核对') })
+      showFeedback({ title: getUserMessage(error, '核销失败，请重试'), icon: 'none' })
     } finally { this.setData({ submitting: false }) }
   },
 }))

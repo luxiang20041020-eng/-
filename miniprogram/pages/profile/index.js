@@ -1,6 +1,7 @@
+const { getUserMessage } = require('../../utils/user-feedback')
 const withPageState = require('../../utils/page-state')
 const businessApi = require('../../utils/business-api')
-const { confirmAction } = require('../../utils/interaction')
+const { confirmAction, showFeedback, navigateTo, redirectTo, reLaunch } = require('../../utils/interaction')
 
 function decorateProfilePageData(pageData) {
   const safeData = pageData || {}
@@ -122,7 +123,7 @@ Page(withPageState({
       if (this._syncRequestId !== requestId) {
         return
       }
-      this.setData({ pageError: error.message || "加载失败，请重试" })
+      this.setData({ pageError: getUserMessage(error, "加载失败，请重试") })
       this.setData({
         runtime,
         pageData: decorateProfilePageData(app.getProfilePageData()),
@@ -220,13 +221,13 @@ Page(withPageState({
       }
       this.setData({
         qrCodeLoading: false,
-        qrCodeError: error.message || '二维码生成失败',
+        qrCodeError: getUserMessage(error, '二维码生成失败'),
       })
     }
   },
 
   goLogin() {
-    wx.navigateTo({ url: '/pages/login/index?returnTo=profile' })
+    navigateTo({ url: '/pages/login/index?returnTo=profile' })
   },
 
   onToggleIdentity() {
@@ -242,7 +243,7 @@ Page(withPageState({
   },
 
   onShowTrend() { wx.pageScrollTo({ selector: '#training-stats', duration: 250 }) },
-  onShowNotices() { wx.redirectTo({ url: '/pages/home/index' }) },
+  onShowNotices() { redirectTo({ url: '/pages/home/index' }) },
   onShowHelp() { wx.showModal({ title: '需要帮助？', content: '预约、购买权益或临时调整训练，请到当前门店咨询场馆人员。\n\n当前门店：' + (this.data.runtime.currentStore.name || '') + '\n' + (this.data.runtime.currentStore.address || ''), showCancel: false, confirmText: '知道了' }) },
 
   openNicknameEditor() {
@@ -299,7 +300,7 @@ Page(withPageState({
         nicknameDraft: '',
         nicknameError: '',
       })
-      wx.showToast({
+      showFeedback({
         title: '用户名未变化',
         icon: 'none',
       })
@@ -327,17 +328,17 @@ Page(withPageState({
         showNicknameEditor: false,
         nicknameDraft: '',
       })
-      wx.showToast({
+      showFeedback({
         title: '用户名已更新',
         icon: 'success',
       })
       this.syncPageData()
     } catch (error) {
-      const message = error && error.message ? error.message : '用户名更新失败'
+      const message = getUserMessage(error, '用户名更新失败')
       this.setData({
         nicknameError: message,
       })
-      wx.showToast({
+      showFeedback({
         title: message,
         icon: 'none',
       })
@@ -351,7 +352,7 @@ Page(withPageState({
     const app = getApp()
     if (app.isLogoutInProgress()) return
     if (this.data.nicknameSubmitting || this.data.cancellingBookingId) {
-      wx.showToast({ title: '请等待当前操作完成后退出', icon: 'none' })
+      showFeedback({ title: '请等待当前操作完成后退出', icon: 'none' })
       return
     }
     this.setData({ loggingOut: true })
@@ -361,7 +362,7 @@ Page(withPageState({
       if (!await confirmAction({ title: '退出登录', content: '退出后仍可浏览门店和训练场次。', confirmText: '退出登录' })) return
       logoutRequest = app.beginLogout(userId)
       if (!logoutRequest) {
-        wx.showToast({ title: '登录状态已变化，请重新操作', icon: 'none' })
+        showFeedback({ title: '登录状态已变化，请重新操作', icon: 'none' })
         return
       }
       await businessApi.logout()
@@ -375,9 +376,9 @@ Page(withPageState({
       this.setData({ runtime, pageData: {}, maskedPhone: '', avatarText: '', dynamicCode: '', qrCodeImageSrc: '', qrCodeLoading: false, qrCodeError: '', identityExpanded: false, showNicknameEditor: false, nicknameDraft: '', pageBusy: false, pageError: '' })
       const tabbar = this.selectComponent('#tabbar')
       if (tabbar) tabbar.syncTabs()
-      wx.reLaunch({ url: '/pages/home/index', fail: () => wx.showToast({ title: '已退出登录，请返回首页', icon: 'none' }) })
+      reLaunch({ url: '/pages/home/index', fail: () => showFeedback({ title: '已退出登录，请返回首页', icon: 'none' }) })
     } catch (error) {
-      wx.showToast({ title: error.message || '退出失败，请重试', icon: 'none' })
+      showFeedback({ title: getUserMessage(error, '退出失败，请重试'), icon: 'none' })
     } finally {
       if (logoutRequest) app.endLogout(logoutRequest)
       this.setData({ loggingOut: false })
@@ -396,10 +397,10 @@ Page(withPageState({
       const app = getApp()
       app.removeViewCacheByPrefix('booking:')
       app.removeViewCacheByPrefix('profile:')
-      wx.showToast({ title: result.message || '已取消，权益已退回', icon: 'success' })
+      showFeedback({ title: result.message || '已取消，权益已退回', icon: 'success' })
       await this.syncPageData()
     } catch (error) {
-      wx.showModal({ title: '取消未完成', content: error.message, showCancel: false, confirmText: '知道了' })
+      wx.showModal({ title: '取消未完成', content: getUserMessage(error), showCancel: false, confirmText: '知道了' })
     } finally { this.setData({ cancellingBookingId: '' }) }
   },
 }))

@@ -1,3 +1,5 @@
+const { showFeedback, redirectTo, setClipboardData, previewImage, openLocation, showActionSheet } = require('../../utils/interaction')
+const { getUserMessage } = require('../../utils/user-feedback')
 const withPageState = require('../../utils/page-state')
 const businessApi = require('../../utils/business-api')
 
@@ -72,7 +74,7 @@ Page(withPageState({
       if (this._syncRequestId !== requestId) {
         return
       }
-      this.setData({ pageError: error.message || "加载失败，请重试" })
+      this.setData({ pageError: getUserMessage(error, "加载失败，请重试") })
       const runtime = app.getRuntimeSnapshot()
       this.setData({
         runtime,
@@ -96,14 +98,14 @@ Page(withPageState({
   onOpenStorePicker() {
     const stores = this.data.runtime.stores || []
     if (!stores.length) {
-      wx.showToast({
+      showFeedback({
         title: '暂无可选场地',
         icon: 'none',
       })
       return
     }
 
-    wx.showActionSheet({
+    showActionSheet({
       itemList: stores.map((item) => item.name),
       success: (res) => {
         const targetStore = stores[res.tapIndex]
@@ -133,28 +135,30 @@ Page(withPageState({
 
   goBooking(event) {
     const type = event && event.currentTarget.dataset.type || 'group'
-    wx.redirectTo({ url: '/pages/booking/index?type=' + type })
+    redirectTo({ url: '/pages/booking/index?type=' + type })
   },
 
   goMySchedule() {
-    wx.redirectTo({ url: '/pages/profile/index?section=bookings' })
+    redirectTo({ url: '/pages/profile/index?section=bookings' })
   },
 
   goIdentityQr() {
-    wx.redirectTo({ url: '/pages/profile/index?section=identity' })
+    redirectTo({ url: '/pages/profile/index?section=identity' })
   },
 
   onPreviewGallery(event) {
     const urls = [1, 2, 3].map((index) => '/images/gym-interior-' + index + '.jpg')
-    wx.previewImage({ current: urls[Number(event.currentTarget.dataset.index) || 0], urls })
+    previewImage({ current: urls[Number(event.currentTarget.dataset.index) || 0], urls })
   },
 
   onOpenLocation() {
     const store = this.data.pageData.currentStore || {}
     if (Number.isFinite(store.latitude) && Number.isFinite(store.longitude)) {
-      wx.openLocation({ latitude: store.latitude, longitude: store.longitude, name: store.name, address: store.address, scale: 16 })
+      openLocation({ latitude: store.latitude, longitude: store.longitude, name: store.name, address: store.address, scale: 16 })
     } else if (store.address) {
-      wx.setClipboardData({ data: store.address })
+      setClipboardData({ data: store.address, success: () => showFeedback({ title: '门店地址已复制', icon: 'success' }) })
+    } else {
+      showFeedback({ title: '门店尚未填写地址，请联系场馆', icon: 'none' })
     }
   },
 }))

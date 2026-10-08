@@ -1,6 +1,7 @@
+const { getUserMessage } = require('../../utils/user-feedback')
 const withPageState = require('../../utils/page-state')
 const businessApi = require('../../utils/business-api')
-const { confirmAction } = require('../../utils/interaction')
+const { confirmAction, showFeedback, navigateTo, showActionSheet } = require('../../utils/interaction')
 
 const WEEKDAY_LABELS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
 
@@ -153,7 +154,7 @@ Page(withPageState({
       if (this._syncRequestId !== requestId) {
         return
       }
-      this.setData({ pageError: error.message || "加载失败，请重试" })
+      this.setData({ pageError: getUserMessage(error, "加载失败，请重试") })
       const runtime = app.getRuntimeSnapshot()
       this.setData({
         runtime,
@@ -174,7 +175,7 @@ Page(withPageState({
 
   onOpenStorePicker() {
     const stores = this.data.runtime.stores || []
-    wx.showActionSheet({ itemList: stores.map((item) => item.name), success: (result) => {
+    showActionSheet({ itemList: stores.map((item) => item.name), success: (result) => {
       if (stores[result.tapIndex]) { getApp().switchStore(stores[result.tapIndex].id); this.syncPageData() }
     } })
   },
@@ -231,7 +232,7 @@ Page(withPageState({
     if (this._isBooking || this.data.pageBusy || this.data.pageError) return
     const app = getApp()
     if (!this.data.runtime.isAuthenticated) {
-      wx.navigateTo({ url: '/pages/login/index?returnTo=booking&type=' + this.data.filters.type })
+      navigateTo({ url: '/pages/login/index?returnTo=booking&type=' + this.data.filters.type })
       return
     }
     const scheduleId = event.currentTarget.dataset.scheduleId
@@ -251,10 +252,10 @@ Page(withPageState({
       const result = await businessApi.createBooking({ scheduleId, remark: '小程序预约' })
       app.removeViewCacheByPrefix('booking:')
       app.removeViewCacheByPrefix('profile:')
-      wx.showToast({ title: result.message || '预约成功', icon: 'success' })
+      showFeedback({ title: result.message || '预约成功', icon: 'success' })
       await this.syncPageData()
     } catch (error) {
-      wx.showModal({ title: '预约未完成', content: error.message, showCancel: false, confirmText: '知道了' })
+      wx.showModal({ title: '预约未完成', content: getUserMessage(error), showCancel: false, confirmText: '知道了' })
     } finally {
       this._isBooking = false
       this.setData({ bookingId: '' })
