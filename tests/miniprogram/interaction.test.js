@@ -182,6 +182,19 @@ function harness(relative, api = {}, storage = new Map()) {
   return { page, exported, app, wx, calls, storage }
 }
 
+test('外语确认弹窗保留录入姓名和课程名，门店选择列表保持原文', () => {
+  const { exported, calls, wx } = harness('utils/interaction.js', {}, new Map([['one.language', 'en']]))
+  exported.showModal({ title: '确认这次训练', contentParts: ['客户教练课程名字\n', { text: '将扣除 1 次权益，剩余 {0} 次。开课前 2 小时可取消。', values: [3] }], confirmText: '确认预约' })
+  assert.equal(calls.modals[0].title, 'Confirm this session')
+  assert.match(calls.modals[0].content, /^客户教练课程名字\nUses 1 credit; 3 remain/)
+  assert.equal(calls.modals[0].confirmText, 'Confirm booking')
+  assert.equal(calls.modals[0].contentParts, undefined)
+  let menu
+  wx.showActionSheet = options => { menu = options }
+  exported.showActionSheet({ itemList: ['团课客户门店'] })
+  assert.equal(menu.itemList[0], '团课客户门店')
+})
+
 test('邀请码从我的页面填写，提交期间冻结输入并阻止重复写入', async () => {
   const writes = []
   let finish

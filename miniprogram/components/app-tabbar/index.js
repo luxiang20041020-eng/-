@@ -1,4 +1,5 @@
 const { redirectTo } = require('../../utils/interaction')
+const { t, subscribe } = require('../../utils/i18n')
 
 Component({
   properties: {
@@ -15,7 +16,9 @@ Component({
   lifetimes: {
     attached() {
       this.syncTabs()
+      this._stopLocale = subscribe(() => this.syncTabs())
     },
+    detached() { if (this._stopLocale) this._stopLocale() },
   },
 
   pageLifetimes: {
@@ -36,6 +39,7 @@ Component({
       }
       this.setData({
         tabs: app.getRuntimeSnapshot().tabItems.map((item) => Object.assign({}, item, {
+          label: t(item.label),
           iconText: iconMap[item.key] || 'NA',
         })),
       })

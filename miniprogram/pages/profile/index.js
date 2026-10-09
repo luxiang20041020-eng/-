@@ -1,3 +1,4 @@
+const { showModal } = require('../../utils/interaction')
 const { getUserMessage } = require('../../utils/user-feedback')
 const withPageState = require('../../utils/page-state')
 const businessApi = require('../../utils/business-api')
@@ -298,12 +299,12 @@ Page(withPageState({
   onRetryQr() { this.refreshDynamicCode() },
 
   onShowRules() {
-    wx.showModal({ title: '预约与到店规则', content: '每次预约扣除 1 次对应训练权益。\n\n开课前超过 2 小时可取消，取消后权益自动退回。临近开课请联系场馆。\n\n权益有效期以本页显示的到期日期为准；到店后由场馆人员确认出勤。', showCancel: false, confirmText: '知道了' })
+    showModal({ title: '预约与到店规则', content: '每次预约扣除 1 次对应训练权益。\n\n开课前超过 2 小时可取消，取消后权益自动退回。临近开课请联系场馆。\n\n权益有效期以本页显示的到期日期为准；到店后由场馆人员确认出勤。', showCancel: false, confirmText: '知道了' })
   },
 
   onShowTrend() { wx.pageScrollTo({ selector: '#training-stats', duration: 250 }) },
   onShowNotices() { redirectTo({ url: '/pages/home/index' }) },
-  onShowHelp() { wx.showModal({ title: '需要帮助？', content: '预约、购买权益或临时调整训练，请到当前门店咨询场馆人员。\n\n当前门店：' + (this.data.runtime.currentStore.name || '') + '\n' + (this.data.runtime.currentStore.address || ''), showCancel: false, confirmText: '知道了' }) },
+  onShowHelp() { showModal({ title: '需要帮助？', contentParts: [{ text: '预约、购买权益或临时调整训练，请到当前门店咨询场馆人员。' }, '\n\n', { text: '当前门店：' }, this.data.runtime.currentStore.name || '', '\n', this.data.runtime.currentStore.address || ''], showCancel: false, confirmText: '知道了' }) },
 
   openNicknameEditor() {
     if (this.data.loggingOut) return
@@ -451,7 +452,7 @@ Page(withPageState({
     if (!booking || !booking.canCancel) return
     this.setData({ cancellingBookingId: bookingId })
     try {
-      if (!await confirmAction({ title: '取消这次训练？', content: booking.title + '\n' + booking.dateLabel + ' ' + booking.timeRange + '\n取消后将退回 1 次训练权益。', confirmText: '确认取消' })) return
+      if (!await confirmAction({ title: '取消这次训练？', contentParts: [booking.title, '\n' + booking.dateLabel + ' ' + booking.timeRange + '\n', { text: '取消后将退回 1 次训练权益。' }], confirmText: '确认取消' })) return
       const result = await businessApi.cancelBooking({ bookingId })
       const app = getApp()
       app.removeViewCacheByPrefix('booking:')
@@ -459,7 +460,7 @@ Page(withPageState({
       showFeedback({ title: result.message || '已取消，权益已退回', icon: 'success' })
       await this.syncPageData()
     } catch (error) {
-      wx.showModal({ title: '取消未完成', content: getUserMessage(error), showCancel: false, confirmText: '知道了' })
+      showModal({ title: '取消未完成', content: getUserMessage(error), showCancel: false, confirmText: '知道了' })
     } finally { this.setData({ cancellingBookingId: '' }) }
   },
 }))

@@ -1,8 +1,9 @@
 const { showFeedback, reLaunch } = require('../../utils/interaction')
 const { getUserMessage } = require('../../utils/user-feedback')
 const businessApi = require('../../utils/business-api')
+const withI18n = require('../../utils/with-i18n')
 
-Page({
+Page(withI18n({
   data: {
     checkingSession: true,
     submitting: false,
@@ -147,4 +148,4 @@ Page({
       this.setData({ submitting: false })
     }
   },
-})
+}))

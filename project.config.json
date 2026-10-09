@@ -68,7 +68,84 @@
   "compileType": "miniprogram",
   "srcMiniprogramRoot": "miniprogram/",
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      {
+        "type": "folder",
+        "value": "locales"
+      },
+      {
+        "type": "folder",
+        "value": "pages/example"
+      },
+      {
+        "type": "folder",
+        "value": "components/cloudTipModal"
+      },
+      {
+        "type": "folder",
+        "value": "images/icons"
+      },
+      {
+        "type": "file",
+        "value": "images/ai_example1.png"
+      },
+      {
+        "type": "file",
+        "value": "images/ai_example2.png"
+      },
+      {
+        "type": "file",
+        "value": "images/arrow.svg"
+      },
+      {
+        "type": "file",
+        "value": "images/avatar.png"
+      },
+      {
+        "type": "file",
+        "value": "images/cloud_dev.png"
+      },
+      {
+        "type": "file",
+        "value": "images/copy.svg"
+      },
+      {
+        "type": "file",
+        "value": "images/create_cbr.png"
+      },
+      {
+        "type": "file",
+        "value": "images/create_cbrf.png"
+      },
+      {
+        "type": "file",
+        "value": "images/create_env.png"
+      },
+      {
+        "type": "file",
+        "value": "images/database.png"
+      },
+      {
+        "type": "file",
+        "value": "images/database_add.png"
+      },
+      {
+        "type": "file",
+        "value": "images/default-goods-image.png"
+      },
+      {
+        "type": "file",
+        "value": "images/env-select.png"
+      },
+      {
+        "type": "file",
+        "value": "images/function_deploy.png"
+      },
+      {
+        "type": "file",
+        "value": "images/scf-enter.png"
+      }
+    ],
     "include": []
   },
   "editorSetting": {

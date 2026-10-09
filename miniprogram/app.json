@@ -27,6 +27,7 @@
   "style": "v2",
   "lazyCodeLoading": "requiredComponents",
   "usingComponents": {
-    "page-feedback": "/components/page-feedback/index"
+    "page-feedback": "/components/page-feedback/index",
+    "language-setting": "/components/language-setting/index"
   }
 }

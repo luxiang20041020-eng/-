@@ -1,3 +1,4 @@
+const { showModal } = require('../../utils/interaction')
 const { getUserMessage } = require('../../utils/user-feedback')
 const withPageState = require('../../utils/page-state')
 const businessApi = require('../../utils/business-api')
@@ -240,13 +241,13 @@ Page(withPageState({
     if (!schedule || schedule.isBooked || schedule.isFull) return
     const balance = schedule.type === 'group' ? this.data.pageData.assets.groupCount : this.data.pageData.assets.privateCount
     if (Number(balance) < 1) {
-      wx.showModal({ title: '训练权益不足', content: '此场次需要 1 次' + schedule.typeLabel + '权益。请到馆购买或联系场馆人员补充权益。', showCancel: false, confirmText: '知道了' })
+      showModal({ title: '训练权益不足', content: '此场次需要 1 次' + schedule.typeLabel + '权益。请到馆购买或联系场馆人员补充权益。', showCancel: false, confirmText: '知道了' })
       return
     }
     this._isBooking = true
     try {
       const confirmed = await confirmAction({ title: '确认这次训练', confirmText: '确认预约',
-        content: schedule.title + '\n' + schedule.dateLabel + ' ' + schedule.timeRange + '\n' + schedule.venue + '\n将扣除 1 次权益，剩余 ' + (Number(balance) - 1) + ' 次。开课前 2 小时可取消。' })
+        contentParts: [schedule.title, '\n' + schedule.dateLabel + ' ' + schedule.timeRange + '\n' + schedule.venue + '\n', { text: '将扣除 1 次权益，剩余 {0} 次。开课前 2 小时可取消。', values: [Number(balance) - 1] }] })
       if (!confirmed) return
       this.setData({ bookingId: scheduleId })
       const result = await businessApi.createBooking({ scheduleId, remark: '小程序预约' })
@@ -255,7 +256,7 @@ Page(withPageState({
       showFeedback({ title: result.message || '预约成功', icon: 'success' })
       await this.syncPageData()
     } catch (error) {
-      wx.showModal({ title: '预约未完成', content: getUserMessage(error), showCancel: false, confirmText: '知道了' })
+      showModal({ title: '预约未完成', content: getUserMessage(error), showCancel: false, confirmText: '知道了' })
     } finally {
       this._isBooking = false
       this.setData({ bookingId: '' })

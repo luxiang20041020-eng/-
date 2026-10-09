@@ -1,51 +1,52 @@
-<view class="page-shell">
-  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
+<wxs module="i18n" src="../../utils/i18n.wxs" />
+<view class="page-shell locale-page locale-{{language}}">
+  <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header">
-    <view class="eyebrow">门店经营与训练数据</view>
-    <view class="page-title">数据看板</view>
+    <view class="eyebrow">{{i18n.f('门店经营与训练数据', [], language)}}</view>
+    <view class="page-title">{{i18n.f('数据看板', [], language)}}</view>
   </view>
 
   <view wx:if="{{!hasPermission}}" class="card">
-    <view class="section-title">访问权限提示</view>
-    <view class="card-desc">运营看板仅对管理员开放，请联系场馆确认账号权限。</view>
+    <view class="section-title">{{i18n.f('访问权限提示', [], language)}}</view>
+    <view class="card-desc">{{i18n.f('运营看板仅对管理员开放，请联系场馆确认账号权限。', [], language)}}</view>
   </view>
 
   <block wx:else>
     <view class="card admin-toolbar-card">
       <view class="admin-toolbar-left">
-        <view class="admin-tool-label">日期</view>
-        <view class="admin-tool-value">{{pageData.dateLabel}}</view>
+        <view class="admin-tool-label">{{i18n.f('日期', [], language)}}</view>
+        <view class="admin-tool-value">{{i18n.t(pageData.dateLabel, language)}}</view>
       </view>
       <view class="admin-toolbar-mid"> </view>
       <view class="admin-toolbar-left" bindtap="onOpenStorePicker">
-        <view class="admin-tool-label">门店</view>
+        <view class="admin-tool-label">{{i18n.f('门店', [], language)}}</view>
         <view class="admin-tool-value">{{pageData.currentStore.name}}</view>
       </view>
-      <button class="secondary-button admin-mini-btn" loading="{{bootstrapLoading}}" disabled="{{bootstrapLoading}}" bindtap="onBootstrap">{{bootstrapLoading ? '正在检查…' : '检查服务'}}</button>
+      <button class="secondary-button admin-mini-btn" loading="{{bootstrapLoading}}" disabled="{{bootstrapLoading}}" bindtap="onBootstrap">{{i18n.t(bootstrapLoading ? '正在检查…' : '检查服务', language)}}</button>
     </view>
 
     <view class="card">
-      <view class="section-title">今日概览</view>
+      <view class="section-title">{{i18n.f('今日概览', [], language)}}</view>
       <view class="metric-grid">
         <view class="metric-item">
-          <view class="metric-label">线下实收</view>
-          <view class="metric-value">{{pageData.auditOverview.incomeText}}</view>
-          <view class="metric-note">今日线下实收</view>
+          <view class="metric-label">{{i18n.f('线下实收', [], language)}}</view>
+          <view class="metric-value">{{i18n.t(pageData.auditOverview.incomeText, language)}}</view>
+          <view class="metric-note">{{i18n.f('今日线下实收', [], language)}}</view>
         </view>
         <view class="metric-item">
-          <view class="metric-label">到场核销</view>
+          <view class="metric-label">{{i18n.f('到场核销', [], language)}}</view>
           <view class="metric-value">{{pageData.auditOverview.writeOffCount}}</view>
-          <view class="metric-note">今日核销</view>
+          <view class="metric-note">{{i18n.f('今日核销', [], language)}}</view>
         </view>
         <view class="metric-item">
-          <view class="metric-label">团体训练</view>
-          <view class="metric-value">{{pageData.auditOverview.addedGroupLessons}}<text class="metric-unit">节</text></view>
-          <view class="metric-note">新增团课课时</view>
+          <view class="metric-label">{{i18n.f('团体训练', [], language)}}</view>
+          <view class="metric-value">{{pageData.auditOverview.addedGroupLessons}}<text class="metric-unit">{{i18n.f('节', [], language)}}</text></view>
+          <view class="metric-note">{{i18n.f('新增团课课时', [], language)}}</view>
         </view>
         <view class="metric-item">
-          <view class="metric-label">专属训练</view>
-          <view class="metric-value">{{pageData.auditOverview.addedPrivateLessons}}<text class="metric-unit">节</text></view>
-          <view class="metric-note">新增私教课时</view>
+          <view class="metric-label">{{i18n.f('专属训练', [], language)}}</view>
+          <view class="metric-value">{{pageData.auditOverview.addedPrivateLessons}}<text class="metric-unit">{{i18n.f('节', [], language)}}</text></view>
+          <view class="metric-note">{{i18n.f('新增私教课时', [], language)}}</view>
         </view>
       </view>
     </view>
@@ -53,58 +54,58 @@
     <view class="card">
       <view class="collapsible-header" bindtap="onToggleAuditLogs">
         <view class="collapsible-title">
-          <view class="section-title">权益派发记录</view>
-          <view class="collapsible-summary">{{pageData.auditLogs ? pageData.auditLogs.length : 0}} 条记录</view>
+          <view class="section-title">{{i18n.f('权益派发记录', [], language)}}</view>
+          <view class="collapsible-summary">{{i18n.f('{0} 条记录', [pageData.auditLogs ? pageData.auditLogs.length : 0], language)}}</view>
         </view>
         <view class="audit-header-actions">
-          <button wx:if="{{auditLogsExpanded}}" class="secondary-button export-button" catchtap="onExport">复制记录</button>
+          <button wx:if="{{auditLogsExpanded}}" class="secondary-button export-button" catchtap="onExport">{{i18n.f('复制记录', [], language)}}</button>
           <view class="collapse-toggle">
             <view class="collapse-chevron {{auditLogsExpanded ? 'expanded' : ''}}"></view>
           </view>
         </view>
       </view>
       <block wx:if="{{auditLogsExpanded}}">
-        <view wx:if="{{!pageData.auditLogs.length}}" class="empty-state"><view class="empty-state-title">暂无权益派发记录</view><view class="empty-state-desc">完成首次派发后，收款与操作记录会显示在这里。</view></view><view wx:for="{{pageData.auditLogs}}" wx:key="id" class="audit-item">
+        <view wx:if="{{!pageData.auditLogs.length}}" class="empty-state"><view class="empty-state-title">{{i18n.f('暂无权益派发记录', [], language)}}</view><view class="empty-state-desc">{{i18n.f('完成首次派发后，收款与操作记录会显示在这里。', [], language)}}</view></view><view wx:for="{{pageData.auditLogs}}" wx:key="id" class="audit-item">
           <view class="audit-top-row">
             <view class="audit-time">{{item.time}}</view>
-            <view class="audit-paytype">{{item.payType}}</view>
+            <view class="audit-paytype">{{i18n.t(item.payType, language)}}</view>
           </view>
-          <view class="audit-main-text">操作人 {{item.operatorName}} 为学员 {{item.targetName}} 派发 {{item.packageName}}</view>
-          <view class="audit-remark">备注：{{item.remark}}</view>
+          <view class="audit-main-text">{{i18n.f('操作人 {0} 为学员 {1} 派发 {2}', [item.operatorName, item.targetName, item.packageName], language)}}</view>
+          <view class="audit-remark">{{i18n.f('备注：{0}', [item.remark], language)}}</view>
           <view class="audit-amount">￥{{item.amount}}</view>
         </view>
       </block>
     </view>
 
     <view class="card">
-      <view class="section-title">最近人工核销</view>
-      <view wx:if="{{!pageData.manualWriteOffLogs.length}}" class="card-desc">暂无人工核销记录</view>
+      <view class="section-title">{{i18n.f('最近人工核销', [], language)}}</view>
+      <view wx:if="{{!pageData.manualWriteOffLogs.length}}" class="card-desc">{{i18n.f('暂无人工核销记录', [], language)}}</view>
       <view wx:for="{{pageData.manualWriteOffLogs}}" wx:key="id" class="audit-item">
         <view class="schedule-title">{{item.targetName}} · {{item.title}}</view>
-        <view class="card-desc">{{item.time}} · 操作人 {{item.operatorName}} · {{item.deductionLabel}}</view>
-        <view class="card-desc">实际训练：{{item.trainingTime}}</view>
-        <view wx:if="{{item.remark}}" class="card-desc">备注：{{item.remark}}</view>
+        <view class="card-desc">{{i18n.f('{0} · 操作人 {1} · {2}', [item.time, item.operatorName, i18n.t(item.deductionLabel, language)], language)}}</view>
+        <view class="card-desc">{{i18n.f('实际训练：{0}', [item.trainingTime], language)}}</view>
+        <view wx:if="{{item.remark}}" class="card-desc">{{i18n.f('备注：{0}', [item.remark], language)}}</view>
       </view>
     </view>
 
     <view class="card">
-      <view class="section-title">管理门店</view>
+      <view class="section-title">{{i18n.f('管理门店', [], language)}}</view>
       <view class="admin-tools-grid">
         <view class="admin-tool-card primary" bindtap="onOpenOperations">
-          <view class="admin-card-title">训练运营</view>
-          <view class="admin-card-desc">派发权益、排课与到场核销</view>
+          <view class="admin-card-title">{{i18n.f('训练运营', [], language)}}</view>
+          <view class="admin-card-desc">{{i18n.f('派发权益、排课与到场核销', [], language)}}</view>
         </view>
         <view class="admin-tool-card" bindtap="onOpenUserManage">
-          <view class="admin-card-title">人员权限管理</view>
-          <view class="admin-card-desc">管理人员与账号权限</view>
+          <view class="admin-card-title">{{i18n.f('人员权限管理', [], language)}}</view>
+          <view class="admin-card-desc">{{i18n.f('管理人员与账号权限', [], language)}}</view>
         </view>
         <view class="admin-tool-card" bindtap="onOpenPackageManage">
-          <view class="admin-card-title">套餐上下架</view>
-          <view class="admin-card-desc">训练套餐与展示价格</view>
+          <view class="admin-card-title">{{i18n.f('套餐上下架', [], language)}}</view>
+          <view class="admin-card-desc">{{i18n.f('训练套餐与展示价格', [], language)}}</view>
         </view>
         <view class="admin-tool-card" bindtap="onOpenStoreManage">
-          <view class="admin-card-title">门店管理</view>
-          <view class="admin-card-desc">门店资料 / 营业状态</view>
+          <view class="admin-card-title">{{i18n.f('门店管理', [], language)}}</view>
+          <view class="admin-card-desc">{{i18n.f('门店资料 / 营业状态', [], language)}}</view>
         </view>
       </view>
     </view>

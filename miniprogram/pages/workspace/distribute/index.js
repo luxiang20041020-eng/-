@@ -1,4 +1,5 @@
 const { getUserMessage } = require('../../../utils/user-feedback')
+const { t } = require('../../../utils/i18n')
 const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
 const { confirmAction, showFeedback, reLaunch } = require('../../../utils/interaction')
@@ -302,7 +303,7 @@ Page(withPageState({
     const snapshot = { memberId: member.id || this.data.selectedMemberId, packageId: targetPackage.id || this.data.selectedPackageId, expiryDate: this.data.expiryDate, amount: Number(this.data.amount), payType: this.data.payType, remark: this.data.remark, storeId: this.data.pageData.currentStore && this.data.pageData.currentStore.id }
     this.setData({ submitting: true })
     try {
-        const confirmed = await confirmAction({ title: '确认派发', content: member.nickname + ' · ' + member.phone + '\n' + targetPackage.name + '\n增加 ' + targetPackage.lessons + ' 节' + targetPackage.typeLabel + '，预计余额 ' + preview.after + ' 节\n到账有效期 ' + preview.expiry + '\n实收 ¥' + preview.amount + ' · ' + snapshot.payType })
+        const confirmed = await confirmAction({ title: '确认派发', contentParts: [member.nickname + ' · ' + member.phone + '\n' + targetPackage.name + '\n', { text: '增加 {0} 节{1}，预计余额 {2} 节', values: [targetPackage.lessons, t(targetPackage.typeLabel), preview.after] }, '\n', { text: '到账有效期 {0}', values: [preview.expiry] }, '\n', { text: '实收 ¥{0} · {1}', values: [preview.amount, t(snapshot.payType)] }] })
         if (!confirmed) return
         const runtime = await app.getRuntimeSnapshotAsync({ force: true })
         if (!runtime.isAuthenticated) {
@@ -332,7 +333,7 @@ Page(withPageState({
           result = { ok: false, message: getUserMessage(error, "派发失败，请重试") }
         }
 
-        showFeedback({ title: result.message, icon: result.ok ? 'success' : 'none' })
+        showFeedback({ title: result.message, messageParts: result.ok ? [{ text: '已为{0}派发{1}', values: [member.nickname, targetPackage.lessons + ' ' + t('节') + ' ' + t(targetPackage.typeLabel)] }] : null, icon: result.ok ? 'success' : 'none' })
         if (result.ok) {
           app.removeViewCacheByPrefix('workspace:')
           app.removeViewCacheByPrefix('admin:dashboard:')

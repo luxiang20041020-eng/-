@@ -1,10 +1,11 @@
 const { getUserMessage } = require('./user-feedback')
+const withI18n = require('./with-i18n')
 // 所有业务页共享加载、失败重试、下拉刷新与离页请求失效处理。
 function withPageState(definition) {
   const sync = definition.syncPageData
   const unload = definition.onUnload
   const hide = definition.onHide
-  return Object.assign({}, definition, {
+  return withI18n(Object.assign({}, definition, {
     data: Object.assign({ pageBusy: false, pageError: '' }, definition.data),
     async syncPageData(...args) {
       const request = (this._pageRequest || 0) + 1
@@ -32,7 +33,7 @@ function withPageState(definition) {
       this._pageRequest = (this._pageRequest || 0) + 1
       if (unload) unload.call(this)
     },
-  })
+  }))
 }
 
 module.exports = withPageState

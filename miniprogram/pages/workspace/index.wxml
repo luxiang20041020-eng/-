@@ -1,22 +1,23 @@
-<view class="page-shell">
-  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
+<wxs module="i18n" src="../../utils/i18n.wxs" />
+<view class="page-shell locale-page locale-{{language}}">
+  <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
 
   <view class="page-header">
-    <view class="eyebrow">今日训练运营</view>
-    <view class="page-title">训练工作台</view>
+    <view class="eyebrow">{{i18n.f('今日训练运营', [], language)}}</view>
+    <view class="page-title">{{i18n.f('训练工作台', [], language)}}</view>
   </view>
 
   <view wx:if="{{!hasPermission}}" class="card">
-    <view class="section-title">访问权限提示</view>
-    <view class="card-desc">训练工作台仅对场馆人员开放，请联系管理员确认账号权限。</view>
+    <view class="section-title">{{i18n.f('访问权限提示', [], language)}}</view>
+    <view class="card-desc">{{i18n.f('训练工作台仅对场馆人员开放，请联系管理员确认账号权限。', [], language)}}</view>
   </view>
 
   <block wx:else>
     <view class="card coach-hero-card">
       <view class="avatar-square">{{avatarText}}</view>
       <view class="coach-hero-main">
-        <view class="coach-hero-name">{{runtime.userProfile.nickname}} 的工作台</view>
-        <view class="card-desc">今日 {{pageData.todayClasses.length}} 节课 · {{pageData.currentStore.name}}</view>
+        <view class="coach-hero-name">{{i18n.f('{0} 的工作台', [runtime.userProfile.nickname], language)}}</view>
+        <view class="card-desc">{{i18n.f('今日 {0} 节课 · {1}', [pageData.todayClasses.length, pageData.currentStore.name], language)}}</view>
       </view>
     </view>
 
@@ -24,21 +25,21 @@
       <view class="stats-grid coach-stat-grid">
         <view class="stats-item">
           <view class="stats-value">{{pageData.summary.bookedCount || 0}}</view>
-          <view class="stats-note">今日预约</view>
+          <view class="stats-note">{{i18n.f('今日预约', [], language)}}</view>
         </view>
         <view class="stats-item">
           <view class="stats-value">{{pageData.todayClasses.length}}</view>
-          <view class="stats-note">日排班</view>
+          <view class="stats-note">{{i18n.f('日排班', [], language)}}</view>
         </view>
         <view class="stats-item">
           <view class="stats-value">{{pageData.summary.pendingCount || 0}}</view>
-          <view class="stats-note">待处理</view>
+          <view class="stats-note">{{i18n.f('待处理', [], language)}}</view>
         </view>
       </view>
     </view>
 
     <view class="card">
-      <view class="section-title">常用操作</view>
+      <view class="section-title">{{i18n.f('常用操作', [], language)}}</view>
       <view class="workspace-action-grid">
         <view
           wx:for="{{pageData.quickActions}}"
@@ -48,18 +49,18 @@
           bindtap="onTapAction"
         >
           <view class="workspace-action-top">0{{index + 1}}</view>
-          <view class="workspace-action-title">{{item.title}}</view>
-          <view class="workspace-action-desc">{{item.desc}}</view>
+          <view class="workspace-action-title">{{i18n.t(item.title, language)}}</view>
+          <view class="workspace-action-desc">{{i18n.t(item.desc, language)}}</view>
         </view>
       </view>
     </view>
 
     <view class="card">
       <view class="headline-row">
-        <view class="section-title">今日训练</view>
-        <view class="card-desc">{{pageData.todayClasses.length}} 节课</view>
+        <view class="section-title">{{i18n.f('今日训练', [], language)}}</view>
+        <view class="card-desc">{{i18n.f('{0} 节课', [pageData.todayClasses.length], language)}}</view>
       </view>
-      <view wx:if="{{!pageBusy && !pageError && !pageData.todayClasses.length}}" class="empty-state"><view class="empty-state-title">今天还没有安排训练</view><view class="empty-state-desc">新增排课后，学员就能在预约大厅看到场次。</view></view><view wx:for="{{pageData.todayClasses}}" wx:key="id" class="today-class-card" data-class-id="{{item.id}}" bindtap="goClassDetail">
+      <view wx:if="{{!pageBusy && !pageError && !pageData.todayClasses.length}}" class="empty-state"><view class="empty-state-title">{{i18n.f('今天还没有安排训练', [], language)}}</view><view class="empty-state-desc">{{i18n.f('新增排课后，学员就能在预约大厅看到场次。', [], language)}}</view></view><view wx:for="{{pageData.todayClasses}}" wx:key="id" class="today-class-card" data-class-id="{{item.id}}" bindtap="goClassDetail">
         <view class="today-class-time">
           <view class="today-class-time-main">{{item.timeStart}}</view>
           <view class="today-class-time-sub">{{item.timeEnd}}</view>
@@ -70,7 +71,7 @@
             <view class="menu-arrow">></view>
           </view>
           <view class="card-desc">{{item.venue}}</view>
-          <view class="card-desc">{{item.bookedCount}} / {{item.capacity}} 人 · 已核销 {{item.checkedCount}} · 缺席 {{item.absentCount}}</view>
+          <view class="card-desc">{{i18n.f('{0} / {1} 人 · 已核销 {2} · 缺席 {3}', [item.bookedCount, item.capacity, item.checkedCount, item.absentCount], language)}}</view>
         </view>
       </view>
     </view>

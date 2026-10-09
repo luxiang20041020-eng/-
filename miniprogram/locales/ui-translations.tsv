@@ -1,0 +1,441 @@
+0|Muay Thai gym|Salle de Muay Thai|ยิมมวยไทย|Muay-Thai-Studio|ムエタイジム|मुए थाई जिम
+1|Choose location|Choisir une salle|เลือกสาขา|Standort wählen|店舗を選択|शाखा चुनें
+2|Every punch,|Chaque coup,|ทุกหมัด|Mit jedem Schlag|一打一打、|हर पंच के साथ,
+3|one step forward.|un pas en avant.|ก้าวไปข้างหน้า|einen Schritt weiter.|一歩前へ。|एक कदम आगे।
+4|Focus. Find your rhythm.|Concentrez-vous. Trouvez votre rythme.|ตั้งใจฝึกในจังหวะของคุณ|Finde deinen Rhythmus.|自分のペースで集中。|ध्यान दें, अपनी लय खोजें।
+5|Book your next session|Réserver une séance|จองการฝึกครั้งถัดไป|Nächste Einheit buchen|次のトレーニングを予約|अगला सत्र बुक करें
+6|Group classes · Personal coaching|Cours collectifs · Coaching individuel|คลาสกลุ่ม · ฝึกส่วนตัว|Gruppenkurse · Einzeltraining|グループ・個人指導|समूह कक्षा · व्यक्तिगत प्रशिक्षण
+7|Your training starts here|Votre entraînement commence ici|เริ่มฝึกที่นี่|Dein Training beginnt hier|ここから始まるトレーニング|आपका प्रशिक्षण यहाँ शुरू होता है
+8|Group training|Cours collectif|ฝึกกลุ่ม|Gruppentraining|グループレッスン|समूह प्रशिक्षण
+9|Train together, stay motivated|Ensemble, gardez la motivation|ฝึกด้วยกัน เติมแรงใจ|Gemeinsam motiviert bleiben|仲間と一緒に続けよう|साथ प्रशिक्षण लें, प्रेरित रहें
+10|View group sessions|Voir les cours collectifs|ดูคลาสกลุ่ม|Gruppenkurse ansehen|グループ枠を見る|समूह सत्र देखें
+11|Personal training|Coaching individuel|ฝึกส่วนตัว|Einzeltraining|パーソナルレッスン|व्यक्तिगत प्रशिक्षण
+12|Focus on your technique and goals|Vos techniques et objectifs|เน้นทักษะและเป้าหมายของคุณ|Technik und Ziele im Fokus|動作と目標に集中|अपनी तकनीक और लक्ष्यों पर ध्यान दें
+13|View personal sessions|Voir les séances individuelles|ดูคลาสส่วนตัว|Einzeltermine ansehen|個人枠を見る|व्यक्तिगत सत्र देखें
+14|My bookings|Mes réservations|การจองของฉัน|Meine Buchungen|予約一覧|मेरी बुकिंग
+15|View your schedule|Voir votre planning|ดูตารางฝึก|Trainingsplan ansehen|予定を見る|अपनी समय-सारणी देखें
+16|Check-in code|Code d'identification|รหัสแสดงตัว|Check-in-Code|来館確認コード|चेक-इन कोड
+17|Show to gym staff|À présenter au personnel|แสดงให้พนักงาน|Dem Personal zeigen|スタッフに提示|जिम कर्मचारियों को दिखाएँ
+18|A place to train with purpose|Un lieu pour vous entraîner|พื้นที่สำหรับการฝึกอย่างจริงจัง|Raum für dein Training|本気で練習できる場所|लगन से प्रशिक्षण की जगह
+19|View the gym ↗|Voir la salle ↗|ดูภาพยิม ↗|Studio ansehen ↗|施設を見る ↗|जिम देखें ↗
+20|Find your training plan|Choisissez votre formule|เลือกแผนการฝึก|Trainingspaket wählen|プランを選ぶ|प्रशिक्षण योजना चुनें
+21|{0} packages · Ask at the gym|{0} formules · Renseignez-vous en salle|{0} แพ็กเกจ · สอบถามที่ยิม|{0} Pakete · Im Studio informieren|{0}プラン・店舗でご相談|{0} पैकेज · जिम में पूछें
+22|{0} sessions|{0} séances|{0} ครั้ง|{0} Einheiten|{0}回|{0} सत्र
+23|Purchase at the gym|Acheter en salle|ซื้อที่ยิม|Im Studio kaufen|店舗で購入|जिम में खरीदें
+24|Packages coming soon. Ask at the gym.|Formules en préparation. Contactez la salle.|กำลังจัดแพ็กเกจ สอบถามที่ยิม|Pakete folgen. Bitte im Studio fragen.|プラン準備中。店舗へお問い合わせください。|पैकेज तैयार हो रहे हैं। जिम में पूछें।
+25|Location and directions ↗|Adresse et itinéraire ↗|ที่ตั้งและเส้นทาง ↗|Standort und Route ↗|場所とアクセス ↗|स्थान और रास्ता ↗
+26|ONE · Every effort counts.|ONE · Chaque effort compte.|ONE · ทุกความพยายามมีค่า|ONE · Jeder Einsatz zählt.|ONE・努力はすべて力になる。|ONE · हर प्रयास मायने रखता है।
+27|Your next breakthrough|Votre prochain progrès|ก้าวใหม่ของคุณ|Dein nächster Fortschritt|次の成長は、|आपकी अगली सफलता
+28|starts here.|commence ici.|เริ่มที่นี่|beginnt hier.|ここから。|यहाँ शुरू होती है।
+29|Welcome to ONE Muay Thai|Bienvenue chez ONE Muay Thai|ยินดีต้อนรับสู่ ONE มวยไทย|Willkommen bei ONE Muay Thai|ONEムエタイへようこそ|ONE मुए थाई में आपका स्वागत है
+30|Sign in with phone number|Connexion par téléphone|เข้าสู่ระบบด้วยเบอร์โทร|Mit Telefonnummer anmelden|電話番号でログイン|फोन नंबर से लॉग इन करें
+31|Checking sign-in…|Vérification de la connexion…|กำลังตรวจสอบการเข้าสู่ระบบ…|Anmeldung wird geprüft…|ログイン状態を確認中…|लॉग इन जाँचा जा रहा है…
+32|Sign in to view credits and bookings.|Connectez-vous pour voir crédits et réservations.|เข้าสู่ระบบเพื่อดูสิทธิ์และตารางฝึก|Anmelden, um Guthaben und Termine zu sehen.|ログインして残り回数と予定を確認。|क्रेडिट और बुकिंग देखने के लिए लॉग इन करें।
+33|Signing in…|Connexion…|กำลังเข้าสู่ระบบ…|Anmeldung läuft…|ログイン中…|लॉग इन हो रहा है…
+34|Check connection again|Revérifier la connexion|ตรวจสอบการเชื่อมต่ออีกครั้ง|Verbindung erneut prüfen|接続を再確認|कनेक्शन दोबारा जाँचें
+35|Your phone number verifies and links your ONE account.|Le numéro vérifie et associe votre compte ONE.|เบอร์โทรใช้ยืนยันและเชื่อมบัญชี ONE|Die Telefonnummer bestätigt und verknüpft dein ONE-Konto.|電話番号はONEアカウントの確認・連携に使用します。|फोन नंबर ONE खाते की पुष्टि और लिंक करने के लिए है।
+36|Browse sessions first →|Voir les séances d'abord →|ดูคลาสก่อน →|Zuerst Kurse ansehen →|先にレッスンを見る →|पहले सत्र देखें →
+37|ONE privacy notice|Confidentialité ONE|ประกาศความเป็นส่วนตัว ONE|ONE-Datenschutzhinweis|ONEプライバシー案内|ONE गोपनीयता सूचना
+38|ONE needs your phone number to verify sign-in. Please read and accept|ONE utilise votre numéro pour la connexion. Veuillez lire et accepter|ONE ต้องใช้เบอร์โทรเพื่อยืนยันการเข้าสู่ระบบ โปรดอ่านและยอมรับ|ONE benötigt deine Telefonnummer zur Anmeldung. Bitte lies und akzeptiere|ログイン確認に電話番号が必要です。以下を読み、同意してください：|ONE को लॉग इन सत्यापन हेतु आपका फोन नंबर चाहिए। कृपया पढ़ें और स्वीकार करें
+39|to continue.|pour continuer.|เพื่อดำเนินการต่อ|zum Fortfahren.|同意後にご利用いただけます。|और आगे बढ़ें।
+40|Not now|Pas maintenant|ยังไม่ใช้งาน|Jetzt nicht|今は利用しない|अभी नहीं
+41|Accept and continue|Accepter et continuer|ยอมรับและดำเนินการต่อ|Akzeptieren und weiter|同意して続ける|स्वीकार करें और आगे बढ़ें
+42|Plan your next session|Planifiez votre séance|วางแผนการฝึกครั้งถัดไป|Nächstes Training planen|次の練習を計画|अगला सत्र तय करें
+43|Training bookings|Réservation d'entraînement|จองการฝึก|Trainingsbuchung|トレーニング予約|प्रशिक्षण बुकिंग
+44|Credits: Group {0} · Personal {1}|Crédits : collectif {0} · individuel {1}|สิทธิ์คงเหลือ: กลุ่ม {0} · ส่วนตัว {1}|Guthaben: Gruppe {0} · Einzel {1}|残り回数：グループ {0}・個人 {1}|क्रेडिट: समूह {0} · व्यक्तिगत {1}
+45|Find a time, then sign in to book.|Choisissez un horaire, puis connectez-vous.|เลือกเวลาแล้วเข้าสู่ระบบเพื่อจอง|Zeit wählen, dann zum Buchen anmelden.|日時を選び、ログインして予約。|समय चुनें, फिर बुक करने के लिए लॉग इन करें।
+46|{0} sessions|{0} séances|{0} คลาส|{0} Termine|{0}枠|{0} सत्र
+47|Available sessions|Séances disponibles|คลาสที่จองได้|Verfügbare Termine|予約可能な枠|उपलब्ध सत्र
+48|Choose a suitable time|Choisissez votre horaire|เลือกเวลาที่เหมาะกับคุณ|Passende Zeit wählen|都合のよい時間を選択|सुविधाजनक समय चुनें
+49|No sessions scheduled for this day|Aucune séance ce jour|วันนี้ยังไม่มีคลาส|An diesem Tag keine Termine|この日の予定はありません|इस दिन कोई सत्र नहीं है
+50|Try another date, location or coach.|Essayez une autre date, salle ou personne.|ลองวัน สาขา หรือผู้ฝึกสอนอื่น|Anderes Datum, Studio oder Trainer wählen.|別の日・店舗・担当者を選んでください。|दूसरी तारीख, शाखा या प्रशिक्षक चुनें।
+51|View all today's sessions|Toutes les séances du jour|ดูคลาสทั้งหมดวันนี้|Alle heutigen Termine|本日の全枠を見る|आज के सभी सत्र देखें
+52|Booked|Réservé|จองแล้ว|Gebucht|予約済み|बुक हो चुका
+53|Full|Complet|เต็มแล้ว|Ausgebucht|満員|पूर्ण
+54|Available|Disponible|จองได้|Verfügbar|予約可|उपलब्ध
+55|Coach|Coach|ผู้ฝึกสอน|Trainer|コーチ|प्रशिक्षक
+56|Location|Salle|สาขา|Standort|店舗|शाखा
+57|Bookings|Réservations|จำนวนผู้จอง|Buchungen|予約人数|बुकिंग संख्या
+58|Booking…|Réservation…|กำลังจอง…|Wird gebucht…|予約中…|बुकिंग हो रही है…
+59|Session full|Séance complète|คลาสเต็ม|Termin ausgebucht|満員です|सत्र पूर्ण है
+60|Book session|Réserver|จองคลาส|Training buchen|レッスンを予約|सत्र बुक करें
+61|Sign in to book|Se connecter pour réserver|เข้าสู่ระบบเพื่อจอง|Zum Buchen anmelden|ログインして予約|बुकिंग के लिए लॉग इन करें
+62|Please arrive on time|Veuillez arriver à l'heure|กรุณามาตรงเวลา|Bitte pünktlich erscheinen|時間どおりにお越しください|कृपया समय पर पहुँचें
+63|Try another session|Choisir une autre séance|ลองคลาสอื่น|Anderen Termin wählen|別の枠をお試しください|दूसरा सत्र चुनें
+64|Use 1|Utilise 1|ใช้ 1|Verbraucht 1|1回分を使用：|1 उपयोग करें
+65|Personal|Individuel|ส่วนตัว|Einzel|個人|व्यक्तिगत
+66|Group|Collectif|กลุ่ม|Gruppe|グループ|समूह
+67|credit|crédit|สิทธิ์|Guthaben|回数|क्रेडिट
+68|Choose gym staff|Choisir le personnel|เลือกบุคลากรยิม|Personal wählen|担当者を選択|जिम कर्मचारी चुनें
+69|Search by name, role or specialty|Rechercher par nom, rôle ou spécialité|ค้นหาชื่อ หน้าที่ หรือทักษะ|Nach Name, Rolle oder Schwerpunkt suchen|名前・役割・専門で検索|नाम, भूमिका या विशेषज्ञता से खोजें
+70|Search name, role, specialty|Nom, rôle, spécialité|ชื่อ หน้าที่ ทักษะ|Name, Rolle, Schwerpunkt|名前・役割・専門を検索|नाम, भूमिका, विशेषज्ञता खोजें
+71|All|Tout|ทั้งหมด|Alle|すべて|सभी
+72|All staff|Tout le personnel|บุคลากรทั้งหมด|Alle Mitarbeiter|全担当者|सभी कर्मचारी
+73|{0} matching sessions|{0} séances trouvées|พบ {0} คลาส|{0} passende Termine|該当する枠：{0}|{0} सत्र मिले
+74|No matching staff. Try another keyword.|Aucun résultat. Essayez un autre mot.|ไม่พบผู้ฝึกสอน ลองคำค้นอื่น|Kein Personal gefunden. Anderes Suchwort versuchen.|該当する担当者がいません。検索語を変更してください。|कोई कर्मचारी नहीं मिला। दूसरा शब्द खोजें।
+75|My training profile|Mon profil sportif|ประวัติการฝึกของฉัน|Mein Trainingsprofil|トレーニング記録|मेरी प्रशिक्षण प्रोफ़ाइल
+76|My account|Mon compte|บัญชีของฉัน|Mein Konto|マイページ|मेरा खाता
+77|Sign in to access all features|Connectez-vous pour tout utiliser|เข้าสู่ระบบเพื่อใช้ทุกฟังก์ชัน|Für alle Funktionen anmelden|ログインしてすべての機能を利用|सभी सुविधाओं के लिए लॉग इन करें
+78|Sign in to view credits, bookings and your check-in code.|Connectez-vous pour vos crédits, réservations et code.|เข้าสู่ระบบเพื่อดูสิทธิ์ การจอง และรหัสแสดงตัว|Anmelden für Guthaben, Buchungen und Check-in-Code.|ログインして残り回数・予約・確認コードを見る。|क्रेडिट, बुकिंग और चेक-इन कोड देखने के लिए लॉग इन करें।
+79|Edit|Modifier|แก้ไข|Bearbeiten|編集|संपादित करें
+80|Phone number|Téléphone|เบอร์โทร|Telefonnummer|電話番号|फोन नंबर
+81|Current location|Salle actuelle|สาขาปัจจุบัน|Aktueller Standort|現在の店舗|वर्तमान शाखा
+82|Change display name|Modifier le nom|เปลี่ยนชื่อผู้ใช้|Anzeigenamen ändern|表示名を変更|नाम बदलें
+83|Enter new display name|Nouveau nom|กรอกชื่อใหม่|Neuen Namen eingeben|新しい名前を入力|नया नाम दर्ज करें
+84|Cancel|Annuler|ยกเลิก|Abbrechen|キャンセル|रद्द करें
+85|Saving…|Enregistrement…|กำลังบันทึก…|Wird gespeichert…|保存中…|सहेजा जा रहा है…
+86|Save|Enregistrer|บันทึก|Speichern|保存|सहेजें
+87|My points|Mes points|คะแนนของฉัน|Meine Punkte|マイポイント|मेरे अंक
+88|Balance and history ›|Solde et historique ›|ยอดคะแนนและประวัติ ›|Guthaben und Verlauf ›|残高・履歴 ›|शेष और इतिहास ›
+89|Enter invite code for points|Saisir un code d'invitation|กรอกรหัสเชิญรับคะแนน|Einladungscode einlösen|招待コードでポイント獲得|अंक पाने हेतु आमंत्रण कोड दर्ज करें
+90|Collapse|Réduire|ย่อ|Einklappen|閉じる|समेटें
+91|Expand|Développer|ขยาย|Ausklappen|開く|खोलें
+92|First code binding earns 100 points for you and your friend. Once per account; it cannot be changed.|La première association offre 100 points à chacun. Une fois par compte, sans modification.|ผูกรหัสครั้งแรก รับคนละ100คะแนน บัญชีละหนึ่งครั้ง เปลี่ยนไม่ได้|Erste Verknüpfung: je 100 Punkte für beide. Einmal pro Konto, nicht änderbar.|初回登録で双方に100ポイント。1アカウント1回、変更不可。|पहली बार कोड जोड़ने पर दोनों को 100 अंक। प्रति खाता एक बार, बाद में बदलाव नहीं।
+93|Checking code binding…|Vérification du code…|กำลังตรวจสอบรหัส…|Verknüpfung wird geprüft…|登録状況を確認中…|कोड लिंक जाँचा जा रहा है…
+94|Code {0} linked. Points credited.|Code {0} associé. Points crédités.|ผูก {0} แล้ว ได้รับคะแนนแล้ว|Code {0} verknüpft. Punkte gutgeschrieben.|{0}登録済み。付与完了。|कोड {0} जुड़ गया। अंक मिल गए।
+95|Friend's 14-character invite code|Code ami à 14 caractères|รหัสเชิญเพื่อน14ตัว|14-stelliger Einladungscode|友達の14文字の招待コード|मित्र का 14 अक्षर का आमंत्रण कोड
+96|Linking…|Association…|กำลังผูก…|Wird verknüpft…|登録中…|लिंक हो रहा है…
+97|Link and claim 100 points|Associer et recevoir 100 points|ผูกรหัสรับ100คะแนน|Verknüpfen: 100 Punkte|登録して100ポイント獲得|जोड़ें और 100 अंक पाएँ
+98|Reload|Recharger|โหลดใหม่|Neu laden|再読み込み|दोबारा लोड करें
+99|My training credits|Mes crédits d'entraînement|สิทธิ์การฝึกของฉัน|Mein Trainingsguthaben|トレーニング残高|मेरे प्रशिक्षण क्रेडिट
+100| sessions| séances| ครั้ง| Einheiten|回| सत्र
+101|Personal credits|Crédits individuels|สิทธิ์ส่วนตัว|Einzelguthaben|個人レッスン回数|व्यक्तिगत क्रेडिट
+102| expires| expire| หมดอายุ| läuft ab| 有効期限| समाप्त
+103|No expiry date|Sans expiration|ไม่จำกัดวันหมดอายุ|Ohne Ablaufdatum|期限なし|समाप्ति तिथि नहीं
+104|Group credits|Crédits collectifs|สิทธิ์กลุ่ม|Gruppenguthaben|グループ回数|समूह क्रेडिट
+105|See expiry dates below. Cancel more than 2 hours before the session.|Consultez les dates. Annulation plus de 2 h avant la séance.|ดูวันหมดอายุ ยกเลิกได้ก่อนเริ่มมากกว่า2ชั่วโมง|Ablaufdaten beachten. Stornierung über 2 Stunden vor Beginn.|有効期限をご確認ください。開始2時間より前に取消可。|समाप्ति तिथि देखें। सत्र से 2 घंटे से अधिक पहले रद्द कर सकते हैं।
+106|Schedule and history|Planning et historique|ตารางและประวัติ|Plan und Verlauf|予定と履歴|समय-सारणी और इतिहास
+107|Your next session starts your plan|Votre programme commence avec la prochaine séance|เริ่มแผนฝึกในคลาสถัดไป|Dein Plan beginnt mit der nächsten Einheit|次の練習から始めよう|अगले सत्र से अपनी योजना शुरू करें
+108|Choose a session and keep going.|Choisissez une séance et persévérez.|เลือกคลาสแล้วฝึกต่อเนื่อง|Termin wählen und dranbleiben.|都合のよい枠で続けよう。|सत्र चुनें और अभ्यास जारी रखें।
+109|Book training →|Réserver →|จองการฝึก →|Training buchen →|予約する →|प्रशिक्षण बुक करें →
+110|Cancel booking|Annuler la réservation|ยกเลิกการจอง|Buchung stornieren|予約を取り消す|बुकिंग रद्द करें
+111|Expand when needed and show staff|Ouvrir et montrer au personnel|เปิดเมื่อต้องการแสดงพนักงาน|Bei Bedarf öffnen und vorzeigen|必要時に開きスタッフに提示|ज़रूरत पर खोलें और कर्मचारी को दिखाएँ
+112|Preparing check-in code…|Préparation du code…|กำลังเตรียมรหัส…|Code wird vorbereitet…|確認コードを準備中…|चेक-इन कोड तैयार हो रहा है…
+113|Tap to retry code generation|Réessayer de générer le code|แตะเพื่อสร้างรหัสใหม่|Code erneut erstellen|タップして再生成|कोड बनाने के लिए पुनः प्रयास करें
+114|Generate again|Régénérer|สร้างใหม่|Erneut erstellen|再生成|दोबारा बनाएँ
+115|Identification only. Staff confirm attendance.|Identification uniquement. Le personnel confirme la présence.|ใช้แสดงตัว พนักงานยืนยันการเข้าฝึก|Nur zur Identifikation. Anwesenheit bestätigt das Personal.|本人確認用です。出席はスタッフが確認します。|केवल पहचान के लिए। कर्मचारी उपस्थिति की पुष्टि करेंगे।
+116|Training journey|Parcours sportif|เส้นทางการฝึก|Trainingsverlauf|トレーニング実績|प्रशिक्षण यात्रा
+117|Sessions this month|Séances du mois|คลาสเดือนนี้|Einheiten diesen Monat|今月の回数|इस महीने के सत्र
+118|Total visit days|Jours de présence|จำนวนวันที่มา|Besuchstage gesamt|来館日数|कुल उपस्थिति दिन
+119|Total sessions|Séances totales|คลาสทั้งหมด|Einheiten gesamt|累計回数|कुल सत्र
+120|Booking and check-in rules|Règles de réservation et présence|กฎการจองและเช็กอิน|Buchungs- und Check-in-Regeln|予約・出席ルール|बुकिंग और चेक-इन नियम
+121|My visit trends|Mes visites|แนวโน้มการมา|Meine Besuchsentwicklung|来館の傾向|मेरी उपस्थिति का रुझान
+122|Messages and notices|Messages et annonces|ข้อความและประกาศ|Nachrichten und Hinweise|お知らせ|संदेश और सूचनाएँ
+123|Help and support|Aide et assistance|ช่วยเหลือและบริการ|Hilfe und Kontakt|ヘルプ・お問い合わせ|सहायता और संपर्क
+124|Sign out|Déconnexion|ออกจากระบบ|Abmelden|ログアウト|लॉग आउट
+125|Invite friends, train together|Invitez vos amis, entraînez-vous ensemble|ชวนเพื่อนมาฝึกด้วยกัน|Freunde einladen, zusammen trainieren|友達を招待して一緒に練習|मित्रों को बुलाएँ, साथ अभ्यास करें
+126|Sign in to view points|Connectez-vous pour voir les points|เข้าสู่ระบบเพื่อดูคะแนน|Für Punkte anmelden|ログインしてポイントを見る|अंक देखने के लिए लॉग इन करें
+127|Sign in|Se connecter|เข้าสู่ระบบ|Anmelden|ログイン|लॉग इन करें
+128|Points balance|Solde de points|คะแนนคงเหลือ|Punktestand|ポイント残高|अंक शेष
+129| points| points| คะแนน| Punkte|ポイント| अंक
+130|Each successful invite earns both users 100 points|Chaque invitation réussie offre 100 points à chacun|เชิญสำเร็จรับคนละ100คะแนน|Jede erfolgreiche Einladung: je 100 Punkte|招待成立で双方に100ポイント|हर सफल आमंत्रण पर दोनों को 100 अंक
+131|My invite code|Mon code d'invitation|รหัสเชิญของฉัน|Mein Einladungscode|自分の招待コード|मेरा आमंत्रण कोड
+132|Share with friends. They enter it in My account.|Partagez-le. Vos amis le saisissent dans Mon compte.|แชร์ให้เพื่อนกรอกในหน้าบัญชีของฉัน|Freunde geben den Code unter Mein Konto ein.|友達がマイページで入力できます。|मित्र को दें। वे मेरा खाता पेज में दर्ज करें।
+133|Copy invite code|Copier le code|คัดลอกรหัสเชิญ|Einladungscode kopieren|招待コードをコピー|आमंत्रण कोड कॉपी करें
+134|One binding per account. No self-invites or code changes. Points do not pay for training.|Une association par compte. Pas d'auto-invitation ni de modification. Les points ne paient pas les cours.|บัญชีละหนึ่งรหัส ห้ามเชิญตนเองหรือเปลี่ยนรหัส คะแนนใช้แทนสิทธิ์ฝึกไม่ได้|Einmal pro Konto. Kein eigener Code, keine Änderung. Punkte ersetzen kein Trainingsguthaben.|1アカウント1回。自分のコード・変更不可。ポイントはレッスンに使えません。|प्रति खाता एक कोड। अपना कोड या बदलाव नहीं। अंक से प्रशिक्षण का भुगतान नहीं होता।
+135|Points history|Historique des points|ประวัติคะแนน|Punkteverlauf|ポイント履歴|अंक इतिहास
+136|Latest 50 entries|50 dernières opérations|50รายการล่าสุด|Letzte 50 Einträge|直近50件|नवीनतम 50 रिकॉर्ड
+137|No points yet|Aucun point pour l'instant|ยังไม่มีคะแนน|Noch keine Punkte|まだ履歴がありません|अभी कोई अंक नहीं
+138|Invite a friend to earn your first points|Invitez un ami pour vos premiers points|ชวนเพื่อนรับคะแนนแรก|Freund einladen und erste Punkte sammeln|友達を招待してポイントを獲得|पहले अंक पाने के लिए मित्र को बुलाएँ
+139|Today's operations|Opérations du jour|งานฝึกวันนี้|Heutiger Betrieb|本日の運営|आज का संचालन
+140|Training workspace|Espace de travail|จัดการการฝึก|Trainingsverwaltung|トレーニング管理|प्रशिक्षण प्रबंधन
+141|Access permissions|Autorisations|สิทธิ์การเข้าถึง|Zugriffsrechte|利用権限|प्रवेश अनुमति
+142|Staff only. Ask your administrator about access.|Réservé au personnel. Contactez l'administrateur.|สำหรับบุคลากรเท่านั้น สอบถามผู้ดูแล|Nur für Personal. Administrator kontaktieren.|スタッフ専用です。管理者に権限をご確認ください。|केवल कर्मचारियों हेतु। अनुमति के लिए प्रशासक से पूछें।
+143|{0}'s workspace|Espace de {0}|พื้นที่งานของ {0}|Arbeitsbereich von {0}|{0}の管理画面|{0} का कार्यक्षेत्र
+144|Today: {0} classes · {1}|Aujourd'hui : {0} cours · {1}|วันนี้ {0} คลาส · {1}|Heute: {0} Kurse · {1}|本日 {0}レッスン・{1}|आज {0} कक्षाएँ · {1}
+145|Today's bookings|Réservations du jour|การจองวันนี้|Heutige Buchungen|本日の予約|आज की बुकिंग
+146|Daily schedule|Planning du jour|ตารางรายวัน|Tagesplan|日別予定|दैनिक समय-सारणी
+147|Pending|En attente|รอดำเนินการ|Ausstehend|未処理|लंबित
+148|Quick actions|Actions rapides|งานที่ใช้บ่อย|Schnellaktionen|よく使う操作|त्वरित कार्य
+149|Today's training|Entraînements du jour|การฝึกวันนี้|Heutiges Training|本日の練習|आज का प्रशिक्षण
+150|{0} classes|{0} cours|{0} คลาส|{0} Kurse|{0}レッスン|{0} कक्षाएँ
+151|No training scheduled today|Aucun cours aujourd'hui|วันนี้ยังไม่มีตารางฝึก|Heute keine Kurse geplant|本日の予定はありません|आज कोई प्रशिक्षण तय नहीं
+152|Publish a session so members can book it.|Publiez un cours pour ouvrir les réservations.|เพิ่มตารางเพื่อให้ลูกค้าจองได้|Termin veröffentlichen, damit Mitglieder buchen können.|予定を追加するとお客様が予約できます。|सत्र प्रकाशित करें ताकि सदस्य बुक कर सकें।
+153|{0} / {1} people · Checked in {2} · Absent {3}|{0} / {1} personnes · Présents {2} · Absents {3}|{0} / {1} คน · มาแล้ว {2} · ขาด {3}|{0} / {1} Personen · Anwesend {2} · Abwesend {3}|{0} / {1}人・出席 {2}・欠席 {3}|{0} / {1} लोग · उपस्थित {2} · अनुपस्थित {3}
+154|Grant credits|Attribuer des crédits|เพิ่มสิทธิ์|Guthaben vergeben|回数を付与|क्रेडिट दें
+155|Administrator|Administrateur|ผู้ดูแล|Administrator|管理者|प्रशासक
+156|{0} · Record payment and add credits.|{0} · Enregistrer le paiement et les crédits.|{0} · บันทึกรับเงินและเพิ่มสิทธิ์|{0} · Zahlung erfassen und Guthaben hinzufügen.|{0}・入金記録と回数付与|{0} · भुगतान दर्ज करें और क्रेडिट जोड़ें।
+157|Credits granted|Crédits attribués|เพิ่มสิทธิ์แล้ว|Guthaben vergeben|付与完了|क्रेडिट दे दिए गए
+158| sessions {0}| séances {0}| ครั้ง {0}| Einheiten {0}|回 {0}| सत्र {0}
+159|Package|Formule|แพ็กเกจ|Paket|プラン|पैकेज
+160|Credit expiry|Expiration des crédits|วันหมดอายุสิทธิ์|Guthabenablauf|有効期限|क्रेडिट समाप्ति
+161|Credits and payment saved.|Crédits et paiement enregistrés.|บันทึกสิทธิ์และรับเงินแล้ว|Guthaben und Zahlung gespeichert.|回数と入金を保存しました。|क्रेडिट और भुगतान सहेजे गए।
+162|Grant more credits|Attribuer d'autres crédits|เพิ่มสิทธิ์ต่อ|Weiteres Guthaben vergeben|続けて付与|और क्रेडिट दें
+163|Choose member|Choisir l'élève|เลือกลูกค้า|Mitglied wählen|会員選択|सदस्य चुनें
+164|Choose package|Choisir la formule|เลือกแพ็กเกจ|Paket wählen|プラン選択|पैकेज चुनें
+165|Payment and review|Paiement et vérification|รับเงินและตรวจสอบ|Zahlung und Prüfung|入金・確認|भुगतान और समीक्षा
+166|Change ›|Changer ›|เปลี่ยน ›|Ändern ›|変更 ›|बदलें ›
+167|Who receives the credits?|À qui attribuer les crédits ?|เพิ่มสิทธิ์ให้ใคร?|Wer erhält das Guthaben?|誰に付与しますか？|क्रेडिट किसे दें?
+168|Search by name or phone, then verify and select.|Cherchez par nom ou téléphone, vérifiez et choisissez.|ค้นหาชื่อหรือเบอร์ ตรวจสอบแล้วเลือก|Nach Name oder Telefon suchen, prüfen und auswählen.|名前・電話番号で検索し、確認して選択。|नाम या फोन से खोजें, जाँचकर चुनें।
+169|Enter name or phone number|Nom ou téléphone|กรอกชื่อหรือเบอร์โทร|Name oder Telefonnummer|名前または電話番号|नाम या फोन नंबर दर्ज करें
+170|Searching members…|Recherche d'élèves…|กำลังค้นหาลูกค้า…|Mitglieder werden gesucht…|会員を検索中…|सदस्य खोजे जा रहे हैं…
+171|Select ›|Choisir ›|เลือก ›|Wählen ›|選択 ›|चुनें ›
+172|Group: {0} sessions|Collectif : {0} séances|กลุ่ม {0} ครั้ง|Gruppe: {0} Einheiten|グループ {0}回|समूह {0} सत्र
+173|Personal: {0} sessions|Individuel : {0} séances|ส่วนตัว {0} ครั้ง|Einzel: {0} Einheiten|個人 {0}回|व्यक्तिगत {0} सत्र
+174|No member found. Check name or phone.|Aucun élève trouvé. Vérifiez nom ou téléphone.|ไม่พบลูกค้า ตรวจชื่อหรือเบอร์|Kein Mitglied gefunden. Name oder Telefon prüfen.|会員が見つかりません。名前・番号を確認。|सदस्य नहीं मिला। नाम या फोन जाँचें।
+175|Select a member before granting credits.|Choisissez un élève avant l'attribution.|เลือกลูกค้าก่อนเพิ่มสิทธิ์|Vor der Vergabe Mitglied wählen.|付与前に会員を選択してください。|क्रेडिट देने से पहले सदस्य चुनें।
+176|Selected|Sélectionné|เลือกแล้ว|Ausgewählt|選択中|चयनित
+177|Choose credits to add|Choisir les crédits à ajouter|เลือกสิทธิ์ที่เพิ่ม|Guthabenart wählen|付与する回数を選択|जोड़ने वाले क्रेडिट चुनें
+178|Package selection fills price and expiry automatically.|La formule remplit automatiquement prix et expiration.|เลือกแพ็กเกจเพื่อเติมราคาและวันหมดอายุอัตโนมัติ|Paket setzt Preis und Ablauf automatisch.|プラン選択で金額・期限を自動入力。|पैकेज चुनने पर मूल्य और समाप्ति स्वतः भरेंगे।
+179|Personal|Individuel|ส่วนตัว|Einzel|個人|व्यक्तिगत
+180|✓ Selected|✓ Sélectionné|✓ เลือกแล้ว|✓ Ausgewählt|✓ 選択済み|✓ चयनित
+181|Select|Choisir|เลือก|Wählen|選択|चुनें
+182| sessions| séances| ครั้ง| Einheiten|回| सत्र
+183|Valid {0} days · Standard price|Validité {0} jours · Prix standard|อายุ {0} วัน · ราคามาตรฐาน|{0} Tage gültig · Standardpreis|有効期間 {0}日・標準価格|{0} दिन मान्य · मानक मूल्य
+184|No available packages. Ask an administrator.|Aucune formule. Contactez l'administrateur.|ไม่มีแพ็กเกจ สอบถามผู้ดูแล|Keine Pakete verfügbar. Administrator fragen.|利用可能なプランがありません。管理者にご確認ください。|पैकेज उपलब्ध नहीं। प्रशासक से पूछें।
+185|Record offline payment|Enregistrer un paiement en salle|บันทึกรับเงินที่ยิม|Vor-Ort-Zahlung erfassen|店頭入金を記録|ऑफलाइन भुगतान दर्ज करें
+186|Change package ›|Changer de formule ›|เปลี่ยนแพ็กเกจ ›|Paket ändern ›|プラン変更 ›|पैकेज बदलें ›
+187|{0} · Add {1} sessions {2}|{0} · Ajouter {1} séances {2}|{0} · เพิ่ม {1} ครั้ง {2}|{0} · {1} Einheiten hinzufügen {2}|{0}・{1}回追加 {2}|{0} · {1} सत्र जोड़ें {2}
+188|Amount received (CNY)|Montant reçu (CNY)|รับเงิน (หยวน)|Erhaltener Betrag (CNY)|入金額（元）|प्राप्त राशि (CNY)
+189|Standard ¥{0}. Enter actual payment.|Tarif ¥{0}. Saisissez le paiement réel.|ราคา ¥{0} กรอกยอดรับจริง|Standard ¥{0}. Tatsächliche Zahlung eingeben.|標準 ¥{0}。実際の入金額を入力。|मानक ¥{0}। वास्तविक भुगतान दर्ज करें।
+190|Payment method|Mode de paiement|วิธีชำระเงิน|Zahlungsart|支払方法|भुगतान विधि
+191|Credit expiry date|Date d'expiration|วันหมดอายุ|Ablaufdatum|回数の有効期限|क्रेडिट समाप्ति तिथि
+192|Choose a date|Choisir une date|เลือกวันที่|Datum wählen|日付を選択|तारीख चुनें
+193|Edit ›|Modifier ›|แก้ไข ›|Ändern ›|変更 ›|संपादित करें ›
+194|Same-type credits merge using the later expiry date.|Les crédits du même type fusionnent avec la date la plus tardive.|รวมสิทธิ์ชนิดเดียวกันโดยใช้วันหมดอายุที่ช้ากว่า|Gleiche Guthabenarten werden mit dem späteren Ablauf zusammengeführt.|同種の回数は合算し、遅い有効期限を採用します。|समान प्रकार के क्रेडिट जुड़ेंगे, बाद की समाप्ति तिथि लागू होगी।
+195|Note (optional)|Note (facultative)|หมายเหตุ (ไม่บังคับ)|Notiz (optional)|備考（任意）|टिप्पणी (वैकल्पिक)
+196|Renewal, bonus sessions, receipt number|Renouvellement, bonus, référence de reçu|ต่ออายุ โบนัส เลขใบเสร็จ|Verlängerung, Bonus, Belegnummer|更新・特典・領収番号など|नवीनीकरण, बोनस सत्र, रसीद नंबर
+197|Review before granting|Vérifier avant attribution|ตรวจสอบก่อนเพิ่ม|Vor Vergabe prüfen|付与前に確認|देने से पहले समीक्षा करें
+198|Available now|Disponible|ใช้ได้ปัจจุบัน|Aktuell verfügbar|現在利用可|अभी उपलब्ध
+199|Expected new balance|Solde prévu|คาดว่าหลังเพิ่ม|Erwartetes Guthaben|付与後の予定残高|अपेक्षित नया शेष
+200|Credit type|Type de crédit|ประเภทสิทธิ์|Guthabenart|回数の種類|क्रेडिट प्रकार
+201|Received / {0}|Reçu / {0}|รับจริง / {0}|Erhalten / {0}|入金 / {0}|प्राप्त / {0}
+202|Balance uses live records. Expired credits are excluded.|Le solde utilise les données actuelles, hors crédits expirés.|ใช้ยอดล่าสุด ไม่รวมสิทธิ์หมดอายุ|Aktuelle Datensätze gelten. Abgelaufenes Guthaben zählt nicht.|残高は最新記録に基づき、期限切れ分は除外。|नवीनतम रिकॉर्ड लागू होंगे। समाप्त क्रेडिट शामिल नहीं।
+203|Back|Retour|ย้อนกลับ|Zurück|戻る|वापस
+204|No member selected|Aucun élève sélectionné|ยังไม่ได้เลือกลูกค้า|Kein Mitglied ausgewählt|会員未選択|सदस्य नहीं चुना
+205|Next · Choose package|Suivant · Formule|ถัดไป · แพ็กเกจ|Weiter · Paket wählen|次へ・プラン選択|अगला · पैकेज चुनें
+206|Next · Record payment|Suivant · Paiement|ถัดไป · รับเงิน|Weiter · Zahlung erfassen|次へ・入金記録|अगला · भुगतान दर्ज करें
+207|Granting…|Attribution…|กำลังเพิ่มสิทธิ์…|Wird vergeben…|付与中…|क्रेडिट दिए जा रहे हैं…
+208|Confirm credit grant|Confirmer l'attribution|ยืนยันเพิ่มสิทธิ์|Vergabe bestätigen|付与を確定|क्रेडिट देने की पुष्टि करें
+209|Attendance check-in|Validation de présence|ยืนยันเข้าฝึก|Anwesenheit bestätigen|出席確認|उपस्थिति चेक-इन
+210|Admin / Coach|Admin / Coach|ผู้ดูแล / ผู้ฝึกสอน|Admin / Trainer|管理者 / コーチ|प्रशासक / प्रशिक्षक
+211|Session overview|Aperçu de séance|ภาพรวมคลาส|Trainingsübersicht|レッスン概要|सत्र विवरण
+212|Checked in|Présent|ยืนยันแล้ว|Anwesend|出席済み|उपस्थित
+213|Absent|Absent|ขาด|Abwesend|欠席|अनुपस्थित
+214|Booking roster|Liste des réservations|รายชื่อผู้จอง|Buchungsliste|予約名簿|बुकिंग सूची
+215|Add offline members not on this roster.|Ajoutez les élèves hors ligne absents de la liste.|เพิ่มลูกค้าที่จองนอกระบบและไม่อยู่ในรายชื่อ|Offline gebuchte Mitglieder ergänzen.|名簿にない店頭予約の会員を追加できます。|सूची में न होने वाले ऑफलाइन सदस्य जोड़ें।
+216|Check in offline member|Ajouter une présence hors ligne|ยืนยันลูกค้านอกระบบ|Offline-Mitglied einchecken|店頭予約者の出席追加|ऑफलाइन सदस्य का चेक-इन
+217|Confirm attendance|Confirmer la présence|ยืนยันเข้าฝึก|Anwesenheit bestätigen|出席を確認|उपस्थिति की पुष्टि करें
+218|Mark absent|Marquer absent|ระบุขาด|Als abwesend markieren|欠席にする|अनुपस्थित चिह्नित करें
+219|Status confirmed. No further action needed.|Statut confirmé. Aucune autre action.|ยืนยันสถานะแล้ว ไม่ต้องทำซ้ำ|Status bestätigt. Keine weitere Aktion nötig.|確認済みです。再操作は不要です。|स्थिति पुष्ट है। दोबारा कार्रवाई आवश्यक नहीं।
+220|Offline training record|Enregistrement hors ligne|บันทึกการฝึกนอกระบบ|Offline-Training erfassen|店頭トレーニング記録|ऑफलाइन प्रशिक्षण रिकॉर्ड
+221|Manual check-in|Validation manuelle|ยืนยันด้วยตนเอง|Manueller Check-in|手動出席登録|मैन्युअल चेक-इन
+222|Deducts 1 credit; records member and operator.|Déduit 1 crédit et enregistre élève et opérateur.|หัก1สิทธิ์ บันทึกลูกค้าและผู้ดำเนินการ|Zieht 1 Einheit ab; Mitglied und Bearbeiter werden erfasst.|1回消費し、会員と操作者を記録。|1 क्रेडिट कटेगा; सदस्य और कर्मचारी दर्ज होंगे।
+223|Add offline attendance; existing bookings are not charged twice.|Ajoute une présence hors ligne sans double déduction.|เพิ่มผู้จองนอกระบบ ไม่หักซ้ำผู้จองเดิม|Offline-Anwesenheit ergänzen; bestehende Buchungen nicht doppelt belasten.|店頭予約の出席追加。既存予約は二重消費しません。|ऑफलाइन उपस्थिति जोड़ें; पुरानी बुकिंग पर दोबारा कटौती नहीं।
+224|Select member|Choisir l'élève|เลือกลูกค้า|Mitglied auswählen|会員を選択|सदस्य चुनें
+225|Name or phone, at least 2 characters|Nom ou téléphone, 2 caractères minimum|ชื่อหรือเบอร์ อย่างน้อย2ตัว|Name oder Telefon, mindestens 2 Zeichen|名前・番号を2文字以上|नाम या फोन, कम से कम 2 अक्षर
+226|Search|Rechercher|ค้นหา|Suchen|検索|खोजें
+227|No member found. Check name or phone. An account with credits is required.|Aucun élève. Vérifiez le nom ou numéro. Compte et crédits requis.|ไม่พบลูกค้า ตรวจชื่อหรือเบอร์ ต้องมีบัญชีและสิทธิ์|Kein Mitglied. Name/Telefon prüfen. Konto mit Guthaben erforderlich.|会員がいません。名前・番号を確認。アカウントと回数が必要です。|सदस्य नहीं मिला। नाम/फोन जाँचें। क्रेडिट वाला खाता आवश्यक है।
+228|Search by name or phone. Up to 20 results.|Cherchez par nom ou téléphone. 20 résultats maximum.|ค้นหาชื่อหรือเบอร์ แสดงสูงสุด20คน|Nach Name oder Telefon suchen. Maximal 20 Ergebnisse.|名前・電話で検索。最大20人。|नाम या फोन से खोजें। अधिकतम 20 परिणाम।
+229|Selected|Sélectionné|เลือกแล้ว|Ausgewählt|選択済み|चयनित
+230|{0} · Group {1} / Personal {2}|{0} · Collectif {1} / Individuel {2}|{0} · กลุ่ม {1} / ส่วนตัว {2}|{0} · Gruppe {1} / Einzel {2}|{0}・グループ {1} / 個人 {2}|{0} · समूह {1} / व्यक्तिगत {2}
+231|Member: {0} · {1}|Élève : {0} · {1}|ลูกค้า: {0} · {1}|Mitglied: {0} · {1}|会員：{0}・{1}|सदस्य: {0} · {1}
+232|Training details|Informations de séance|ข้อมูลการฝึก|Trainingsdetails|練習情報|प्रशिक्षण विवरण
+233|Record offline training without a published schedule.|Enregistrez une séance sans planning préalable.|บันทึกการฝึกโดยไม่ต้องมีตารางล่วงหน้า|Offline-Training ohne vorherigen Termin erfassen.|事前の予定登録なしで店頭練習を記録。|पहले से समय तय किए बिना ऑफलाइन प्रशिक्षण दर्ज करें।
+234|Actual training date and time|Date et heure réelles|วันเวลาที่ฝึกจริง|Tatsächliches Datum und Zeit|実際の日時|वास्तविक प्रशिक्षण की तारीख और समय
+235|Location: {0} · Coach: {1}|Salle : {0} · Coach : {1}|สาขา: {0} · ผู้ฝึกสอน: {1}|Standort: {0} · Trainer: {1}|店舗：{0}・担当：{1}|शाखा: {0} · प्रशिक्षक: {1}
+236|Phone booking, reception registration|Réservation téléphonique, accueil|จองทางโทรศัพท์ ลงทะเบียนหน้าร้าน|Telefonbuchung, Anmeldung am Empfang|電話予約・受付登録など|फोन बुकिंग, रिसेप्शन पंजीकरण
+237|Outcome unconfirmed. Retry the same request; credits will not be deducted twice.|Résultat non confirmé. Réessayez la même demande, sans double déduction.|ยังไม่ยืนยันผล ลองคำขอเดิมอีกครั้ง ไม่หักสิทธิ์ซ้ำ|Ergebnis unbestätigt. Gleiche Anfrage wiederholen, keine doppelte Abbuchung.|結果未確認。同じ申請で再試行しても二重消費しません。|परिणाम अपुष्ट है। वही अनुरोध दोहराएँ; दोहरी कटौती नहीं होगी।
+238|Retry and verify result|Réessayer et vérifier|ลองใหม่และตรวจผล|Erneut versuchen und prüfen|再試行して結果確認|फिर प्रयास करें और परिणाम जाँचें
+239|Confirm and deduct credit|Confirmer et déduire|ยืนยันและหักสิทธิ์|Bestätigen und abbuchen|出席確認・回数消費|पुष्टि करें और क्रेडिट काटें
+240|Schedule management|Gestion du planning|จัดการตาราง|Terminverwaltung|スケジュール管理|समय-सारणी प्रबंधन
+241|Admin and coach|Admin et coach|ผู้ดูแลและผู้ฝึกสอน|Admin und Trainer|管理者兼コーチ|प्रशासक और प्रशिक्षक
+242|View your classes and plan the next session.|Voir vos cours et planifier la suite.|ดูคลาสและวางแผนครั้งถัดไป|Kurse ansehen und nächste Einheit planen.|担当レッスンを確認し次の予定を追加。|अपनी कक्षाएँ देखें और अगला सत्र तय करें।
+243|Switch ›|Changer ›|สลับ ›|Wechseln ›|切替 ›|बदलें ›
+244|{0} sessions this week · My schedule|{0} séances cette semaine · Mon planning|สัปดาห์นี้ {0} คลาส · ตารางของฉัน|{0} Termine diese Woche · Mein Plan|今週 {0}枠・自分の予定|इस सप्ताह {0} सत्र · मेरी समय-सारणी
+245|Today|Aujourd'hui|วันนี้|Heute|今日|आज
+246|‹ Previous week|‹ Semaine précédente|‹ สัปดาห์ก่อน|‹ Vorige Woche|‹ 前の週|‹ पिछला सप्ताह
+247|Choose date ⌄|Choisir une date ⌄|เลือกวันที่ ⌄|Datum wählen ⌄|日付を選択 ⌄|तारीख चुनें ⌄
+248|Next week ›|Semaine suivante ›|สัปดาห์ถัดไป ›|Nächste Woche ›|次の週 ›|अगला सप्ताह ›
+249| sessions| séances| คลาส| Termine|枠| सत्र
+250|{0} sessions|{0} séances|{0} คลาส|{0} Termine|{0}枠|{0} सत्र
+251|Sync again|Synchroniser|ซิงก์ใหม่|Erneut synchronisieren|再同期|दोबारा सिंक करें
+252|No {0} today|Aucun {0} ce jour|วันนี้ไม่มี {0}|Heute keine {0}|この日の{0}はありません|आज {0} नहीं
+253|classes|cours|คลาส|Kurse|レッスン|कक्षाएँ
+254|Choose another date or add a session.|Choisissez une date ou ajoutez un cours.|เลือกวันอื่นหรือเพิ่มตาราง|Anderes Datum wählen oder Termin hinzufügen.|別の日を選ぶか、予定を追加してください。|दूसरी तारीख चुनें या सत्र जोड़ें।
+255|Add session|Ajouter un cours|เพิ่มคลาส|Termin hinzufügen|予定追加|सत्र जोड़ें
+256|· Repeats weekly|· Chaque semaine|· ซ้ำรายสัปดาห์|· Wöchentlich|・毎週繰り返し|· साप्ताहिक दोहराव
+257|Booked {0} / {1}|Réservé {0} / {1}|จอง {0} / {1}|Gebucht {0} / {1}|予約 {0} / {1}人|बुक {0} / {1}
+258|Roster and check-in ›|Liste et présence ›|รายชื่อและยืนยัน ›|Liste und Check-in ›|名簿・出席確認 ›|सूची और चेक-इन ›
+259|Plan next training session|Planifier le prochain cours|วางแผนคลาสถัดไป|Nächstes Training planen|次の練習を設定|अगला प्रशिक्षण सत्र तय करें
+260|＋ Add session|＋ Ajouter un cours|＋ เพิ่มคลาส|＋ Termin hinzufügen|＋ 予定追加|＋ सत्र जोड़ें
+261|Close|Fermer|ปิด|Schließen|閉じる|बंद करें
+262|Training topic|Thème du cours|หัวข้อการฝึก|Trainingsthema|トレーニングテーマ|प्रशिक्षण विषय
+263|e.g. Muay Thai footwork|Ex. déplacements de Muay Thai|เช่น ฟุตเวิร์กมวยไทย|Z. B. Muay-Thai-Fußarbeit|例：ムエタイのステップ|जैसे मुए थाई फुटवर्क
+264|Training type|Type de cours|ประเภทการฝึก|Trainingsart|レッスン種類|प्रशिक्षण प्रकार
+265|Personal · One-to-one|Individuel · En tête-à-tête|ส่วนตัว · ตัวต่อตัว|Einzel · 1 zu 1|個人・1対1|व्यक्तिगत · एक-से-एक
+266|Training date|Date du cours|วันที่ฝึก|Trainingsdatum|練習日|प्रशिक्षण तारीख
+267|Time slot|Créneau horaire|ช่วงเวลา|Zeitfenster|時間帯|समय अवधि
+268|Start|Début|เริ่ม|Beginn|開始|शुरू
+269|End|Fin|สิ้นสุด|Ende|終了|समाप्त
+270|Capacity limit|Capacité maximale|จำนวนสูงสุด|Teilnehmerlimit|定員|अधिकतम सदस्य
+271|1 to 100 people|1 à 100 personnes|1ถึง100คน|1 bis 100 Personen|1〜100人|1 से 100 लोग
+272|Repeat weekly|Répéter chaque semaine|ซ้ำรายสัปดาห์|Wöchentlich wiederholen|毎週繰り返す|साप्ताहिक दोहराएँ
+273|Same weekday and time, 4 consecutive weeks|Même jour et heure, 4 semaines de suite|วันและเวลาเดิม4สัปดาห์ต่อเนื่อง|Gleicher Wochentag und Zeit, 4 Wochen in Folge|同じ曜日・時間で4週連続|समान दिन और समय, लगातार 4 सप्ताह
+274|Publish {0} sessions|Publier {0} séances|เผยแพร่ {0} คลาส|{0} Termine veröffentlichen|{0}枠を公開|{0} सत्र प्रकाशित करें
+275|{0} · {1} people per session|{0} · {1} personnes par séance|{0} · คลาสละ {1} คน|{0} · {1} Personen pro Termin|{0}・1枠 {1}人|{0} · प्रति सत्र {1} लोग
+276|Time conflict. Adjust the time slot.|Horaire en conflit. Modifiez-le.|เวลาซ้อนกัน โปรดปรับเวลา|Zeitüberschneidung. Zeit anpassen.|時間が重複しています。変更してください。|समय टकराता है। समय बदलें।
+277|Coach schedules at other locations are also checked for conflicts.|Les autres salles sont aussi vérifiées pour éviter les conflits.|ตรวจตารางสาขาอื่นด้วยเพื่อไม่ให้เวลาซ้ำ|Trainertermine anderer Standorte werden ebenfalls geprüft.|他店舗の担当予定も確認し、重複を防ぎます。|अन्य शाखाओं में प्रशिक्षक के समय भी टकराव के लिए जाँचे जाएँगे।
+278|Publishing…|Publication…|กำลังเผยแพร่…|Wird veröffentlicht…|公開中…|प्रकाशित हो रहा है…
+279|Confirm publishing |Confirmer la publication |ยืนยันเผยแพร่ |Veröffentlichung bestätigen |公開を確定 |प्रकाशन की पुष्टि करें 
+280| sessions| séances| คลาส| Termine|枠| सत्र
+281|Location and training data|Données de salle et entraînement|ข้อมูลสาขาและการฝึก|Standort- und Trainingsdaten|店舗・トレーニングデータ|शाखा और प्रशिक्षण डेटा
+282|Dashboard|Tableau de bord|แดชบอร์ด|Übersicht|ダッシュボード|डैशबोर्ड
+283|Administrators only. Ask the gym about access.|Réservé aux administrateurs. Contactez la salle.|สำหรับผู้ดูแล สอบถามสิทธิ์กับยิม|Nur für Administratoren. Studio kontaktieren.|管理者専用です。店舗に権限をご確認ください。|केवल प्रशासक हेतु। जिम से अनुमति पूछें।
+284|Date|Date|วันที่|Datum|日付|तारीख
+285|Checking…|Vérification…|กำลังตรวจสอบ…|Wird geprüft…|確認中…|जाँचा जा रहा है…
+286|Check service|Vérifier le service|ตรวจบริการ|Dienst prüfen|サービス確認|सेवा जाँचें
+287|Today's overview|Aperçu du jour|ภาพรวมวันนี้|Tagesübersicht|本日の概要|आज का विवरण
+288|Offline payments|Paiements en salle|รับเงินที่ยิม|Vor-Ort-Zahlungen|店頭入金|ऑफलाइन भुगतान
+289|Today's payments|Paiements du jour|รับเงินวันนี้|Heutige Zahlungen|本日の入金|आज के भुगतान
+290|Today's check-ins|Présences du jour|เข้าฝึกวันนี้|Heutige Check-ins|本日の出席|आज के चेक-इन
+291|New group credits|Nouveaux crédits collectifs|สิทธิ์กลุ่มที่เพิ่ม|Neues Gruppenguthaben|追加グループ回数|नए समूह क्रेडिट
+292|New personal credits|Nouveaux crédits individuels|สิทธิ์ส่วนตัวที่เพิ่ม|Neues Einzelguthaben|追加個人回数|नए व्यक्तिगत क्रेडिट
+293|Credit grant history|Historique des attributions|ประวัติเพิ่มสิทธิ์|Vergabeverlauf|付与履歴|क्रेडिट देने का इतिहास
+294|{0} records|{0} opérations|{0} รายการ|{0} Einträge|{0}件|{0} रिकॉर्ड
+295|Copy records|Copier les opérations|คัดลอกบันทึก|Einträge kopieren|記録をコピー|रिकॉर्ड कॉपी करें
+296|No credit grants yet|Aucune attribution|ยังไม่มีบันทึกเพิ่มสิทธิ์|Noch keine Vergaben|付与履歴なし|अभी कोई क्रेडिट नहीं दिया गया
+297|Payments and operations appear here after the first grant.|Les paiements apparaîtront après la première attribution.|แสดงรับเงินและงานหลังเพิ่มสิทธิ์ครั้งแรก|Zahlungen und Vorgänge erscheinen nach der ersten Vergabe.|初回付与後に入金・操作記録を表示。|पहली बार क्रेडिट देने के बाद भुगतान और कार्य यहाँ दिखेंगे।
+298|{0} granted {2} to {1}|{0} a attribué {2} à {1}|{0} เพิ่ม {2} ให้ {1}|{0} hat {1} {2} vergeben|{0}が{1}に{2}を付与|{0} ने {1} को {2} दिए
+299|Note: {0}|Note : {0}|หมายเหตุ: {0}|Notiz: {0}|備考：{0}|टिप्पणी: {0}
+300|Recent manual check-ins|Validations manuelles récentes|ยืนยันด้วยตนเองล่าสุด|Letzte manuelle Check-ins|直近の手動出席|हाल के मैन्युअल चेक-इन
+301|No manual check-ins|Aucune validation manuelle|ไม่มีบันทึกยืนยันด้วยตนเอง|Keine manuellen Check-ins|手動出席記録なし|मैन्युअल चेक-इन नहीं
+302|{0} · Operator {1} · {2}|{0} · Opérateur {1} · {2}|{0} · ผู้ดำเนินการ {1} · {2}|{0} · Bearbeiter {1} · {2}|{0}・操作者 {1}・{2}|{0} · कर्मचारी {1} · {2}
+303|Actual training: {0}|Entraînement réel : {0}|ฝึกจริง: {0}|Tatsächliches Training: {0}|実際の練習：{0}|वास्तविक प्रशिक्षण: {0}
+304|Manage locations|Gérer les salles|จัดการสาขา|Standorte verwalten|店舗管理|शाखाएँ प्रबंधित करें
+305|Training operations|Gestion des entraînements|จัดการการฝึก|Trainingsbetrieb|トレーニング運営|प्रशिक्षण संचालन
+306|Credits, scheduling and attendance|Crédits, planning et présences|สิทธิ์ ตาราง และเข้าฝึก|Guthaben, Termine und Anwesenheit|回数付与・予定・出席|क्रेडिट, समय-सारणी और उपस्थिति
+307|People and permissions|Personnes et autorisations|บุคลากรและสิทธิ์|Personen und Rechte|人員・権限管理|लोग और अनुमतियाँ
+308|Manage people and account access|Gérer personnes et accès|จัดการบุคลากรและสิทธิ์บัญชี|Personen und Kontozugriff verwalten|人員とアカウント権限管理|लोग और खाते की पहुँच प्रबंधित करें
+309|Package availability|Disponibilité des formules|สถานะแพ็กเกจ|Paketverfügbarkeit|プラン公開設定|पैकेज उपलब्धता
+310|Training packages and prices|Formules et tarifs|แพ็กเกจและราคา|Trainingspakete und Preise|プランと表示価格|प्रशिक्षण पैकेज और मूल्य
+311|Location management|Gestion des salles|จัดการสาขา|Standortverwaltung|店舗管理|शाखा प्रबंधन
+312|Location details / Open status|Informations / État d'ouverture|ข้อมูลสาขา / สถานะเปิด|Standortdaten / Öffnungsstatus|店舗情報 / 営業状態|शाखा विवरण / खुली स्थिति
+313|People permissions|Autorisations des personnes|สิทธิ์บุคลากร|Personenrechte|人員権限|लोगों की अनुमतियाँ
+314|＋ Add customer|＋ Ajouter un client|＋ เพิ่มลูกค้า|＋ Kunde hinzufügen|＋ 顧客登録|＋ ग्राहक जोड़ें
+315|Clear roles and appropriate access for everyone.|Des rôles clairs et les accès adaptés.|กำหนดหน้าที่และสิทธิ์ให้เหมาะสม|Klare Rollen und passende Rechte.|役割を明確にし、適切な権限を設定。|स्पष्ट भूमिकाएँ और उचित अनुमति।
+316|Administrator access required|Accès administrateur requis|ต้องมีสิทธิ์ผู้ดูแล|Administratorrechte erforderlich|管理者権限が必要|प्रशासक अनुमति आवश्यक
+317|This account cannot view or change roles.|Ce compte ne peut pas gérer les rôles.|บัญชีนี้ดูหรือเปลี่ยนหน้าที่ไม่ได้|Dieses Konto kann Rollen nicht verwalten.|このアカウントでは役割の表示・変更不可。|यह खाता भूमिकाएँ देख या बदल नहीं सकता।
+318|Search name, phone or location|Nom, téléphone ou salle|ค้นชื่อ เบอร์ หรือสาขา|Name, Telefon oder Standort suchen|名前・電話・店舗で検索|नाम, फोन या शाखा खोजें
+319|Customer|Client|ลูกค้า|Kunde|顧客|ग्राहक
+320|All statuses|Tous les états|ทุกสถานะ|Alle Status|全状態|सभी स्थितियाँ
+321|Active accounts|Comptes actifs|บัญชีใช้งาน|Aktive Konten|有効アカウント|सक्रिय खाते
+322|Disabled accounts|Comptes désactivés|บัญชีปิดใช้งาน|Deaktivierte Konten|停止アカウント|बंद खाते
+323|People|Personnes|บุคลากร|Personen|人員一覧|लोग
+324|{0} people|{0} personnes|{0} คน|{0} Personen|{0}人|{0} लोग
+325|Reset filters|Réinitialiser les filtres|รีเซ็ตตัวกรอง|Filter zurücksetzen|絞込を解除|फ़िल्टर रीसेट करें
+326|No matching people|Aucune personne trouvée|ไม่พบบุคลากร|Keine passenden Personen|該当者なし|कोई व्यक्ति नहीं मिला
+327|Try another keyword, role or status.|Essayez un autre mot, rôle ou état.|ลองคำค้น หน้าที่ หรือสถานะอื่น|Suchwort, Rolle oder Status ändern.|検索語・役割・状態を変更してください。|शब्द, भूमिका या स्थिति बदलें।
+328|View all people|Voir toutes les personnes|ดูบุคลากรทั้งหมด|Alle Personen ansehen|全員を表示|सभी लोग देखें
+329|Your account|Votre compte|บัญชีปัจจุบัน|Dein Konto|現在のアカウント|आपका खाता
+330|No phone linked|Téléphone non associé|ยังไม่ผูกเบอร์|Kein Telefon verknüpft|電話番号未連携|फोन लिंक नहीं
+331|No assigned location|Aucune salle attribuée|ยังไม่มีสาขา|Kein Standort zugewiesen|店舗未設定|शाखा नहीं दी गई
+332|Remaining package credits|Crédits restants|สิทธิ์คงเหลือ|Verbleibendes Guthaben|プラン残回数|शेष पैकेज क्रेडिट
+333|View details ›|Voir les détails ›|ดูรายละเอียด ›|Details ansehen ›|詳細を見る ›|विवरण देखें ›
+334|View remaining credits and expiry|Voir solde et expiration|ดูสิทธิ์และวันหมดอายุ|Guthaben und Ablauf ansehen|残回数と期限を確認|शेष क्रेडिट और समाप्ति देखें
+335|Your administrator access is protected|Votre accès admin est protégé|สิทธิ์ผู้ดูแลของคุณได้รับการป้องกัน|Eigene Adminrechte sind geschützt|自分の管理者権限は保護されています|आपकी प्रशासक अनुमति सुरक्षित है
+336|Change role and available features|Modifier le rôle et les fonctions|ปรับหน้าที่และฟังก์ชัน|Rolle und Funktionen ändern|役割・機能を変更|भूमिका और सुविधाएँ बदलें
+337|Change access ›|Modifier l'accès ›|ปรับสิทธิ์ ›|Rechte ändern ›|権限変更 ›|अनुमति बदलें ›
+338|Change account role|Modifier le rôle|เปลี่ยนหน้าที่บัญชี|Kontorolle ändern|アカウント役割変更|खाते की भूमिका बदलें
+339|Role changes keep existing credits and bookings. {0}|Le rôle ne change pas crédits et réservations. {0}|เปลี่ยนหน้าที่ไม่กระทบสิทธิ์และการจอง {0}|Rollenwechsel erhält Guthaben und Buchungen. {0}|役割変更後も回数・予約を維持。{0}|भूमिका बदलने पर क्रेडिट और बुकिंग बने रहेंगे। {0}
+340|This account remains disabled; it will not be enabled.|Ce compte reste désactivé.|บัญชียังปิดใช้งาน ไม่เปิดใช้งานครั้งนี้|Dieses Konto bleibt deaktiviert.|このアカウントは停止状態のままです。|यह खाता बंद रहेगा; सक्रिय नहीं होगा।
+341|Updating…|Mise à jour…|กำลังอัปเดต…|Wird aktualisiert…|更新中…|अपडेट हो रहा है…
+342|Confirm role change|Confirmer le rôle|ยืนยันเปลี่ยนหน้าที่|Rollenwechsel bestätigen|役割変更を確定|भूमिका परिवर्तन की पुष्टि करें
+343|Add customer|Ajouter un client|เพิ่มลูกค้า|Kunde hinzufügen|顧客を登録|ग्राहक जोड़ें
+344|Create a customer profile, then grant credits.|Créez le profil, puis attribuez les crédits.|สร้างประวัติลูกค้าก่อนเพิ่มสิทธิ์|Kundenprofil erstellen, dann Guthaben vergeben.|顧客登録後に回数を付与。|ग्राहक प्रोफ़ाइल बनाएँ, फिर क्रेडिट दें।
+345|Name|Nom|ชื่อ|Name|名前|नाम
+346|Customer name|Nom du client|ชื่อลูกค้า|Kundenname|顧客の名前|ग्राहक का नाम
+347|Customer's 11-digit phone number|Numéro du client à 11 chiffres|เบอร์ลูกค้า11หลัก|11-stellige Telefonnummer|本人の11桁の電話番号|ग्राहक का 11 अंकों का फोन नंबर
+348|Signing in with this phone links the existing profile and credits.|Ce numéro associera le profil et les crédits à la connexion.|เข้าสู่ระบบด้วยเบอร์นี้เพื่อเชื่อมประวัติและสิทธิ์เดิม|Anmeldung mit dieser Nummer verknüpft Profil und Guthaben.|この番号でログインすると既存情報・回数を連携。|इस फोन से लॉग इन करने पर मौजूदा प्रोफ़ाइल और क्रेडिट जुड़ेंगे।
+349|Home location|Salle de rattachement|สาขาประจำ|Stammstandort|所属店舗|मुख्य शाखा
+350|Choose location|Choisir une salle|เลือกสาขา|Standort wählen|店舗を選択|शाखा चुनें
+351|Initial role: Customer|Rôle initial : client|หน้าที่เริ่มต้น: ลูกค้า|Anfangsrolle: Kunde|初期役割：顧客|प्रारंभिक भूमिका: ग्राहक
+352|Grant credits or record training after creation. Change staff roles in People.|Attribuez des crédits ou séances après création. Gérez les rôles dans Personnes.|สร้างแล้วเพิ่มสิทธิ์หรือบันทึกฝึกได้ ปรับหน้าที่ในบุคลากร|Danach Guthaben oder Training erfassen. Rollen unter Personen ändern.|登録後は付与・練習記録が可能。スタッフ役割は人員一覧で変更。|बनाने के बाद क्रेडिट या प्रशिक्षण दर्ज करें। कर्मचारी भूमिका लोग पेज में बदलें।
+353|Creating profile…|Création du profil…|กำลังสร้างประวัติ…|Profil wird erstellt…|登録中…|प्रोफ़ाइल बन रही है…
+354|Save customer profile|Enregistrer le profil|บันทึกประวัติลูกค้า|Kundenprofil speichern|顧客情報を保存|ग्राहक प्रोफ़ाइल सहेजें
+355|Customer credit balance|Solde du client|สิทธิ์ลูกค้าคงเหลือ|Kundenguthaben|顧客の残回数|ग्राहक क्रेडिट शेष
+356|Loading package credits…|Chargement des crédits…|กำลังอ่านสิทธิ์…|Guthaben wird geladen…|回数を読み込み中…|पैकेज क्रेडिट लोड हो रहे हैं…
+357|Please wait; latest records determine the balance.|Patientez : le solde utilise les derniers enregistrements.|รอสักครู่ ใช้ยอดจากบันทึกล่าสุด|Bitte warten; aktuelle Datensätze bestimmen das Guthaben.|お待ちください。残高は最新記録に基づきます。|प्रतीक्षा करें; शेष नवीनतम रिकॉर्ड के अनुसार है।
+358|Account disabled. Credits retained, but booking and check-in unavailable.|Compte désactivé. Crédits conservés, réservations et présence bloquées.|บัญชีปิดใช้งาน เก็บสิทธิ์ไว้ แต่จองหรือยืนยันไม่ได้|Konto deaktiviert. Guthaben bleibt, Buchung und Check-in gesperrt.|停止中。回数は維持されますが予約・出席登録は不可。|खाता बंद है। क्रेडिट सुरक्षित हैं, बुकिंग और चेक-इन उपलब्ध नहीं।
+359| sessions available| séances disponibles| ครั้งใช้ได้| Einheiten verfügbar|回利用可| सत्र उपलब्ध
+360|Valid until |Valable jusqu'au |ใช้ได้ถึง |Gültig bis |有効期限：|मान्य तिथि 
+361|Another {0} credits have expired and cannot be used.|{0} crédits supplémentaires sont expirés et inutilisables.|อีก {0} สิทธิ์หมดอายุ ใช้ไม่ได้|Weitere {0} Einheiten abgelaufen und nicht nutzbar.|他に{0}回が期限切れで利用不可。|अन्य {0} क्रेडिट समाप्त हैं, उपयोग नहीं कर सकते।
+362|Package grant history|Historique des formules|ประวัติแพ็กเกจ|Paketvergaben|プラン付与履歴|पैकेज देने का इतिहास
+363|Latest {0} entries|{0} dernières opérations|{0} รายการล่าสุด|Letzte {0} Einträge|直近{0}件|नवीनतम {0} रिकॉर्ड
+364|No package grants|Aucune attribution|ไม่มีประวัติเพิ่มแพ็กเกจ|Keine Paketvergaben|プラン付与履歴なし|कोई पैकेज नहीं दिया गया
+365|Grant credits to registered customers in Workspace.|Attribuez des crédits aux clients dans l'espace de travail.|เพิ่มสิทธิ์ลูกค้าที่มีประวัติในจัดการการฝึก|Registrierten Kunden im Arbeitsbereich Guthaben vergeben.|登録済み顧客には管理画面から付与できます。|पंजीकृत ग्राहक को कार्यक्षेत्र में क्रेडिट दें।
+366|＋{0} sessions|＋{0} séances|＋{0} ครั้ง|＋{0} Einheiten|＋{0}回|＋{0} सत्र
+367|Date not recorded|Date non enregistrée|ไม่ได้บันทึกวันที่|Datum nicht erfasst|日付未記録|तारीख दर्ज नहीं
+368|Received ¥{0} · {1}|Reçu ¥{0} · {1}|รับ ¥{0} · {1}|Erhalten ¥{0} · {1}|入金 ¥{0}・{1}|प्राप्त ¥{0} · {1}
+369|Grant valid until |Attribution valable jusqu'au |สิทธิ์ครั้งนี้ถึง |Vergabe gültig bis |今回の有効期限：|इस क्रेडिट की मान्य तिथि 
+370|Grant expiry not recorded|Expiration non enregistrée|ไม่ได้บันทึกวันหมดอายุ|Vergabeablauf nicht erfasst|今回の期限未記録|क्रेडिट समाप्ति दर्ज नहीं
+371|Loading…|Chargement…|กำลังโหลด…|Wird geladen…|読み込み中…|लोड हो रहा है…
+372|Refresh credit balance|Actualiser les crédits|รีเฟรชสิทธิ์คงเหลือ|Guthaben aktualisieren|残回数を更新|क्रेडिट शेष रीफ़्रेश करें
+373|Package management|Gestion des formules|จัดการแพ็กเกจ|Paketverwaltung|プラン管理|पैकेज प्रबंधन
+374|＋ New package|＋ Nouvelle formule|＋ แพ็กเกจใหม่|＋ Neues Paket|＋ 新規プラン|＋ नया पैकेज
+375|Manage group and personal packages and availability.|Gérer les formules collectives et individuelles.|จัดการแพ็กเกจกลุ่ม ส่วนตัว และสถานะ|Gruppen- und Einzelpakete und Verfügbarkeit verwalten.|グループ・個人プランの公開と付与を管理。|समूह और व्यक्तिगत पैकेज तथा उपलब्धता प्रबंधित करें।
+376|This account cannot create or enable packages.|Ce compte ne peut pas gérer les formules.|บัญชีนี้สร้างหรือเปิดแพ็กเกจไม่ได้|Dieses Konto kann Pakete nicht verwalten.|このアカウントではプラン作成・公開変更不可。|यह खाता पैकेज बना या चालू नहीं कर सकता।
+377|Search package name|Rechercher une formule|ค้นชื่อแพ็กเกจ|Paketnamen suchen|プラン名で検索|पैकेज नाम खोजें
+378|Active|Disponible|เปิดใช้|Aktiv|公開中|सक्रिय
+379|Inactive|Indisponible|ปิดใช้|Inaktiv|非公開|निष्क्रिय
+380|All types|Tous les types|ทุกประเภท|Alle Arten|全種類|सभी प्रकार
+381|Training packages|Formules d'entraînement|แพ็กเกจการฝึก|Trainingspakete|トレーニングプラン|प्रशिक्षण पैकेज
+382|{0} packages|{0} formules|{0} แพ็กเกจ|{0} Pakete|{0}プラン|{0} पैकेज
+383|No matching packages|Aucune formule trouvée|ไม่พบแพ็กเกจ|Keine passenden Pakete|該当プランなし|पैकेज नहीं मिला
+384|Change filters or create a training package.|Modifiez les filtres ou créez une formule.|เปลี่ยนตัวกรองหรือสร้างแพ็กเกจ|Filter ändern oder Paket erstellen.|絞込を変更するか新しいプランを作成。|फ़िल्टर बदलें या पैकेज बनाएँ।
+385|View all packages|Voir toutes les formules|ดูแพ็กเกจทั้งหมด|Alle Pakete ansehen|全プラン表示|सभी पैकेज देखें
+386|Valid {0} days · Listed price|Validité {0} jours · Prix affiché|อายุ {0} วัน · ราคาที่แสดง|{0} Tage gültig · Listenpreis|有効期間 {0}日・表示価格|{0} दिन मान्य · प्रदर्शित मूल्य
+387|Visible on home · Can be granted|Visible en accueil · Attribuable|แสดงหน้าแรก · เพิ่มสิทธิ์ได้|Auf Startseite · Vergabe möglich|ホーム表示・付与可能|मुख्य पेज पर दिखाई देगा · दिया जा सकता है
+388|Hidden · New grants disabled|Masqué · Attribution bloquée|ซ่อน · เพิ่มสิทธิ์ใหม่ไม่ได้|Versteckt · Keine neuen Vergaben|非表示・新規付与停止|छिपा हुआ · नया क्रेडिट बंद
+389|Create training package|Créer une formule|สร้างแพ็กเกจ|Trainingspaket erstellen|トレーニングプラン作成|प्रशिक्षण पैकेज बनाएँ
+390|Set credits, price and default validity.|Définir crédits, prix et validité.|ตั้งสิทธิ์ ราคา และอายุเริ่มต้น|Einheiten, Preis und Gültigkeit festlegen.|回数・価格・標準有効期間を設定。|क्रेडिट, मूल्य और मानक वैधता तय करें।
+391|Package name|Nom de la formule|ชื่อแพ็กเกจ|Paketname|プラン名|पैकेज नाम
+392|e.g. 12-session personal starter pack|Ex. 12 séances individuelles|เช่น ส่วนตัว12ครั้ง|Z. B. 12er-Einzelpaket|例：個人12回入門プラン|जैसे 12 व्यक्तिगत सत्र का पैकेज
+393|Number of sessions|Nombre de séances|จำนวนครั้ง|Anzahl Einheiten|回数|सत्रों की संख्या
+394|1 to 10000|1 à 10000|1ถึง10000|1 bis 10000|1〜10000|1 से 10000
+395|Listed price (CNY)|Prix affiché (CNY)|ราคาที่แสดง (หยวน)|Listenpreis (CNY)|表示価格（元）|प्रदर्शित मूल्य (CNY)
+396|Default validity (days)|Validité par défaut (jours)|อายุเริ่มต้น (วัน)|Standardgültigkeit (Tage)|標準有効期間（日）|मानक वैधता (दिन)
+397|1 to 3650|1 à 3650|1ถึง3650|1 bis 3650|1〜3650|1 से 3650
+398|Expiry is filled automatically when granting credits.|L'expiration se calcule lors de l'attribution.|คำนวณวันหมดอายุอัตโนมัติเมื่อเพิ่มสิทธิ์|Ablauf wird bei Vergabe automatisch ausgefüllt.|付与時に日数から有効期限を自動入力。|क्रेडिट देते समय समाप्ति स्वतः भरेगी।
+399|Enable immediately|Activer immédiatement|เปิดใช้ทันที|Sofort aktivieren|作成後すぐ公開|तुरंत सक्रिय करें
+400|Visible on home and available for grants after creation.|Visible et attribuable dès la création.|สร้างแล้วแสดงหน้าแรกและเพิ่มสิทธิ์ได้|Nach Erstellung sichtbar und vergebbar.|作成後ホームに表示、付与可能。|बनने के बाद मुख्य पेज पर दिखाई देगा और दिया जा सकेगा।
+401|Keep hidden until review, then enable.|Garder masqué jusqu'à vérification.|ซ่อนไว้ ตรวจแล้วค่อยเปิด|Bis zur Prüfung versteckt lassen.|非公開で作成、確認後に公開。|समीक्षा तक छिपाएँ, फिर चालू करें।
+402|Creating…|Création…|กำลังสร้าง…|Wird erstellt…|作成中…|बन रहा है…
+403|Create and enable|Créer et activer|สร้างและเปิดใช้|Erstellen und aktivieren|作成して公開|बनाएँ और चालू करें
+404|Create · Keep inactive|Créer · Garder inactif|สร้าง · ยังไม่เปิด|Erstellen · Inaktiv lassen|非公開で作成|बनाएँ · निष्क्रिय रखें
+405|Location operations|Gestion des salles|จัดการงานสาขา|Standortbetrieb|店舗運営管理|शाखा संचालन
+406|Maintain locations, opening status and addresses.|Gérer les salles, états et adresses.|จัดการสาขา สถานะเปิด และที่อยู่|Standorte, Öffnungsstatus und Adressen pflegen.|店舗・営業状態・住所を管理。|शाखाएँ, खुली स्थिति और पते सँभालें।
+407|Administrator access is required to manage locations.|Accès admin requis pour les salles.|ต้องเป็นผู้ดูแลเพื่อจัดการสาขา|Standortverwaltung erfordert Adminrechte.|店舗管理には管理者権限が必要です。|शाखा प्रबंधन के लिए प्रशासक अनुमति चाहिए।
+408|Location overview|Aperçu des salles|ภาพรวมสาขา|Standortübersicht|店舗概要|शाखा विवरण
+409|Total|Total|รวม|Gesamt|合計|कुल
+410|All locations|Toutes les salles|ทุกสาขา|Alle Standorte|全店舗|सभी शाखाएँ
+411|Open|Ouvert|เปิดบริการ|Geöffnet|営業中|खुला
+412|Disabled|Désactivé|ปิดใช้งาน|Deaktiviert|停止中|बंद
+413|Create training space|Créer un espace|สร้างพื้นที่ฝึก|Trainingsort erstellen|練習場所を作成|प्रशिक्षण स्थल बनाएँ
+414|Add location|Ajouter une salle|เพิ่มสาขา|Standort hinzufügen|店舗追加|शाखा जोड़ें
+415|Enter name, address and map coordinates.|Saisir nom, adresse et coordonnées.|กรอกชื่อ ที่อยู่ และพิกัด|Name, Adresse und Koordinaten eingeben.|店舗名・住所・地図座標を入力。|नाम, पता और मानचित्र निर्देशांक दर्ज करें।
+416|Loading locations…|Chargement des salles…|กำลังอ่านสาขา…|Standorte werden geladen…|店舗を読み込み中…|शाखाएँ लोड हो रही हैं…
+417|No locations yet|Aucune salle|ยังไม่มีสาขา|Noch keine Standorte|店舗データなし|अभी कोई शाखा नहीं
+418|Current selection|Sélection actuelle|เลือกปัจจุบัน|Aktuelle Auswahl|選択中|वर्तमान चयन
+419|No address entered|Adresse non renseignée|ยังไม่มีที่อยู่|Keine Adresse angegeben|住所未入力|पता दर्ज नहीं
+420|Assigned people|Personnes rattachées|บุคลากรในสาขา|Zugeordnete Personen|所属人数|नियुक्त लोग
+421|Total scheduled sessions|Séances planifiées|คลาสที่จัดทั้งหมด|Termine gesamt|累計予定数|कुल तय सत्र
+422|Coordinates {0}, {1}|Coordonnées {0}, {1}|พิกัด {0}, {1}|Koordinaten {0}, {1}|座標 {0}, {1}|निर्देशांक {0}, {1}
+423|Edit details|Modifier les informations|แก้ไขข้อมูล|Daten bearbeiten|情報編集|विवरण संपादित करें
+424|Disable location|Désactiver la salle|ปิดสาขา|Standort deaktivieren|店舗を停止|शाखा बंद करें
+425|Reopen location|Réouvrir la salle|เปิดสาขาอีกครั้ง|Standort wieder öffnen|営業再開|शाखा दोबारा खोलें
+426|Update location details|Mettre à jour la salle|อัปเดตข้อมูลสาขา|Standortdaten aktualisieren|店舗情報更新|शाखा विवरण अपडेट करें
+427|Edit location details|Modifier la salle|แก้ไขข้อมูลสาขา|Standortdaten bearbeiten|店舗情報編集|शाखा विवरण संपादित करें
+428|Location name|Nom de la salle|ชื่อสาขา|Standortname|店舗名|शाखा नाम
+429|e.g. South Training Center|Ex. Centre d'entraînement Sud|เช่น ศูนย์ฝึกสาขาใต้|Z. B. Trainingszentrum Süd|例：南部トレーニングセンター|जैसे दक्षिण प्रशिक्षण केंद्र
+430|Full address|Adresse complète|ที่อยู่เต็ม|Vollständige Adresse|詳細住所|पूरा पता
+431|Enter full location address|Saisir l'adresse complète|กรอกที่อยู่สาขา|Standortadresse eingeben|店舗の詳細住所を入力|शाखा का पूरा पता दर्ज करें
+432|Longitude|Longitude|ลองจิจูด|Längengrad|経度|देशांतर
+433|Optional|Facultatif|ไม่บังคับ|Optional|任意|वैकल्पिक
+434|Latitude|Latitude|ละติจูด|Breitengrad|緯度|अक्षांश
+435|Open immediately|Ouvrir immédiatement|เปิดบริการทันที|Sofort öffnen|作成後すぐ営業|तुरंत खोलें
+436|Save changes|Enregistrer les modifications|บันทึกการแก้ไข|Änderungen speichern|変更を保存|बदलाव सहेजें
+437|Confirm creation|Confirmer la création|ยืนยันสร้าง|Erstellung bestätigen|作成を確定|बनाने की पुष्टि करें
+438|Sync not completed|Synchronisation incomplète|ซิงก์ไม่สำเร็จ|Synchronisierung unvollständig|同期未完了|सिंक पूरा नहीं हुआ
+439|Retry|Réessayer|ลองใหม่|Erneut versuchen|再試行|फिर प्रयास करें
+440|Syncing latest data|Synchronisation des données|กำลังซิงก์ข้อมูลล่าสุด|Aktuelle Daten werden geladen|最新データを同期中|नवीनतम डेटा सिंक हो रहा है

@@ -277,7 +277,7 @@ Page(withPageState({
     if (this.data.submittingPackageId || this.data.creatingPackage || !this.data.hasPermission || this.data.pageError || this.data.pageBusy) return
     this.setData({ submittingPackageId: targetPackage.id })
     try {
-      if (!await confirmAction({ title: nextStatus === 1 ? '确认上架套餐' : '确认下架套餐', content: targetPackage.name + '\n' + targetPackage.lessons + ' 节 · ¥' + formatPrice(targetPackage.price) + '\n' + (nextStatus === 1 ? '上架后展示在首页价目表，可用于权益派发。' : '下架后停止展示与新派发，学员已获得的课时仍可使用。') })) return
+      if (!await confirmAction({ title: nextStatus === 1 ? '确认上架套餐' : '确认下架套餐', contentParts: [targetPackage.name + '\n', { text: '{0} 节 · ¥{1}', values: [targetPackage.lessons, formatPrice(targetPackage.price)] }, '\n', { text: nextStatus === 1 ? '上架后展示在首页价目表，可用于权益派发。' : '下架后停止展示与新派发，学员已获得的课时仍可使用。' }] })) return
       const result = await businessApi.updatePackageStatus({
         targetPackageId: targetPackage.id,
         nextStatus,
@@ -350,7 +350,7 @@ Page(withPageState({
 
     this.setData({ creatingPackage: true })
     try {
-      if (!await confirmAction({ title: Number(form.status) === 1 ? '创建并上架套餐' : '创建下架套餐', content: name + '\n' + lessons + ' 节 · ¥' + formatPrice(price) + '\n有效期 ' + validDays + ' 天\n' + (Number(form.status) === 1 ? '创建后立即展示并可派发。' : '创建后暂不展示，审核内容后可再上架。') })) return
+      if (!await confirmAction({ title: Number(form.status) === 1 ? '创建并上架套餐' : '创建下架套餐', contentParts: [name + '\n', { text: '{0} 节 · ¥{1}', values: [lessons, formatPrice(price)] }, '\n', { text: '有效期 {0} 天', values: [validDays] }, '\n', { text: Number(form.status) === 1 ? '创建后立即展示并可派发。' : '创建后暂不展示，审核内容后可再上架。' }] })) return
       await businessApi.createPackage({
         name,
         type: form.type,

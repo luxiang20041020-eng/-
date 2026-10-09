@@ -1,0 +1,4 @@
+<wxs module="i18n" src="../../utils/i18n.wxs" />
+<picker mode="selector" range="{{options}}" value="{{index}}" bindchange="onSelect">
+  <view class="language-setting"><view>{{i18n.t('语言设置', language)}}<text wx:if="{{language !== 'en'}}" class="language-caption">Language</text></view><view class="language-value">{{options[index]}}<text> ›</text></view></view>
+</picker>

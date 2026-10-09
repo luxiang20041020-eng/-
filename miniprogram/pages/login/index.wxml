@@ -1,15 +1,17 @@
-<view class="page-shell login-page">
+<wxs module="i18n" src="../../utils/i18n.wxs" />
+<view class="page-shell locale-page locale-{{language}} login-page">
+  <language-setting bindchange="onLanguageChange"></language-setting>
   <view class="login-hero">
     <image class="login-cover" src="/images/gym-interior-2.jpg" mode="aspectFill"></image><view class="login-cover-shade"></view>
     <view class="login-badge">ONE / MUAY THAI</view>
-    <view class="login-title"><view>你的下一次突破，</view><view>从这里开始。</view></view>
-    <view class="login-subtitle">欢迎来到 ONE 泰拳格斗馆</view>
+    <view class="login-title"><view>{{i18n.f('你的下一次突破，', [], language)}}</view><view>{{i18n.f('从这里开始。', [], language)}}</view></view>
+    <view class="login-subtitle">{{i18n.f('欢迎来到 ONE 泰拳格斗馆', [], language)}}</view>
   </view>
 
   <view class="card login-card">
-    <view class="section-heading">手机号快捷登录</view>
-    <view wx:if="{{checkingSession}}" class="login-tip">正在检查登录状态...</view>
-    <view wx:else class="login-tip">登录 ONE 账号，查看权益和训练安排。</view>
+    <view class="section-heading">{{i18n.f('手机号快捷登录', [], language)}}</view>
+    <view wx:if="{{checkingSession}}" class="login-tip">{{i18n.f('正在检查登录状态...', [], language)}}</view>
+    <view wx:else class="login-tip">{{i18n.f('登录 ONE 账号，查看权益和训练安排。', [], language)}}</view>
     <button
       class="primary-button login-button"
       open-type="getPhoneNumber"
@@ -17,31 +19,29 @@
       loading="{{submitting}}"
       disabled="{{checkingSession || submitting || needPrivacyAuthorization}}"
     >
-      {{submitting ? '登录中...' : '手机号快捷登录'}}
+      {{i18n.t(submitting ? '登录中...' : '手机号快捷登录', language)}}
     </button>
-    <view wx:if="{{loginError}}" class="login-error">{{loginError}}<view class="inline-link" bindtap="tryRestoreSession">重新检查连接</view></view>
-    <view class="card-desc">手机号用于 ONE 账号的登录验证与绑定。</view>
+    <view wx:if="{{loginError}}" class="login-error">{{i18n.t(loginError, language)}}<view class="inline-link" bindtap="tryRestoreSession">{{i18n.f('重新检查连接', [], language)}}</view></view>
+    <view class="card-desc">{{i18n.f('手机号用于 ONE 账号的登录验证与绑定。', [], language)}}</view>
   </view>
-  <button class="login-browse" bindtap="goBrowse">先逛逛，看看训练场次 →</button>
+  <button class="login-browse" bindtap="goBrowse">{{i18n.f('先逛逛，看看训练场次 →', [], language)}}</button>
 
   <view wx:if="{{needPrivacyAuthorization}}" class="privacy-mask">
     <view class="privacy-panel">
-      <view class="privacy-title">ONE 隐私保护提示</view>
+      <view class="privacy-title">{{i18n.f('ONE 隐私保护提示', [], language)}}</view>
       <view class="privacy-content">
-        <text>ONE 泰拳格斗馆需要获取你的手机号用于账号登录验证。请先阅读并同意</text>
-        <text class="privacy-link" bindtap="onOpenPrivacyContract">《{{privacyContractName}}》</text>
-        <text>后继续使用。</text>
+        <text>{{i18n.f('ONE 泰拳格斗馆需要获取你的手机号用于账号登录验证。请先阅读并同意', [], language)}}</text>
+        <text class="privacy-link" bindtap="onOpenPrivacyContract">《{{privacyContractName === '用户隐私保护协议' ? i18n.t(privacyContractName, language) : privacyContractName}}》</text>
+        <text>{{i18n.f('后继续使用。', [], language)}}</text>
       </view>
       <view class="privacy-actions">
-        <button class="privacy-cancel" bindtap="onRejectPrivacyAuthorization">暂不使用</button>
+        <button class="privacy-cancel" bindtap="onRejectPrivacyAuthorization">{{i18n.f('暂不使用', [], language)}}</button>
         <button
           id="privacyAgreeButton"
           class="privacy-confirm"
           open-type="agreePrivacyAuthorization"
           bindagreeprivacyauthorization="onAgreePrivacyAuthorization"
-        >
-          同意并继续
-        </button>
+        >{{i18n.f('同意并继续', [], language)}}</button>
       </view>
     </view>
   </view>

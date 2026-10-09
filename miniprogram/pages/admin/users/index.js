@@ -319,7 +319,7 @@ Page(withPageState({
     if (this.data.submittingUserId || !this.data.hasPermission || this.data.pageError || this.data.pageBusy || targetUser.id === this.data.pageData.currentUserId || Number(targetUser.role) === Number(selectedRole.value)) return
     this.setData({ submittingUserId: targetUser.id })
     try {
-      if (!await confirmAction({ title: '确认变更权限', content: targetUser.name + ' · ' + (targetUser.phone || '未绑定手机号') + '\n' + targetUser.roleLabel + ' → ' + selectedRole.label + '\n' + selectedRole.description + (Number(targetUser.status) === 0 ? '\n账号仍为停用状态，本次仅变更身份。' : '') })) return
+      if (!await confirmAction({ title: '确认变更权限', contentParts: [targetUser.name + ' · ' + (targetUser.phone || '') + '\n', { text: targetUser.roleLabel }, ' → ', { text: selectedRole.label }, '\n', { text: selectedRole.description }, Number(targetUser.status) === 0 ? '\n' : '', Number(targetUser.status) === 0 ? { text: '账号仍为停用状态，本次仅变更身份。' } : ''] })) return
       const result = await businessApi.updateUserRole({
         targetUserId: targetUser.id,
         nextRole: selectedRole.value,

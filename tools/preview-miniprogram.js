@@ -6,6 +6,10 @@ const vm = require('node:vm')
 const { createRequire } = require('node:module')
 const root = path.resolve(__dirname, '..')
 const mini = path.join(root, 'miniprogram')
+const localizedText = require('../miniprogram/utils/i18n-text')
+const languageOptions = ['简体中文', 'English', 'Français', 'ไทย', 'Deutsch', '日本語', 'हिन्दी']
+const languageCodes = ['zh', 'en', 'fr', 'th', 'de', 'ja', 'hi']
+const i18n = { t: localizedText.translate, f: localizedText.format, list: localizedText.list }
 const pageNames = ['home', 'booking', 'profile', 'points', 'login', 'workspace', 'admin', 'admin/users', 'admin/packages', 'admin/stores', 'workspace/distribute', 'workspace/schedule', 'workspace/class', 'workspace/manual']
 const escape = (value) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 
@@ -52,14 +56,18 @@ function renderChildren(children, data) {
 }
 
 function renderNode(node, data) {
+  if (node.tag === 'wxs') return ''
   if (node.tag === 'block') return renderChildren(node.children, data)
+  if (node.tag === 'language-setting') {
+    return renderChildren(parseWxml(fs.readFileSync(path.join(mini, 'components/language-setting/index.wxml'), 'utf8')).children, { i18n, language: data.language, options: languageOptions, index: Math.max(0, languageCodes.indexOf(data.language)) })
+  }
   if (node.tag === 'page-feedback') {
     return renderChildren(parse(fs.readFileSync(path.join(mini, 'components/page-feedback/index.wxml'), 'utf8')).children, {
-      loading: expression(node.attrs.loading, data), error: expression(node.attrs.error, data),
+      loading: expression(node.attrs.loading, data), error: expression(node.attrs.error, data), i18n, language: data.language,
     })
   }
   if (node.tag === 'app-tabbar') {
-    return renderChildren(parse(fs.readFileSync(path.join(mini, 'components/app-tabbar/index.wxml'), 'utf8')).children, { tabs: data.runtime.tabItems, current: node.attrs.current })
+    return renderChildren(parse(fs.readFileSync(path.join(mini, 'components/app-tabbar/index.wxml'), 'utf8')).children, { tabs: data.runtime.tabItems.map(item => ({ ...item, label: i18n.t(item.label, data.language) })), current: node.attrs.current })
   }
   const tags = { view: 'div', text: 'span', 'scroll-view': 'div', image: 'img', navigator: 'a', picker: 'div', switch: 'input' }
   const tag = tags[node.tag] || node.tag
@@ -218,8 +226,10 @@ const nativeButtonStyles = 'button.wx-button-size-normal{margin-left:auto;margin
 
 function html(page, search = new URLSearchParams()) {
   const data = fixtures(page, search)
+  data.language = languageCodes.includes(search.get('lang')) ? search.get('lang') : 'zh'
+  data.i18n = i18n
   const wxml = parseWxml(fs.readFileSync(path.join(mini, 'pages', page, 'index.wxml'), 'utf8'))
-  const styles = ['app.wxss', 'components/app-tabbar/index.wxss', 'components/page-feedback/index.wxss', `pages/${page}/index.wxss`].map((file) => readStyles(path.join(mini, file))).join('\n').replace(/(-?\d+(?:\.\d+)?)rpx/g, 'calc($1 * var(--unit))').replace(/\bpage\s*\{/g, 'body {').replace(/(?<![\w-])view(?![\w-])/g, 'div').replace(/(?<![\w-])text(?![\w-])/g, 'span')
+  const styles = ['app.wxss', 'components/app-tabbar/index.wxss', 'components/page-feedback/index.wxss', 'components/language-setting/index.wxss', `pages/${page}/index.wxss`].map((file) => readStyles(path.join(mini, file))).join('\n').replace(/(-?\d+(?:\.\d+)?)rpx/g, 'calc($1 * var(--unit))').replace(/\bpage\s*\{/g, 'body {').replace(/(?<![\w-])view(?![\w-])/g, 'div').replace(/(?<![\w-])text(?![\w-])/g, 'span')
   const menu = pageNames.map((name) => `<a href="/preview/${name}">${name}</a>`).join('')
   return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ONE · ${escape(page)} 布局预览</title><style>:root{--unit:calc(min(100vw,430px) / 750)}body{margin:0}main{max-width:430px;margin:auto}button{cursor:pointer;font-family:inherit}img{object-fit:cover}a{text-decoration:none;color:inherit}input,textarea{font-family:inherit}input{outline:none}nav{display:none}${nativeButtonStyles}${styles}\n.tabbar-wrap{width:min(100vw,430px);right:auto;left:50%;transform:translateX(-50%)}.scroll-row,.facility-scroll{overflow-x:auto}.sheet-scroll{overflow-y:auto}.home-hero-cta{width:fit-content} [data-preview-action]{cursor:pointer}</style></head><body><nav>${menu}</nav><main>${renderChildren(wxml.children, data)}</main><script>document.addEventListener('click',function(event){const el=event.target.closest('[data-preview-action]');if(!el)return;const a=el.dataset.previewAction;const routes={goPoints:'/preview/points',goBooking:'/preview/booking?type='+(el.dataset.type||'group'),goMySchedule:'/preview/profile',goIdentityQr:'/preview/profile',goLogin:'/preview/login',goBrowse:'/preview/home',onOpenUserManage:'/preview/admin/users',onOpenPackageManage:'/preview/admin/packages',onOpenStoreManage:'/preview/admin/stores',onOpenOperations:'/preview/workspace',goClassDetail:'/preview/workspace/class'};if(routes[a])location.href=routes[a];else if(a==='onTap')location.href='/preview/'+el.dataset.path.replace('/pages/','').replace('/index','');else if(a==='onTapAction')location.href='/preview/workspace/'+el.dataset.actionId;else if(['onTogglePricing','onToggleFilters','onOpenCoachPicker','onToggleAuditLogs'].includes(a))location.search='?expanded=1';else if(['onOpenCreatePopup','onOpenCreate','onOpenCreateStore','onOpenCreatePopup','openNicknameEditor'].includes(a))location.search='?popup=1';else if(['onCloseCreatePopup','onCloseStorePopup','closeNicknameEditor','onCloseCoachPicker'].includes(a))location.search='';else if(a==='onToggleInvite')location.search='?invite=form';else if(a==='onViewAssets')location.search='?popup=assets';else if(a==='onCloseAssets')location.search='';else if(a==='onBook')alert('这是布局预览，不会提交真实预约。');});</script></body></html>`
 }
@@ -245,4 +255,4 @@ if (require.main === module) {
   }).listen(port, '127.0.0.1', () => console.log(`Layout preview: http://127.0.0.1:${port}`))
 }
 
-module.exports = { html, parseWxml, pageNames }
+module.exports = { html, parseWxml, pageNames, fixtures }

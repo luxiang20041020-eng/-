@@ -1,14 +1,16 @@
-<view class="page-shell">
-  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
+<wxs module="i18n" src="../../utils/i18n.wxs" />
+<view class="page-shell locale-page locale-{{language}}">
+  <language-setting bindchange="onLanguageChange"></language-setting>
+  <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header">
-    <view class="eyebrow">我的训练档案</view>
-    <view class="page-title">我的</view>
+    <view class="eyebrow">{{i18n.f('我的训练档案', [], language)}}</view>
+    <view class="page-title">{{i18n.f('我的', [], language)}}</view>
   </view>
 
   <view wx:if="{{!runtime.isAuthenticated}}" class="card login-guide-card">
-    <view class="section-title">登录后解锁全部功能</view>
-    <view class="card-desc" style="margin-bottom:16px;">使用手机号快捷登录，查看权益余额、预约记录和身份核验码。</view>
-    <button class="primary-button" bindtap="goLogin">手机号快捷登录</button>
+    <view class="section-title">{{i18n.f('登录后解锁全部功能', [], language)}}</view>
+    <view class="card-desc" style="margin-bottom:16px;">{{i18n.f('使用手机号快捷登录，查看权益余额、预约记录和身份核验码。', [], language)}}</view>
+    <button class="primary-button" bindtap="goLogin">{{i18n.f('手机号快捷登录', [], language)}}</button>
   </view>
 
   <view wx:if="{{runtime.isAuthenticated}}" class="card profile-hero">
@@ -16,46 +18,46 @@
     <view class="profile-hero-main">
       <view class="profile-name-row">
         <view class="profile-name">{{runtime.userProfile.nickname}}</view>
-        <button class="profile-edit-button" bindtap="openNicknameEditor">编辑</button>
-        <view class="mini-role-tag">{{runtime.roleLabel}}</view>
+        <button class="profile-edit-button" bindtap="openNicknameEditor">{{i18n.f('编辑', [], language)}}</button>
+        <view class="mini-role-tag">{{i18n.t(runtime.roleLabel, language)}}</view>
       </view>
       <view class="profile-facts">
         <view class="profile-fact-row">
-          <view class="profile-fact-label">手机号</view>
+          <view class="profile-fact-label">{{i18n.f('手机号', [], language)}}</view>
           <view class="profile-fact-value">{{maskedPhone}}</view>
         </view>
         <view class="profile-fact-row">
-          <view class="profile-fact-label">当前门店</view>
+          <view class="profile-fact-label">{{i18n.f('当前门店', [], language)}}</view>
           <view class="profile-fact-value">{{runtime.currentStore.name}}</view>
         </view>
       </view>
-      <view class="profile-level">{{runtime.userProfile.levelText}}</view>
+      <view class="profile-level">{{i18n.t(runtime.userProfile.levelText, language)}}</view>
     </view>
   </view>
 
   <view wx:if="{{showNicknameEditor}}" class="nickname-mask">
     <view class="nickname-panel">
-      <view class="nickname-title">更改用户名</view>
+      <view class="nickname-title">{{i18n.f('更改用户名', [], language)}}</view>
       <input
         class="nickname-input"
         value="{{nicknameDraft}}"
         maxlength="20"
-        placeholder="请输入新的用户名"
+        placeholder="{{i18n.f('请输入新的用户名', [], language)}}"
         focus="{{showNicknameEditor}}"
         confirm-type="done"
         bindinput="onNicknameInput"
         bindconfirm="submitNicknameChange"
       />
-      <view wx:if="{{nicknameError}}" class="nickname-error">{{nicknameError}}</view>
+      <view wx:if="{{nicknameError}}" class="nickname-error">{{i18n.t(nicknameError, language)}}</view>
       <view class="nickname-actions">
-        <button class="nickname-cancel" bindtap="closeNicknameEditor" disabled="{{nicknameSubmitting}}">取消</button>
+        <button class="nickname-cancel" bindtap="closeNicknameEditor" disabled="{{nicknameSubmitting}}">{{i18n.f('取消', [], language)}}</button>
         <button
           class="nickname-confirm"
           bindtap="submitNicknameChange"
           loading="{{nicknameSubmitting}}"
           disabled="{{nicknameSubmitting}}"
         >
-          {{nicknameSubmitting ? '保存中...' : '保存'}}
+          {{i18n.t(nicknameSubmitting ? '保存中...' : '保存', language)}}
         </button>
       </view>
     </view>
@@ -63,93 +65,93 @@
 
   <block wx:if="{{runtime.isAuthenticated}}">
   <view class="card invite-card">
-    <view class="menu-item" bindtap="goPoints" hover-class="tap-feedback"><text>我的积分</text><text class="menu-arrow">查看余额与明细 ›</text></view>
-    <view class="menu-item" bindtap="onToggleInvite" hover-class="tap-feedback"><text>填写邀请码领积分</text><text class="menu-arrow">{{inviteExpanded ? '收起' : '展开'}}</text></view>
+    <view class="menu-item" bindtap="goPoints" hover-class="tap-feedback"><text>{{i18n.f('我的积分', [], language)}}</text><text class="menu-arrow">{{i18n.f('查看余额与明细 ›', [], language)}}</text></view>
+    <view class="menu-item" bindtap="onToggleInvite" hover-class="tap-feedback"><text>{{i18n.f('填写邀请码领积分', [], language)}}</text><text class="menu-arrow">{{i18n.t(inviteExpanded ? '收起' : '展开', language)}}</text></view>
     <view wx:if="{{inviteExpanded}}" class="invite-form">
-      <view class="card-desc">首次绑定好友邀请码，你和好友各获得100积分。每人限一次，绑定后不可更换。</view>
-      <view wx:if="{{inviteLoading}}" class="page-caption">正在确认绑定状态…</view>
-      <view wx:elif="{{inviteBound}}" class="invite-bound">已绑定 {{inviteBoundCode}}，奖励已到账</view>
+      <view class="card-desc">{{i18n.f('首次绑定好友邀请码，你和好友各获得100积分。每人限一次，绑定后不可更换。', [], language)}}</view>
+      <view wx:if="{{inviteLoading}}" class="page-caption">{{i18n.f('正在确认绑定状态…', [], language)}}</view>
+      <view wx:elif="{{inviteBound}}" class="invite-bound">{{i18n.f('已绑定 {0}，奖励已到账', [inviteBoundCode], language)}}</view>
       <block wx:elif="{{inviteStateReady}}">
-        <input class="invite-input" value="{{inviteDraft}}" maxlength="14" placeholder="输入好友的14位邀请码" disabled="{{inviteSubmitting}}" bindinput="onInviteInput" />
-        <button size="mini" class="primary-button invite-submit" loading="{{inviteSubmitting}}" disabled="{{inviteSubmitting || loggingOut}}" bindtap="onBindInvite">{{inviteSubmitting ? '正在绑定' : '绑定并领取100积分'}}</button>
+        <input class="invite-input" value="{{inviteDraft}}" maxlength="14" placeholder="{{i18n.f('输入好友的14位邀请码', [], language)}}" disabled="{{inviteSubmitting}}" bindinput="onInviteInput" />
+        <button size="mini" class="primary-button invite-submit" loading="{{inviteSubmitting}}" disabled="{{inviteSubmitting || loggingOut}}" bindtap="onBindInvite">{{i18n.t(inviteSubmitting ? '正在绑定' : '绑定并领取100积分', language)}}</button>
       </block>
-      <view wx:if="{{inviteError}}" class="invite-error">{{inviteError}}</view>
-      <button wx:if="{{!inviteLoading && !inviteStateReady}}" size="mini" class="secondary-button invite-submit" bindtap="loadInviteState">重新读取</button>
+      <view wx:if="{{inviteError}}" class="invite-error">{{i18n.t(inviteError, language)}}</view>
+      <button wx:if="{{!inviteLoading && !inviteStateReady}}" size="mini" class="secondary-button invite-submit" bindtap="loadInviteState">{{i18n.f('重新读取', [], language)}}</button>
     </view>
   </view>
   <view class="card">
-    <view class="section-title">我的训练权益</view>
+    <view class="section-title">{{i18n.f('我的训练权益', [], language)}}</view>
     <view class="metric-grid">
       <view class="metric-item">
-        <view class="metric-label">专属训练</view>
-        <view class="metric-value">{{pageData.assets.privateCount}}<text class="metric-unit">次</text></view>
-        <view class="metric-note">专属权益</view>
+        <view class="metric-label">{{i18n.f('专属训练', [], language)}}</view>
+        <view class="metric-value">{{pageData.assets.privateCount}}<text class="metric-unit">{{i18n.f('次', [], language)}}</text></view>
+        <view class="metric-note">{{i18n.f('专属权益', [], language)}}</view>
         <view class="metric-expiry {{pageData.assets.privateExpiry ? '' : 'metric-expiry-none'}}">
-          {{pageData.assets.privateExpiry ? pageData.assets.privateExpiry + ' 到期' : '无到期限制'}}
+          {{i18n.t(pageData.assets.privateExpiry ? pageData.assets.privateExpiry + ' 到期' : '无到期限制', language)}}
         </view>
       </view>
       <view class="metric-item">
-        <view class="metric-label">团体训练</view>
-        <view class="metric-value">{{pageData.assets.groupCount}}<text class="metric-unit">次</text></view>
-        <view class="metric-note">团体权益</view>
+        <view class="metric-label">{{i18n.f('团体训练', [], language)}}</view>
+        <view class="metric-value">{{pageData.assets.groupCount}}<text class="metric-unit">{{i18n.f('次', [], language)}}</text></view>
+        <view class="metric-note">{{i18n.f('团体权益', [], language)}}</view>
         <view class="metric-expiry {{pageData.assets.groupExpiry ? '' : 'metric-expiry-none'}}">
-          {{pageData.assets.groupExpiry ? pageData.assets.groupExpiry + ' 到期' : '无到期限制'}}
+          {{i18n.t(pageData.assets.groupExpiry ? pageData.assets.groupExpiry + ' 到期' : '无到期限制', language)}}
         </view>
       </view>
     </view>
-    <view class="card-desc">权益有效期以到期日期为准，预约开课前 2 小时可取消。</view>
+    <view class="card-desc">{{i18n.f('权益有效期以到期日期为准，预约开课前 2 小时可取消。', [], language)}}</view>
   </view>
 
   <view class="card" id="bookings-section">
     <view class="headline-row">
-      <view class="section-heading">我的预约</view>
-      <view class="card-desc">训练安排与记录</view>
+      <view class="section-heading">{{i18n.f('我的预约', [], language)}}</view>
+      <view class="card-desc">{{i18n.f('训练安排与记录', [], language)}}</view>
     </view>
-    <view wx:if="{{!pageBusy && !pageError && !pageData.myBookings.length}}" class="empty-state"><view class="empty-state-title">你的训练计划，从下一次开始</view><view class="empty-state-desc">选一个合适的场次，让坚持发生。</view><navigator class="inline-link" url="/pages/booking/index">去预约训练 →</navigator></view>
+    <view wx:if="{{!pageBusy && !pageError && !pageData.myBookings.length}}" class="empty-state"><view class="empty-state-title">{{i18n.f('你的训练计划，从下一次开始', [], language)}}</view><view class="empty-state-desc">{{i18n.f('选一个合适的场次，让坚持发生。', [], language)}}</view><navigator class="inline-link" url="/pages/booking/index">{{i18n.f('去预约训练 →', [], language)}}</navigator></view>
     <view wx:for="{{pageData.myBookings}}" wx:key="id" class="booking-item">
       <view class="booking-date-block">
         <view class="booking-date-day">{{item.dateDay}}</view>
-        <view class="booking-date-month">{{item.dateText}}</view>
+        <view class="booking-date-month">{{i18n.t(item.dateText, language)}}</view>
       </view>
       <view class="booking-main-block">
         <view class="headline-row">
           <view class="booking-title-text">{{item.title}}</view>
-          <view class="status-chip {{item.status === '待到店' ? 'active' : ''}}">{{item.status}}</view>
+          <view class="status-chip {{item.status === '待到店' ? 'active' : ''}}">{{i18n.t(item.status, language)}}</view>
         </view>
-        <view class="card-desc">{{item.timeRange}}</view><view wx:if="{{item.sourceLabel}}" class="page-caption">{{item.sourceLabel}}</view><view wx:if="{{item.status === '待到店' && !item.canCancel}}" class="page-caption">{{item.cancelHint}}</view>
-        <button wx:if="{{item.canCancel}}" class="secondary-button booking-cancel-btn" loading="{{cancellingBookingId === item.id}}" disabled="{{loggingOut || cancellingBookingId || pageBusy || pageError}}" data-booking-id="{{item.id}}" bindtap="onCancelBooking">取消预约</button>
+        <view class="card-desc">{{item.timeRange}}</view><view wx:if="{{item.sourceLabel}}" class="page-caption">{{i18n.t(item.sourceLabel, language)}}</view><view wx:if="{{item.status === '待到店' && !item.canCancel}}" class="page-caption">{{i18n.t(item.cancelHint, language)}}</view>
+        <button wx:if="{{item.canCancel}}" class="secondary-button booking-cancel-btn" loading="{{cancellingBookingId === item.id}}" disabled="{{loggingOut || cancellingBookingId || pageBusy || pageError}}" data-booking-id="{{item.id}}" bindtap="onCancelBooking">{{i18n.f('取消预约', [], language)}}</button>
       </view>
     </view>
   </view>
 
-  <view class="card" id="identity-section"><view class="collapsible-header" bindtap="onToggleIdentity"><view><view class="section-heading">到店身份码</view><view class="page-caption">需要时展开，出示给场馆人员</view></view><view class="collapse-toggle"><view class="collapse-chevron {{identityExpanded ? 'expanded' : ''}}"></view></view></view><view wx:if="{{identityExpanded}}" class="qr-frame"><view class="qr-inner"><view class="qr-code-box"><image wx:if="{{qrCodeImageSrc}}" class="qr-code-image" src="{{qrCodeImageSrc}}" mode="aspectFit"></image><view wx:elif="{{qrCodeLoading}}" class="qr-placeholder">正在准备身份码…</view><view wx:else class="qr-placeholder">{{qrCodeError || '点击重试生成身份码'}}</view></view><button wx:if="{{qrCodeError}}" class="secondary-button" bindtap="onRetryQr">重新生成</button><view class="page-caption">仅用于展示身份，到场由工作人员确认。</view></view></view></view>
+  <view class="card" id="identity-section"><view class="collapsible-header" bindtap="onToggleIdentity"><view><view class="section-heading">{{i18n.f('到店身份码', [], language)}}</view><view class="page-caption">{{i18n.f('需要时展开，出示给场馆人员', [], language)}}</view></view><view class="collapse-toggle"><view class="collapse-chevron {{identityExpanded ? 'expanded' : ''}}"></view></view></view><view wx:if="{{identityExpanded}}" class="qr-frame"><view class="qr-inner"><view class="qr-code-box"><image wx:if="{{qrCodeImageSrc}}" class="qr-code-image" src="{{qrCodeImageSrc}}" mode="aspectFit"></image><view wx:elif="{{qrCodeLoading}}" class="qr-placeholder">{{i18n.f('正在准备身份码…', [], language)}}</view><view wx:else class="qr-placeholder">{{i18n.t(qrCodeError || '点击重试生成身份码', language)}}</view></view><button wx:if="{{qrCodeError}}" class="secondary-button" bindtap="onRetryQr">{{i18n.f('重新生成', [], language)}}</button><view class="page-caption">{{i18n.f('仅用于展示身份，到场由工作人员确认。', [], language)}}</view></view></view></view>
 
   <view class="card" id="training-stats">
-    <view class="section-title">训练足迹</view>
+    <view class="section-title">{{i18n.f('训练足迹', [], language)}}</view>
     <view class="profile-stats-grid">
       <view class="stats-item">
         <view class="stats-value">{{pageData.trainingStats.monthLessons}}</view>
-        <view class="stats-note">本月场次</view>
+        <view class="stats-note">{{i18n.f('本月场次', [], language)}}</view>
       </view>
       <view class="stats-item">
         <view class="stats-value">{{pageData.trainingStats.streakDays}}</view>
-        <view class="stats-note">累计到店天数</view>
+        <view class="stats-note">{{i18n.f('累计到店天数', [], language)}}</view>
       </view>
       <view class="stats-item">
         <view class="stats-value">{{pageData.trainingStats.totalLessons || 0}}</view>
-        <view class="stats-note">累计训练</view>
+        <view class="stats-note">{{i18n.f('累计训练', [], language)}}</view>
       </view>
     </view>
     <view class="menu-list">
-      <view class="menu-item" bindtap="onShowRules" hover-class="tap-feedback"><text>预约与核销规则</text><text class="menu-arrow">></text></view>
-      <view class="menu-item" bindtap="onShowTrend" hover-class="tap-feedback"><text>我的到店趋势</text><text class="menu-arrow">></text></view>
-      <view class="menu-item" bindtap="onShowNotices" hover-class="tap-feedback"><text>消息与公告</text><text class="menu-arrow">></text></view>
-      <view class="menu-item" bindtap="onShowHelp" hover-class="tap-feedback"><text>帮助与客服</text><text class="menu-arrow">></text></view>
+      <view class="menu-item" bindtap="onShowRules" hover-class="tap-feedback"><text>{{i18n.f('预约与核销规则', [], language)}}</text><text class="menu-arrow">></text></view>
+      <view class="menu-item" bindtap="onShowTrend" hover-class="tap-feedback"><text>{{i18n.f('我的到店趋势', [], language)}}</text><text class="menu-arrow">></text></view>
+      <view class="menu-item" bindtap="onShowNotices" hover-class="tap-feedback"><text>{{i18n.f('消息与公告', [], language)}}</text><text class="menu-arrow">></text></view>
+      <view class="menu-item" bindtap="onShowHelp" hover-class="tap-feedback"><text>{{i18n.f('帮助与客服', [], language)}}</text><text class="menu-arrow">></text></view>
     </view>
   </view>
 
   <view class="card logout-card">
-    <button class="logout-button" loading="{{loggingOut}}" disabled="{{loggingOut}}" bindtap="onLogout">退出登录</button>
+    <button class="logout-button" loading="{{loggingOut}}" disabled="{{loggingOut}}" bindtap="onLogout">{{i18n.f('退出登录', [], language)}}</button>
   </view>
   </block>
 

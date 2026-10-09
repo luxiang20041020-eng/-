@@ -1,3 +1,4 @@
+const { showModal } = require('../../utils/interaction')
 const { showFeedback, redirectTo, setClipboardData, previewImage, openLocation, showActionSheet } = require('../../utils/interaction')
 const { getUserMessage } = require('../../utils/user-feedback')
 const withPageState = require('../../utils/page-state')
@@ -124,7 +125,7 @@ Page(withPageState({
   },
 
   onBellTap() {
-    wx.showModal({ title: '训练小贴士', content: (this.data.pageData.notices || []).join('\n\n') || '欢迎到馆了解适合自己的训练计划。', showCancel: false, confirmText: '知道了' })
+    showModal({ title: '训练小贴士', content: (this.data.pageData.notices || []).join('\n\n') || '欢迎到馆了解适合自己的训练计划。', showCancel: false, confirmText: '知道了' })
   },
 
   onTogglePricing() {

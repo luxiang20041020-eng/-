@@ -325,7 +325,7 @@ Page(withPageState({
     let result = null
 
     try {
-      const confirmed = await confirmAction({ title: '确认发布排课', content: this.data.title.trim() + '\n' + selectedStore.name + ' · ' + capacity + ' 人\n' + this.data.timeRange + '\n' + this.data.repeatDates.join('、') + '\n发布后学员即可预约。' })
+      const confirmed = await confirmAction({ title: '确认发布排课', contentParts: [this.data.title.trim(), '\n' + selectedStore.name + ' · ', { text: '{0} 人', values: [capacity] }, '\n' + this.data.timeRange + '\n' + this.data.repeatDates.join('、') + '\n', { text: '发布后学员即可预约。' }] })
       if (!confirmed) return
       const runtime = await app.getRuntimeSnapshotAsync({ force: true })
       if (!runtime.isAuthenticated) {

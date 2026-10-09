@@ -94,7 +94,7 @@ Page(withPageState({
     try {
       if (status !== '已核销') {
         const member = (this.data.pageData.roster || []).find((item) => item.bookingId === bookingId)
-        const confirmed = await confirmAction({ title: '确认记录缺席', content: (member && member.nickname || '该学员') + '将被标记为缺席，已扣课时不会自动返还。' })
+        const confirmed = await confirmAction({ title: '确认记录缺席', contentParts: [member && member.nickname || '', { text: '将被标记为缺席，已扣课时不会自动返还。' }] })
         if (!confirmed) return
       }
       const runtime = await app.getRuntimeSnapshotAsync({ force: true })

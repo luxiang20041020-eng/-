@@ -1,37 +1,38 @@
-<view class="page-shell">
-  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
+<wxs module="i18n" src="../../../utils/i18n.wxs" />
+<view class="page-shell locale-page locale-{{language}}">
+  <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header">
     <view>
-      <view class="eyebrow">门店运营管理</view>
-      <view class="page-title">门店管理</view>
-      <view class="page-subtitle">维护首页可选门店、营业状态与场馆地址。</view>
+      <view class="eyebrow">{{i18n.f('门店运营管理', [], language)}}</view>
+      <view class="page-title">{{i18n.f('门店管理', [], language)}}</view>
+      <view class="page-subtitle">{{i18n.f('维护首页可选门店、营业状态与场馆地址。', [], language)}}</view>
     </view>
-    <view class="role-badge">管理员</view>
+    <view class="role-badge">{{i18n.f('管理员', [], language)}}</view>
   </view>
 
   <view wx:if="{{!hasPermission}}" class="card">
-    <view class="section-title">访问权限提示</view>
-    <view class="card-desc">当前账号不是管理员，无法管理门店。</view>
+    <view class="section-title">{{i18n.f('访问权限提示', [], language)}}</view>
+    <view class="card-desc">{{i18n.f('当前账号不是管理员，无法管理门店。', [], language)}}</view>
   </view>
 
   <block wx:else>
     <view class="card">
-      <view class="section-title">门店概览</view>
+      <view class="section-title">{{i18n.f('门店概览', [], language)}}</view>
       <view class="metric-grid">
         <view class="metric-item">
-          <view class="metric-label">总计</view>
+          <view class="metric-label">{{i18n.f('总计', [], language)}}</view>
           <view class="metric-value">{{pageData.stats.total}}</view>
-          <view class="metric-note">全部门店</view>
+          <view class="metric-note">{{i18n.f('全部门店', [], language)}}</view>
         </view>
         <view class="metric-item">
-          <view class="metric-label">营业中</view>
+          <view class="metric-label">{{i18n.f('营业中', [], language)}}</view>
           <view class="metric-value">{{pageData.stats.activeCount}}</view>
-          <view class="metric-note">营业中</view>
+          <view class="metric-note">{{i18n.f('营业中', [], language)}}</view>
         </view>
         <view class="metric-item">
-          <view class="metric-label">已停用</view>
+          <view class="metric-label">{{i18n.f('已停用', [], language)}}</view>
           <view class="metric-value">{{pageData.stats.inactiveCount}}</view>
-          <view class="metric-note">已停用</view>
+          <view class="metric-note">{{i18n.f('已停用', [], language)}}</view>
         </view>
       </view>
     </view>
@@ -39,16 +40,16 @@
     <view class="card create-store-entry" bindtap="onOpenCreatePopup">
       <view class="create-store-mark">+</view>
       <view class="create-store-main">
-        <view class="section-title">创建训练空间</view>
-        <view class="create-store-title">新增门店</view>
-        <view class="card-desc">录入门店名称、地址和地图坐标。</view>
+        <view class="section-title">{{i18n.f('创建训练空间', [], language)}}</view>
+        <view class="create-store-title">{{i18n.f('新增门店', [], language)}}</view>
+        <view class="card-desc">{{i18n.f('录入门店名称、地址和地图坐标。', [], language)}}</view>
       </view>
       <view class="menu-arrow">></view>
     </view>
 
-    <view wx:if="{{loading}}" class="page-loading">正在读取门店列表...</view>
+    <view wx:if="{{loading}}" class="page-loading">{{i18n.f('正在读取门店列表...', [], language)}}</view>
     <view wx:elif="{{!pageData.stores.length}}" class="card">
-      <view class="empty-text">暂无门店数据</view>
+      <view class="empty-text">{{i18n.f('暂无门店数据', [], language)}}</view>
     </view>
 
     <block wx:else>
@@ -56,37 +57,35 @@
         <view class="headline-row store-head">
           <view class="store-title-wrap">
             <view class="store-name">{{item.name}}</view>
-            <view wx:if="{{item.id === runtime.currentStore.id}}" class="current-store-label">当前选择</view>
+            <view wx:if="{{item.id === runtime.currentStore.id}}" class="current-store-label">{{i18n.f('当前选择', [], language)}}</view>
           </view>
-          <view class="store-status status-{{item.status === 1 ? 'active' : 'inactive'}}">{{item.statusLabel}}</view>
+          <view class="store-status status-{{item.status === 1 ? 'active' : 'inactive'}}">{{i18n.t(item.statusLabel, language)}}</view>
         </view>
 
-        <view class="store-address">{{item.address || '暂未填写地址'}}</view>
+        <view class="store-address">{{item.address || i18n.t('暂未填写地址', language)}}</view>
 
         <view class="store-meta-grid">
           <view class="store-meta-item">
-            <view class="meta-label">归属人员</view>
-            <view class="meta-value">{{item.userCount}} 人</view>
+            <view class="meta-label">{{i18n.f('归属人员', [], language)}}</view>
+            <view class="meta-value">{{i18n.f('{0} 人', [item.userCount], language)}}</view>
           </view>
           <view class="store-meta-item">
-            <view class="meta-label">累计排课</view>
-            <view class="meta-value">{{item.scheduleCount}} 场</view>
+            <view class="meta-label">{{i18n.f('累计排课', [], language)}}</view>
+            <view class="meta-value">{{i18n.f('{0} 场', [item.scheduleCount], language)}}</view>
           </view>
         </view>
 
-        <view wx:if="{{item.longitude !== '' && item.latitude !== ''}}" class="store-coordinate">
-          坐标 {{item.longitude}}, {{item.latitude}}
-        </view>
+        <view wx:if="{{item.longitude !== '' && item.latitude !== ''}}" class="store-coordinate">{{i18n.f('坐标 {0}, {1}', [item.longitude, item.latitude], language)}}</view>
 
         <view class="button-row store-actions">
-          <button class="secondary-button" data-store-id="{{item.id}}" bindtap="onOpenEditPopup" disabled="{{submitting}}">编辑资料</button>
+          <button class="secondary-button" data-store-id="{{item.id}}" bindtap="onOpenEditPopup" disabled="{{submitting}}">{{i18n.f('编辑资料', [], language)}}</button>
           <button
             class="secondary-button {{item.status === 1 ? 'status-action-off' : 'status-action-on'}}"
             data-store-id="{{item.id}}"
             bindtap="onToggleStoreStatus"
             disabled="{{submitting}}"
           >
-            {{item.status === 1 ? '停用门店' : '恢复营业'}}
+            {{i18n.t(item.status === 1 ? '停用门店' : '恢复营业', language)}}
           </button>
         </view>
       </view>
@@ -97,43 +96,43 @@
     <view class="modal-panel" catchtap="noop">
       <view class="headline-row">
         <view class="modal-heading">
-          <view class="section-title">{{editingStoreId ? '更新门店资料' : '创建训练空间'}}</view>
-          <view class="modal-title">{{editingStoreId ? '编辑门店资料' : '新增门店'}}</view>
+          <view class="section-title">{{i18n.t(editingStoreId ? '更新门店资料' : '创建训练空间', language)}}</view>
+          <view class="modal-title">{{i18n.t(editingStoreId ? '编辑门店资料' : '新增门店', language)}}</view>
         </view>
         <view class="modal-close" bindtap="onCloseStorePopup">×</view>
       </view>
 
       <view class="field-block">
-        <view class="field-label">门店名称</view>
-        <input class="form-input" value="{{storeForm.name}}" data-field="name" maxlength="50" bindinput="onStoreFieldInput" placeholder="如：城南训练中心" placeholder-class="input-placeholder" />
+        <view class="field-label">{{i18n.f('门店名称', [], language)}}</view>
+        <input class="form-input" value="{{storeForm.name}}" data-field="name" maxlength="50" bindinput="onStoreFieldInput" placeholder="{{i18n.f('如：城南训练中心', [], language)}}" placeholder-class="input-placeholder" />
       </view>
 
       <view class="field-block">
-        <view class="field-label">详细地址</view>
-        <input class="form-input" value="{{storeForm.address}}" data-field="address" maxlength="120" bindinput="onStoreFieldInput" placeholder="请输入门店详细地址" placeholder-class="input-placeholder" />
+        <view class="field-label">{{i18n.f('详细地址', [], language)}}</view>
+        <input class="form-input" value="{{storeForm.address}}" data-field="address" maxlength="120" bindinput="onStoreFieldInput" placeholder="{{i18n.f('请输入门店详细地址', [], language)}}" placeholder-class="input-placeholder" />
       </view>
 
       <view class="coordinate-fields">
         <view class="field-block">
-          <view class="field-label">经度</view>
-          <input class="form-input" type="digit" value="{{storeForm.longitude}}" data-field="longitude" bindinput="onStoreFieldInput" placeholder="可选" placeholder-class="input-placeholder" />
+          <view class="field-label">{{i18n.f('经度', [], language)}}</view>
+          <input class="form-input" type="digit" value="{{storeForm.longitude}}" data-field="longitude" bindinput="onStoreFieldInput" placeholder="{{i18n.f('可选', [], language)}}" placeholder-class="input-placeholder" />
         </view>
         <view class="field-block">
-          <view class="field-label">纬度</view>
-          <input class="form-input" type="digit" value="{{storeForm.latitude}}" data-field="latitude" bindinput="onStoreFieldInput" placeholder="可选" placeholder-class="input-placeholder" />
+          <view class="field-label">{{i18n.f('纬度', [], language)}}</view>
+          <input class="form-input" type="digit" value="{{storeForm.latitude}}" data-field="latitude" bindinput="onStoreFieldInput" placeholder="{{i18n.f('可选', [], language)}}" placeholder-class="input-placeholder" />
         </view>
       </view>
 
       <view wx:if="{{!editingStoreId}}" class="field-block">
         <view class="row-between">
-          <view class="field-label">创建后立即营业</view>
+          <view class="field-label">{{i18n.f('创建后立即营业', [], language)}}</view>
           <switch checked="{{storeForm.status === 1}}" color="#c7452d" bindchange="onCreateStatusChange" />
         </view>
       </view>
 
       <view class="button-row modal-button-row">
-        <button class="secondary-button" bindtap="onCloseStorePopup" disabled="{{submitting}}">取消</button>
-        <button class="primary-button" bindtap="onSubmitStore" loading="{{submitting}}">{{editingStoreId ? '保存修改' : '确认创建'}}</button>
+        <button class="secondary-button" bindtap="onCloseStorePopup" disabled="{{submitting}}">{{i18n.f('取消', [], language)}}</button>
+        <button class="primary-button" bindtap="onSubmitStore" loading="{{submitting}}">{{i18n.t(editingStoreId ? '保存修改' : '确认创建', language)}}</button>
       </view>
     </view>
   </view>

@@ -1,23 +1,24 @@
-<view class="page-shell">
-  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
-  <view class="page-header"><view class="eyebrow">线下训练登记</view><view class="page-title">人工核销</view><view class="page-subtitle">每次核销 1 课时，保留学员与操作人记录。</view></view>
-  <view wx:if="{{pageData.classInfo}}" class="card"><view class="section-title">{{pageData.classInfo.title}}</view><view class="card-desc">{{pageData.classInfo.dateLabel}} · {{pageData.classInfo.timeRange}} · {{pageData.classInfo.venue}}</view><view class="card-desc">补核销本场线下预约；已有预约不会重复扣课。</view></view>
+<wxs module="i18n" src="../../../utils/i18n.wxs" />
+<view class="page-shell locale-page locale-{{language}}">
+  <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
+  <view class="page-header"><view class="eyebrow">{{i18n.f('线下训练登记', [], language)}}</view><view class="page-title">{{i18n.f('人工核销', [], language)}}</view><view class="page-subtitle">{{i18n.f('每次核销 1 课时，保留学员与操作人记录。', [], language)}}</view></view>
+  <view wx:if="{{pageData.classInfo}}" class="card"><view class="section-title">{{pageData.classInfo.title}}</view><view class="card-desc">{{i18n.t(pageData.classInfo.dateLabel, language)}} · {{pageData.classInfo.timeRange}} · {{pageData.classInfo.venue}}</view><view class="card-desc">{{i18n.f('补核销本场线下预约；已有预约不会重复扣课。', [], language)}}</view></view>
   <view class="card">
-    <view class="section-title">选择学员</view>
-    <view class="search-row"><input class="input-field" value="{{keyword}}" placeholder="姓名或手机号，至少两字" data-field="keyword" bindinput="onInput" bindconfirm="onRetry" disabled="{{submitting || pendingRetry}}" /><button class="secondary-button" size="mini" bindtap="onRetry" disabled="{{submitting || pendingRetry || pageBusy}}">搜索</button></view>
-    <view wx:if="{{!pageBusy && !pageError && !pageData.members.length}}" class="card-desc">{{keyword.length >= 2 ? '未找到学员，请核对姓名或手机号。学员须已有账号与课时。' : '输入姓名或手机号后搜索，最多显示 20 位学员。'}}</view>
-    <view wx:for="{{pageData.members}}" wx:key="id" class="member-option {{selectedMember.id === item.id ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="onSelectMember"><view class="row-between"><view class="schedule-title">{{item.nickname}}</view><view class="status-chip">{{selectedMember.id === item.id ? '已选择' : '选择'}}</view></view><view class="card-desc">{{item.phone}} · 团课 {{item.groupCount}} / 私教 {{item.privateCount}}</view></view>
-    <view wx:if="{{selectedMember}}" class="selection-summary">本次学员：{{selectedMember.nickname}} · {{selectedMember.phone}}</view>
+    <view class="section-title">{{i18n.f('选择学员', [], language)}}</view>
+    <view class="search-row"><input class="input-field" value="{{keyword}}" placeholder="{{i18n.f('姓名或手机号，至少两字', [], language)}}" data-field="keyword" bindinput="onInput" bindconfirm="onRetry" disabled="{{submitting || pendingRetry}}" /><button class="secondary-button" size="mini" bindtap="onRetry" disabled="{{submitting || pendingRetry || pageBusy}}">{{i18n.f('搜索', [], language)}}</button></view>
+    <view wx:if="{{!pageBusy && !pageError && !pageData.members.length}}" class="card-desc">{{i18n.t(keyword.length >= 2 ? '未找到学员，请核对姓名或手机号。学员须已有账号与课时。' : '输入姓名或手机号后搜索，最多显示 20 位学员。', language)}}</view>
+    <view wx:for="{{pageData.members}}" wx:key="id" class="member-option {{selectedMember.id === item.id ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="onSelectMember"><view class="row-between"><view class="schedule-title">{{item.nickname}}</view><view class="status-chip">{{i18n.t(selectedMember.id === item.id ? '已选择' : '选择', language)}}</view></view><view class="card-desc">{{i18n.f('{0} · 团课 {1} / 私教 {2}', [item.phone, item.groupCount, item.privateCount], language)}}</view></view>
+    <view wx:if="{{selectedMember}}" class="selection-summary">{{i18n.f('本次学员：{0} · {1}', [selectedMember.nickname, selectedMember.phone], language)}}</view>
   </view>
   <view wx:if="{{!classId}}" class="card">
-    <view class="section-title">训练信息</view><view class="card-desc">单独登记线下训练，不需要预先在小程序排课。</view>
-    <view class="button-row"><button class="{{classType === 1 ? 'primary-button' : 'secondary-button'}}" data-type="1" bindtap="onTypeChange" disabled="{{submitting || pendingRetry}}">团课</button><button class="{{classType === 2 ? 'primary-button' : 'secondary-button'}}" data-type="2" bindtap="onTypeChange" disabled="{{submitting || pendingRetry}}">私教</button></view>
-    <view class="form-label">实际训练日期与时间</view><view class="button-row"><picker mode="date" value="{{date}}" end="{{maxDate}}" data-field="date" bindchange="onDateTimeChange" disabled="{{submitting || pendingRetry}}"><view class="picker-field">{{date}}</view></picker><picker mode="time" value="{{time}}" data-field="time" bindchange="onDateTimeChange" disabled="{{submitting || pendingRetry}}"><view class="picker-field">{{time}}</view></picker></view>
-    <view class="card-desc">核销门店：{{runtime.currentStore.name}} · 执教：{{runtime.userProfile.nickname}}</view>
+    <view class="section-title">{{i18n.f('训练信息', [], language)}}</view><view class="card-desc">{{i18n.f('单独登记线下训练，不需要预先在小程序排课。', [], language)}}</view>
+    <view class="button-row"><button class="{{classType === 1 ? 'primary-button' : 'secondary-button'}}" data-type="1" bindtap="onTypeChange" disabled="{{submitting || pendingRetry}}">{{i18n.f('团课', [], language)}}</button><button class="{{classType === 2 ? 'primary-button' : 'secondary-button'}}" data-type="2" bindtap="onTypeChange" disabled="{{submitting || pendingRetry}}">{{i18n.f('私教', [], language)}}</button></view>
+    <view class="form-label">{{i18n.f('实际训练日期与时间', [], language)}}</view><view class="button-row"><picker mode="date" value="{{date}}" end="{{maxDate}}" data-field="date" bindchange="onDateTimeChange" disabled="{{submitting || pendingRetry}}"><view class="picker-field">{{date}}</view></picker><picker mode="time" value="{{time}}" data-field="time" bindchange="onDateTimeChange" disabled="{{submitting || pendingRetry}}"><view class="picker-field">{{time}}</view></picker></view>
+    <view class="card-desc">{{i18n.f('核销门店：{0} · 执教：{1}', [runtime.currentStore.name, runtime.userProfile.nickname], language)}}</view>
   </view>
-  <view class="card"><view class="form-label">备注（选填）</view><textarea class="remark-field" value="{{remark}}" maxlength="200" placeholder="例如：电话预约、前台登记" data-field="remark" bindinput="onInput" disabled="{{submitting || pendingRetry}}"></textarea>
-    <view wx:if="{{pendingRetry}}" class="retry-note">本次核销结果待确认。请重试核对，同一请求不会重复扣课。</view>
+  <view class="card"><view class="form-label">{{i18n.f('备注（选填）', [], language)}}</view><textarea class="remark-field" value="{{remark}}" maxlength="200" placeholder="{{i18n.f('例如：电话预约、前台登记', [], language)}}" data-field="remark" bindinput="onInput" disabled="{{submitting || pendingRetry}}"></textarea>
+    <view wx:if="{{pendingRetry}}" class="retry-note">{{i18n.f('本次核销结果待确认。请重试核对，同一请求不会重复扣课。', [], language)}}</view>
     <view wx:if="{{resultMessage}}" class="result-note">{{resultMessage}}</view>
-    <button class="primary-button" loading="{{submitting}}" disabled="{{submitting || pageBusy || pageError || !selectedMember}}" bindtap="onSubmit">{{pendingRetry ? '重试并核对核销结果' : '确认到场并核销'}}</button>
+    <button class="primary-button" loading="{{submitting}}" disabled="{{submitting || pageBusy || pageError || !selectedMember}}" bindtap="onSubmit">{{i18n.t(pendingRetry ? '重试并核对核销结果' : '确认到场并核销', language)}}</button>
   </view>
 </view>

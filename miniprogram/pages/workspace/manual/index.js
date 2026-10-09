@@ -1,4 +1,5 @@
 const { getUserMessage } = require('../../../utils/user-feedback')
+const { t } = require('../../../utils/i18n')
 const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
 const { confirmAction, showFeedback, reLaunch } = require('../../../utils/interaction')
@@ -70,9 +71,9 @@ Page(withPageState({
       if (!this._pendingPayload) {
         const info = this.data.pageData.classInfo
         const typeName = this.data.classType === 1 ? '团课' : '私教课'
-        const confirmed = await confirmAction({ title: '确认人工核销', content: member.nickname + ' · ' + member.phone + '\n' +
-          (info ? info.title + ' · ' + info.dateLabel + ' ' + info.timeRange : runtime.currentStore.name + ' · ' + this.data.date + ' ' + this.data.time + ' · ' + typeName) + '\n' +
-          (info ? '无预约将扣减 1 课时；已有待核销预约则不重复扣课。' : '将扣减 1 节' + typeName + '课时并记录到场。') })
+        const confirmed = await confirmAction({ title: '确认人工核销', contentParts: [member.nickname + ' · ' + member.phone + '\n',
+          (info ? info.title + ' · ' + info.dateLabel + ' ' + info.timeRange : runtime.currentStore.name + ' · ' + this.data.date + ' ' + this.data.time + ' · ' + t(typeName)), '\n',
+          info ? { text: '无预约将扣减 1 课时；已有待核销预约则不重复扣课。' } : { text: '将扣减 1 节{0}课时并记录到场。', values: [t(typeName)] }] })
         if (!confirmed) return
         this._pendingPayload = { userId: member.id, classId: this.data.classId, classType: this.data.classType,
           storeId: runtime.currentStore.id, trainingTime: this.data.date + ' ' + this.data.time + ':00', remark: this.data.remark.trim(),

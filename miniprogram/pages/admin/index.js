@@ -1,3 +1,4 @@
+const { showModal } = require('../../utils/interaction')
 const { showFeedback, navigateTo, reLaunch, setClipboardData, showActionSheet } = require('../../utils/interaction')
 const { getUserMessage } = require('../../utils/user-feedback')
 const withPageState = require('../../utils/page-state')
@@ -133,7 +134,7 @@ Page(withPageState({
       app.removeViewCacheByPrefix('booking:')
       app.removeViewCacheByPrefix('workspace:')
       if (!result || !(result.inspectResults || []).length || result.inspectResults.some((item) => !item.ok)) throw new Error('场馆资料暂时无法使用，请联系场馆处理')
-      wx.showModal({
+      showModal({
         title: '服务检查完成',
         content: '门店、套餐、人员和训练记录已可以正常读取。可以继续录入客户、派发权益和安排训练。',
         showCancel: false,

@@ -1,3 +1,4 @@
+const { showModal } = require('../../../utils/interaction')
 const { showFeedback, reLaunch } = require('../../../utils/interaction')
 const { getUserMessage } = require('../../../utils/user-feedback')
 const withPageState = require('../../../utils/page-state')
@@ -255,7 +256,7 @@ Page(withPageState({
       return
     }
     const nextStatus = targetStore.status === 1 ? 0 : 1
-    wx.showModal({
+    showModal({
       title: nextStatus === 1 ? '确认恢复营业' : '确认停用门店',
       content: nextStatus === 1
         ? '恢复后，该门店会重新出现在首页门店选择中。'

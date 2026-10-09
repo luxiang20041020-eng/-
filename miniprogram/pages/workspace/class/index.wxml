@@ -1,48 +1,49 @@
-<view class="page-shell">
-  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
+<wxs module="i18n" src="../../../utils/i18n.wxs" />
+<view class="page-shell locale-page locale-{{language}}">
+  <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header">
     <view>
-      <view class="page-title">到场核销</view>
+      <view class="page-title">{{i18n.f('到场核销', [], language)}}</view>
       <view class="page-subtitle">{{pageData.classInfo.title}} · {{pageData.classInfo.timeRange}}</view>
     </view>
-    <view class="role-badge">{{runtime.role === 'admin' ? '管理员 / 教练' : '教练'}}</view>
+    <view class="role-badge">{{i18n.t(runtime.role === 'admin' ? '管理员 / 教练' : '教练', language)}}</view>
   </view>
 
   <view class="card">
-    <view class="card-title">训练概览</view>
-    <view class="card-desc">{{pageData.classInfo.venue}} · {{pageData.classInfo.dateLabel}}</view>
+    <view class="card-title">{{i18n.f('训练概览', [], language)}}</view>
+    <view class="card-desc">{{pageData.classInfo.venue}} · {{i18n.t(pageData.classInfo.dateLabel, language)}}</view>
     <view class="metric-grid">
       <view class="metric-item">
-        <view class="metric-label">预约人数</view>
+        <view class="metric-label">{{i18n.f('预约人数', [], language)}}</view>
         <view class="metric-value">{{pageData.classInfo.bookedCount}}</view>
       </view>
       <view class="metric-item">
-        <view class="metric-label">已核销</view>
+        <view class="metric-label">{{i18n.f('已核销', [], language)}}</view>
         <view class="metric-value">{{pageData.classInfo.checkedCount}}</view>
       </view>
       <view class="metric-item">
-        <view class="metric-label">已缺席</view>
+        <view class="metric-label">{{i18n.f('已缺席', [], language)}}</view>
         <view class="metric-value">{{pageData.classInfo.absentCount}}</view>
       </view>
     </view>
   </view>
 
   <view class="card">
-    <view class="card-title">预约名单</view>
-    <view class="card-desc">线下预约但不在名单中的学员，可补核销本场课程。</view>
-    <button class="secondary-button class-manual-button" disabled="{{pageBusy || pageError}}" bindtap="onManualWriteOff">补核销线下学员</button>
+    <view class="card-title">{{i18n.f('预约名单', [], language)}}</view>
+    <view class="card-desc">{{i18n.f('线下预约但不在名单中的学员，可补核销本场课程。', [], language)}}</view>
+    <button class="secondary-button class-manual-button" disabled="{{pageBusy || pageError}}" bindtap="onManualWriteOff">{{i18n.f('补核销线下学员', [], language)}}</button>
     <view wx:for="{{pageData.roster}}" wx:key="bookingId" class="roster-item">
       <view class="row-between">
         <view class="schedule-title">{{item.userName}}</view>
-        <view class="status-chip">{{item.status}}</view>
+        <view class="status-chip">{{i18n.t(item.status, language)}}</view>
       </view>
       <view class="card-desc">{{item.phone}}</view>
-      <view class="card-desc">{{item.sourceLabel}}</view>
+      <view class="card-desc">{{i18n.t(item.sourceLabel, language)}}</view>
       <view wx:if="{{item.status === '待核销'}}" class="button-row" style="margin-top: 16rpx;">
-        <button class="primary-button" size="mini" loading="{{submittingBookingId === item.bookingId}}" disabled="{{submittingBookingId === item.bookingId}}" data-booking-id="{{item.bookingId}}" data-status="已核销" bindtap="onUpdateStatus">确认到场</button>
-        <button class="secondary-button" size="mini" loading="{{submittingBookingId === item.bookingId}}" disabled="{{submittingBookingId === item.bookingId}}" data-booking-id="{{item.bookingId}}" data-status="已缺席" bindtap="onUpdateStatus">标记缺席</button>
+        <button class="primary-button" size="mini" loading="{{submittingBookingId === item.bookingId}}" disabled="{{submittingBookingId === item.bookingId}}" data-booking-id="{{item.bookingId}}" data-status="已核销" bindtap="onUpdateStatus">{{i18n.f('确认到场', [], language)}}</button>
+        <button class="secondary-button" size="mini" loading="{{submittingBookingId === item.bookingId}}" disabled="{{submittingBookingId === item.bookingId}}" data-booking-id="{{item.bookingId}}" data-status="已缺席" bindtap="onUpdateStatus">{{i18n.f('标记缺席', [], language)}}</button>
       </view>
-      <view wx:else class="card-desc" style="margin-top: 16rpx;">当前状态已确认，无需重复操作。</view>
+      <view wx:else class="card-desc" style="margin-top: 16rpx;">{{i18n.f('当前状态已确认，无需重复操作。', [], language)}}</view>
     </view>
   </view>
 </view>

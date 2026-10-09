@@ -454,3 +454,24 @@ button[disabled] { opacity: 0.45; }
 .status-chip { flex-shrink: 0; min-height: 42rpx; padding: 0 12rpx; font-size: 21rpx; box-shadow: none; }
 .metric-value { font-variant-numeric: tabular-nums; letter-spacing: -1rpx; word-break: break-word; }
 input, textarea { font-weight: 400; }
+
+/* 多语言使用正常行高与弹性居中，较长标签可换行。 */
+.locale-page button.primary-button,
+.locale-page button.secondary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.4;
+  padding-top: 18rpx;
+  padding-bottom: 18rpx;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.locale-page .button-row { flex-wrap: wrap; }
+.locale-page .button-row button.primary-button,
+.locale-page .button-row button.secondary-button { min-width: 0; }
+.locale-page .menu-item { gap: 16rpx; }
+.locale-page .menu-item > text:first-child { min-width: 0; }
+.locale-page .menu-arrow { flex-shrink: 0; max-width: 48%; text-align: right; }
+.locale-page .page-title { overflow-wrap: anywhere; }
+.locale-page .role-badge { white-space: normal; text-align: center; }

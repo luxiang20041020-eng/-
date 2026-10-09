@@ -1,5 +1,6 @@
+<wxs module="i18n" src="../../utils/i18n.wxs" />
 <view wx:if="{{error}}" class="feedback-error">
-  <view class="feedback-copy"><view class="feedback-title">暂时没有同步成功</view><view class="feedback-description">{{error}}</view></view>
-  <button class="feedback-retry" bindtap="onRetry">重试</button>
+  <view class="feedback-copy"><view class="feedback-title">{{i18n.f('暂时没有同步成功', [], language)}}</view><view class="feedback-description">{{i18n.t(error, language)}}</view></view>
+  <button class="feedback-retry" bindtap="onRetry">{{i18n.f('重试', [], language)}}</button>
 </view>
-<view wx:elif="{{loading}}" class="feedback-loading"><view class="feedback-dot"></view><text>正在同步最新数据</text></view>
+<view wx:elif="{{loading}}" class="feedback-loading"><view class="feedback-dot"></view><text>{{i18n.f('正在同步最新数据', [], language)}}</text></view>
