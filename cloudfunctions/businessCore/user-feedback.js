@@ -31,6 +31,8 @@ const CODE_MESSAGES = {
   INVALID_CREATE_PACKAGE_PAYLOAD: '请核对套餐名称、类型、课时、金额和上架状态',
 }
 const OPERATION_MESSAGES = {
+  POINTS_VIEW_ERROR: '积分资料暂时无法读取，请稍后重试',
+  BIND_INVITE_ERROR: '邀请码绑定未完成，请刷新积分和绑定状态后重试',
   CREATE_USER_ERROR: '用户档案未能保存，请稍后重试', LOGIN_WITH_PHONE_ERROR: '手机号登录未完成，请重新授权后重试',
   LOGOUT_ERROR: '退出登录未完成，请稍后重试', AUTH_ERROR: '未能确认登录状态，请重新登录',
   CREATE_BOOKING_ERROR: '预约未完成，请刷新预约记录后再操作',
@@ -82,7 +84,7 @@ function transportError(error, action) {
   const raw = String(error && (error.errMsg || error.message) || '')
   const timeout = /timeout|timed.?out|超时/i.test(raw)
   const unavailable = /function.*not.*(?:found|exist)|environment.*not.*(?:found|exist)|permission denied|access denied/i.test(raw)
-  const write = /^(create|update|distribute|cancel|writeOff|manualWriteOff|logout)/.test(action)
+  const write = /^(bind|create|update|distribute|cancel|writeOff|manualWriteOff|logout)/.test(action)
   const outcomeUnknown = write && !unavailable
   let message = getUserMessage(error, '服务暂时无法连接，请检查网络后重试')
   if (outcomeUnknown) message += action === 'createUser' || action === 'manualWriteOff'

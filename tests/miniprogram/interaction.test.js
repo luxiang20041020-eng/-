@@ -182,6 +182,85 @@ function harness(relative, api = {}, storage = new Map()) {
   return { page, exported, app, wx, calls, storage }
 }
 
+test('邀请码从我的页面填写，提交期间冻结输入并阻止重复写入', async () => {
+  const writes = []
+  let finish
+  const { page, calls } = harness('pages/profile/index.js', {
+    getPointsViewData: async () => ({ bound: false }),
+    bindInviteCode: payload => { writes.push(payload); return new Promise(resolve => { finish = resolve }) },
+  })
+  page.goPoints()
+  assert.equal(calls.routes[0], '/pages/points/index')
+  await page.onToggleInvite()
+  assert.equal(page.data.inviteExpanded, true)
+  page.onInviteInput({ detail: { value: 'abc' } })
+  await page.onBindInvite()
+  assert.equal(writes.length, 0)
+  assert.match(page.data.inviteError, /14位/)
+  page.onInviteInput({ detail: { value: 'on12ab34cd56ef' } })
+  const pending = page.onBindInvite()
+  await page.onBindInvite()
+  page.onInviteInput({ detail: { value: 'ON111111111111' } })
+  await page.onToggleInvite()
+  assert.equal(writes.length, 1)
+  assert.equal(page.data.inviteDraft, 'ON12AB34CD56EF')
+  assert.equal(page.data.inviteExpanded, true)
+  finish({ message: '绑定成功，双方各获100积分' })
+  await pending
+  assert.equal(page.data.inviteBound, true)
+  assert.equal(page.data.inviteSubmitting, false)
+  assert.equal(page.data.inviteDraft, '')
+  await page.onBindInvite()
+  assert.equal(writes.length, 1)
+})
+
+test('邀请码失败保留输入，离页后旧请求不会恢复绑定状态', async () => {
+  let finish
+  let fail = true
+  const { page } = harness('pages/profile/index.js', {
+    getPointsViewData: async () => ({ bound: false }),
+    bindInviteCode: () => fail ? Promise.reject(new Error('邀请码不存在，请向好友确认')) : new Promise(resolve => { finish = resolve }),
+  })
+  await page.onToggleInvite()
+  page.onInviteInput({ detail: { value: 'ON12AB34CD56EF' } })
+  await page.onBindInvite()
+  assert.equal(page.data.inviteDraft, 'ON12AB34CD56EF')
+  assert.match(page.data.inviteError, /不存在/)
+  fail = false
+  const pending = page.onBindInvite()
+  page.onHide()
+  finish({ message: '绑定成功' })
+  await pending
+  assert.equal(page.data.inviteBound, false)
+  assert.equal(page.data.inviteStateReady, false)
+})
+
+test('积分读取失败可重试，不把失败显示成零余额；离页丢弃旧余额', async () => {
+  let fail = true
+  let finish
+  const { page, app } = harness('pages/points/index.js', {
+    getPointsViewData: () => fail ? Promise.reject(new Error('网络中断，请重试')) : new Promise(resolve => { finish = resolve }),
+  })
+  app.getRuntimeSnapshotAsync = async () => ({ isAuthenticated: true })
+  await page.syncPageData()
+  assert.match(page.data.pageError, /网络/)
+  assert.equal(page.data.pageData, null)
+  assert.equal(page.data.pageBusy, false)
+  fail = false
+  const pending = page.syncPageData()
+  await new Promise(setImmediate)
+  page.onHide()
+  finish({ balance: 100 })
+  await pending
+  assert.equal(page.data.pageData, null)
+  const retry = page.syncPageData()
+  await new Promise(setImmediate)
+  finish({ balance: 100 })
+  await retry
+  assert.equal(page.data.pageData.balance, 100)
+  assert.equal(page.data.pageError, '')
+})
+
 function manualPage(api = {}, storage = new Map()) {
   const result = harness('pages/workspace/manual/index.js', { getManualWriteOffViewData: async () => ({ members: [] }), ...api }, storage)
   const runtime = { isAuthenticated: true, role: 'admin', userProfile: { id: 'staff', nickname: '管理员' }, currentStore: { id: 'gaoxin', name: '高新店' } }

@@ -4,7 +4,7 @@ const path = require('node:path')
 const vm = require('node:vm')
 
 const source = readFileSync(path.join(__dirname, '..', 'index.js'), 'utf8')
-const collectionNames = ['app_user', 'biz_store', 'biz_package', 'user_asset', 'user_asset_log', 'biz_class_schedule', 'biz_booking']
+const collectionNames = ['app_user', 'biz_store', 'biz_package', 'user_asset', 'user_asset_log', 'biz_class_schedule', 'biz_booking', 'user_invite_code', 'user_point_log']
 
 function createDatabase() {
   const collections = new Map()

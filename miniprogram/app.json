@@ -4,6 +4,7 @@
     "pages/login/index",
     "pages/booking/index",
     "pages/profile/index",
+    "pages/points/index",
     "pages/workspace/index",
     "pages/workspace/distribute/index",
     "pages/workspace/class/index",

@@ -359,3 +359,8 @@
 .qr-code-box { background: #ffffff; border: 1rpx solid #e1e3d9; }
 .profile-stats-grid .stats-note { font-size: 21rpx; color: #73786e; line-height: 1.5; }
 .nickname-mask { z-index: 230; }
+.invite-form { padding-top: 20rpx; }
+.invite-input { width: 100%; box-sizing: border-box; min-height: 84rpx; margin-top: 24rpx; background: #f5f5ef; border: 1rpx solid #dedfd5; border-radius: 14rpx; padding: 22rpx; font-size: 28rpx; }
+.invite-card button.invite-submit { display: flex; align-items: center; justify-content: center; width: 100%; max-width: 100%; margin: 22rpx 0 0; box-sizing: border-box; padding: 20rpx; font-size: 26rpx; line-height: 1.4; }
+.invite-error { margin-top: 20rpx; font-size: 24rpx; color: #bd442e; line-height: 1.6; }
+.invite-bound { margin-top: 20rpx; color: #55714b; font-size: 25rpx; line-height: 1.7; overflow-wrap: anywhere; }

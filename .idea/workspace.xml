@@ -4,7 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="100e687d-5462-4a43-87c9-89b5c23af30d" name="更改" comment="9.29" />
+    <list default="true" id="100e687d-5462-4a43-87c9-89b5c23af30d" name="更改" comment="预约按钮">
+      <change beforePath="$PROJECT_DIR$/cloudfunctions/businessCore/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/cloudfunctions/businessCore/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cloudfunctions/businessCore/request-policy.js" beforeDir="false" afterPath="$PROJECT_DIR$/cloudfunctions/businessCore/request-policy.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cloudfunctions/businessCore/test/bootstrap.test.js" beforeDir="false" afterPath="$PROJECT_DIR$/cloudfunctions/businessCore/test/bootstrap.test.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cloudfunctions/businessCore/test/helpers.js" beforeDir="false" afterPath="$PROJECT_DIR$/cloudfunctions/businessCore/test/helpers.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cloudfunctions/businessCore/user-feedback.js" beforeDir="false" afterPath="$PROJECT_DIR$/cloudfunctions/businessCore/user-feedback.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/miniprogram/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/miniprogram/pages/profile/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/pages/profile/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/miniprogram/pages/profile/index.wxml" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/pages/profile/index.wxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/miniprogram/pages/profile/index.wxss" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/pages/profile/index.wxss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/miniprogram/utils/business-api.js" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/utils/business-api.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/miniprogram/utils/user-feedback.js" beforeDir="false" afterPath="$PROJECT_DIR$/miniprogram/utils/user-feedback.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -78,6 +90,7 @@
       <workItem from="1783568361044" duration="601000" />
       <workItem from="1790680314685" duration="661000" />
       <workItem from="1791252717868" duration="1216000" />
+      <workItem from="1791431065627" duration="4952000" />
     </task>
     <task id="LOCAL-00001" summary="new">
       <option name="closed" value="true" />
@@ -247,7 +260,15 @@
       <option name="project" value="LOCAL" />
       <updated>1791252729321</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="预约按钮">
+      <option name="closed" value="true" />
+      <created>1791458797893</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1791458797894</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -282,6 +303,7 @@
     <MESSAGE value="发课" />
     <MESSAGE value="文字修改" />
     <MESSAGE value="9.29" />
-    <option name="LAST_COMMIT_MESSAGE" value="9.29" />
+    <MESSAGE value="预约按钮" />
+    <option name="LAST_COMMIT_MESSAGE" value="预约按钮" />
   </component>
 </project>

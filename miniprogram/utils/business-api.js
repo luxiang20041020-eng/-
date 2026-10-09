@@ -177,6 +177,8 @@ async function updatePackageStatus(payload) {
 }
 
 module.exports = {
+  getPointsViewData: async () => unwrapResult(await callBusinessCore('getPointsViewData')),
+  bindInviteCode: async (payload) => unwrapResult(await callBusinessCore('bindInviteCode', payload)),
   clearPendingReads: () => pendingReads.clear(),
   getManualWriteOffViewData: async (payload) => unwrapResult(await callBusinessCore('getManualWriteOffViewData', payload)),
   manualWriteOff: async (payload) => unwrapResult(await callBusinessCore('manualWriteOff', payload)),

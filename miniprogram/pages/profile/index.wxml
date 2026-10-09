@@ -62,6 +62,21 @@
   </view>
 
   <block wx:if="{{runtime.isAuthenticated}}">
+  <view class="card invite-card">
+    <view class="menu-item" bindtap="goPoints" hover-class="tap-feedback"><text>我的积分</text><text class="menu-arrow">查看余额与明细 ›</text></view>
+    <view class="menu-item" bindtap="onToggleInvite" hover-class="tap-feedback"><text>填写邀请码领积分</text><text class="menu-arrow">{{inviteExpanded ? '收起' : '展开'}}</text></view>
+    <view wx:if="{{inviteExpanded}}" class="invite-form">
+      <view class="card-desc">首次绑定好友邀请码，你和好友各获得100积分。每人限一次，绑定后不可更换。</view>
+      <view wx:if="{{inviteLoading}}" class="page-caption">正在确认绑定状态…</view>
+      <view wx:elif="{{inviteBound}}" class="invite-bound">已绑定 {{inviteBoundCode}}，奖励已到账</view>
+      <block wx:elif="{{inviteStateReady}}">
+        <input class="invite-input" value="{{inviteDraft}}" maxlength="14" placeholder="输入好友的14位邀请码" disabled="{{inviteSubmitting}}" bindinput="onInviteInput" />
+        <button size="mini" class="primary-button invite-submit" loading="{{inviteSubmitting}}" disabled="{{inviteSubmitting || loggingOut}}" bindtap="onBindInvite">{{inviteSubmitting ? '正在绑定' : '绑定并领取100积分'}}</button>
+      </block>
+      <view wx:if="{{inviteError}}" class="invite-error">{{inviteError}}</view>
+      <button wx:if="{{!inviteLoading && !inviteStateReady}}" size="mini" class="secondary-button invite-submit" bindtap="loadInviteState">重新读取</button>
+    </view>
+  </view>
   <view class="card">
     <view class="section-title">我的训练权益</view>
     <view class="metric-grid">

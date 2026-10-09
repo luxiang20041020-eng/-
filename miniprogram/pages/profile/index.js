@@ -62,6 +62,14 @@ Page(withPageState({
     identityExpanded: false,
     cancellingBookingId: '',
     loggingOut: false,
+    inviteExpanded: false,
+    inviteDraft: '',
+    inviteSubmitting: false,
+    inviteLoading: false,
+    inviteError: '',
+    inviteStateReady: false,
+    inviteBound: false,
+    inviteBoundCode: '',
   },
 
   onLoad(options) {
@@ -72,15 +80,19 @@ Page(withPageState({
   onShow() {
     this.syncPageData()
     this.startDynamicCodeTicker()
+    if (this.data.inviteExpanded) this.loadInviteState()
   },
 
   onHide() {
+    this._inviteRequest = (this._inviteRequest || 0) + 1
+    this.setData({ inviteLoading: false, inviteStateReady: false })
     this.qrRequestId = (this.qrRequestId || 0) + 1
     this.setData({ qrCodeLoading: false, qrCodeImageSrc: '' })
     this.stopDynamicCodeTicker()
   },
 
   onUnload() {
+    this._inviteRequest = (this._inviteRequest || 0) + 1
     this.qrRequestId = (this.qrRequestId || 0) + 1
     this.stopDynamicCodeTicker()
   },
@@ -230,6 +242,53 @@ Page(withPageState({
     navigateTo({ url: '/pages/login/index?returnTo=profile' })
   },
 
+  goPoints() { navigateTo({ url: '/pages/points/index' }) },
+
+  async onToggleInvite() {
+    if (this.data.inviteSubmitting) return
+    const expanded = !this.data.inviteExpanded
+    this.setData({ inviteExpanded: expanded })
+    if (expanded) await this.loadInviteState()
+  },
+
+  async loadInviteState() {
+    const request = (this._inviteRequest || 0) + 1
+    this._inviteRequest = request
+    this.setData({ inviteLoading: true, inviteStateReady: false, inviteError: '' })
+    try {
+      const result = await businessApi.getPointsViewData()
+      if (request !== this._inviteRequest) return
+      this.setData({ inviteBound: result.bound, inviteBoundCode: result.boundCode, inviteStateReady: true })
+    } catch (error) {
+      if (request === this._inviteRequest) this.setData({ inviteError: getUserMessage(error, '邀请码状态读取失败，请重试') })
+    } finally {
+      if (request === this._inviteRequest) this.setData({ inviteLoading: false })
+    }
+  },
+
+  onInviteInput(event) {
+    if (!this.data.inviteSubmitting) this.setData({ inviteDraft: event.detail.value.toUpperCase(), inviteError: '' })
+  },
+
+  async onBindInvite() {
+    if (this.data.inviteSubmitting || !this.data.inviteStateReady || this.data.inviteBound || this.data.loggingOut) return
+    const inviteCode = String(this.data.inviteDraft || '').trim().toUpperCase()
+    if (!/^ON[0-9A-F]{12}$/.test(inviteCode)) {
+      this.setData({ inviteError: '请填写好友分享的14位邀请码，以ON开头' })
+      return
+    }
+    const request = this._inviteRequest
+    this.setData({ inviteSubmitting: true, inviteError: '' })
+    try {
+      const result = await businessApi.bindInviteCode({ inviteCode })
+      if (request !== this._inviteRequest) return
+      this.setData({ inviteBound: true, inviteBoundCode: inviteCode, inviteDraft: '' })
+      showFeedback({ title: result.message, icon: 'success' })
+    } catch (error) {
+      if (request === this._inviteRequest) this.setData({ inviteError: getUserMessage(error, '绑定失败，请核对邀请码后重试') })
+    } finally { this.setData({ inviteSubmitting: false }) }
+  },
+
   onToggleIdentity() {
     this.setData({ identityExpanded: !this.data.identityExpanded }, () => {
       if (this.data.identityExpanded) this.refreshDynamicCode()
@@ -351,7 +410,7 @@ Page(withPageState({
     if (this.data.loggingOut) return
     const app = getApp()
     if (app.isLogoutInProgress()) return
-    if (this.data.nicknameSubmitting || this.data.cancellingBookingId) {
+    if (this.data.nicknameSubmitting || this.data.cancellingBookingId || this.data.inviteSubmitting) {
       showFeedback({ title: '请等待当前操作完成后退出', icon: 'none' })
       return
     }

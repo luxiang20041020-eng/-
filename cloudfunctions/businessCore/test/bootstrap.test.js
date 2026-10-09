@@ -39,7 +39,7 @@ test('云端配置的真实手机号可在空环境创建首位管理员', async
   assert.equal(result.data.role, 'admin')
   const check = await main({ action: 'bootstrap' })
   assert.equal(check.success, true)
-  assert.equal(check.data.inspectResults.length, 7)
+  assert.equal(check.data.inspectResults.length, collectionNames.length)
   assert.equal(state.collections.get('app_user').size, 1)
   assert.equal(state.collections.get('user_asset').size, 0)
 })
@@ -118,7 +118,7 @@ test('同一热实例并发请求共享一次初始化', async () => {
   const main = loadFunction(state)
   const results = await Promise.all(Array.from({ length: 5 }, () => main({ action: 'getCurrentUserSession' })))
   assert.ok(results.every((result) => result.success))
-  assert.equal(state.createCalls, 7)
+  assert.equal(state.createCalls, collectionNames.length)
 })
 
 test('不同冷实例并发启动允许集合和固定种子 ID 冲突', async () => {

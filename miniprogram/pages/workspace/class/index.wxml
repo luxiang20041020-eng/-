@@ -30,7 +30,7 @@
   <view class="card">
     <view class="card-title">预约名单</view>
     <view class="card-desc">线下预约但不在名单中的学员，可补核销本场课程。</view>
-    <button class="secondary-button" disabled="{{pageBusy || pageError}}" bindtap="onManualWriteOff">补核销线下学员</button>
+    <button class="secondary-button class-manual-button" disabled="{{pageBusy || pageError}}" bindtap="onManualWriteOff">补核销线下学员</button>
     <view wx:for="{{pageData.roster}}" wx:key="bookingId" class="roster-item">
       <view class="row-between">
         <view class="schedule-title">{{item.userName}}</view>

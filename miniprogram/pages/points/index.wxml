@@ -1,0 +1,21 @@
+<view class="page-shell points-page">
+  <page-feedback loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
+  <view class="page-header"><view class="eyebrow">邀请好友，一起训练</view><view class="page-title">我的积分</view></view>
+  <view wx:if="{{!pageBusy && !runtime.isAuthenticated}}" class="card">
+    <view class="section-title">登录后查看积分</view>
+    <button size="mini" class="primary-button points-button" bindtap="goLogin">去登录</button>
+  </view>
+  <block wx:if="{{runtime.isAuthenticated && pageData}}">
+    <view class="points-balance"><view class="points-kicker">当前积分</view><view class="points-number">{{pageData.balance}}<text>分</text></view><view class="points-note">每次成功邀请，双方各得100积分</view></view>
+    <view class="card">
+      <view class="section-title">我的邀请码</view><view class="card-desc">分享给好友，让好友在“我的”页面填写。</view>
+      <view class="points-code" selectable="true">{{pageData.inviteCode}}</view>
+      <button size="mini" class="primary-button points-button" bindtap="onCopyInviteCode">复制邀请码</button>
+      <view class="points-rule">每人仅可绑定一次，不能填写自己的邀请码，绑定后不可更换。积分不抵扣训练课时。</view>
+    </view>
+    <view class="card"><view class="headline-row"><view class="section-title">积分明细</view><view class="card-desc">最近50条</view></view>
+      <view wx:if="{{!pageData.records.length}}" class="points-empty"><view>还没有积分记录</view><view>邀请好友，获得第一笔积分</view></view>
+      <view wx:for="{{pageData.records}}" wx:key="id" class="points-record"><view><view class="points-record-title">{{item.title}}</view><view class="card-desc">{{item.dateLabel}}</view></view><view class="points-amount">+{{item.amount}}</view></view>
+    </view>
+  </block>
+</view>

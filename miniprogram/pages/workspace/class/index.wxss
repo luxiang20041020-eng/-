@@ -5,3 +5,25 @@
   border-radius: 16rpx;
   background: #ffffff;
 }
+
+/* 不依赖原生 mini 按钮的行高，用按钮自身高度居中文字。 */
+.page-shell button.class-manual-button,
+.roster-item .button-row button.primary-button,
+.roster-item .button-row button.secondary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  padding: 16rpx 20rpx;
+  line-height: 1.4;
+  font-size: 25rpx;
+  text-align: center;
+}
+
+.roster-item .button-row button.primary-button,
+.roster-item .button-row button.secondary-button {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+  margin: 0;
+}

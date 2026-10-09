@@ -18,6 +18,8 @@ const COLLECTIONS = {
   USER_ASSET_LOG: 'user_asset_log',
   CLASS_SCHEDULE: 'biz_class_schedule',
   BOOKING: 'biz_booking',
+  INVITE_CODE: 'user_invite_code',
+  POINT_LOG: 'user_point_log',
 }
 
 // 同一热实例共享初始化结果；失败时清空 Promise，让下一次请求可以重试。
@@ -2568,6 +2570,64 @@ async function createCoachSchedule(event) {
   }
 }
 
+// 积分与课时分开记录；绑定关系、双方余额和明细必须一同提交。
+function requirePointUser(user) {
+  if (!user || user.is_deleted || Number(user.status) !== 1) throw new Error('账号已停用或不存在，请重新登录或联系场馆')
+}
+
+async function ensureInviteCode(userId) {
+  const code = 'ON' + crypto.createHash('sha256').update('invite:' + userId).digest('hex').slice(0, 12).toUpperCase()
+  await runBusinessTransaction(async (transaction) => {
+    const user = (await getDocById(COLLECTIONS.USER, userId, transaction)).data
+    requirePointUser(user)
+    const existing = (await getDocById(COLLECTIONS.INVITE_CODE, code, transaction)).data
+    if (existing && existing.user_id !== userId) throw new Error('邀请码暂时无法生成，请联系场馆处理')
+    if (!existing) await transaction.collection(COLLECTIONS.INVITE_CODE).doc(code).set({ data: { user_id: userId, created_at: db.serverDate() } })
+  })
+  return code
+}
+
+async function getPointsViewData(event) {
+  try {
+    const userId = event.operator._id
+    const inviteCode = await ensureInviteCode(userId)
+    const user = (await getDocById(COLLECTIONS.USER, userId)).data
+    requirePointUser(user)
+    const logs = (await db.collection(COLLECTIONS.POINT_LOG).where({ user_id: userId }).orderBy('created_at', 'desc').limit(50).get()).data
+    return buildSuccess({ balance: Number(user.point_balance || 0), inviteCode, bound: Boolean(user.invited_by), boundCode: user.bound_invite_code || '', reward: 100,
+      records: logs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).map(log => ({ id: log._id, amount: log.amount, title: log.reason === 'INVITE' ? '邀请好友奖励' : '填写邀请码奖励', dateLabel: businessDate(log.created_at) })) })
+  } catch (error) { return buildFail(error.message || error.errMsg, 'POINTS_VIEW_ERROR') }
+}
+
+async function bindInviteCode(event) {
+  const code = String(event.payload.inviteCode || '').trim().toUpperCase()
+  if (!/^ON[0-9A-F]{12}$/.test(code)) return buildFail('邀请码格式不正确，请核对好友分享的14位邀请码', 'INVALID_INVITE_CODE')
+  try {
+    const result = await runBusinessTransaction(async (transaction) => {
+      const userId = event.operator._id
+      const user = (await getDocById(COLLECTIONS.USER, userId, transaction)).data
+      requirePointUser(user)
+      // 原码重试幂等，网络超时后再次提交不会重复加分。
+      if (user.invited_by) {
+        if (user.bound_invite_code === code) return { repeated: true, balance: Number(user.point_balance || 0), message: '该邀请码已绑定，积分已到账' }
+        throw new Error('你已绑定过邀请码，不能更换或再次领取奖励')
+      }
+      const invite = (await getDocById(COLLECTIONS.INVITE_CODE, code, transaction)).data
+      if (!invite) throw new Error('邀请码不存在，请向好友确认后重新输入')
+      if (invite.user_id === userId) throw new Error('不能填写自己的邀请码，请输入好友的邀请码')
+      const inviter = (await getDocById(COLLECTIONS.USER, invite.user_id, transaction)).data
+      if (!inviter || inviter.is_deleted || Number(inviter.status) !== 1) throw new Error('该邀请码所属账号已停用，暂时不能领取奖励')
+      await transaction.collection(COLLECTIONS.USER).doc(userId).update({ data: { invited_by: inviter._id, bound_invite_code: code, invite_bound_at: db.serverDate(), point_balance: _.inc(100) } })
+      await transaction.collection(COLLECTIONS.USER).doc(inviter._id).update({ data: { point_balance: _.inc(100) } })
+      for (const entry of [{ user_id: userId, reason: 'BIND' }, { user_id: inviter._id, reason: 'INVITE' }]) {
+        await transaction.collection(COLLECTIONS.POINT_LOG).doc(userId + '_' + entry.reason).set({ data: { ...entry, amount: 100, related_user_id: entry.reason === 'BIND' ? inviter._id : userId, created_at: db.serverDate() } })
+      }
+      return { repeated: false, balance: Number(user.point_balance || 0) + 100, message: '绑定成功，你和好友各获得100积分' }
+    })
+    return buildSuccess(result)
+  } catch (error) { return buildFail(error.message || error.errMsg, 'BIND_INVITE_ERROR') }
+}
+
 exports.main = async (event = {}) => {
   try {
     // 在任何登录查询、鉴权或业务读写之前初始化，避免依赖管理员页面。
@@ -2583,6 +2643,10 @@ exports.main = async (event = {}) => {
     return buildFail(error.message || '身份验证失败，请重试', error.code || 'AUTH_ERROR')
   }
   switch (event.action) {
+    case 'getPointsViewData':
+      return getPointsViewData(event)
+    case 'bindInviteCode':
+      return bindInviteCode(event)
     case 'getManualWriteOffViewData':
       return getManualWriteOffViewData(event)
     case 'manualWriteOff':
