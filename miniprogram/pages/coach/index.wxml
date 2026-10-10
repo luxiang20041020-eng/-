@@ -2,15 +2,24 @@
 <view class="page-shell locale-page locale-{{language}} coach-page">
   <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <block wx:if="{{coach}}">
-    <view class="card coach-hero">
-      <image wx:if="{{coach.avatarUrl}}" class="coach-avatar" src="{{coach.avatarUrl}}" mode="aspectFill"></image><view wx:else class="coach-avatar coach-avatar-fallback">{{avatarText}}</view>
-      <view class="coach-hero-main"><view class="coach-kicker">{{i18n.f('教练介绍', [], language)}}</view><view class="coach-name">{{coach.name}}</view><view wx:if="{{coach.title}}" class="coach-title">{{coach.title}}</view><view wx:if="{{coach.levelLabel}}" class="coach-level">{{coach.levelLabel}}</view></view>
+    <view class="coach-hero">
+      <image class="coach-hero-background" src="/images/backgrounds/training-private.jpg" mode="aspectFill"></image>
+      <view class="coach-hero-shade"></view>
+      <view class="coach-hero-content">
+        <view class="coach-brand-row"><view class="coach-brand"><text>ONE</text><view class="coach-brand-divider"></view><text class="coach-brand-caption">COACH</text></view><view class="coach-training-label">{{i18n.f('专属训练', [], language)}}</view></view>
+        <view class="coach-hero-message">{{i18n.f('专注动作，练出进步。', [], language)}}</view>
+        <view class="coach-identity">
+          <image wx:if="{{coach.avatarUrl}}" class="coach-avatar" src="{{coach.avatarUrl}}" mode="aspectFill"></image><view wx:else class="coach-avatar coach-avatar-fallback">{{avatarText}}</view>
+          <view class="coach-hero-main"><view class="coach-kicker">{{i18n.f('教练介绍', [], language)}}</view><view class="coach-name">{{coach.name}}</view><view wx:if="{{coach.title}}" class="coach-title">{{coach.title}}</view><view wx:if="{{coach.levelLabel}}" class="coach-level">{{coach.levelLabel}}</view></view>
+        </view>
+      </view>
+      <view class="coach-hero-stripe"></view>
     </view>
-    <view wx:if="{{coach.specialties.length}}" class="card coach-section"><view class="coach-section-title">{{i18n.f('擅长领域', [], language)}}</view><view class="coach-tags"><text wx:for="{{coach.specialties}}" wx:key="*this">{{item}}</text></view></view>
-    <view class="card coach-section"><view class="coach-section-title">{{i18n.f('个人介绍', [], language)}}</view><view class="coach-body">{{coach.bio || i18n.f('教练暂未填写介绍', [], language)}}</view></view>
-    <view wx:if="{{coach.honors.length}}" class="card coach-section"><view class="coach-section-title">{{i18n.f('荣誉与资质', [], language)}}</view><view class="coach-honors"><view wx:for="{{coach.honors}}" wx:key="*this" class="coach-honor"><text class="honor-mark">★</text><text class="coach-honor-text">{{item}}</text></view></view></view>
-    <view wx:if="{{coach.photos.length}}" class="card coach-section"><view class="coach-section-title">{{i18n.f('照片与证书', [], language)}}</view><view class="coach-gallery {{coach.photos.length === 1 ? 'coach-gallery-single' : ''}}"><view wx:for="{{coach.photos}}" wx:key="*this" class="coach-photo"><image src="{{item}}" mode="aspectFit" data-url="{{item}}" bindtap="onPreviewPhoto"></image></view></view><view class="coach-photo-caption">{{i18n.f('点击照片查看大图', [], language)}}</view></view>
+    <view wx:if="{{coach.specialties.length}}" class="coach-section coach-specialties"><view class="coach-section-title"><view class="coach-section-line"></view><text>{{i18n.f('擅长领域', [], language)}}</text></view><view class="coach-tags"><text wx:for="{{coach.specialties}}" wx:key="*this">{{item}}</text></view></view>
+    <view wx:if="{{coach.honors.length}}" class="coach-section coach-credentials"><view class="coach-section-title"><text class="honor-heading-mark">★</text><text>{{i18n.f('荣誉与资质', [], language)}}</text></view><view class="coach-honors"><view wx:for="{{coach.honors}}" wx:key="*this" class="coach-honor"><text class="honor-mark">{{index === 9 ? '' : '0'}}{{index + 1}}</text><text class="coach-honor-text">{{item}}</text></view></view></view>
+    <view wx:if="{{coach.photos.length}}" class="coach-section coach-proof"><view class="coach-section-title"><view class="coach-section-line"></view><text>{{i18n.f('照片与证书', [], language)}}</text></view><view class="coach-gallery {{coach.photos.length === 1 ? 'coach-gallery-single' : ''}}"><view wx:for="{{coach.photos}}" wx:key="*this" class="coach-photo"><image src="{{item}}" mode="aspectFit" data-url="{{item}}" bindtap="onPreviewPhoto"></image></view></view><view class="coach-photo-caption">{{i18n.f('点击照片查看大图', [], language)}}<text> ↗</text></view></view>
+    <view class="coach-section coach-about"><view class="coach-section-title"><view class="coach-section-line"></view><text>{{i18n.f('个人介绍', [], language)}}</text></view><view class="coach-body">{{coach.bio || i18n.f('教练暂未填写介绍', [], language)}}</view></view>
     <view class="card-desc coach-note">{{i18n.f('选择教练后自行设置训练起止时间，请私下与教练确认安排。', [], language)}}</view>
-    <button class="primary-button coach-choose" disabled="{{pageBusy || pageError || unavailable}}" bindtap="onChooseCoach">{{i18n.f('选择这位教练', [], language)}}</button>
+    <view class="coach-booking-bar"><button class="primary-button coach-choose" disabled="{{pageBusy || pageError || unavailable}}" bindtap="onChooseCoach"><text>{{i18n.f('选择这位教练', [], language)}}</text><text class="coach-choose-arrow">↗</text></button></view>
   </block>
 </view>

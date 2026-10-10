@@ -1,6 +1,49 @@
-.coach-page{padding:32rpx 28rpx calc(48rpx + env(safe-area-inset-bottom))}
-.coach-page .card{margin-top:22rpx;border-radius:24rpx}.coach-page .coach-hero{display:flex;align-items:center;gap:26rpx;margin-top:0;padding:32rpx 28rpx}.coach-avatar{display:block;width:136rpx;height:136rpx;flex-shrink:0;border-radius:22rpx;background:#29362d}.coach-avatar-fallback{display:flex;align-items:center;justify-content:center;font-size:56rpx;color:#fff}.coach-hero-main{flex:1;min-width:0;overflow-wrap:anywhere}.coach-kicker{font-size:22rpx;line-height:1.5;color:#858c7d}.coach-name{font-size:42rpx;line-height:1.4;font-weight:700;margin:8rpx 0}.coach-title{font-size:26rpx;line-height:1.6;color:#4b5544}.coach-level{font-size:23rpx;line-height:1.6;color:#858c7d;margin-top:6rpx}
-.coach-page .coach-section{padding:28rpx}.coach-section-title{font-size:26rpx;font-weight:600;line-height:1.5;color:#444e40;margin-bottom:20rpx;overflow-wrap:anywhere}
-.coach-tags{display:flex;gap:12rpx;flex-wrap:wrap}.coach-tags text{display:inline-block;background:#f5eee7;color:#685e51;border-radius:12rpx;padding:10rpx 18rpx;font-size:24rpx;line-height:1.5;max-width:100%;overflow-wrap:anywhere}.coach-body{white-space:pre-wrap;line-height:1.8;font-size:28rpx;color:#4b5544;overflow-wrap:anywhere}.coach-honor{display:flex;align-items:flex-start;gap:16rpx;line-height:1.7;font-size:26rpx}.coach-honor+.coach-honor{margin-top:18rpx}.coach-honor-text{flex:1;min-width:0;color:#4b5544;white-space:pre-wrap;overflow-wrap:anywhere}.honor-mark{color:#b3442a;flex-shrink:0;line-height:1.7}
-.coach-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16rpx}.coach-photo{min-width:0;border-radius:14rpx;background:#f3f4ee;padding:8rpx}.coach-gallery image{display:block;width:100%;height:254rpx;object-fit:contain;border-radius:10rpx}.coach-gallery-single{grid-template-columns:minmax(0,1fr)}.coach-gallery-single image{height:360rpx}.coach-photo-caption{margin-top:18rpx;font-size:22rpx;line-height:1.6;color:#858c7d;overflow-wrap:anywhere}
-.coach-note{margin:28rpx 4rpx 20rpx;line-height:1.7}.locale-page button.coach-choose{width:100%;margin:0;min-height:88rpx;height:auto;padding:22rpx;white-space:normal;line-height:1.5;text-align:center;border-radius:18rpx;display:flex;align-items:center;justify-content:center}
+.coach-page { min-height:100vh; padding:24rpx 28rpx calc(190rpx + env(safe-area-inset-bottom)); background:radial-gradient(ellipse at 100% 0,#303126 0,#151e19 48%,#121a16 100%); color:#f4f3e9; }
+.coach-hero { position:relative; overflow:hidden; border-radius:24rpx; background:#202920; border:1rpx solid #41473a; }
+.coach-hero-background { position:absolute; inset:0; display:block; width:100%; height:100%; pointer-events:none; }
+.coach-hero-shade { position:absolute; inset:0; background:linear-gradient(180deg,rgba(15,22,17,.22) 0%,rgba(15,22,17,.26) 30%,rgba(15,22,17,.84) 62%,#18211b 100%); pointer-events:none; }
+.coach-hero-content { position:relative; z-index:1; padding:30rpx; }
+.coach-brand-row { display:flex; align-items:center; justify-content:space-between; gap:20rpx; }
+.coach-brand { display:flex; align-items:center; gap:14rpx; flex-shrink:0; font-size:38rpx; font-weight:800; letter-spacing:1rpx; color:#fff; }
+.coach-brand-divider { width:3rpx; height:26rpx; background:#e36642; transform:skewX(-18deg); }
+.coach-brand .coach-brand-caption { font-size:20rpx; font-weight:500; letter-spacing:3rpx; color:#dddccc; }
+.coach-training-label { min-width:0; padding:8rpx 14rpx; border:1rpx solid rgba(232,219,183,.48); background:rgba(18,26,21,.34); border-radius:6rpx; color:#f1e7cd; font-size:21rpx; line-height:1.5; text-align:center; overflow-wrap:anywhere; }
+.coach-hero-message { margin-top:26rpx; max-width:75%; color:#f5eee0; font-size:27rpx; font-weight:600; line-height:1.6; text-shadow:0 2rpx 10rpx rgba(0,0,0,.4); overflow-wrap:anywhere; }
+.coach-identity { display:flex; align-items:flex-end; gap:24rpx; margin-top:142rpx; }
+.coach-avatar { display:block; flex:0 0 152rpx; width:152rpx; height:174rpx; border:3rpx solid #dac5a4; border-radius:14rpx; background:#29362d; }
+.coach-avatar-fallback { display:flex; align-items:center; justify-content:center; font-size:64rpx; font-weight:600; color:#ebddbf; background:linear-gradient(135deg,#384837,#253128); }
+.coach-hero-main { flex:1; min-width:0; overflow-wrap:anywhere; }
+.coach-kicker { color:#b9bdae; font-size:21rpx; line-height:1.5; }
+.coach-name { margin:8rpx 0; color:#fff; font-size:49rpx; line-height:1.25; font-weight:700; }
+.coach-title { color:#e2e4d8; font-size:26rpx; line-height:1.6; }
+.coach-level { color:#dfc795; font-size:24rpx; line-height:1.6; margin-top:10rpx; }
+.coach-hero-stripe { position:relative; height:8rpx; width:42%; background:#d85436; transform:skewX(-28deg); margin-left:-3rpx; }
+.coach-section { margin-top:28rpx; padding:28rpx; min-width:0; }
+.coach-section-title { display:flex; align-items:center; gap:16rpx; color:#f1f0e6; font-size:29rpx; font-weight:600; line-height:1.5; margin-bottom:24rpx; overflow-wrap:anywhere; }
+.coach-section-title text { min-width:0; }
+.coach-section-line { width:6rpx; height:26rpx; background:#e06443; transform:skewX(-16deg); flex-shrink:0; }
+.coach-specialties { padding:12rpx 4rpx 6rpx; }
+.coach-tags { display:flex; gap:14rpx; flex-wrap:wrap; }
+.coach-tags text { display:inline-block; max-width:100%; padding:12rpx 22rpx; background:#273328; border:1rpx solid #46533f; border-radius:8rpx; color:#dbdfca; font-size:25rpx; line-height:1.5; overflow-wrap:anywhere; }
+.coach-credentials { background:linear-gradient(125deg,#343429,#222c23); border:1rpx solid #6c6248; border-radius:18rpx; }
+.honor-heading-mark { color:#e0c589; flex-shrink:0; font-size:28rpx; }
+.coach-honor { display:flex; align-items:flex-start; gap:20rpx; padding:22rpx 0; border-top:1rpx solid rgba(206,193,151,.18); font-size:27rpx; line-height:1.7; }
+.coach-honor:last-child { padding-bottom:0; }
+.coach-honor-text { flex:1; min-width:0; color:#eee5d0; white-space:pre-wrap; overflow-wrap:anywhere; }
+.honor-mark { flex:0 0 44rpx; color:#d5b77b; font-size:25rpx; font-weight:600; line-height:1.7; font-variant-numeric:tabular-nums; }
+.coach-proof { background:#1c2620; border:1rpx solid #354237; border-radius:18rpx; }
+.coach-gallery { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16rpx; }
+.coach-photo { min-width:0; padding:8rpx; border-radius:10rpx; border:1rpx solid #b8b097; background:#e4e2d6; }
+.coach-gallery image { display:block; width:100%; height:254rpx; object-fit:contain; background:#19221c; border-radius:6rpx; }
+.coach-gallery-single { grid-template-columns:minmax(0,1fr); }
+.coach-gallery-single image { height:360rpx; }
+.coach-photo-caption { margin-top:20rpx; color:#b7bcae; font-size:23rpx; line-height:1.6; overflow-wrap:anywhere; }
+.coach-photo-caption text { color:#eac998; }
+.coach-about { padding:12rpx 4rpx 8rpx; }
+.coach-body { color:#d3d9cc; white-space:pre-wrap; font-size:28rpx; line-height:1.9; overflow-wrap:anywhere; }
+.coach-note { margin:26rpx 4rpx 0; padding-top:24rpx; border-top:1rpx solid #354136; color:#a4ac9e; font-size:24rpx; line-height:1.8; overflow-wrap:anywhere; }
+.coach-booking-bar { position:fixed; bottom:0; left:0; right:0; z-index:20; padding:22rpx 28rpx calc(22rpx + env(safe-area-inset-bottom)); border-top:1rpx solid #3b4437; background:#16201a; }
+.locale-page button.coach-choose { display:flex; align-items:center; justify-content:center; gap:20rpx; width:100%; margin:0; min-height:96rpx; height:auto; padding:22rpx 28rpx; border-radius:12rpx; background:#d14b2e; color:#fff; font-size:29rpx; font-weight:600; line-height:1.5; white-space:normal; text-align:center; }
+.coach-choose text:first-child { min-width:0; }
+.coach-choose-arrow { flex-shrink:0; font-size:32rpx; }
+.locale-page button.coach-choose[disabled] { background:#354136; color:#afb7a6; }
