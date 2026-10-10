@@ -1,0 +1,21 @@
+<wxs module="i18n" src="../../utils/i18n.wxs" />
+<view class="page-shell locale-page locale-{{language}} records-page">
+  <view class="page-header"><view class="eyebrow">{{i18n.f('训练安排与记录', [], language)}}</view><view class="page-title">{{i18n.f('全部预约', [], language)}}</view></view>
+  <view class="record-filters"><button wx:for="{{filters}}" wx:key="value" class="record-filter {{filter === item.value ? 'active' : ''}}" data-filter="{{item.value}}" bindtap="onFilter" disabled="{{cancellingBookingId}}">{{i18n.t(item.label, language)}}</button></view>
+  <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
+  <view wx:if="{{!pageBusy && !runtime.isAuthenticated}}" class="card"><button class="primary-button" bindtap="goLogin">{{i18n.f('去登录', [], language)}}</button></view>
+  <block wx:if="{{runtime.isAuthenticated}}">
+    <view wx:if="{{!pageBusy && !pageError && !records.length}}" class="card empty-state"><view class="empty-state-title">{{i18n.f('暂无符合条件的预约', [], language)}}</view><navigator class="inline-link" url="/pages/booking/index">{{i18n.f('去预约训练 →', [], language)}}</navigator></view>
+    <view wx:for="{{records}}" wx:key="id" class="card record-card">
+      <view class="headline-row"><view class="record-date">{{item.fullDate}}</view><view class="status-chip {{item.status === '待到店' ? 'active' : ''}}">{{i18n.t(item.status, language)}}</view></view>
+      <view class="record-title">{{item.title}}</view><view class="card-desc">{{item.timeRange}}</view>
+      <view wx:if="{{item.sourceLabel}}" class="page-caption">{{i18n.t(item.sourceLabel, language)}}</view>
+      <view wx:if="{{item.changeReason}}" class="record-reason">{{i18n.f('排课调整：{0}', [item.changeReason], language)}}</view><view wx:if="{{item.cancelReason}}" class="record-reason">{{i18n.f('取消原因：{0}', [item.cancelReason], language)}}</view>
+      <view wx:if="{{item.status === '待到店' && !item.canCancel}}" class="page-caption">{{i18n.t(item.cancelHint, language)}}</view>
+      <button wx:if="{{item.canCancel}}" class="secondary-button record-cancel" data-id="{{item.id}}" bindtap="onCancel" loading="{{cancellingBookingId === item.id}}" disabled="{{cancellingBookingId || loadingMore || pageBusy || pageError}}">{{i18n.f('取消预约', [], language)}}</button>
+    </view>
+    <view wx:if="{{moreError}}" class="record-error">{{i18n.t(moreError, language)}}</view>
+    <button wx:if="{{hasMore && !pageBusy && !pageError}}" class="secondary-button record-more" bindtap="onLoadMore" loading="{{loadingMore}}" disabled="{{loadingMore || cancellingBookingId}}">{{i18n.t(loadingMore ? '正在加载…' : '加载更多', language)}}</button>
+    <view wx:if="{{records.length && !hasMore && !pageBusy && !pageError}}" class="record-end">{{i18n.f('已显示全部预约', [], language)}}</view>
+  </block>
+</view>

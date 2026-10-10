@@ -38,7 +38,9 @@ test('独立人工核销扣一次课时并形成到场与审计记录，重试�
   context.OPENID = 'student-openid'
   const profile = await main({ action: 'getProfileViewData' })
   assert.equal(profile.data.trainingStats.totalLessons, 1)
-  assert.equal(profile.data.myBookings[0].status, '已完成')
+  assert.equal(profile.data.myBookings.length, 0)
+  const records = await main({ action: 'getMyBookingRecords', payload: { filter: 'completed' } })
+  assert.equal(records.data.records[0].status, '已完成')
 })
 
 test('本场未预约学员可补核销，已有预约不再次扣课，已处理记录拒绝重复核销', async () => {

@@ -368,3 +368,25 @@
 .locale-page button.profile-edit-button { flex: 0 1 auto; width: auto; min-width: 72rpx; max-width: 180rpx; padding: 10rpx 14rpx; line-height: 1.4; letter-spacing: 0; }
 
 .profile-avatar-block{width:116rpx;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:12rpx}.profile-avatar-block .avatar-square{width:88rpx;height:88rpx;flex-shrink:0}.locale-page .avatar-upload-button{width:100%;height:auto;min-height:48rpx;margin:0;padding:8rpx 0;line-height:1.5;color:#b3442b;font-size:20rpx;white-space:normal;text-align:center}.coach-profile-entry .menu-item{gap:20rpx}.coach-profile-entry .section-heading{margin-bottom:8rpx}
+
+/* 档案卡保留真实资料，背景仅提供训练氛围。 */
+.profile-page { background: linear-gradient(155deg, #eceee6 0, #f5f4ef 640rpx); }
+.profile-hero { position: relative; overflow: hidden; padding: 34rpx 28rpx; border: 1rpx solid #3d493e; border-radius: 26rpx; background: #233027; box-shadow: 0 16rpx 36rpx rgba(24,35,27,.12); }
+.profile-hero-photo,.profile-hero-shade { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+.profile-hero-shade { background: linear-gradient(90deg,rgba(20,30,23,.97),rgba(20,30,23,.91) 55%,rgba(20,30,23,.72)); }
+.profile-avatar-block,.profile-hero-main { position: relative; z-index: 1; }
+.profile-hero .profile-name { color: #fff; }
+.profile-hero .profile-facts { border-color: rgba(255,255,255,.18); }
+.profile-hero .profile-fact-label,.profile-hero .profile-level { color: #c3cbbd; }
+.profile-hero .profile-fact-value { color: #f0f2e9; }
+.profile-hero .mini-role-tag { background: #dec38e; color: #2d3629; }
+.profile-hero button.profile-edit-button { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.25); color: #f1ddba; }
+.profile-hero button.avatar-upload-button { color: #f1ddba; background: rgba(255,255,255,.08); border-radius: 10rpx; }
+.profile-hero .avatar-square { border: 2rpx solid rgba(239,219,178,.65); box-shadow: none; }
+.profile-page .metric-item { background: linear-gradient(140deg,#f9efe5,#fbfaf5); border-color: #e9d9c9; border-top: 4rpx solid #c7452d; }
+.profile-page .metric-item + .metric-item { background: linear-gradient(140deg,#eef2e8,#fbfaf5); border-color: #dce3d3; border-top-color: #64745a; }
+.profile-page .booking-date-block { padding: 12rpx 0; border-radius: 12rpx; background: #f5eee5; }
+.profile-page .booking-date-month { letter-spacing: 0; overflow-wrap: anywhere; }
+.profile-page .invite-card { border-top: 4rpx solid #bc9562; }
+.profile-page .stats-item { background: linear-gradient(150deg,#eff2e9,#fbfbf7); border-color: #dde4d5; }
+.booking-all-link { flex-shrink: 0; max-width: 55%; text-align: right; line-height: 1.5; overflow-wrap: anywhere; }

@@ -7,7 +7,7 @@
     <button size="mini" class="primary-button points-button" bindtap="goLogin">{{i18n.f('去登录', [], language)}}</button>
   </view>
   <block wx:if="{{runtime.isAuthenticated && pageData}}">
-    <view class="points-balance"><view class="points-kicker">{{i18n.f('当前积分', [], language)}}</view><view class="points-number">{{pageData.balance}}<text>{{i18n.f('分', [], language)}}</text></view><view class="points-note">{{i18n.f('每次成功邀请，双方各得100积分', [], language)}}</view></view>
+    <view class="points-balance"><image class="points-balance-photo" src="/images/backgrounds/training-group.jpg" mode="aspectFill" aria-hidden="true"></image><view class="points-balance-shade"></view><view class="points-kicker">{{i18n.f('当前积分', [], language)}}</view><view class="points-number">{{pageData.balance}}<text>{{i18n.f('分', [], language)}}</text></view><view class="points-note">{{i18n.f('每次成功邀请，双方各得100积分', [], language)}}</view></view>
     <view class="card">
       <view class="section-title">{{i18n.f('我的邀请码', [], language)}}</view><view class="card-desc">{{i18n.f('分享给好友，让好友在“我的”页面填写。', [], language)}}</view>
       <view class="points-code" selectable="true">{{pageData.inviteCode}}</view>

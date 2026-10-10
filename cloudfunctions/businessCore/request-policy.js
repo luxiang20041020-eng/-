@@ -1,7 +1,7 @@
 const PUBLIC_ACTIONS = new Set(['getCurrentUserSession', 'loginWithPhone', 'getHomeViewData', 'getCoachProfile', 'getBookingViewData', 'logout'])
 const ADMIN_ACTIONS = new Set(['getCustomerFollowUpData', 'getBusinessReportData', 'getCorrectionRecords', 'reverseOperation', 'bootstrap', 'getAdminDashboardData', 'getAdminUserManageData', 'getAdminUserAssets', 'getAdminPackageManageData', 'getAdminStoreManageData', 'createUser', 'createPackage', 'createStore', 'updateStoreGallery', 'updateStore', 'updateStoreStatus', 'updateUserRole', 'updatePackageStatus'])
 const STAFF_ACTIONS = new Set(['getOwnCoachProfile', 'updateCoachProfile', 'getScheduleAdjustmentData', 'updateCoachSchedule', 'cancelCoachSchedule', 'getWorkspaceViewData', 'getDistributeViewData', 'getCoachClassViewData', 'getCoachScheduleViewData', 'getManualWriteOffViewData', 'manualWriteOff', 'distributeAsset', 'writeOffBooking', 'createCoachSchedule'])
-const MEMBER_ACTIONS = new Set(['getMediaUploadData', 'updateUserAvatar', 'createPrivateBooking', 'getPointsViewData', 'bindInviteCode', 'getIdentityQrCode', 'getProfileViewData', 'updateUserProfile', 'createBooking', 'cancelBooking'])
+const MEMBER_ACTIONS = new Set(['getMyBookingRecords', 'getMediaUploadData', 'updateUserAvatar', 'createPrivateBooking', 'getPointsViewData', 'bindInviteCode', 'getIdentityQrCode', 'getProfileViewData', 'updateUserProfile', 'createBooking', 'cancelBooking'])
 
 function reject(message, code) {
   throw Object.assign(new Error(message), { code })

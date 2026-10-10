@@ -1,12 +1,8 @@
 <wxs module="i18n" src="../../utils/i18n.wxs" />
 <media-privacy id="mediaPrivacy" language="{{language}}"></media-privacy>
-<view class="page-shell locale-page locale-{{language}}">
+<view class="page-shell locale-page locale-{{language}} profile-page">
   <language-setting bindchange="onLanguageChange"></language-setting>
   <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
-  <view class="page-header">
-    <view class="eyebrow">{{i18n.f('我的训练档案', [], language)}}</view>
-    <view class="page-title">{{i18n.f('我的', [], language)}}</view>
-  </view>
 
   <view wx:if="{{!runtime.isAuthenticated}}" class="card login-guide-card">
     <view class="section-title">{{i18n.f('登录后解锁全部功能', [], language)}}</view>
@@ -15,6 +11,8 @@
   </view>
 
   <view wx:if="{{runtime.isAuthenticated}}" class="card profile-hero">
+    <image class="profile-hero-photo" src="/images/backgrounds/gym-header.jpg" mode="aspectFill" aria-hidden="true"></image>
+    <view class="profile-hero-shade"></view>
     <view class="profile-avatar-block"><image wx:if="{{runtime.userProfile.avatarUrl}}" class="avatar-square" src="{{runtime.userProfile.avatarUrl}}" mode="aspectFill"></image><view wx:else class="avatar-square">{{avatarText}}</view><button class="avatar-upload-button" bindtap="onUploadAvatar" loading="{{avatarUploading}}" disabled="{{avatarUploading || loggingOut || nicknameSubmitting}}">{{i18n.f('上传头像', [], language)}}</button></view>
     <view class="profile-hero-main">
       <view class="profile-name-row">
@@ -107,7 +105,7 @@
   <view class="card" id="bookings-section">
     <view class="headline-row">
       <view class="section-heading">{{i18n.f('我的预约', [], language)}}</view>
-      <view class="card-desc">{{i18n.f('训练安排与记录', [], language)}}</view>
+      <navigator class="inline-link booking-all-link" url="/pages/bookings/index">{{i18n.f('全部预约 ›', [], language)}}</navigator>
     </view>
     <view wx:if="{{!pageBusy && !pageError && !pageData.myBookings.length}}" class="empty-state"><view class="empty-state-title">{{i18n.f('你的训练计划，从下一次开始', [], language)}}</view><view class="empty-state-desc">{{i18n.f('选一个合适的场次，让坚持发生。', [], language)}}</view><navigator class="inline-link" url="/pages/booking/index">{{i18n.f('去预约训练 →', [], language)}}</navigator></view>
     <view wx:for="{{pageData.myBookings}}" wx:key="id" class="booking-item">

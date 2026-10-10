@@ -15,15 +15,18 @@ function createDatabase() {
     return collections.get(name)
   }
 
-  function query(name, where = {}, offset = 0, size = Infinity) {
+  function query(name, where = {}, offset = 0, size = Infinity, orders = []) {
     function rows() {
-      return [...getRecords(name).values()].filter((doc) => Object.entries(where).every(([key, value]) => doc[key] === value))
+      return [...getRecords(name).values()].filter((doc) => Object.entries(where).every(([key, value]) => value && value.valuesIn ? value.valuesIn.includes(doc[key]) : doc[key] === value)).sort((a, b) => {
+        for (const [key, direction] of orders) { const compare = a[key] > b[key] ? 1 : a[key] < b[key] ? -1 : 0; if (compare) return direction === 'desc' ? -compare : compare }
+        return 0
+      })
     }
     return {
       where: (nextWhere) => query(name, nextWhere),
-      skip: (next) => query(name, where, next, size),
-      limit: (next) => query(name, where, offset, next),
-      orderBy: () => query(name, where, offset, size),
+      skip: (next) => query(name, where, next, size, orders),
+      limit: (next) => query(name, where, offset, next, orders),
+      orderBy: (key, direction) => query(name, where, offset, size, orders.concat([[key, direction]])),
       count: async () => ({ total: rows().length }),
       get: async () => ({ data: rows().slice(offset, offset + size).map((doc) => ({ ...doc })) }),
       add: async ({ data }) => {
@@ -61,7 +64,7 @@ function createDatabase() {
   }
 
   state.db = {
-    command: { inc: (increment) => ({ increment }) },
+    command: { inc: (increment) => ({ increment }), in: valuesIn => ({ valuesIn }) },
     serverDate: () => new Date(),
     createCollection: async (name) => {
       state.createCalls += 1

@@ -1,5 +1,5 @@
 <wxs module="i18n" src="../../utils/i18n.wxs" />
-<view class="page-shell locale-page locale-{{language}}">
+<view class="page-shell locale-page locale-{{language}} workspace-page">
   <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
 
   <view class="page-header art-header">
@@ -15,14 +15,6 @@
   </view>
 
   <block wx:else>
-    <view class="card coach-hero-card">
-      <view class="avatar-square">{{avatarText}}</view>
-      <view class="coach-hero-main">
-        <view class="coach-hero-name">{{i18n.f('{0} 的工作台', [runtime.userProfile.nickname], language)}}</view>
-        <view class="card-desc">{{i18n.f('今日 {0} 节课 · {1}', [pageData.todayClasses.length, pageData.currentStore.name], language)}}</view>
-      </view>
-    </view>
-
     <view class="card">
       <view class="stats-grid coach-stat-grid">
         <view class="stats-item">

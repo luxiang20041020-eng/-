@@ -10,7 +10,7 @@ const localizedText = require('../miniprogram/utils/i18n-text')
 const languageOptions = ['简体中文', 'English', 'Français', 'ไทย', 'Deutsch', '日本語', 'हिन्दी']
 const languageCodes = ['zh', 'en', 'fr', 'th', 'de', 'ja', 'hi']
 const i18n = { t: localizedText.translate, f: localizedText.format, list: localizedText.list }
-const pageNames = ['coach', 'coach/edit', 'home', 'booking', 'profile', 'points', 'login', 'workspace', 'admin', 'admin/users', 'admin/packages', 'admin/stores', 'admin/reports', 'workspace/distribute', 'workspace/schedule', 'workspace/class', 'workspace/manual', 'workspace/adjust']
+const pageNames = ['bookings', 'coach', 'coach/edit', 'home', 'booking', 'profile', 'points', 'login', 'workspace', 'admin', 'admin/users', 'admin/packages', 'admin/stores', 'admin/reports', 'workspace/distribute', 'workspace/schedule', 'workspace/class', 'workspace/manual', 'workspace/adjust']
 const escape = (value) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 const imageCache = new Map()
 function previewImageSource(source) {
@@ -157,6 +157,14 @@ function fixtures(page, search) {
       if (search.get('state') === 'error') data.galleryError = '照片上传失败，请检查网络后重试'
       if (search.get('state') === 'uploading') data.galleryBusy = true
     }
+  }
+  if (page === 'bookings') {
+    data.records = Array.from({ length: 20 }, (_, index) => ({ id: 'record' + index, title: index % 2 ? '一对一专属训练' : schedules[0].title, fullDate: '2026-10-09', timeRange: '19:00 - 20:30', status: ['待到店', '已核销', '已取消', '已缺席'][index % 4], canCancel: index % 4 === 0, cancelReason: index % 4 === 2 ? '客户调整训练安排' : '' }))
+    data.records = data.records.map(item => ({ ...item, status: item.status === '已核销' ? '已完成' : item.status }))
+    data.hasMore = true
+    if (search.get('state') === 'empty') { data.records = []; data.hasMore = false }
+    if (search.get('state') === 'end') data.hasMore = false
+    if (search.get('state') === 'more-error') data.moreError = '预约记录暂时无法读取，请稍后重试'
   }
   if (page === 'points') {
     data.pageData = { balance: 200, inviteCode: 'ON12AB34CD56EF', bound: true, boundCode: 'ON98AB76CD54EF', records: [{ id: '1', amount: 100, title: '邀请好友奖励', dateLabel: '2026-10-09' }, { id: '2', amount: 100, title: '填写邀请码奖励', dateLabel: '2026-10-09' }] }

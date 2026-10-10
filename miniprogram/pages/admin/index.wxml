@@ -1,5 +1,5 @@
 <wxs module="i18n" src="../../utils/i18n.wxs" />
-<view class="page-shell locale-page locale-{{language}}">
+<view class="page-shell locale-page locale-{{language}} dashboard-page">
   <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header art-header">
     <image class="art-header-photo" src="/images/backgrounds/gym-header.jpg" mode="aspectFill" aria-hidden="true"></image><view class="art-header-shade"></view><view class="art-header-content">
@@ -14,19 +14,6 @@
   </view>
 
   <block wx:else>
-    <view class="card admin-toolbar-card">
-      <view class="admin-toolbar-left">
-        <view class="admin-tool-label">{{i18n.f('日期', [], language)}}</view>
-        <view class="admin-tool-value">{{i18n.t(pageData.dateLabel, language)}}</view>
-      </view>
-      <view class="admin-toolbar-mid"> </view>
-      <view class="admin-toolbar-left" bindtap="onOpenStorePicker">
-        <view class="admin-tool-label">{{i18n.f('门店', [], language)}}</view>
-        <view class="admin-tool-value">{{pageData.currentStore.name}}</view>
-      </view>
-      <button class="secondary-button admin-mini-btn" loading="{{bootstrapLoading}}" disabled="{{bootstrapLoading}}" bindtap="onBootstrap">{{i18n.t(bootstrapLoading ? '正在检查…' : '检查服务', language)}}</button>
-    </view>
-
     <view class="card">
       <view class="section-title">{{i18n.f('今日概览', [], language)}}</view>
       <view class="metric-grid">

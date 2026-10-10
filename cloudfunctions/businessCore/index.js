@@ -1129,6 +1129,38 @@ async function getHomeViewData(event) {
   }
 }
 
+const bookingCreatedTime = value => value && typeof value.getTime === 'function' ? value.getTime() : parseBusinessTime(value) || 0
+function buildMyBookingView(item, schedule) {
+  return {
+    id: item._id, scheduleId: item.schedule_id,
+    title: schedule ? schedule.title : '训练记录',
+    type: schedule ? mapAssetTypeToPageType(schedule.class_type) : 'group',
+    dateLabel: formatDateLabel(schedule ? schedule.start_time : item.training_time || item.created_at),
+    fullDate: businessDate(schedule ? schedule.start_time : item.training_time || item.created_at),
+    timeRange: schedule ? (schedule.manual_only ? String(schedule.start_time).slice(11, 16) : formatTimeRange(schedule.start_time, schedule.end_time)) : '',
+    status: Number(schedule?.status) === SCHEDULE_STATUS.COACH_CANCELLED && Number(item.status) === BOOKING_STATUS.PENDING ? '场馆取消，退课处理中' : mapBookingStatusToLabel(item.status),
+    sourceLabel: item.source === 'manual' ? '线下人工核销' : '',
+    cancelReason: item.cancel_reason || schedule?.cancel_reason || '', changeReason: schedule?.change_reason || '',
+    canCancel: Number(item.status) === BOOKING_STATUS.PENDING && Boolean(schedule) && Number(schedule.status) !== SCHEDULE_STATUS.COACH_CANCELLED && canCancel(schedule.start_time),
+    cancelHint: Number(item.status) === BOOKING_STATUS.PENDING && schedule && !canCancel(schedule.start_time) ? '开课前 2 小时内不可取消' : '',
+  }
+}
+
+async function getMyBookingRecords(event) {
+  const { filter = 'all', offset = 0 } = event.payload || {}
+  const statuses = { pending: [1], completed: [2], cancelled: [3, 4], absent: [5] }
+  if (!['all', 'pending', 'completed', 'cancelled', 'absent'].includes(filter) || !Number.isSafeInteger(offset) || offset < 0) return buildFail('预约筛选条件无效，请重新选择', 'INVALID_BOOKING_FILTER')
+  try {
+    const where = { is_deleted: false, user_id: event.operator._id }
+    if (statuses[filter]) where.status = _.in(statuses[filter])
+    const rows = (await db.collection(COLLECTIONS.BOOKING).where(where).orderBy('created_at', 'desc').orderBy('_id', 'desc').skip(offset).limit(21).get()).data
+    const bookings = rows.slice(0, 20), scheduleIds = [...new Set(bookings.map(row => row.schedule_id).filter(Boolean))]
+    const schedules = await Promise.all(scheduleIds.map(id => getDocById(COLLECTIONS.CLASS_SCHEDULE, id)))
+    const scheduleMap = new Map(scheduleIds.map((id, index) => [id, schedules[index]?.data]))
+    return buildSuccess({ records: bookings.map(row => buildMyBookingView(row, scheduleMap.get(row.schedule_id))), nextOffset: offset + bookings.length, hasMore: rows.length > 20 })
+  } catch (error) { console.error('getMyBookingRecords', error); return buildFail('预约记录暂时无法读取，请稍后重试', 'BOOKING_RECORDS_ERROR') }
+}
+
 async function getProfileViewData(event) {
   const payload = event.payload || {}
   if (!payload.userId) {
@@ -1156,23 +1188,10 @@ async function getProfileViewData(event) {
       currentStore: buildStoreView(currentStore && currentStore.data ? currentStore.data : null),
       assets: buildAssetView(assets),
       myBookings: bookings
-        .sort((left, right) => String(right.created_at || '').localeCompare(String(left.created_at || '')))
-        .map((item) => {
-          const schedule = scheduleMap.get(item.schedule_id)
-          return {
-            id: item._id,
-            scheduleId: item.schedule_id,
-            title: schedule ? schedule.title : item.schedule_id,
-            type: schedule ? mapAssetTypeToPageType(schedule.class_type) : 'group',
-            dateLabel: schedule ? formatDateLabel(schedule.start_time) : '',
-            timeRange: schedule ? (schedule.manual_only ? String(schedule.start_time).slice(11, 16) : formatTimeRange(schedule.start_time, schedule.end_time)) : '',
-            status: Number(schedule?.status) === SCHEDULE_STATUS.COACH_CANCELLED && Number(item.status) === BOOKING_STATUS.PENDING ? '场馆取消，退课处理中' : mapBookingStatusToLabel(item.status),
-            sourceLabel: item.source === 'manual' ? '线下人工核销' : '',
-            cancelReason: item.cancel_reason || schedule?.cancel_reason || '', changeReason: schedule?.change_reason || '',
-            canCancel: Number(item.status) === BOOKING_STATUS.PENDING && Boolean(schedule) && Number(schedule.status) !== SCHEDULE_STATUS.COACH_CANCELLED && canCancel(schedule.start_time),
-            cancelHint: schedule && !canCancel(schedule.start_time) ? '开课前 2 小时内不可取消' : '',
-          }
-        }),
+        .filter(item => Number(item.status) === BOOKING_STATUS.PENDING && Number(scheduleMap.get(item.schedule_id)?.status) !== SCHEDULE_STATUS.COACH_CANCELLED)
+        .sort((left, right) => bookingCreatedTime(right.created_at) - bookingCreatedTime(left.created_at) || String(right._id).localeCompare(String(left._id)))
+        .slice(0, 3)
+        .map(item => buildMyBookingView(item, scheduleMap.get(item.schedule_id))),
       trainingStats: {
         monthLessons,
         streakDays: attendanceDays.size,
@@ -2739,6 +2758,8 @@ exports.main = async (event = {}) => {
       return getBookingViewData(event)
     case 'getProfileViewData':
       return getProfileViewData(event)
+    case 'getMyBookingRecords':
+      return getMyBookingRecords(event)
     case 'getWorkspaceViewData':
       return getWorkspaceViewData(event)
     case 'getDistributeViewData':

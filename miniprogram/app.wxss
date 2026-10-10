@@ -484,4 +484,12 @@ input, textarea { font-weight: 400; }
 .art-header .page-subtitle{color:#e0e2d5;font-size:22rpx;line-height:1.6;margin-top:14rpx;overflow-wrap:anywhere}
 .art-header .headline-row{align-items:center;gap:16rpx}.art-header .headline-row .page-title{flex:1}
 .art-header .store-badge{color:#fff;background:rgba(14,24,16,.54);border-color:rgba(255,255,255,.3);max-width:45%;height:auto;padding:10rpx 14rpx;white-space:normal;overflow-wrap:anywhere;font-size:20rpx;line-height:1.5;text-align:center;flex-shrink:0}
+
+/* 主页面统一运动视觉，装饰层不拦截点击。 */
+.page-header.art-header { border: 1rpx solid #40503c; box-shadow: 0 12rpx 28rpx rgba(24,35,27,.1); }
+.art-header::after { content: ''; position: absolute; left: 28rpx; bottom: 0; width: 92rpx; height: 5rpx; background: #e36c45; pointer-events: none; }
+.art-header .eyebrow { color: #ead8b7; }
+.workspace-page,.dashboard-page { background: linear-gradient(155deg,#eaece3,#f5f4ef 700rpx); }
+.workspace-page .stats-item,.dashboard-page .metric-item { background: linear-gradient(145deg,#eef2e8,#fbfbf7); border-color: #dce4d3; border-top: 4rpx solid #758368; }
+.dashboard-page .metric-item:first-child { background: linear-gradient(145deg,#f9efe5,#fbfaf5); border-color: #eadcca; border-top-color: #c7452d; }
 .locale-page .role-badge { white-space: normal; text-align: center; }

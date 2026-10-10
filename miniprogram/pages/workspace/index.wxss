@@ -6,6 +6,13 @@
   background: #fbfaf6;
 }
 
+.workspace-page .coach-hero-card { border-radius: 24rpx; border-color: #dce3d2; background: linear-gradient(120deg,#edf2e5,#fafbf7); }
+.workspace-page .workspace-action-card { border-radius: 20rpx; background: linear-gradient(145deg,#f5f6ee,#fff); }
+.workspace-page .workspace-action-card.primary { border-color: #c7d1ba; background: linear-gradient(135deg,#e5eddc,#f4f7ed); }
+.workspace-page .workspace-action-top { color: #899575; font-size: 32rpx; }
+.workspace-page .today-class-time { width: 124rpx; flex-shrink: 0; border-radius: 12rpx; background: #edf1e5; padding: 14rpx 8rpx; }
+.workspace-page .today-class-time-main { font-size: 36rpx; }
+
 .coach-hero-main {
   flex: 1;
   min-width: 0;

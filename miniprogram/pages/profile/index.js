@@ -8,7 +8,7 @@ const { confirmAction, showFeedback, navigateTo, redirectTo, reLaunch } = requir
 function decorateProfilePageData(pageData) {
   const safeData = pageData || {}
   return Object.assign({}, safeData, {
-    myBookings: (safeData.myBookings || []).map((item) => {
+    myBookings: (safeData.myBookings || []).filter(item => item.status === '待到店').slice(0, 3).map((item) => {
       const rawDateText = String(item.dateLabel || '')
       const dateText = rawDateText.split(' ')[0] || rawDateText
       const dateParts = dateText.split('/')

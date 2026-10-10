@@ -1499,3 +1499,42 @@ test('相册大图使用云文件临时地址，读取失败只显示具体图�
   f.wx.cloud.getTempFileURL = async () => { throw new Error('database SDK fail') }
   await f.page.onPreviewPhoto({ currentTarget: { dataset: { url: 'cloud://env/photo.jpg' } } }); assert.doesNotMatch(f.calls.modals.at(-1).content, /SDK|database/)
 })
+
+
+test('全部预约按页加载，重入保护和重复记录去重', async () => {
+  let finish, reads=0
+  const f=harness('pages/bookings/index.js',{getMyBookingRecords: async p=>{reads++; if(!p.offset)return {records:[{id:'one'}],hasMore:true,nextOffset:20};return await new Promise(resolve=>{finish=resolve})}})
+  f.app.getRuntimeSnapshotAsync=async()=>({isAuthenticated:true,userProfile:{id:'user'}})
+  await f.page.syncPageData(); assert.equal(f.page.data.records.length,1)
+  const pending=f.page.onLoadMore(); await f.page.onLoadMore(); assert.equal(reads,2)
+  finish({records:[{id:'one'},{id:'two'}],hasMore:false,nextOffset:22});await pending
+  assert.deepEqual(Array.from(f.page.data.records,item=>item.id),['one','two']);assert.equal(f.page.data.hasMore,false)
+})
+test('切换预约筛选和离页会忽略旧的分页响应',async()=>{
+  let finish;const f=harness('pages/bookings/index.js',{getMyBookingRecords:async p=>p.offset?new Promise(resolve=>{finish=resolve}):{records:[{id:p.filter}],hasMore:true,nextOffset:20}})
+  f.app.getRuntimeSnapshotAsync=async()=>({isAuthenticated:true,userProfile:{id:'user'}})
+  await f.page.syncPageData(); const old=f.page.onLoadMore(); f.page.onFilter({currentTarget:{dataset:{filter:'completed'}}}); await new Promise(resolve=>setTimeout(resolve,0))
+  finish({records:[{id:'stale'}],hasMore:false,nextOffset:21});await old;assert.equal(f.page.data.records[0].id,'completed')
+  const hidden=f.page.onLoadMore();f.page.onHide();finish({records:[{id:'hidden'}],hasMore:false,nextOffset:21});await hidden;assert.equal(f.page.data.records.length,1)
+})
+test('预约尾页失败保留已加载记录与页码，可原页重试',async()=>{
+  let fail=true;const f=harness('pages/bookings/index.js',{getMyBookingRecords:async p=>{if(p.offset&&fail)throw Error('请求超时');return {records:[{id:p.offset?'two':'one'}],hasMore:!p.offset,nextOffset:p.offset?21:20}}})
+  f.app.getRuntimeSnapshotAsync=async()=>({isAuthenticated:true});await f.page.syncPageData();await f.page.onLoadMore();assert.equal(f.page.data.records.length,1);assert.equal(f.page.data.nextOffset,20);assert.ok(f.page.data.moreError)
+  fail=false;await f.page.onLoadMore();assert.equal(f.page.data.records.length,2);assert.equal(f.page.data.moreError,'')
+})
+test('未登录不查询个人预约，历史预约不可取消',async()=>{
+  let reads=0,writes=0;const f=harness('pages/bookings/index.js',{getMyBookingRecords:async()=>{reads++},cancelBooking:async()=>{writes++}})
+  f.app.getRuntimeSnapshotAsync=async()=>({isAuthenticated:false});await f.page.syncPageData();assert.equal(reads,0)
+  f.page.data.records=[{id:'old',canCancel:false}];await f.page.onCancel({currentTarget:{dataset:{id:'old'}}});assert.equal(writes,0)
+})
+test('全部预约取消成功后清除摘要缓存并重新读取记录',async()=>{
+  const f=harness('pages/bookings/index.js',{getMyBookingRecords:async()=>({records:[],hasMore:false,nextOffset:0}),cancelBooking:async()=>({message:'已取消，权益已退回'})})
+  f.app.getRuntimeSnapshotAsync=async()=>({isAuthenticated:true});f.page.data.records=[{id:'one',title:'训练',canCancel:true}];await f.page.onCancel({currentTarget:{dataset:{id:'one'}}})
+  assert.ok(f.calls.invalidations.includes('profile:'));assert.equal(f.page.data.records.length,0);assert.equal(f.page.data.cancellingBookingId,'')
+})
+
+test('旧个人中心缓存中的历史预约被过滤，待到店最多展示三条',()=>{
+  const f=harness('pages/profile/index.js');f.app.getViewCache=()=>({myBookings:Array.from({length:12},(_,i)=>({id:'b'+i,status:i%2?'已完成':'待到店',dateLabel:'10/09'}))});
+  f.page.hydratePageData({isAuthenticated:true,userProfile:{id:'user',nickname:'用户',phone:'13812345678'}});
+  assert.deepEqual(Array.from(f.page.data.pageData.myBookings,item=>item.id),['b0','b2','b4']);
+})
