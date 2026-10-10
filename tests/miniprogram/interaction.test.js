@@ -1277,6 +1277,87 @@ function storeGalleryPage(api = {}) {
   return f
 }
 
+function homeStores(api = {}) {
+  const f = harness('pages/home/index.js', api)
+  const gallery = [{ url: '/images/gym-interior-1.jpg', title: '训练区' }]
+  const stores = [{ id: 's1', name: '近处门店', address: '训练街1号', latitude: 34, longitude: 108.9, introduction: '门店介绍', gallery }, { id: 's2', name: '较远门店', address: '训练街2号', latitude: 35, longitude: 109, gallery }, { id: 'missing', name: '未填位置', address: '训练街3号', latitude: null, longitude: null, gallery: [] }]
+  f.page.data.runtime = { stores, currentStore: stores[0], isAuthenticated: false }
+  f.page.data.pageData = { stores, currentStore: stores[0] }
+  f.app.switchStore = id => { f.calls.storeId = id }
+  f.page.syncPageData = async () => { f.calls.refreshed = true }
+  return f
+}
+
+test('首页选店浏览详情不改变门店，确认后切换，关闭详情不影响当前选择', () => {
+  const f = homeStores()
+  f.page.onOpenStorePicker(); assert.equal(f.page.data.storeOptions.length, 3); assert.equal(f.page.data.storePickerVisible, true)
+  f.page.onViewStore({ currentTarget: { dataset: { storeId: 's2' } } }); assert.equal(f.page.data.storeDetail.id, 's2'); assert.equal(f.calls.storeId, undefined)
+  f.page.onCloseStorePicker(); assert.equal(f.page.data.storeDetail, null); assert.equal(f.calls.storeId, undefined)
+  f.page.onOpenStorePicker(); f.page.onSwitchStore({ currentTarget: { dataset: { storeId: 's2' } } })
+  assert.equal(f.calls.storeId, 's2'); assert.equal(f.calls.refreshed, true); assert.equal(f.page.data.storePickerVisible, false)
+})
+
+test('查看距离才请求定位，正确显示直线距离、最近排序及缺失位置，位置不传给后台', async () => {
+  const f = homeStores(); let requests = 0, type
+  f.wx.getLocation = opts => { requests++; type = opts.type; opts.success({ latitude: 34.001, longitude: 108.9 }) }
+  f.page.onOpenStorePicker(); assert.equal(requests, 0)
+  await f.page.onLocateStores(); assert.equal(requests, 1); assert.equal(type, 'gcj02')
+  assert.equal(f.page.data.storeOptions[0].id, 's1'); assert.equal(f.page.data.storeOptions[0].distanceValue, '111'); assert.equal(f.page.data.storeOptions[0].distanceUnit, 'm')
+  assert.equal(f.page.data.storeOptions[1].distanceUnit, 'km'); assert.equal(f.page.data.storeOptions[2].hasDistance, false)
+  assert.equal(f.calls.cloud, 0); assert.equal(f.storage.size, 0)
+})
+
+test('定位拒绝、隐私拒绝和超时保留选店功能并展示具体响应', async () => {
+  const f = homeStores(); f.page.onOpenStorePicker()
+  f.wx.getLocation = opts => opts.fail({ errMsg: 'getLocation:fail auth deny' })
+  await f.page.onLocateStores(); assert.equal(f.page.data.locationDenied, true); assert.match(f.page.data.locationError, /权限/); assert.equal(f.page.data.storePickerVisible, true)
+  f.wx.getLocation = opts => opts.fail({ errMsg: 'getLocation:fail timeout' })
+  await f.page.onLocateStores(); assert.match(f.page.data.locationError, /超时/); assert.equal(f.page.data.locating, false)
+  f.wx.getLocation = opts => opts.fail({ errMsg: 'api scope is not declared in the privacy agreement' })
+  await f.page.onLocateStores(); assert.match(f.page.data.locationError, /功能暂未开通/); assert.equal(f.page.data.locationDenied, false)
+  let accesses = 0; f.wx.getLocation = opts => { accesses++; opts.success({ latitude: 34, longitude: 108 }) }
+  f.wx.getPrivacySetting = opts => opts.success({ needAuthorization: true }); f.page.selectComponent = () => ({ authorize: async () => { throw new Error('cancel') } })
+  await f.page.onLocateStores(); assert.equal(accesses, 0); assert.match(f.page.data.locationError, /取消/)
+  assert.equal(f.page.data.storeOptions.length, 3)
+})
+
+test('定位中阻止重复请求，离开页面后迟到的结果不再更新距离', async () => {
+  const f = homeStores(); let resolve, requests = 0
+  f.wx.getLocation = opts => { requests++; resolve = opts.success }
+  const first = f.page.onLocateStores(); for (let i = 0; i < 5; i++) await Promise.resolve()
+  await f.page.onLocateStores(); assert.equal(requests, 1)
+  f.page.onHide(); resolve({ latitude: 34, longitude: 108 }); await first
+  assert.equal(f.page.data.locationReady, false); assert.equal(f.page.data.locating, false); assert.equal(f._storeLocation, undefined)
+})
+
+test('地图导航使用查看门店的坐标，缺少坐标可复制地址，不导航到零坐标', () => {
+  const f = homeStores(); let navigation, address
+  f.wx.openLocation = opts => { navigation = opts }; f.wx.setClipboardData = opts => { address = opts.data }
+  f.page.onViewStore({ currentTarget: { dataset: { storeId: 's2' } } }); f.page.onOpenLocation()
+  assert.equal(navigation.latitude, 35); assert.equal(navigation.name, '较远门店')
+  f.page.onViewStore({ currentTarget: { dataset: { storeId: 'missing' } } }); navigation = null; f.page.onOpenLocation()
+  assert.equal(navigation, null); assert.equal(address, '训练街3号')
+})
+
+test('门店地图选点填充地址坐标并保留介绍，关闭和保存不能打断选点', async () => {
+  const f = storeGalleryPage(); f.page.onOpenEditPopup({ currentTarget: { dataset: { storeId: 's1' } } }); f.page.data.storeForm.introduction = '已有介绍'
+  let choose; f.wx.chooseLocation = opts => { choose = opts.success }
+  const pending = f.page.onPickStoreLocation(); for (let i = 0; i < 8; i++) await Promise.resolve()
+  f.page.onCloseStorePopup(); assert.equal(f.page.data.showStorePopup, true)
+  choose({ latitude: 34.123, longitude: 108.888, address: '地图选中的地址' }); await pending
+  assert.equal(f.page.data.storeForm.address, '地图选中的地址'); assert.equal(f.page.data.storeForm.latitude, 34.123); assert.equal(f.page.data.storeForm.introduction, '已有介绍')
+  assert.equal(f.page.data.storeLocating, false)
+})
+
+test('距离算法正确处理空坐标、赤道、跨日期变更线与对跖点', () => {
+  const geo = require('../../miniprogram/utils/store-location')
+  assert.equal(geo.point({ latitude: null, longitude: null }), null); assert.equal(geo.point({ latitude: '', longitude: '' }), null)
+  assert.equal(geo.distanceMeters({ latitude: 0, longitude: 0 }, { latitude: 0, longitude: 0 }), 0)
+  assert.ok(Math.abs(geo.distanceMeters({ latitude: 0, longitude: 0 }, { latitude: 0, longitude: 1 }) - 111195) < 1)
+  assert.ok(geo.distanceMeters({ latitude: 0, longitude: 179.9 }, { latitude: 0, longitude: -179.9 }) < 23000)
+  assert.ok(Number.isFinite(geo.distanceMeters({ latitude: 0, longitude: 0 }, { latitude: 0, longitude: 180 })))
+})
+
 test('门店图片草稿与原数据隔离，可更改说明删除和恢复默认，空相册不补默认', () => {
   const f = storeGalleryPage(), p = f.page
   assert.equal(p.data.galleryDraft.length, 3)

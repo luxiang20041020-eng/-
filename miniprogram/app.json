@@ -27,6 +27,8 @@
     "navigationBarTextStyle": "black"
   },
   "__usePrivacyCheck__": true,
+  "permission": { "scope.userLocation": { "desc": "用于显示您与各门店的距离，帮助选择附近门店" } },
+  "requiredPrivateInfos": ["getLocation", "chooseLocation"],
   "sitemapLocation": "sitemap.json",
   "style": "v2",
   "lazyCodeLoading": "requiredComponents",

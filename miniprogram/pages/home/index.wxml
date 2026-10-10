@@ -1,4 +1,5 @@
 <wxs module="i18n" src="../../utils/i18n.wxs" />
+<media-privacy id="mediaPrivacy" language="{{language}}"></media-privacy>
 <view class="page-shell locale-page locale-{{language}} home-page">
   <view class="home-masthead">
     <view class="home-brand"><text class="home-wordmark">ONE</text><text class="home-brand-caption">{{i18n.f('泰拳格斗馆', [], language)}}</text></view>
@@ -29,7 +30,36 @@
     <view class="collapsible-header" bindtap="onTogglePricing" hover-class="tap-feedback"><view><view class="section-heading">{{i18n.f('选择适合你的训练计划', [], language)}}</view><view class="page-caption">{{i18n.f('{0} 个套餐 · 到馆咨询', [pageData.packages.length || 0], language)}}</view></view><view class="collapse-toggle"><view class="collapse-chevron {{pricingExpanded ? 'expanded' : ''}}"></view></view></view>
     <view wx:if="{{pricingExpanded}}" class="pricing-list"><view wx:for="{{pageData.packages}}" wx:key="id" class="pricing-item"><view><view class="pricing-tag">{{i18n.t(item.type === 'private' ? '专属训练' : '团体训练', language)}}</view><view class="pricing-name">{{item.name}}</view><view class="pricing-meta">{{item.unlimited ? i18n.f('有效期 {0} 天 · 无限次', [item.validDays], language) : i18n.f('{0} 次训练', [item.lessons], language)}}</view></view><view class="pricing-price-wrap"><view class="pricing-price">¥{{item.price}}</view><view class="pricing-note">{{i18n.f('到馆购买', [], language)}}</view></view></view><view wx:if="{{!pageData.packages.length}}" class="empty-text">{{i18n.f('套餐整理中，欢迎到馆咨询', [], language)}}</view></view>
   </view>
-  <view class="home-address" wx:if="{{pageData.currentStore.address}}" bindtap="onOpenLocation" hover-class="tap-feedback"><view class="section-heading">{{pageData.currentStore.name}}</view><view class="page-caption">{{pageData.currentStore.address}}</view><view class="inline-link">{{i18n.f('查看位置与路线 ↗', [], language)}}</view></view>
+  <view class="home-address" wx:if="{{pageData.currentStore.address}}" bindtap="onViewStore" hover-class="tap-feedback"><view class="section-heading">{{pageData.currentStore.name}}</view><view class="page-caption">{{pageData.currentStore.address}}</view><view class="inline-link">{{i18n.f('查看门店介绍与位置 ↗', [], language)}}</view></view>
   <view class="home-footer">{{i18n.f('ONE · 每一次坚持，都算数。', [], language)}}</view>
   <app-tabbar id="tabbar" current="/pages/home/index"></app-tabbar>
+
+  <view wx:if="{{storePickerVisible}}" class="store-picker-mask" bindtap="onCloseStorePicker">
+    <view class="store-picker-panel" catchtap="noop">
+      <view class="store-picker-header"><button wx:if="{{storeDetail}}" class="store-sheet-back" bindtap="onBackToStores">‹</button><view class="store-sheet-heading">{{i18n.t(storeDetail ? '门店详情' : '选择训练门店', language)}}</view><button class="store-sheet-close" bindtap="onCloseStorePicker">×</button></view>
+      <view class="store-location-row"><view class="store-location-copy">{{i18n.t(locationReady ? '按距离由近到远排列' : '开启定位，查看附近门店距离', language)}}</view><button class="store-locate-button" bindtap="onLocateStores" loading="{{locating}}" disabled="{{locating}}">{{i18n.t(locating ? '定位中…' : (locationReady ? '刷新距离' : '查看距离'), language)}}</button></view>
+      <view wx:if="{{locationError}}" class="store-location-error"><text>{{i18n.t(locationError, language)}}</text><button wx:if="{{locationDenied}}" class="store-setting-button" bindtap="onOpenLocationSettings">{{i18n.f('开启定位权限', [], language)}}</button></view>
+      <scroll-view class="store-sheet-scroll" scroll-y="true">
+        <block wx:if="{{!storeDetail}}">
+          <view wx:for="{{storeOptions}}" wx:key="id" class="store-option-card" data-store-id="{{item.id}}" bindtap="onViewStore" hover-class="tap-feedback">
+            <image wx:if="{{item.coverUrl}}" class="store-option-cover" src="{{item.coverUrl}}" mode="aspectFill"></image>
+            <view class="store-option-main"><view class="store-option-title-row"><view class="store-option-name">{{item.name}}</view><text wx:if="{{item.id === runtime.currentStore.id}}" class="store-current-label">{{i18n.f('当前选择', [], language)}}</text></view><view class="store-option-address">{{item.address || i18n.t('暂未填写地址', language)}}</view><view wx:if="{{item.businessHours}}" class="store-option-hours">{{item.businessHours}}</view><view class="store-option-bottom"><text wx:if="{{item.hasDistance}}" class="store-distance">{{i18n.f(item.distanceUnit === 'm' ? '约 {0} 米' : '约 {0} 公里', [item.distanceValue], language)}}</text><text wx:elif="{{!item.hasCoordinates}}" class="store-no-distance">{{i18n.f('位置待完善', [], language)}}</text><text class="store-detail-link">{{i18n.f('查看详情 ›', [], language)}}</text></view></view>
+          </view>
+        </block>
+        <block wx:else>
+          <image wx:if="{{storeDetail.coverUrl}}" class="store-detail-cover" src="{{storeDetail.coverUrl}}" mode="aspectFill" data-index="0" bindtap="onPreviewStorePhoto"></image>
+          <view class="store-detail-body">
+            <view class="store-detail-name">{{storeDetail.name}}</view><view wx:if="{{storeDetail.hasDistance}}" class="store-detail-distance">{{i18n.f(storeDetail.distanceUnit === 'm' ? '直线距离约 {0} 米' : '直线距离约 {0} 公里', [storeDetail.distanceValue], language)}}</view>
+            <view class="store-info-section"><view class="store-info-title">{{i18n.f('门店介绍', [], language)}}</view><view class="store-info-text">{{storeDetail.introduction || i18n.t('门店介绍正在完善，欢迎到店了解。', language)}}</view></view>
+            <view wx:if="{{storeDetail.businessHours}}" class="store-info-section"><view class="store-info-title">{{i18n.f('营业时间', [], language)}}</view><view class="store-info-text">{{storeDetail.businessHours}}</view></view>
+            <view class="store-info-section"><view class="store-info-title">{{i18n.f('门店位置', [], language)}}</view><view class="store-info-text">{{storeDetail.address || i18n.t('暂未填写地址', language)}}</view><map wx:if="{{storeDetail.hasCoordinates}}" class="store-detail-map" latitude="{{storeDetail.coordinates.latitude}}" longitude="{{storeDetail.coordinates.longitude}}" scale="16" circles="{{storeDetail.mapCircles}}" enable-scroll="{{false}}" enable-zoom="{{false}}"></map><view wx:else class="store-map-missing">{{i18n.f('门店尚未设置地图位置，暂无法计算距离。', [], language)}}</view><view class="button-row store-route-actions"><button class="secondary-button" bindtap="onCopyStoreAddress" disabled="{{!storeDetail.address}}">{{i18n.f('复制地址', [], language)}}</button><button class="secondary-button" bindtap="onOpenLocation" disabled="{{!storeDetail.hasCoordinates}}">{{i18n.f('地图导航', [], language)}}</button></view></view>
+            <view wx:if="{{storeDetail.arrivalTips}}" class="store-info-section"><view class="store-info-title">{{i18n.f('到店指引', [], language)}}</view><view class="store-info-text">{{storeDetail.arrivalTips}}</view></view>
+            <view wx:if="{{storeDetail.phone}}" class="store-info-section"><view class="store-info-title">{{i18n.f('联系电话', [], language)}}</view><view class="store-phone-row"><text>{{storeDetail.phone}}</text><button class="store-phone-button" bindtap="onCallStore">{{i18n.f('拨打电话', [], language)}}</button></view></view>
+            <view wx:if="{{storeDetail.gallery.length > 1}}" class="store-info-section"><view class="store-info-title">{{i18n.f('场馆实景', [], language)}}</view><view class="store-detail-gallery"><image wx:for="{{storeDetail.gallery}}" wx:key="url" src="{{item.url}}" mode="aspectFill" data-index="{{index}}" bindtap="onPreviewStorePhoto"></image></view></view>
+          </view>
+        </block>
+      </scroll-view>
+      <view class="store-picker-footer"><view class="store-distance-note">{{i18n.f('距离为直线距离，实际路线请查看导航。', [], language)}}</view><button wx:if="{{storeDetail}}" class="primary-button store-confirm-button" data-store-id="{{storeDetail.id}}" bindtap="onSwitchStore">{{i18n.t(storeDetail.id === runtime.currentStore.id ? '继续选择当前门店' : '选择这家门店', language)}}</button></view>
+    </view>
+  </view>
 </view>

@@ -5,6 +5,7 @@ const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
 const media = require('../../../utils/profile-media')
 const { normalizeGallery, defaultGallery } = require('../../../utils/store-gallery')
+const storeLocation = require('../../../utils/store-location')
 
 const ADMIN_STORES_CACHE_KEY = 'admin:stores'
 
@@ -15,6 +16,7 @@ function buildDefaultStoreForm() {
     longitude: '',
     latitude: '',
     status: 1,
+    introduction: '', businessHours: '', phone: '', arrivalTips: '',
   }
 }
 
@@ -47,6 +49,7 @@ Page(withPageState({
     galleryVersion: 0,
     galleryBusy: false,
     galleryError: '',
+    storeLocating: false,
   },
 
   onShow() {
@@ -208,6 +211,7 @@ Page(withPageState({
   },
 
   onOpenCreatePopup() {
+    if (this.data.submitting || this.data.storeLocating) return
     this.setData({
       showStorePopup: true,
       editingStoreId: '',
@@ -216,6 +220,7 @@ Page(withPageState({
   },
 
   onOpenEditPopup(event) {
+    if (this.data.submitting || this.data.storeLocating) return
     const storeId = event.currentTarget.dataset.storeId
     const targetStore = this.data.pageData.stores.find((item) => item.id === storeId)
     if (!targetStore) {
@@ -230,12 +235,13 @@ Page(withPageState({
         longitude: targetStore.longitude === '' ? '' : String(targetStore.longitude),
         latitude: targetStore.latitude === '' ? '' : String(targetStore.latitude),
         status: targetStore.status,
+        introduction: targetStore.introduction || '', businessHours: targetStore.businessHours || '', phone: targetStore.phone || '', arrivalTips: targetStore.arrivalTips || '',
       },
     })
   },
 
   onCloseStorePopup() {
-    if (this.data.submitting) {
+    if (this.data.submitting || this.data.storeLocating) {
       return
     }
     this.setData({
@@ -247,7 +253,7 @@ Page(withPageState({
 
   onStoreFieldInput(event) {
     const field = event.currentTarget.dataset.field
-    if (!field) {
+    if (this.data.submitting || this.data.storeLocating || !['name', 'address', 'longitude', 'latitude', 'introduction', 'businessHours', 'phone', 'arrivalTips'].includes(field)) {
       return
     }
     this.setData({
@@ -256,9 +262,27 @@ Page(withPageState({
   },
 
   onCreateStatusChange(event) {
+    if (this.data.submitting || this.data.storeLocating) return
     this.setData({
       'storeForm.status': event.detail.value ? 1 : 0,
     })
+  },
+
+  async onPickStoreLocation() {
+    if (this.data.submitting || this.data.storeLocating) return
+    const userId = this.data.runtime.userProfile && this.data.runtime.userProfile.id
+    const storeId = this.data.editingStoreId
+    this.setData({ storeLocating: true })
+    try {
+      const runtime = await media.sameUser(userId)
+      if (runtime.role !== 'admin') throw new Error('当前账号没有此操作权限，请联系场馆管理员')
+      const result = await storeLocation.pickLocation(this), coordinates = storeLocation.point(result)
+      await media.sameUser(userId)
+      if (!coordinates) throw new Error('地图位置不完整，请重新选择')
+      if (this.data.showStorePopup && storeId === this.data.editingStoreId) this.setData({ storeForm: { ...this.data.storeForm, ...coordinates, address: result.address || result.name || this.data.storeForm.address } })
+    } catch (error) {
+      if (error.code !== 'LOCATION_CANCELLED' && !media.cancelled(error)) showFeedback({ title: getUserMessage(error, '地图选点未完成，请重试'), icon: 'none' })
+    } finally { this.setData({ storeLocating: false }) }
   },
 
   validateStoreForm() {
@@ -282,8 +306,16 @@ Page(withPageState({
     if (latitudeText && (!Number.isFinite(latitude) || latitude < -90 || latitude > 90)) {
       return { error: '纬度范围为 -90 到 90' }
     }
+    if (Boolean(longitudeText) !== Boolean(latitudeText)) return { error: '请同时填写经度和纬度，或使用地图选点' }
+    const details = {}
+    for (const [key, max, message] of [['introduction', 1200, '门店介绍最多1200个字符'], ['businessHours', 120, '营业时间最多120个字符'], ['phone', 30, '联系电话最多30个字符'], ['arrivalTips', 300, '到店指引最多300个字符']]) {
+      details[key] = String(form[key] || '').trim()
+      if (details[key].length > max) return { error: message }
+    }
+    if (details.phone && !/^\+?\d{3,24}$/.test(details.phone.replace(/[ ().-]/g, ''))) return { error: '联系电话格式不正确，请填写可拨打的号码' }
 
     return {
+      ...details,
       name,
       address,
       longitude,
@@ -293,7 +325,7 @@ Page(withPageState({
   },
 
   async onSubmitStore() {
-    if (this.data.submitting) {
+    if (this.data.submitting || this.data.storeLocating) {
       return
     }
     const payload = this.validateStoreForm()

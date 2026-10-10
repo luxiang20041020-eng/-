@@ -801,6 +801,10 @@ function buildStoreView(store) {
     id: store._id,
     name: store.name,
     address: store.address,
+    introduction: store.introduction || '',
+    businessHours: store.business_hours || '',
+    phone: typeof store.contact_phone === 'string' ? store.contact_phone : store.phone || '',
+    arrivalTips: store.arrival_tips || '',
     longitude: store.longitude,
     latitude: store.latitude,
   }
@@ -905,6 +909,10 @@ function buildAdminStoreManageItem(store, userCount = 0, scheduleCount = 0) {
   return {
     gallery: galleryView(store),
     galleryVersion: Number(store.gallery_version || 0),
+    introduction: store.introduction || '',
+    businessHours: store.business_hours || '',
+    phone: typeof store.contact_phone === 'string' ? store.contact_phone : store.phone || '',
+    arrivalTips: store.arrival_tips || '',
     id: store._id,
     name: store.name || '未命名门店',
     address: store.address || '',
@@ -943,8 +951,18 @@ function normalizeStorePayload(payload) {
   if (latitudeText && (!Number.isFinite(latitude) || latitude < -90 || latitude > 90)) {
     return { error: '纬度必须在 -90 到 90 之间' }
   }
+  if (Boolean(longitudeText) !== Boolean(latitudeText)) return { error: '请同时填写经度和纬度，或使用地图选点' }
+  const details = {}
+  for (const [key, field, max, label] of [['introduction', 'introduction', 1200, '门店介绍最多1200个字符'], ['businessHours', 'business_hours', 120, '营业时间最多120个字符'], ['phone', 'contact_phone', 30, '联系电话最多30个字符'], ['arrivalTips', 'arrival_tips', 300, '到店指引最多300个字符']]) {
+    // 旧版客户端只改基本资料时，保留已经录入的介绍。
+    if (!Object.prototype.hasOwnProperty.call(payload, key)) continue
+    if (typeof payload[key] !== 'string' || payload[key].trim().length > max) return { error: label }
+    details[field] = payload[key].trim()
+  }
+  if (details.contact_phone && !/^\+?\d{3,24}$/.test(details.contact_phone.replace(/[ ().-]/g, ''))) return { error: '联系电话格式不正确，请填写可拨打的号码' }
 
   return {
+    ...details,
     name,
     address,
     longitude,
@@ -1095,7 +1113,7 @@ async function getHomeViewData(event) {
 
     return buildSuccess({
       currentStore: buildStoreView(stores.find((item) => item._id === payload.storeId) || stores[0]),
-      stores: stores.map(buildStoreView),
+      stores: stores.map(store => ({ ...buildStoreView(store), gallery: galleryView(store) })),
       notices: ['预约开课前 2 小时可免费取消，已扣权益自动退回。', '团体训练与专属训练，按自己的节奏安排。'],
       galleryList: galleryView(stores.find((item) => item._id === payload.storeId) || stores[0]),
       packages: packages.map((item) => ({
@@ -1528,6 +1546,7 @@ async function createStore(event) {
 
     const addRes = await db.collection(COLLECTIONS.STORE).add({
       data: {
+        ...storeData,
         name: storeData.name,
         address: storeData.address,
         longitude: storeData.longitude,
@@ -1541,6 +1560,7 @@ async function createStore(event) {
 
     return buildSuccess({
       storeInfo: buildAdminStoreManageItem({
+        ...storeData,
         _id: addRes._id,
         name: storeData.name,
         address: storeData.address,
@@ -1585,6 +1605,7 @@ async function updateStore(event) {
 
     await db.collection(COLLECTIONS.STORE).doc(payload.targetStoreId).update({
       data: {
+        ...storeData,
         name: storeData.name,
         address: storeData.address,
         longitude: storeData.longitude,

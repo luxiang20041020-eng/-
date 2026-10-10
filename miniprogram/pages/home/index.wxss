@@ -24,3 +24,45 @@
 .home-pricing { margin-top:32rpx; }.pricing-list { margin-top:26rpx; }.pricing-item { display:flex; align-items:center; justify-content:space-between; gap:20rpx; padding:24rpx 0; border-top:1rpx solid #e5e6df; }.pricing-tag { font-size:20rpx; color:#8c5b48; }.pricing-name { font-size:28rpx; margin-top:10rpx; font-weight:600; }.pricing-meta,.pricing-note { margin-top:10rpx; font-size:21rpx; color:#84897b; }.pricing-price-wrap { flex-shrink:0; text-align:right; }.pricing-price { font-size:36rpx; font-weight:600; }.home-address { margin-top:36rpx; padding:24rpx 0; border-top:1rpx solid #dddfd3; }.home-footer { font-size:21rpx; color:#9a9e90; text-align:center; margin:28rpx 0; }
 .facility-caption text:first-child { flex-shrink: 0; }
 .facility-caption text:last-child { min-width: 0; word-break: break-word; }
+.store-picker-mask { position: fixed; inset: 0; z-index: 130; display: flex; align-items: flex-end; background: rgba(19,28,21,.5); }
+.store-picker-panel { display: flex; flex-direction: column; width: 100%; height: 86vh; max-height: 86vh; overflow: hidden; border-radius: 30rpx 30rpx 0 0; background: #f5f4ef; }
+.store-picker-header { flex-shrink: 0; display: flex; align-items: center; gap: 20rpx; padding: 28rpx 28rpx 14rpx; }
+.store-sheet-heading { flex: 1; min-width: 0; font-size: 34rpx; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
+.store-picker-header button { flex: 0 0 56rpx; width: 56rpx; height: 56rpx; padding: 0; margin: 0; border-radius: 50%; background: #e9ecdf; color: #29362d; font-size: 34rpx; line-height: 56rpx; }
+.store-location-row { flex-shrink: 0; display: flex; align-items: center; gap: 18rpx; padding: 10rpx 28rpx 22rpx; }
+.store-location-copy { flex: 1; min-width: 0; color: #7c8473; font-size: 23rpx; line-height: 1.6; }
+.store-location-row button.store-locate-button { flex-shrink: 0; width: auto; max-width: 45%; min-height: 64rpx; padding: 12rpx 18rpx; margin: 0; border-radius: 10rpx; background: #e6eadc; color: #3d4f32; font-size: 23rpx; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
+.store-location-error { flex-shrink: 0; margin: 0 28rpx 18rpx; padding: 16rpx 18rpx; border-radius: 10rpx; background: #fff0e9; color: #a3432b; font-size: 23rpx; line-height: 1.6; overflow-wrap: anywhere; }
+.store-location-error button.store-setting-button { display: block; width: 100%; margin: 12rpx 0 0; padding: 12rpx; background: #fff; color: #a3432b; font-size: 24rpx; line-height: 1.5; border-radius: 8rpx; }
+.store-sheet-scroll { flex: 1; height: 0; min-height: 0; overflow-y: auto; }
+.store-option-card { display: flex; align-items: center; gap: 20rpx; margin: 0 28rpx 20rpx; padding: 22rpx; background: #fff; border: 1rpx solid #e4e6da; border-radius: 18rpx; }
+.store-option-cover { flex: 0 0 128rpx; width: 128rpx; height: 148rpx; border-radius: 10rpx; }
+.store-option-main { flex: 1; min-width: 0; }
+.store-option-title-row { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 10rpx; }
+.store-option-name { flex: 1; min-width: 0; font-size: 30rpx; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+.store-current-label { flex-shrink: 0; max-width: 45%; padding: 5rpx 8rpx; border-radius: 6rpx; background: #eef0e8; color: #69775d; font-size: 20rpx; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
+.store-option-address,.store-option-hours { margin-top: 10rpx; color: #818779; font-size: 23rpx; line-height: 1.6; overflow-wrap: anywhere; }
+.store-option-address { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.store-option-bottom { display: flex; align-items: center; flex-wrap: wrap; gap: 12rpx; margin-top: 16rpx; font-size: 22rpx; line-height: 1.5; }
+.store-distance { color: #b4472e; }
+.store-no-distance { color: #969c8e; }
+.store-detail-link { margin-left: auto; color: #556449; }
+.store-detail-cover { display: block; width: 100%; height: 290rpx; }
+.store-detail-body { padding: 26rpx 28rpx; }
+.store-detail-name { font-size: 42rpx; line-height: 1.4; font-weight: 600; overflow-wrap: anywhere; }
+.store-detail-distance { margin-top: 14rpx; color: #b4472e; font-size: 24rpx; line-height: 1.5; }
+.store-info-section { margin-top: 30rpx; padding-top: 26rpx; border-top: 1rpx solid #e0e3d6; }
+.store-info-title { font-size: 27rpx; font-weight: 600; line-height: 1.5; margin-bottom: 16rpx; }
+.store-info-text { color: #646f5a; font-size: 26rpx; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.store-detail-map { display: block; width: 100%; height: 270rpx; margin-top: 22rpx; border-radius: 14rpx; overflow: hidden; background: #e1e7d7; }
+.store-map-missing { margin-top: 18rpx; font-size: 23rpx; color: #8d9583; line-height: 1.6; }
+.store-route-actions { margin-top: 18rpx; }
+.locale-page .store-route-actions button { min-height: 70rpx; padding: 14rpx 12rpx; font-size: 24rpx; }
+.store-phone-row { display: flex; align-items: center; flex-wrap: wrap; gap: 16rpx; }
+.store-phone-row text { flex: 1; min-width: 0; font-size: 27rpx; overflow-wrap: anywhere; }
+.store-phone-row button.store-phone-button { width: auto; margin: 0; padding: 14rpx 20rpx; border-radius: 10rpx; color: #b4472e; background: #f3e5dc; font-size: 24rpx; line-height: 1.5; }
+.store-detail-gallery { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14rpx; }
+.store-detail-gallery image { display: block; width: 100%; height: 190rpx; border-radius: 12rpx; }
+.store-picker-footer { flex-shrink: 0; padding: 18rpx 28rpx calc(22rpx + env(safe-area-inset-bottom)); border-top: 1rpx solid #e1e3d9; background: #fff; }
+.store-distance-note { color: #8a9180; font-size: 21rpx; line-height: 1.6; }
+.locale-page button.store-confirm-button { width: 100%; margin: 16rpx 0 0; min-height: 88rpx; border-radius: 14rpx; font-size: 27rpx; }

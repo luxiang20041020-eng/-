@@ -59,11 +59,22 @@ test('门店实景图片编辑操作及失败原因在六种外语中有完整�
   }
 })
 
+test('门店详情、定位响应和编辑提示均有六种外语译文', () => {
+  for (const row of fs.readFileSync(path.join(root, 'miniprogram/locales/store-details.tsv'), 'utf8').trim().split(/\r?\n/)) {
+    const [source, ...translations] = row.split('|'); assert.equal(translations.length, 6)
+    for (const [index, language] of languages.slice(1).entries()) assert.equal(text.translate(source, language), translations[index], source + ' ' + language)
+  }
+  for (const file of ['miniprogram/pages/home/index.wxml', 'miniprogram/pages/admin/stores/index.wxml']) {
+    const source = fs.readFileSync(path.join(root, file), 'utf8')
+    for (const match of source.matchAll(/i18n\.(?:f|t)\('([^']+)'/g)) for (const language of languages.slice(1)) assert.notEqual(text.translate(match[1], language), match[1], match[1] + ' ' + language)
+  }
+})
+
 test('所有页面的实际微信编译渲染在七种语言及表单状态下不发生文字渲染异常', { skip: !fs.existsSync(wcc) }, () => {
   const files = pageNames.map(page => 'miniprogram/pages/' + page + '/index.wxml')
   files.push('miniprogram/utils/i18n.wxs')
   const { context, errors } = compiledRuntime(files, root)
-  for (const page of pageNames) for (const language of languages) for (const query of ['', 'popup=1&expanded=1&invite=form', 'state=guest', 'popup=assets', 'mode=records', 'mode=records&popup=1', 'state=cancelled', 'mode=report', 'mode=report&state=empty', 'type=private&coach=coach&unlimited=1', 'type=private&state=pending', 'popup=1&unlimited=1&step=3', 'section=intro', 'section=photos&photos=1', 'type=private&many=1&expanded=1', 'popup=gallery', 'popup=gallery&state=empty', 'popup=gallery&state=error']) {
+  for (const page of pageNames) for (const language of languages) for (const query of ['', 'popup=1&expanded=1&invite=form', 'state=guest', 'popup=assets', 'mode=records', 'mode=records&popup=1', 'state=cancelled', 'mode=report', 'mode=report&state=empty', 'type=private&coach=coach&unlimited=1', 'type=private&state=pending', 'popup=1&unlimited=1&step=3', 'section=intro', 'section=photos&photos=1', 'type=private&many=1&expanded=1', 'popup=gallery', 'popup=gallery&state=empty', 'popup=gallery&state=error', 'popup=stores&distance=1', 'popup=stores&state=denied', 'popup=store-detail&distance=1', 'popup=store-detail&state=missing']) {
     const data = fixtures(page, new URLSearchParams(query))
     data.language = language
     context.input = JSON.stringify(data)

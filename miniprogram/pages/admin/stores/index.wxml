@@ -99,7 +99,7 @@
   </block>
 
   <view wx:if="{{showStorePopup}}" class="modal-mask" bindtap="onCloseStorePopup">
-    <view class="modal-panel" catchtap="noop">
+    <view class="modal-panel store-edit-panel" catchtap="noop">
       <view class="headline-row">
         <view class="modal-heading">
           <view class="section-title">{{i18n.t(editingStoreId ? '更新门店资料' : '创建训练空间', language)}}</view>
@@ -108,37 +108,45 @@
         <view class="modal-close" bindtap="onCloseStorePopup">×</view>
       </view>
 
+      <scroll-view class="store-edit-scroll" scroll-y="true">
       <view class="field-block">
         <view class="field-label">{{i18n.f('门店名称', [], language)}}</view>
-        <input class="form-input" value="{{storeForm.name}}" data-field="name" maxlength="50" bindinput="onStoreFieldInput" placeholder="{{i18n.f('如：城南训练中心', [], language)}}" placeholder-class="input-placeholder" />
+        <input class="form-input" value="{{storeForm.name}}" data-field="name" maxlength="50" bindinput="onStoreFieldInput" disabled="{{submitting || storeLocating}}" placeholder="{{i18n.f('如：城南训练中心', [], language)}}" placeholder-class="input-placeholder" />
       </view>
 
       <view class="field-block">
         <view class="field-label">{{i18n.f('详细地址', [], language)}}</view>
-        <input class="form-input" value="{{storeForm.address}}" data-field="address" maxlength="120" bindinput="onStoreFieldInput" placeholder="{{i18n.f('请输入门店详细地址', [], language)}}" placeholder-class="input-placeholder" />
+        <input class="form-input" value="{{storeForm.address}}" data-field="address" maxlength="120" bindinput="onStoreFieldInput" disabled="{{submitting || storeLocating}}" placeholder="{{i18n.f('请输入门店详细地址', [], language)}}" placeholder-class="input-placeholder" />
       </view>
 
       <view class="coordinate-fields">
         <view class="field-block">
           <view class="field-label">{{i18n.f('经度', [], language)}}</view>
-          <input class="form-input" type="digit" value="{{storeForm.longitude}}" data-field="longitude" bindinput="onStoreFieldInput" placeholder="{{i18n.f('可选', [], language)}}" placeholder-class="input-placeholder" />
+          <input class="form-input" type="text" value="{{storeForm.longitude}}" data-field="longitude" bindinput="onStoreFieldInput" disabled="{{submitting || storeLocating}}" placeholder="{{i18n.f('可选', [], language)}}" placeholder-class="input-placeholder" />
         </view>
         <view class="field-block">
           <view class="field-label">{{i18n.f('纬度', [], language)}}</view>
-          <input class="form-input" type="digit" value="{{storeForm.latitude}}" data-field="latitude" bindinput="onStoreFieldInput" placeholder="{{i18n.f('可选', [], language)}}" placeholder-class="input-placeholder" />
+          <input class="form-input" type="text" value="{{storeForm.latitude}}" data-field="latitude" bindinput="onStoreFieldInput" disabled="{{submitting || storeLocating}}" placeholder="{{i18n.f('可选', [], language)}}" placeholder-class="input-placeholder" />
         </view>
       </view>
+
+      <button class="secondary-button store-map-pick" bindtap="onPickStoreLocation" loading="{{storeLocating}}" disabled="{{submitting || storeLocating}}">{{i18n.f('地图选点', [], language)}}</button><view class="store-form-hint">{{i18n.f('地图选点会同时更新地址和坐标。', [], language)}}</view>
+      <view class="field-block"><view class="field-label">{{i18n.f('门店介绍', [], language)}}</view><view class="store-textarea-shell"><textarea value="{{storeForm.introduction}}" data-field="introduction" maxlength="1200" bindinput="onStoreFieldInput" disabled="{{submitting || storeLocating}}" placeholder="{{i18n.f('介绍场馆特色、训练环境与课程', [], language)}}" placeholder-class="input-placeholder" /></view></view>
+      <view class="field-block"><view class="field-label">{{i18n.f('营业时间', [], language)}}</view><input class="form-input" value="{{storeForm.businessHours}}" data-field="businessHours" maxlength="120" bindinput="onStoreFieldInput" disabled="{{submitting || storeLocating}}" placeholder="{{i18n.f('如：周一至周日 10:00–22:00', [], language)}}" placeholder-class="input-placeholder" /></view>
+      <view class="field-block"><view class="field-label">{{i18n.f('联系电话', [], language)}}</view><input class="form-input" value="{{storeForm.phone}}" data-field="phone" maxlength="30" bindinput="onStoreFieldInput" disabled="{{submitting || storeLocating}}" placeholder="{{i18n.f('可填写国家区号和联系电话', [], language)}}" placeholder-class="input-placeholder" /></view>
+      <view class="field-block"><view class="field-label">{{i18n.f('到店指引', [], language)}}</view><view class="store-textarea-shell store-arrival-shell"><textarea value="{{storeForm.arrivalTips}}" data-field="arrivalTips" maxlength="300" bindinput="onStoreFieldInput" disabled="{{submitting || storeLocating}}" placeholder="{{i18n.f('如：地铁出口、楼层入口、停车方式', [], language)}}" placeholder-class="input-placeholder" /></view></view>
 
       <view wx:if="{{!editingStoreId}}" class="field-block">
         <view class="row-between">
           <view class="field-label">{{i18n.f('创建后立即营业', [], language)}}</view>
-          <switch checked="{{storeForm.status === 1}}" color="#c7452d" bindchange="onCreateStatusChange" />
+          <switch checked="{{storeForm.status === 1}}" color="#c7452d" bindchange="onCreateStatusChange" disabled="{{submitting || storeLocating}}" />
         </view>
       </view>
 
+      </scroll-view>
       <view class="button-row modal-button-row">
-        <button class="secondary-button" bindtap="onCloseStorePopup" disabled="{{submitting}}">{{i18n.f('取消', [], language)}}</button>
-        <button class="primary-button" bindtap="onSubmitStore" loading="{{submitting}}">{{i18n.t(editingStoreId ? '保存修改' : '确认创建', language)}}</button>
+        <button class="secondary-button" bindtap="onCloseStorePopup" disabled="{{submitting || storeLocating}}">{{i18n.f('取消', [], language)}}</button>
+        <button class="primary-button" bindtap="onSubmitStore" loading="{{submitting}}" disabled="{{storeLocating}}">{{i18n.t(editingStoreId ? '保存修改' : '确认创建', language)}}</button>
       </view>
     </view>
   </view>

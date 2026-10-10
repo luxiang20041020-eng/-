@@ -70,6 +70,7 @@ function renderChildren(children, data) {
 
 function renderNode(node, data) {
   if (node.tag === 'wxs') return ''
+  if (node.tag === 'map') return '<div class="store-detail-map preview-store-map"><span>◉</span><small>MAP · ' + escape(i18n.t('门店位置', data.language)) + '</small></div>'
   if (node.tag === 'media-privacy') return renderChildren(parseWxml(fs.readFileSync(path.join(mini, 'components/media-privacy/index.wxml'), 'utf8')).children, { i18n, language: data.language, visible: data.mediaPrivacyVisible, contractName: '用户隐私保护协议' })
   if (node.tag === 'block') return renderChildren(node.children, data)
   if (node.tag === 'language-setting') {
@@ -132,10 +133,24 @@ function fixtures(page, search) {
     if (search.get('state') === 'guest' && page === 'coach/edit') { data.canEdit = false; data.ready = false }
     if (search.get('state') === 'uploading') data.uploading = true
   }
-  if (page === 'home') data.pageData.galleryList = require('../miniprogram/utils/store-gallery').defaultGallery()
+  if (page === 'home') {
+    const gallery = require('../miniprogram/utils/store-gallery').defaultGallery()
+    const venues = stores.map((store, index) => ({ ...store, introduction: '以泰拳、拳击和专项体能为核心，提供团体训练与一对一指导。场馆配备沙袋、拳台和力量训练区，欢迎到店体验。', businessHours: '周一至周日 10:00–22:00', phone: '029-88886666', arrivalTips: '地铁出口步行约5分钟，入口位于商业楼二层。', latitude: 34.235 + index * .08, longitude: 108.895 + index * .025, gallery }))
+    if (search.get('state') === 'missing') { venues[0].latitude = null; venues[0].longitude = null; venues[0].introduction = ''; venues[0].businessHours = ''; venues[0].phone = ''; venues[0].arrivalTips = ''; venues[0].gallery = [] }
+    if (search.get('state') === 'long') { venues[0].name = 'ONE International Muay Thai & Boxing Training Centre'; venues[0].introduction = (venues[0].introduction + '\n').repeat(8); venues[0].address = '门店详细地址、国际社区运动中心、商业楼二层，入口位于主楼东侧。'.repeat(3) }
+    if (search.get('many')) for (let i = 2; i < 30; i++) venues.push({ ...venues[1], id: 'store' + i, name: '训练门店 ' + (i + 1) })
+    data.runtime = { ...runtime, stores: venues, currentStore: venues[0] }; data.pageData = { ...data.pageData, stores: venues, currentStore: venues[0], galleryList: gallery }
+    const origin = search.get('distance') ? { latitude: 34.236, longitude: 108.894 } : null
+    data.storeOptions = require('../miniprogram/utils/store-location').decorateStores(venues, origin); data.locationReady = Boolean(origin)
+    data.storePickerVisible = ['stores', 'store-detail'].includes(search.get('popup'))
+    if (search.get('popup') === 'store-detail') data.storeDetail = data.storeOptions.find(store => store.id === venues[0].id)
+    if (search.get('state') === 'denied') { data.locationDenied = true; data.locationError = '定位权限未开启，可在设置中开启后查看距离' }
+    if (search.get('state') === 'locating') data.locating = true
+  }
   if (page === 'admin/stores') {
     const gallery = require('../miniprogram/utils/store-gallery').defaultGallery()
     data.pageData.stores = stores.map(store => ({ ...store, status: 1, statusLabel: '营业中', userCount: 48, scheduleCount: 16, longitude: '', latitude: '', gallery, galleryVersion: 0 }))
+    if (search.get('popup') === '1') data.storeForm = { name: stores[0].name, address: stores[0].address, longitude: '108.895', latitude: '34.235', introduction: '泰拳、拳击与体能训练空间', businessHours: '周一至周日 10:00–22:00', phone: '029-88886666', arrivalTips: '地铁出口步行5分钟，入口在二层。', status: 1 }
     if (search.get('popup') === 'gallery') {
       data.showStorePopup = false; data.showGalleryPopup = true; data.galleryStoreName = stores[0].name; data.galleryStoreId = stores[0].id
       data.galleryDraft = search.get('state') === 'empty' ? [] : gallery
