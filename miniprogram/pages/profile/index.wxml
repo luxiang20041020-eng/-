@@ -115,7 +115,7 @@
       </view>
       <view class="booking-main-block">
         <view class="headline-row">
-          <view class="booking-title-text">{{item.title}}</view>
+          <view class="booking-title-text">{{item.title}}</view><view wx:if="{{item.changeReason}}" class="card-desc">{{i18n.f('排课调整：{0}', [item.changeReason], language)}}</view><view wx:if="{{item.cancelReason}}" class="card-desc">{{i18n.f('取消原因：{0}', [item.cancelReason], language)}}</view>
           <view class="status-chip {{item.status === '待到店' ? 'active' : ''}}">{{i18n.t(item.status, language)}}</view>
         </view>
         <view class="card-desc">{{item.timeRange}}</view><view wx:if="{{item.sourceLabel}}" class="page-caption">{{i18n.t(item.sourceLabel, language)}}</view><view wx:if="{{item.status === '待到店' && !item.canCancel}}" class="page-caption">{{i18n.t(item.cancelHint, language)}}</view>

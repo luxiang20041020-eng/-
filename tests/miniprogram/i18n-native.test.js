@@ -50,7 +50,7 @@ test('所有页面的实际微信编译渲染在七种语言及表单状态下�
   const files = pageNames.map(page => 'miniprogram/pages/' + page + '/index.wxml')
   files.push('miniprogram/utils/i18n.wxs')
   const { context, errors } = compiledRuntime(files, root)
-  for (const page of pageNames) for (const language of languages) for (const query of ['', 'popup=1&expanded=1&invite=form', 'state=guest', 'popup=assets']) {
+  for (const page of pageNames) for (const language of languages) for (const query of ['', 'popup=1&expanded=1&invite=form', 'state=guest', 'popup=assets', 'mode=records', 'mode=records&popup=1', 'state=cancelled', 'mode=report', 'mode=report&state=empty']) {
     const data = fixtures(page, new URLSearchParams(query))
     data.language = language
     context.input = JSON.stringify(data)
@@ -58,5 +58,13 @@ test('所有页面的实际微信编译渲染在七种语言及表单状态下�
     const tree = context.$gwx('miniprogram/pages/' + page + '/index.wxml')(nativeData, {})
     assert.ok(contents(tree).length > 0, page + ' ' + language)
     assert.deepEqual(errors, [], page + ' ' + language + ' ' + query)
+  }
+})
+
+test('报表页面、后台提示和导出表头在六种外语中都有译文', () => {
+  const sources = ['miniprogram/pages/admin/reports/index.wxml', 'miniprogram/pages/admin/reports/index.js', 'cloudfunctions/businessCore/reports.js', 'miniprogram/utils/report-export.js'].map(file => fs.readFileSync(path.join(root, file), 'utf8')).join('\n')
+  for (const match of sources.matchAll(/'([^'\n]*[\u4e00-\u9fff][^'\n]*)'/g)) {
+    if (match[1].includes(" + ")) continue
+    for (const language of languages.slice(1)) assert.notEqual(text.translate(match[1], language), match[1], language + ': ' + match[1])
   }
 })

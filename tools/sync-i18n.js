@@ -11,7 +11,7 @@ function add(source, values) {
 const rows = fs.readFileSync(path.join(mini, 'locales/ui-translations.tsv'), 'utf8').trimEnd().split(/\r?\n/)
 for (const row of rows) { const [id, ...values] = row.split('|'); add(sources[Number(id)], values) }
 for (const source of sources) if (!catalog[source]) throw new Error('Missing UI translation: ' + source)
-for (const row of fs.readFileSync(path.join(mini, 'locales/messages.tsv'), 'utf8').trimEnd().split(/\r?\n/)) {
+for (const row of ['messages.tsv', 'adjustments.tsv', 'reports.tsv'].flatMap(file => fs.readFileSync(path.join(mini, 'locales', file), 'utf8').trimEnd().split(/\r?\n/))) {
   if (!row) continue
   const [source, ...values] = row.split('|'); add(source, values)
 }

@@ -86,6 +86,9 @@ Page(withPageState({
     setClipboardData({ data: '日期\t操作人\t学员\t套餐\t实收金额\t收款方式\t备注\n' + rows.join('\n'), success: () => showFeedback({ title: '已复制，可粘贴到表格', icon: 'none' }) })
   },
 
+  onOpenReports() { navigateTo({ url: '/pages/admin/reports/index' }) },
+  onOpenCorrections() { navigateTo({ url: '/pages/workspace/adjust/index?storeId=' + encodeURIComponent(this.data.runtime.currentStore.id) }) },
+
   onOpenOperations() { navigateTo({ url: '/pages/workspace/index' }) },
 
   onOpenStorePicker() {

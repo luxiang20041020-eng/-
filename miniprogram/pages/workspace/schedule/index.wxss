@@ -446,3 +446,9 @@
   background:#fff;
   padding:20rpx 28rpx calc(20rpx + env(safe-area-inset-bottom))
 }
+
+.locale-page .agenda-content button.secondary-button {
+  width: 100%;
+  min-width: 0;
+  margin: 20rpx 0 0;
+}

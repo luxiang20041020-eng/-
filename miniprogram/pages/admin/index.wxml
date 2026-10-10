@@ -72,7 +72,7 @@
           </view>
           <view class="audit-main-text">{{i18n.f('操作人 {0} 为学员 {1} 派发 {2}', [item.operatorName, item.targetName, item.packageName], language)}}</view>
           <view class="audit-remark">{{i18n.f('备注：{0}', [item.remark], language)}}</view>
-          <view class="audit-amount">￥{{item.amount}}</view>
+          <view wx:if="{{item.reversed}}" class="card-desc">{{i18n.t('已撤销', language)}}</view><view class="audit-amount">￥{{item.amount}}</view>
         </view>
       </block>
     </view>
@@ -81,7 +81,7 @@
       <view class="section-title">{{i18n.f('最近人工核销', [], language)}}</view>
       <view wx:if="{{!pageData.manualWriteOffLogs.length}}" class="card-desc">{{i18n.f('暂无人工核销记录', [], language)}}</view>
       <view wx:for="{{pageData.manualWriteOffLogs}}" wx:key="id" class="audit-item">
-        <view class="schedule-title">{{item.targetName}} · {{item.title}}</view>
+        <view class="schedule-title">{{item.targetName}} · {{item.title}}</view><view wx:if="{{item.reversed}}" class="card-desc">{{i18n.t('已撤销', language)}}</view>
         <view class="card-desc">{{i18n.f('{0} · 操作人 {1} · {2}', [item.time, item.operatorName, i18n.t(item.deductionLabel, language)], language)}}</view>
         <view class="card-desc">{{i18n.f('实际训练：{0}', [item.trainingTime], language)}}</view>
         <view wx:if="{{item.remark}}" class="card-desc">{{i18n.f('备注：{0}', [item.remark], language)}}</view>
@@ -91,6 +91,8 @@
     <view class="card">
       <view class="section-title">{{i18n.f('管理门店', [], language)}}</view>
       <view class="admin-tools-grid">
+        <view class="admin-tool-card" bindtap="onOpenReports"><view class="admin-card-title">{{i18n.t('客户跟进与报表', language)}}</view><view class="admin-card-desc">{{i18n.t('筛选客户、查看经营数据并导出', language)}}</view></view>
+        <view class="admin-tool-card" bindtap="onOpenCorrections"><view class="admin-card-title">{{i18n.t('操作纠错', language)}}</view><view class="admin-card-desc">{{i18n.t('撤销误派发与误核销，查看审计记录', language)}}</view></view>
         <view class="admin-tool-card primary" bindtap="onOpenOperations">
           <view class="admin-card-title">{{i18n.f('训练运营', [], language)}}</view>
           <view class="admin-card-desc">{{i18n.f('派发权益、排课与到场核销', [], language)}}</view>

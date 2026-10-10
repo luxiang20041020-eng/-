@@ -7,6 +7,13 @@ const root = path.resolve(__dirname, '../../miniprogram')
 const text = require('../../miniprogram/utils/i18n-text')
 const languages = ['zh', 'en', 'fr', 'th', 'de', 'ja', 'hi']
 
+test('新增排课和纠错页面的中文界面词条均提供英文译文', () => {
+  const source = fs.readFileSync(path.join(root, 'pages/workspace/adjust/index.wxml'), 'utf8')
+  for (const match of source.matchAll(/'([^'\n]*[\u3400-\u9fff][^'\n]*)'/g)) {
+    assert.notEqual(text.translate(match[1], 'en'), match[1], match[1])
+  }
+})
+
 test('词库保留开发者工具原有路径，源文件不打包且运行代码不依赖被排除文件', () => {
   for (const name of ['feedback-aliases.js', 'messages.tsv', 'ui-translations.tsv', 'zh-ui.json']) {
     assert.ok(fs.existsSync(path.join(root, 'locales', name)), name)

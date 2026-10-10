@@ -1,0 +1,43 @@
+.report-page { padding-bottom: 220rpx; }
+.store-picker { display: inline-block; margin-top: 20rpx; padding: 12rpx 20rpx; border: 1rpx solid #dedfd6; border-radius: 12rpx; font-size: 25rpx; background: #fff; }
+.report-tabs { display: flex; gap: 8rpx; padding: 8rpx; background: #e9ebe3; border-radius: 16rpx; margin: 24rpx 0; }
+.report-tab { flex: 1; text-align: center; padding: 22rpx 12rpx; border-radius: 12rpx; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.report-tab.active { background: #c7452d; color: #fff; }
+.filter-chips { display: flex; flex-wrap: wrap; gap: 12rpx; margin: 24rpx 0; }
+.filter-chip { padding: 12rpx 18rpx; border: 1rpx solid #dedfd6; border-radius: 10rpx; font-size: 24rpx; background: #f6f5f0; overflow-wrap: anywhere; }
+.filter-chip.active { color: #b93f28; border-color: #d86750; background: #fbede7; }
+.settings-link { font-size: 24rpx; color: #767d70; }
+.threshold-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12rpx; }
+.field-label { font-size: 23rpx; color: #7e8477; margin-bottom: 12rpx; overflow-wrap: anywhere; }
+.search-input { margin-bottom: 24rpx; }
+.threshold-grid .form-input { box-sizing: border-box; width: 100%; margin-bottom: 24rpx; padding: 16rpx; }
+.report-metrics { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14rpx; margin-bottom: 28rpx; }
+.report-metric { background: #fff; border: 1rpx solid #e0e2d8; border-radius: 16rpx; padding: 24rpx; min-width: 0; }
+.report-metric view { color: #7c8375; font-size: 24rpx; overflow-wrap: anywhere; }
+.report-metric text { display: block; font-size: 40rpx; font-weight: 600; margin-top: 12rpx; overflow-wrap: anywhere; }
+.row-between { gap: 16rpx; flex-wrap: wrap; }
+.customer-tags { display: flex; flex-wrap: wrap; gap: 12rpx; margin: 16rpx 0; }
+.customer-tags text { padding: 6rpx 12rpx; border-radius: 8rpx; background: #fbede7; color: #b1432c; font-size: 22rpx; }
+.asset-row { display: flex; justify-content: space-between; gap: 20rpx; padding: 16rpx 0; border-bottom: 1rpx solid #eeeee7; }
+.customer-card .secondary-button { margin-top: 24rpx; }
+.scope-note { margin-top: 20rpx; }
+.scope-note .card-desc { margin-bottom: 14rpx; }
+.query-notice { margin-top: 20rpx; color: #b64c31; font-size: 25rpx; line-height: 1.7; }
+.result-caption { font-size: 25rpx; color: #71796c; margin: 28rpx 0; overflow-wrap: anywhere; }
+.date-range { display: flex; gap: 16rpx; margin: 24rpx 0; }
+.date-range picker { flex: 1; min-width: 0; background: #f5f4ef; padding: 20rpx 12rpx; border-radius: 12rpx; font-size: 26rpx; }
+.date-range .field-label { min-height: 34rpx; }
+.table-scroll { width: 100%; margin-top: 20rpx; overflow-x: auto; }
+.daily-table { width: 1140rpx; }
+.table-row { display: flex; border-bottom: 1rpx solid #e9ebe2; font-size: 24rpx; }
+.table-row > view { box-sizing: border-box; width: 190rpx; padding: 20rpx 10rpx; overflow-wrap: anywhere; }
+.table-heading { background: #f5f4ef; color: #707869; font-weight: 600; }
+.detail-row { padding: 26rpx 0; border-bottom: 1rpx solid #e9ebe2; overflow-wrap: anywhere; }
+.detail-row:last-child { border-bottom: 0; }
+.coach-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14rpx; margin-top: 20rpx; font-size: 24rpx; color: #747c6b; }
+.coach-grid text { font-weight: 600; color: #252d22; }
+.payment-amount { font-size: 30rpx; color: #b5442c; font-weight: 600; }
+.export-bar { position: fixed; bottom: 0; left: 0; right: 0; display: flex; flex-wrap: wrap; gap: 14rpx; padding: 22rpx 24rpx calc(22rpx + env(safe-area-inset-bottom)); background: #fff; border-top: 1rpx solid #e3e5db; z-index: 10; }
+.locale-page .export-bar button { flex: 1; width: 0; min-width: 0; margin: 0; }
+.report-page .card > .primary-button { width: 100%; }
+.customer-card { overflow-wrap: anywhere; }

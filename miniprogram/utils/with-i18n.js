@@ -1,5 +1,7 @@
 const { getLanguage, subscribe, t } = require('./i18n')
 const titles = {
+  'pages/admin/reports/index': '客户跟进与经营报表',
+  'pages/workspace/adjust/index': '排课与操作纠错',
   'pages/home/index': 'ONE泰拳格斗馆', 'pages/login/index': '登录',
   'pages/booking/index': '预约大厅', 'pages/profile/index': '我的', 'pages/points/index': '我的积分',
   'pages/workspace/index': '训练工作台', 'pages/workspace/distribute/index': '权益派发',

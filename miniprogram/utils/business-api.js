@@ -177,6 +177,13 @@ async function updatePackageStatus(payload) {
 }
 
 module.exports = {
+  getCustomerFollowUpData: async payload => unwrapResult(await callBusinessCore('getCustomerFollowUpData', payload)),
+  getBusinessReportData: async payload => unwrapResult(await callBusinessCore('getBusinessReportData', payload)),
+  getScheduleAdjustmentData: async payload => unwrapResult(await callBusinessCore('getScheduleAdjustmentData', payload)),
+  updateCoachSchedule: async payload => unwrapResult(await callBusinessCore('updateCoachSchedule', payload)),
+  cancelCoachSchedule: async payload => unwrapResult(await callBusinessCore('cancelCoachSchedule', payload)),
+  getCorrectionRecords: async payload => unwrapResult(await callBusinessCore('getCorrectionRecords', payload)),
+  reverseOperation: async payload => unwrapResult(await callBusinessCore('reverseOperation', payload)),
   getPointsViewData: async () => unwrapResult(await callBusinessCore('getPointsViewData')),
   bindInviteCode: async (payload) => unwrapResult(await callBusinessCore('bindInviteCode', payload)),
   clearPendingReads: () => pendingReads.clear(),

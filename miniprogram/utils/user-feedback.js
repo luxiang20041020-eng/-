@@ -31,6 +31,13 @@ const CODE_MESSAGES = {
   INVALID_CREATE_PACKAGE_PAYLOAD: '请核对套餐名称、类型、课时、金额和上架状态',
 }
 const OPERATION_MESSAGES = {
+  CUSTOMER_FOLLOWUP_ERROR: '跟进与报表资料暂时无法读取，请稍后重试',
+  BUSINESS_REPORT_ERROR: '跟进与报表资料暂时无法读取，请稍后重试',
+  SCHEDULE_ADJUST_VIEW_ERROR: '操作资料暂时无法读取，请刷新后重试',
+  CORRECTION_VIEW_ERROR: '操作资料暂时无法读取，请刷新后重试',
+  UPDATE_SCHEDULE_ERROR: '排课修改未完成，请刷新后核对',
+  CANCEL_SCHEDULE_ERROR: '取消退课未完成，请刷新后继续退课',
+  REVERSE_OPERATION_ERROR: '撤销操作未完成，请刷新记录后核对',
   POINTS_VIEW_ERROR: '积分资料暂时无法读取，请稍后重试',
   BIND_INVITE_ERROR: '邀请码绑定未完成，请刷新积分和绑定状态后重试',
   CREATE_USER_ERROR: '用户档案未能保存，请稍后重试', LOGIN_WITH_PHONE_ERROR: '手机号登录未完成，请重新授权后重试',

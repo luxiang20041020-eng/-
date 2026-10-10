@@ -13,7 +13,9 @@
     "pages/admin/index",
     "pages/admin/users/index",
     "pages/admin/packages/index",
-    "pages/admin/stores/index"
+    "pages/admin/stores/index",
+    "pages/workspace/adjust/index",
+    "pages/admin/reports/index"
   ],
   "window": {
     "backgroundColor": "#f5f4ef",

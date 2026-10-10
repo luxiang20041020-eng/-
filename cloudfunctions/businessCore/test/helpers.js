@@ -107,6 +107,8 @@ function loadFunction(state, env = {}, context = { OPENID: 'real-openid', ENV: '
     require(name) {
       if (name === 'wx-server-sdk') return cloud
       if (name === 'crypto') return require('node:crypto')
+      if (name === './reports') return require('../reports')
+      if (name === './adjustments') return require('../adjustments')
       if (name === './request-policy') return require('../request-policy')
       if (name === './user-feedback') return require('../user-feedback')
       throw new Error(name)

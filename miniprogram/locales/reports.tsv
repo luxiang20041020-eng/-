@@ -1,0 +1,90 @@
+客户跟进与经营报表|Customer follow-up and reports|Suivi clients et rapports|ติดตามลูกค้าและรายงาน|Kundenbetreuung und Berichte|顧客フォローと経営レポート|ग्राहक फ़ॉलो-अप और रिपोर्ट
+客户跟进与报表|Customer follow-up and reports|Suivi clients et rapports|ติดตามลูกค้าและรายงาน|Kundenbetreuung und Berichte|顧客フォローとレポート|ग्राहक फ़ॉलो-अप और रिपोर्ट
+筛选客户、查看经营数据并导出|Filter customers, view and export business data|Filtrer les clients, consulter et exporter les données|กรองลูกค้า ดูและส่งออกข้อมูลธุรกิจ|Kunden filtern, Geschäftsdaten ansehen und exportieren|顧客の絞り込み、経営データの確認と出力|ग्राहक छाँटें, व्यावसायिक डेटा देखें और निर्यात करें
+请核对跟进阈值：到期天数 1 至 90，课时 0 至 20，未到店天数 7 至 365|Check thresholds: expiry 1–90 days, lessons 0–20, inactivity 7–365 days|Vérifiez les seuils : expiration 1–90 jours, séances 0–20, absence 7–365 jours|ตรวจสอบเกณฑ์: หมดอายุ 1–90 วัน ครั้ง 0–20 ไม่มา 7–365 วัน|Grenzen prüfen: Ablauf 1–90 Tage, Einheiten 0–20, Abwesenheit 7–365 Tage|条件を確認：期限1～90日、残回数0～20回、未訪問7～365日|सीमाएँ जाँचें: समाप्ति 1–90 दिन, सत्र 0–20, अनुपस्थिति 7–365 दिन
+请选择有效的报表门店|Select a valid report location|Sélectionnez un établissement valide|เลือกสาขาที่ถูกต้องสำหรับรายงาน|Gültigen Berichtsstandort wählen|有効なレポート店舗を選択してください|रिपोर्ट के लिए मान्य शाखा चुनें
+请选择有效的客户筛选条件|Select a valid customer filter|Sélectionnez un filtre client valide|เลือกเงื่อนไขกรองลูกค้าที่ถูกต้อง|Gültigen Kundenfilter wählen|有効な顧客条件を選択してください|मान्य ग्राहक फ़िल्टर चुनें
+请选择有效日期范围，开始日期不得晚于结束日期，最多 366 天|Choose a valid date range, start before end, up to 366 days|Choisissez une période valide, début avant fin, de 366 jours maximum|เลือกช่วงวันที่ถูกต้อง เริ่มก่อนสิ้นสุด ไม่เกิน 366 วัน|Gültigen Zeitraum wählen, Beginn vor Ende, höchstens 366 Tage|開始日が終了日以前の有効な期間を選択（最大366日）|मान्य तारीख अवधि चुनें, शुरुआत अंत से पहले, अधिकतम 366 दिन
+续费|Renewal|Renouvellement|ต่อแพ็กเกจ|Verlängerung|継続購入|नवीनीकरण
+历史顺序未确认|Purchase order unknown|Ordre des achats inconnu|ไม่ทราบลำดับการซื้อ|Kaufreihenfolge unbekannt|過去の購入順序不明|पुराना खरीद क्रम अज्ञात
+首次购课|First purchase|Premier achat|ซื้อครั้งแรก|Erster Kauf|初回購入|पहली खरीद
+历史教练|Former coach|Ancien coach|โค้ชเดิม|Früherer Trainer|過去のコーチ|पूर्व प्रशिक्षक
+跟进与报表资料暂时无法读取，请稍后重试|Unable to load follow-up and report data. Try again later|Impossible de charger les données. Réessayez plus tard|โหลดข้อมูลติดตามและรายงานไม่ได้ โปรดลองอีกครั้ง|Daten können nicht geladen werden. Später erneut versuchen|フォロー・レポートを読み込めません。後ほど再試行してください|फ़ॉलो-अप और रिपोर्ट डेटा उपलब्ध नहीं है। बाद में प्रयास करें
+手机号已复制|Phone number copied|Numéro copié|คัดลอกเบอร์แล้ว|Telefonnummer kopiert|電話番号をコピーしました|फ़ोन नंबर कॉपी हुआ
+筛选条件已变化，请查询后再导出|Filters changed. Search again before exporting|Filtres modifiés. Relancez la recherche avant l’export|เงื่อนไขเปลี่ยนแล้ว กรุณาค้นหาใหม่ก่อนส่งออก|Filter geändert. Vor Export erneut abfragen|条件が変更されました。再検索してから出力してください|फ़िल्टर बदले हैं। निर्यात से पहले फिर खोजें
+日期条件已变化，请查询后再导出|Dates changed. Search again before exporting|Dates modifiées. Relancez la recherche avant l’export|วันที่เปลี่ยนแล้ว กรุณาค้นหาใหม่ก่อนส่งออก|Datum geändert. Vor Export erneut abfragen|日付が変更されました。再検索してから出力してください|तारीखें बदली हैं। निर्यात से पहले फिर खोजें
+手机文件空间不足，请清理后重试|Device storage full. Free space and try again|Stockage plein. Libérez de l’espace et réessayez|พื้นที่เต็ม กรุณาล้างพื้นที่แล้วลองใหม่|Speicher voll. Platz schaffen und erneut versuchen|空き容量不足です。容量を確保して再試行してください|स्टोरेज भर गया है। स्थान खाली कर फिर प्रयास करें
+报表导出未完成，请复制表格或稍后重试|Export failed. Copy the table or try again later|Export échoué. Copiez le tableau ou réessayez plus tard|ส่งออกไม่สำเร็จ คัดลอกตารางหรือลองใหม่|Export fehlgeschlagen. Tabelle kopieren oder später versuchen|出力できませんでした。表をコピーするか再試行してください|निर्यात असफल। तालिका कॉपी करें या बाद में प्रयास करें
+客户与经营|Customers and business|Clients et activité|ลูกค้าและธุรกิจ|Kunden und Geschäft|顧客と経営|ग्राहक और व्यवसाय
+客户跟进|Customer follow-up|Suivi clients|ติดตามลูกค้า|Kundenbetreuung|顧客フォロー|ग्राहक फ़ॉलो-अप
+经营报表|Business reports|Rapports d’activité|รายงานธุรกิจ|Geschäftsberichte|経営レポート|व्यावसायिक रिपोर्ट
+筛选客户|Filter customers|Filtrer les clients|กรองลูกค้า|Kunden filtern|顧客を絞り込む|ग्राहक छाँटें
+筛选设置|Filter settings|Paramètres des filtres|ตั้งค่าตัวกรอง|Filtereinstellungen|絞り込み設定|फ़िल्टर सेटिंग
+需要跟进|Needs follow-up|À contacter|ต้องติดตาม|Kontakt erforderlich|要フォロー|फ़ॉलो-अप आवश्यक
+即将到期|Expiring soon|Expire bientôt|ใกล้หมดอายุ|Läuft bald ab|期限間近|जल्द समाप्त
+课时不足|Low lesson balance|Peu de séances restantes|ครั้งคงเหลือน้อย|Wenige Einheiten|残回数不足|सत्र कम हैं
+长期未到店|Long absence|Absence prolongée|ไม่ได้มานาน|Lange abwesend|長期未訪問|लंबी अनुपस्थिति
+全部客户|All customers|Tous les clients|ลูกค้าทั้งหมด|Alle Kunden|すべての顧客|सभी ग्राहक
+到期提醒天数|Expiry reminder days|Jours avant expiration|วันเตือนหมดอายุ|Tage vor Ablauf|期限通知日数|समाप्ति सूचना दिन
+课时不足阈值|Low balance threshold|Seuil de séances restantes|เกณฑ์ครั้งคงเหลือ|Grenze für Restguthaben|残回数の基準|कम सत्र की सीमा
+未到店提醒天数|Absence reminder days|Jours d’absence|วันเตือนไม่มา|Abwesenheitstage|未訪問通知日数|अनुपस्थिति सूचना दिन
+按姓名或手机号搜索|Search name or phone|Rechercher nom ou téléphone|ค้นหาชื่อหรือเบอร์|Name oder Telefon suchen|氏名・電話番号で検索|नाम या फ़ोन से खोजें
+查询|Search|Rechercher|ค้นหา|Abfragen|検索|खोजें
+客户按所属门店筛选，最近到店跨门店核对。|Customers filtered by home location; visits checked across locations.|Clients filtrés par établissement ; visites vérifiées tous établissements.|กรองตามสาขาของลูกค้า ตรวจสอบการมาในทุกสาขา|Kunden nach Stammstandort; Besuche aller Standorte berücksichtigt.|所属店舗で絞り込み、最終来店は全店舗で確認。|ग्राहक अपनी शाखा से छाँटे जाते हैं; सभी शाखाओं की यात्राएँ जाँची जाती हैं।
+当前筛选 {0} 位客户|{0} customers matched|{0} clients trouvés|พบลูกค้า {0} คน|{0} Kunden gefunden|該当する顧客 {0} 人|{0} ग्राहक मिले
+暂无符合条件的客户|No matching customers|Aucun client correspondant|ไม่พบลูกค้าตามเงื่อนไข|Keine passenden Kunden|該当する顧客はいません|कोई मेल खाता ग्राहक नहीं
+剩余 {0} 次|{0} lessons left|{0} séances restantes|เหลือ {0} ครั้ง|{0} Einheiten übrig|残り {0} 回|{0} सत्र शेष
+最近到店：{0}|Last visit: {0}|Dernière visite : {0}|มาล่าสุด: {0}|Letzter Besuch: {0}|最終来店：{0}|अंतिम यात्रा: {0}
+未到店|No visits yet|Aucune visite|ยังไม่เคยมา|Noch kein Besuch|来店なし|अभी कोई यात्रा नहीं
+距到店或建档 {0} 天|{0} days since visit or registration|{0} jours depuis visite ou inscription|{0} วันนับจากมาหรือสร้างประวัติ|{0} Tage seit Besuch oder Anmeldung|来店・登録から {0} 日|यात्रा या पंजीकरण से {0} दिन
+复制手机号|Copy phone|Copier le numéro|คัดลอกเบอร์|Telefon kopieren|電話番号をコピー|फ़ोन कॉपी करें
+加载更多客户|Load more customers|Plus de clients|โหลดลูกค้าเพิ่ม|Mehr Kunden laden|顧客をさらに表示|और ग्राहक दिखाएँ
+日期范围|Date range|Période|ช่วงวันที่|Zeitraum|期間|तारीख अवधि
+开始日期|Start date|Date de début|วันที่เริ่ม|Startdatum|開始日|आरंभ तिथि
+结束日期|End date|Date de fin|วันที่สิ้นสุด|Enddatum|終了日|समाप्ति तिथि
+本月|This month|Ce mois|เดือนนี้|Dieser Monat|今月|इस महीने
+近 30 天|Last 30 days|30 derniers jours|30 วันที่ผ่านมา|Letzte 30 Tage|直近30日|पिछले 30 दिन
+查询报表|View report|Afficher le rapport|ดูรายงาน|Bericht abfragen|レポートを表示|रिपोर्ट देखें
+登记实收|Recorded receipts|Recettes enregistrées|ยอดรับที่บันทึก|Erfasste Einnahmen|登録済み受領額|दर्ज प्राप्त राशि
+收款笔数|Payment count|Nombre de paiements|จำนวนการรับเงิน|Zahlungen|入金件数|भुगतान संख्या
+续费笔数|Renewal count|Nombre de renouvellements|จำนวนต่อแพ็กเกจ|Verlängerungen|継続購入件数|नवीनीकरण संख्या
+续费金额|Renewal receipts|Recettes de renouvellement|ยอดต่อแพ็กเกจ|Verlängerungseinnahmen|継続購入額|नवीनीकरण राशि
+到场人次|Attendances|Présences|จำนวนเข้าร่วม|Teilnahmen|参加人数（延べ）|उपस्थिति संख्या
+已完成场次|Completed sessions|Séances terminées|รอบที่เสร็จแล้ว|Abgeschlossene Termine|実施済み回数|पूर्ण सत्र
+收款按登记日期；核销按训练日期；排除已撤销记录。|Payments use entry dates; check-ins use training dates; reversed records excluded.|Paiements par date de saisie ; présences par date d’entraînement ; annulations exclues.|รับเงินตามวันที่บันทึก เช็คอินตามวันฝึก ไม่รวมรายการที่ย้อนกลับ|Zahlungen nach Erfassung, Teilnahme nach Trainingstag; widerrufene Einträge ausgeschlossen.|入金は登録日、核销はトレーニング日で集計。取り消し済み記録を除外。|भुगतान दर्ज तारीख से, उपस्थिति प्रशिक्षण तारीख से; रद्द रिकॉर्ड बाहर।
+续费为同一客户、同一课种的后续付费派发，赠课不计入。|Renewals are later paid grants for the same customer and lesson type; gifts excluded.|Renouvellement : achat ultérieur du même type par le même client ; cadeaux exclus.|ต่อแพ็กเกจคือซื้อประเภทเดิมของลูกค้าเดิมครั้งถัดไป ไม่รวมครั้งฟรี|Verlängerung: weiterer bezahlter Kauf desselben Kurstyps; Geschenke ausgeschlossen.|継続購入は同じ顧客・種別の後続有料購入。無料付与を除外。|नवीनीकरण उसी ग्राहक और सत्र प्रकार की बाद की सशुल्क खरीद है; उपहार बाहर।
+授课时长按已结束且有到场的排课计算，独立人工训练不估算时长。|Duration counts ended scheduled sessions with attendance; standalone manual training has no estimated duration.|Durée des séances planifiées terminées avec présence ; entraînements manuels indépendants sans durée estimée.|ระยะเวลานับรอบที่จบและมีผู้มา ไม่ประมาณเวลาฝึกด้วยมือแยกต่างหาก|Dauer für beendete Termine mit Teilnahme; separate manuelle Trainings ohne Schätzung.|終了済みで参加者のいる予定から時間を集計。単独の手動記録は時間を推定しません。|अवधि समाप्त निर्धारित सत्रों से, जहाँ उपस्थिति हो; स्वतंत्र मैन्युअल प्रशिक्षण की अवधि अनुमानित नहीं।
+金额为线下收款登记，不代表线上支付或自动退款。|Amounts are recorded offline receipts, not online payments or automatic refunds.|Montants enregistrés hors ligne, sans paiement en ligne ni remboursement automatique.|ยอดเป็นการรับเงินออฟไลน์ที่บันทึก ไม่ใช่ชำระออนไลน์หรือคืนอัตโนมัติ|Beträge sind erfasste Offline-Zahlungen, keine Online-Zahlungen oder automatischen Erstattungen.|金額は対面入金の登録値で、オンライン決済・自動返金を示しません。|राशि दर्ज ऑफ़लाइन प्राप्ति है, ऑनलाइन भुगतान या स्वचालित वापसी नहीं।
+{0} 条记录缺少日期信息，已从对应统计中排除。|{0} records lack dates and are excluded from related totals.|{0} enregistrements sans date exclus des totaux concernés.|{0} รายการไม่มีวันที่ จึงไม่รวมในสถิติที่เกี่ยวข้อง|{0} Einträge ohne Datum aus betreffenden Summen ausgeschlossen.|日付がない {0} 件を該当集計から除外しました。|{0} रिकॉर्ड में तारीख नहीं; संबंधित गणना से बाहर हैं।
+每日经营数据|Daily business data|Données quotidiennes|ข้อมูลธุรกิจรายวัน|Tägliche Geschäftsdaten|日別経営データ|दैनिक व्यावसायिक डेटा
+左右滑动查看完整数据|Swipe to see all columns|Balayez pour voir toutes les colonnes|เลื่อนด้านข้างเพื่อดูทั้งหมด|Seitlich wischen für alle Spalten|左右にスクロールして全列を表示|सभी कॉलम के लिए बाएँ-दाएँ खिसकाएँ
+缺席人次|Absences|Absences|จำนวนขาด|Fehlzeiten|欠席人数（延べ）|अनुपस्थिति संख्या
+教练上课情况|Coach activity|Activité des coachs|การสอนของโค้ช|Traineraktivität|コーチの授業状況|प्रशिक्षक गतिविधि
+该日期范围暂无教练训练记录|No coach training in this period|Aucun entraînement sur cette période|ไม่มีบันทึกโค้ชในช่วงนี้|Keine Trainings in diesem Zeitraum|この期間のトレーニング記録はありません|इस अवधि में प्रशिक्षक रिकॉर्ड नहीं
+排课场次|Scheduled sessions|Séances planifiées|รอบที่จัด|Geplante Termine|予定回数|निर्धारित सत्र
+人工核销人次|Manual check-ins|Présences manuelles|เช็คอินด้วยมือ|Manuelle Teilnahmen|手動核销人数|मैन्युअल उपस्थिति
+取消场次|Cancelled sessions|Séances annulées|รอบที่ยกเลิก|Abgesagte Termine|中止回数|रद्द सत्र
+排课授课分钟|Scheduled teaching minutes|Minutes de cours planifiés|นาทีสอนตามตาราง|Unterrichtsminuten|予定授業時間（分）|निर्धारित शिक्षण मिनट
+收款明细|Payment details|Détail des recettes|รายละเอียดรับเงิน|Zahlungsdetails|入金明細|भुगतान विवरण
+该日期范围暂无收款记录|No payments in this period|Aucun paiement sur cette période|ไม่มีรับเงินในช่วงนี้|Keine Zahlungen in diesem Zeitraum|この期間の入金記録はありません|इस अवधि में भुगतान नहीं
+操作人：{0}|Operator: {0}|Responsable : {0}|ผู้ดำเนินการ: {0}|Bearbeiter: {0}|操作者：{0}|संचालक: {0}
+加载更多收款记录|Load more payments|Plus de paiements|โหลดรายการรับเงินเพิ่ม|Weitere Zahlungen laden|入金記録をさらに表示|और भुगतान दिखाएँ
+导出 CSV|Export CSV|Exporter CSV|ส่งออก CSV|CSV exportieren|CSV出力|CSV निर्यात
+复制表格|Copy table|Copier le tableau|คัดลอกตาราง|Tabelle kopieren|表をコピー|तालिका कॉपी करें
+统计日期|Report date|Date du rapport|วันที่รายงาน|Berichtsdatum|集計日|रिपोर्ट तारीख
+团课余额|Group lesson balance|Solde collectif|คงเหลือกลุ่ม|Gruppenguthaben|団体レッスン残回数|समूह सत्र शेष
+团课到期日|Group expiry date|Expiration collective|หมดอายุกลุ่ม|Gruppenablaufdatum|団体レッスン期限|समूह समाप्ति तिथि
+私教余额|Private lesson balance|Solde individuel|คงเหลือส่วนตัว|Privatguthaben|個人レッスン残回数|निजी सत्र शेष
+私教到期日|Private expiry date|Expiration individuelle|หมดอายุส่วนตัว|Privatablaufdatum|個人レッスン期限|निजी समाप्ति तिथि
+最近到店|Last visit|Dernière visite|มาล่าสุด|Letzter Besuch|最終来店|अंतिम यात्रा
+距到店或建档天数|Days since visit or registration|Jours depuis visite ou inscription|วันนับจากมาหรือสร้างประวัติ|Tage seit Besuch oder Anmeldung|来店・登録からの日数|यात्रा या पंजीकरण से दिन
+是|Yes|Oui|ใช่|Ja|はい|हाँ
+否|No|Non|ไม่|Nein|いいえ|नहीं
+统计说明|Report rules|Règles du rapport|คำอธิบายสถิติ|Berichtsregeln|集計ルール|रिपोर्ट नियम
+付费客户|Paying customers|Clients payants|ลูกค้าที่ชำระ|Zahlende Kunden|有料購入顧客|भुगतान करने वाले ग्राहक
+课程类型|Lesson type|Type de cours|ประเภทคลาส|Kurstyp|レッスン種別|सत्र प्रकार
+课时|Lessons|Séances|ครั้ง|Einheiten|回数|सत्र
+购课类别|Purchase category|Catégorie d’achat|หมวดการซื้อ|Kaufkategorie|購入区分|खरीद श्रेणी
+操作人|Operator|Responsable|ผู้ดำเนินการ|Bearbeiter|操作者|संचालक
+当前设备无法生成文件，请复制表格或使用手机微信导出|This device cannot create files. Copy the table or export from mobile WeChat|Cet appareil ne peut pas créer de fichier. Copiez le tableau ou utilisez WeChat mobile|อุปกรณ์นี้สร้างไฟล์ไม่ได้ คัดลอกตารางหรือใช้ WeChat มือถือ|Gerät kann keine Datei erstellen. Tabelle kopieren oder mobiles WeChat nutzen|この端末はファイル生成非対応です。表のコピーかスマホ版WeChatを使用してください|यह उपकरण फ़ाइल नहीं बना सकता। तालिका कॉपी करें या मोबाइल WeChat उपयोग करें
+CSV已生成，当前微信不支持文件导出，请复制表格或更新微信|CSV created, but file export is unsupported. Copy the table or update WeChat|CSV créé, export non pris en charge. Copiez le tableau ou mettez WeChat à jour|สร้าง CSV แล้ว แต่ส่งออกไม่ได้ คัดลอกตารางหรืออัปเดต WeChat|CSV erstellt, Dateiexport nicht unterstützt. Tabelle kopieren oder WeChat aktualisieren|CSVは生成済みですが出力非対応です。表をコピーするかWeChatを更新してください|CSV बना है, फ़ाइल निर्यात समर्थित नहीं। तालिका कॉपी करें या WeChat अपडेट करें

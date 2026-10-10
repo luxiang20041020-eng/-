@@ -10,7 +10,7 @@ const localizedText = require('../miniprogram/utils/i18n-text')
 const languageOptions = ['简体中文', 'English', 'Français', 'ไทย', 'Deutsch', '日本語', 'हिन्दी']
 const languageCodes = ['zh', 'en', 'fr', 'th', 'de', 'ja', 'hi']
 const i18n = { t: localizedText.translate, f: localizedText.format, list: localizedText.list }
-const pageNames = ['home', 'booking', 'profile', 'points', 'login', 'workspace', 'admin', 'admin/users', 'admin/packages', 'admin/stores', 'workspace/distribute', 'workspace/schedule', 'workspace/class', 'workspace/manual']
+const pageNames = ['home', 'booking', 'profile', 'points', 'login', 'workspace', 'admin', 'admin/users', 'admin/packages', 'admin/stores', 'admin/reports', 'workspace/distribute', 'workspace/schedule', 'workspace/class', 'workspace/manual', 'workspace/adjust']
 const escape = (value) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 
 function parse(source) {
@@ -91,7 +91,7 @@ function parseWxml(source) {
 
 function fixtures(page, search) {
   const stores = [{ id: 'gaoxin', name: '高新旗舰店', address: '高新区唐延路 88 号' }, { id: 'jingkai', name: '经开实战店', address: '经开区凤城八路 18 号' }]
-  const roles = page.startsWith('admin') ? 'admin' : page.startsWith('workspace') ? 'coach' : 'client'
+  const roles = page.startsWith('admin') || (page === 'workspace/adjust' && search.get('mode') === 'records') || search.get('role') === 'admin' ? 'admin' : page.startsWith('workspace') ? 'coach' : 'client'
   const tabs = [{ key: 'home', label: '首页', path: '/pages/home/index' }, { key: 'booking', label: '预约', path: '/pages/booking/index' }, ...(roles === 'coach' ? [{ key: 'workspace', label: '工作台', path: '/pages/workspace/index' }] : roles === 'admin' ? [{ key: 'admin', label: '看板', path: '/pages/admin/index' }] : []), { key: 'profile', label: '我的', path: '/pages/profile/index' }]
   const runtime = { isAuthenticated: search.get('state') !== 'guest', role: roles, roleLabel: roles === 'admin' ? '管理员' : roles === 'coach' ? '场馆人员' : '会员', userProfile: { id: 'sample-user', nickname: '陈一', phone: '13812345678', levelText: '每一次坚持，都算数。' }, currentStore: stores[0], stores, tabItems: tabs }
   let config
@@ -213,6 +213,25 @@ function fixtures(page, search) {
   if (page === 'admin/packages') {
     data.visiblePackages = search.get('state') === 'empty' ? [] : packages.map((item, i) => ({ ...item, validDays: i ? 90 : 365, status: i ? 0 : 1, statusLabel: i ? '已下架' : '已上架', actionText: i ? '重新上架' : '下架套餐', actionMode: i ? 'on' : 'off' }))
     if (search.get('popup')) data.createForm = { name: '12 节私教入门卡', type: 'private', lessons: '12', price: '2400', validDays: '180', status: search.get('active') ? 1 : 0 }
+  }
+  if (page === 'workspace/adjust') {
+    const cancelled = search.get('state') === 'cancelled'
+    data.mode = search.get('mode') === 'records' ? 'records' : 'schedule'
+    data.classId = 'example-class'
+    const record = { id: 'grant', kind: 'distribution', userName: '陈一', title: '团体训练套餐', operatorName: '李教练', time: '2026-10-09', balance: 12, projectedBalance: 4, amount: 8, eligible: true, version: 0, hint: '撤销将扣回本次派发的课时，线下款项需另行核对' }
+    data.pageData = { schedule: { id: 'example-class', title: '泰拳基础训练', storeName: '高新旗舰店', start_time: '2026-10-10 19:00:00', end_time: '2026-10-10 20:30:00', classType: 1, max_capacity: 15, coach_id: 'coach', cancelled, remaining: cancelled ? 3 : 0, version: 'version' }, affected: [{ id: 'client', name: '陈一', phone: '13812345678', status: '待核销' }], coaches: [{ id: 'coach', name: '李教练' }], records: [record], history: data.mode === 'records' ? [{ id: 'audit', userName: '陈一', operatorName: '王管理员', time: '2026-10-09', title: '撤销派发', beforeBalance: 20, afterBalance: 12, reason: '选错套餐' }] : [] }
+    Object.assign(data, { title: '泰拳基础训练', date: '2026-10-10', startTime: '19:00', endTime: '20:30', capacity: '15', coachId: 'coach', reason: cancelled ? '教练临时请假' : '' })
+    if (search.get('popup')) data.selectedRecord = record
+  }
+  if (page === 'admin/reports') {
+    data.mode = search.get('mode') === 'report' ? 'report' : 'followup'
+    data.settingsOpen = search.has('expanded')
+    const customers = [{ id: 'u1', name: '陈一', phone: '13812345678', expiring: true, low: true, inactive: true, lastVisit: '2026-08-20', daysInactive: 50, types: [{ type: 1, label: '团课', owned: true, balance: 2, expiry: '2026-10-15' }, { type: 2, label: '私教', owned: false, balance: 0, expiry: '' }] }]
+    data.followup = { store: stores[0], today: dateKey, thresholds: { expiryDays: 7, lowBalance: 2, inactiveDays: 30 }, counts: { all: 25, expiring: 3, low: 5, inactive: 4, needs: 8 }, customers, total: 1 }
+    const payments = [{ id: 'pay', userName: '陈一', packageName: '30 次专属训练', amountText: '6000.00', date: dateKey, payType: '微信', purchaseLabel: '续费', operatorName: '王管理员' }]
+    data.report = { store: stores[0], startDate: data.startDate, endDate: data.endDate, incompleteRecords: 0, summary: { incomeText: '6800.00', payments: 3, renewals: 1, renewalText: '6000.00', checkins: 18, taught: 3 }, daily: [{ date: dateKey, incomeText: '6800.00', renewals: 1, checkins: 18, absences: 2, taught: 3 }], coaches: [{ id: 'coach', name: '李教练', scheduled: 4, cancelled: 1, taught: 3, checkins: 18, absences: 2, manualCheckins: 1, minutes: 270 }], payments }
+    if (search.get('state') === 'empty') { data.followup.customers = []; data.followup.total = 0; data.report.coaches = []; data.report.payments = [] }
+    data.visibleCustomers = data.followup.customers; data.visiblePayments = data.report.payments
   }
   return data
 }

@@ -1129,7 +1129,7 @@ test('全部数据页面在空缓存首次进入时可完成云端同步', async
     realApp.onLaunch()
     realApp.applyCloudSession({ loggedIn: true, userProfile: { id: 'admin', nickname: '管理员', role: 'admin' } })
     realApp.getRuntimeSnapshotAsync = async function () { return this.getRuntimeSnapshot() }
-    const response = { currentStore: realApp.getCurrentStore(), stores: realApp.globalData.stores, schedules: [], plans: [], users: [], packages: [], myBookings: [], todayClasses: [], members: [], packageOptions: [], classInfo: { id: 'class' }, roster: [] }
+    const response = { currentStore: realApp.getCurrentStore(), stores: realApp.globalData.stores, schedules: [], plans: [], users: [], customers: [], payments: [], packages: [], myBookings: [], todayClasses: [], members: [], packageOptions: [], classInfo: { id: 'class' }, roster: [] }
     const api = new Proxy({}, { get: () => async () => { reads += 1; return response } })
     const { page, app } = harness(name + '.js', api)
     Object.assign(app, realApp)

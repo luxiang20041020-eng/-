@@ -1,6 +1,6 @@
 const PUBLIC_ACTIONS = new Set(['getCurrentUserSession', 'loginWithPhone', 'getHomeViewData', 'getBookingViewData', 'logout'])
-const ADMIN_ACTIONS = new Set(['bootstrap', 'getAdminDashboardData', 'getAdminUserManageData', 'getAdminUserAssets', 'getAdminPackageManageData', 'getAdminStoreManageData', 'createUser', 'createPackage', 'createStore', 'updateStore', 'updateStoreStatus', 'updateUserRole', 'updatePackageStatus'])
-const STAFF_ACTIONS = new Set(['getWorkspaceViewData', 'getDistributeViewData', 'getCoachClassViewData', 'getCoachScheduleViewData', 'getManualWriteOffViewData', 'manualWriteOff', 'distributeAsset', 'writeOffBooking', 'createCoachSchedule'])
+const ADMIN_ACTIONS = new Set(['getCustomerFollowUpData', 'getBusinessReportData', 'getCorrectionRecords', 'reverseOperation', 'bootstrap', 'getAdminDashboardData', 'getAdminUserManageData', 'getAdminUserAssets', 'getAdminPackageManageData', 'getAdminStoreManageData', 'createUser', 'createPackage', 'createStore', 'updateStore', 'updateStoreStatus', 'updateUserRole', 'updatePackageStatus'])
+const STAFF_ACTIONS = new Set(['getScheduleAdjustmentData', 'updateCoachSchedule', 'cancelCoachSchedule', 'getWorkspaceViewData', 'getDistributeViewData', 'getCoachClassViewData', 'getCoachScheduleViewData', 'getManualWriteOffViewData', 'manualWriteOff', 'distributeAsset', 'writeOffBooking', 'createCoachSchedule'])
 const MEMBER_ACTIONS = new Set(['getPointsViewData', 'bindInviteCode', 'getIdentityQrCode', 'getProfileViewData', 'updateUserProfile', 'createBooking', 'cancelBooking'])
 
 function reject(message, code) {

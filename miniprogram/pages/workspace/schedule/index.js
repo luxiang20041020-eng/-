@@ -120,6 +120,7 @@ Page(withPageState({
     try {
       const pageData = normalizeSchedulePageData(await businessApi.getCoachScheduleViewData({
         storeId: targetStoreId,
+        allCoaches: runtime.role === 'admin',
         coachId: runtime.userProfile.id,
       }), runtime)
       if (this._syncRequestId !== requestId) {
@@ -197,7 +198,7 @@ Page(withPageState({
     const plans = this.data.pageData.plans || []
     this.setData(Object.assign(scheduleCalendar.calendar(plans, this.data.selectedDate, this.data.filterType), {
       repeatDates: scheduleCalendar.repeatDates(this.data.fullDate, this.data.repeatWeekly),
-      conflictPlans: scheduleCalendar.conflicts(plans, this.data.fullDate, this.data.startTime, this.data.endTime, this.data.repeatWeekly),
+      conflictPlans: scheduleCalendar.conflicts(plans.filter(plan => !plan.coachId || plan.coachId === this.data.runtime.userProfile?.id), this.data.fullDate, this.data.startTime, this.data.endTime, this.data.repeatWeekly),
     }))
   },
   onSelectDay(event) {
@@ -227,6 +228,7 @@ Page(withPageState({
     this.setData({ editorOpen: true })
   },
   onCloseEditor() { if (!this.data.submitting) this.setData({ editorOpen: false }) },
+  onAdjustClass(event) { navigateTo({ url: '/pages/workspace/adjust/index?classId=' + encodeURIComponent(event.currentTarget.dataset.id) }) },
   onOpenClass(event) {
     navigateTo({ url: '/pages/workspace/class/index?classId=' + encodeURIComponent(event.currentTarget.dataset.id) })
   },
