@@ -1,0 +1,29 @@
+[
+  {
+    "name": "gym-header",
+    "file": "D:\\work\\one-2026\\miniprogram\\images\\backgrounds\\gym-header.jpg",
+    "original": "D:\\work\\one-2026\\artifacts\\generated-backgrounds\\gym-header-original.png",
+    "quality": 74,
+    "bytes": 47457,
+    "width": 768,
+    "height": 512
+  },
+  {
+    "name": "training-group",
+    "file": "D:\\work\\one-2026\\miniprogram\\images\\backgrounds\\training-group.jpg",
+    "original": "D:\\work\\one-2026\\artifacts\\generated-backgrounds\\training-group-original.png",
+    "quality": 74,
+    "bytes": 38102,
+    "width": 768,
+    "height": 512
+  },
+  {
+    "name": "training-private",
+    "file": "D:\\work\\one-2026\\miniprogram\\images\\backgrounds\\training-private.jpg",
+    "original": "D:\\work\\one-2026\\artifacts\\generated-backgrounds\\training-private-original.png",
+    "quality": 74,
+    "bytes": 35027,
+    "width": 768,
+    "height": 512
+  }
+]

@@ -114,7 +114,7 @@
 .booking-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16rpx; padding: 0 4rpx 4rpx; }
 .booking-section-heading .section-title { color: #20251f; font-size: 28rpx; }
 .booking-section-hint { font-size: 21rpx; color: #92968b; }
-.booking-schedule-card { margin-top: 20rpx; padding: 28rpx; border: 1rpx solid #e4e5dc; border-radius: 24rpx; background: #ffffff; }
+.booking-schedule-card { margin-top: 20rpx; padding: 0 28rpx 28rpx; border: 1rpx solid #e4e5dc; border-radius: 24rpx; background: #ffffff; overflow: hidden; }
 .booking-card-header { display: flex; align-items: center; justify-content: space-between; gap: 18rpx; }
 .booking-time-range { display: flex; align-items: baseline; gap: 12rpx; white-space: nowrap; }
 .booking-time-main { font-size: 46rpx; line-height: 1.15; letter-spacing: -1rpx; color: #20251f; font-weight: 700; }
@@ -142,6 +142,19 @@
 .booking-action-area button.booking-action-btn.is-booked { background: #f5e9e2; color: #b8442d; }
 .booking-action-hint { margin-top: 10rpx; color: #92968b; font-size: 20rpx; line-height: 1.4; }
 .booking-schedule-card.is-full .booking-time-main { color: #73786e; }
+.booking-card-cover{position:relative;min-height:210rpx;margin:0 -28rpx;padding:28rpx;background:#29362d;overflow:hidden;display:flex;align-items:flex-end}
+.booking-cover-photo{position:absolute;left:0;top:-28rpx;width:100%;height:440rpx;pointer-events:none}
+.booking-cover-shade{position:absolute;left:0;top:0;width:100%;height:100%;background:linear-gradient(90deg,rgba(20,29,22,.92),rgba(20,29,22,.48) 52%,rgba(20,29,22,.12));pointer-events:none}
+.booking-card-cover .booking-card-header{position:relative;z-index:1;width:100%;align-items:flex-end;flex-wrap:wrap;row-gap:18rpx}
+.booking-card-cover .booking-time-main,.booking-schedule-card.is-full .booking-card-cover .booking-time-main{color:#fff}
+.booking-card-cover .booking-time-end{color:#e5e5d7}.booking-card-cover .booking-time-divider{color:#cdd1c3}
+.booking-card-cover .booking-card-status{background:rgba(248,250,242,.94);max-width:100%;white-space:normal;line-height:1.4}
+.booking-card-cover .booking-card-status.is-booked{background:#fbede7}.booking-card-cover .booking-card-status.is-disabled{background:#efefe8}
+.private-training-feature.private-section-head{position:relative;display:block;overflow:hidden;background:#29362d;border-radius:22rpx;padding:0;margin:28rpx 0 20rpx;min-height:210rpx}
+.private-feature-photo{position:absolute;left:0;top:-12rpx;width:100%;height:440rpx;pointer-events:none}
+.private-feature-shade{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(90deg,rgba(20,29,22,.92),rgba(20,29,22,.52) 52%,rgba(20,29,22,.08));pointer-events:none}
+.private-feature-content{position:relative;z-index:1;padding:30rpx 28rpx;min-height:210rpx;width:72%;display:flex;flex-direction:column;justify-content:center}
+.private-feature-kicker{font-size:21rpx;line-height:1.5;color:#dddaca;margin-bottom:10rpx}.private-training-feature .section-title{font-size:30rpx;line-height:1.4;font-weight:600;color:#fff;overflow-wrap:anywhere}.private-training-feature .private-section-count{display:block;color:#dddaca;font-size:22rpx;line-height:1.5;margin-top:12rpx}
 .booking-schedule-section .empty-state { margin-top: 20rpx; padding: 48rpx 28rpx; border: 1rpx dashed #dce0d3; border-radius: 24rpx; background: #faf9f5; }
 
 .coach-drawer-mask {

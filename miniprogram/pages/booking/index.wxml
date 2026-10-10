@@ -1,13 +1,17 @@
 <wxs module="i18n" src="../../utils/i18n.wxs" />
 <view class="page-shell locale-page locale-{{language}}">
   <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
-  <view class="page-header">
+  <view class="page-header art-header">
+    <image class="art-header-photo" src="/images/backgrounds/gym-header.jpg" mode="aspectFill" aria-hidden="true"></image>
+    <view class="art-header-shade"></view>
+    <view class="art-header-content">
     <view class="eyebrow">{{i18n.f('安排下一次训练', [], language)}}</view>
     <view class="headline-row booking-title-row">
       <view class="page-title">{{i18n.f('训练预约', [], language)}}</view>
       <view class="store-badge" bindtap="onOpenStorePicker">{{runtime.currentStore.name}} ⌄</view>
     </view>
     <view class="page-subtitle" wx:if="{{runtime.isAuthenticated}}">{{i18n.f('可用权益：团课 {0} 次 · 专属 {1} 次', [pageData.assets.groupUnlimited ? i18n.t('无限', language) : pageData.assets.groupCount || 0, pageData.assets.privateUnlimited ? i18n.t('无限', language) : pageData.assets.privateCount || 0], language)}}</view><view class="page-subtitle" wx:else>{{i18n.f('先找到适合你的时间，登录后即可预约。', [], language)}}</view>
+    </view>
   </view>
 
   <view class="card">
@@ -36,6 +40,9 @@
     <view class="booking-section-heading"><view class="section-title">{{i18n.f('可预约场次', [], language)}}</view><text class="booking-section-hint">{{i18n.f('选择适合你的时间', [], language)}}</text></view>
     <view wx:if="{{!pageBusy && !pageError && pageData.schedules.length === 0}}" class="empty-state"><view class="empty-state-title">{{i18n.f('这一天还没有安排训练', [], language)}}</view><view class="empty-state-desc">{{i18n.f('试试其他日期，或切换门店和场馆人员。', [], language)}}</view><button class="secondary-button" bindtap="onResetFilters">{{i18n.f('查看今日全部场次', [], language)}}</button></view>
     <view wx:for="{{pageData.schedules}}" wx:key="id" class="booking-schedule-card {{item.isBooked ? 'is-booked' : item.isFull ? 'is-full' : ''}}">
+      <view class="booking-card-cover">
+      <image class="booking-cover-photo" src="{{item.type === 'private' ? '/images/backgrounds/training-private.jpg' : '/images/backgrounds/training-group.jpg'}}" mode="aspectFill" aria-hidden="true"></image>
+      <view class="booking-cover-shade"></view>
       <view class="booking-card-header">
         <view class="booking-time-range">
           <text class="booking-time-main">{{item.timeStart}}</text>
@@ -46,6 +53,7 @@
           <view class="booking-status-dot"></view>
           <text>{{i18n.t(item.isBooked ? '已预约' : item.isFull ? '已满员' : '可预约', language)}}</text>
         </view>
+      </view>
       </view>
       <view class="booking-card-info">
         <view class="booking-course-type {{item.type === 'private' ? 'is-private' : ''}}">{{i18n.t(item.typeLabel, language)}}</view>
@@ -71,7 +79,7 @@
   </view>
 
   <view wx:if="{{filters.type === 'private'}}" class="private-booking-section">
-    <view class="private-section-head"><view class="section-title">{{i18n.t('选择预约教练', language)}}</view><text class="private-section-count">{{i18n.f('{0} 位教练', [pageData.coaches.length], language)}}</text></view>
+    <view class="private-section-head private-training-feature"><image class="private-feature-photo" src="/images/backgrounds/training-private.jpg" mode="aspectFill" aria-hidden="true"></image><view class="private-feature-shade"></view><view class="private-feature-content"><view class="private-feature-kicker">{{i18n.t('专属训练', language)}}</view><view class="section-title">{{i18n.t('选择预约教练', language)}}</view><text class="private-section-count">{{i18n.f('{0} 位教练', [pageData.coaches.length], language)}}</text></view></view>
     <view class="private-coach-list" wx:if="{{pageData.coaches.length}}">
       <view wx:if="{{pageData.selectedCoach}}" class="private-coach-row selected" data-coach-id="{{pageData.selectedCoach.id}}" bindtap="onOpenCoachProfile">
         <image wx:if="{{pageData.selectedCoach.avatarUrl}}" class="private-coach-avatar" src="{{pageData.selectedCoach.avatarUrl}}" mode="aspectFill"></image><view wx:else class="private-coach-avatar">{{pageData.selectedCoach.avatarText}}</view>

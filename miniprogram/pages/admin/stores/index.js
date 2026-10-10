@@ -3,6 +3,8 @@ const { showFeedback, reLaunch } = require('../../../utils/interaction')
 const { getUserMessage } = require('../../../utils/user-feedback')
 const withPageState = require('../../../utils/page-state')
 const businessApi = require('../../../utils/business-api')
+const media = require('../../../utils/profile-media')
+const { normalizeGallery, defaultGallery } = require('../../../utils/store-gallery')
 
 const ADMIN_STORES_CACHE_KEY = 'admin:stores'
 
@@ -38,6 +40,13 @@ Page(withPageState({
     showStorePopup: false,
     editingStoreId: '',
     storeForm: buildDefaultStoreForm(),
+    showGalleryPopup: false,
+    galleryStoreId: '',
+    galleryStoreName: '',
+    galleryDraft: [],
+    galleryVersion: 0,
+    galleryBusy: false,
+    galleryError: '',
   },
 
   onShow() {
@@ -121,6 +130,82 @@ Page(withPageState({
   },
 
   noop() {},
+
+  onOpenGallery(event) {
+    if (this.data.submitting || this.data.galleryBusy) return
+    const store = this.data.pageData.stores.find(item => item.id === event.currentTarget.dataset.storeId)
+    if (!store) return
+    this._galleryUserId = this.data.runtime.userProfile && this.data.runtime.userProfile.id
+    this.setData({ showGalleryPopup: true, galleryStoreId: store.id, galleryStoreName: store.name, galleryDraft: normalizeGallery(store.gallery), galleryVersion: Number(store.galleryVersion || 0), galleryError: '' })
+  },
+
+  onCloseGallery() {
+    if (this.data.galleryBusy) return
+    this.setData({ showGalleryPopup: false, galleryStoreId: '', galleryDraft: [], galleryError: '' })
+  },
+
+  onGalleryTitleInput(event) {
+    if (this.data.galleryBusy) return
+    const index = Number(event.currentTarget.dataset.index)
+    if (!this.data.galleryDraft[index]) return
+    const galleryDraft = this.data.galleryDraft.map((item, i) => i === index ? { ...item, title: event.detail.value, defaultTitle: false } : item)
+    this.setData({ galleryDraft, galleryError: '' })
+  },
+
+  onRemoveGalleryPhoto(event) {
+    if (this.data.galleryBusy) return
+    const index = Number(event.currentTarget.dataset.index)
+    this.setData({ galleryDraft: this.data.galleryDraft.filter((_, i) => i !== index), galleryError: '' })
+  },
+
+  onResetGallery() {
+    if (!this.data.galleryBusy) this.setData({ galleryDraft: defaultGallery(), galleryError: '' })
+  },
+
+  onPreviewGalleryPhoto(event) {
+    const urls = this.data.galleryDraft.map(item => item.url)
+    if (urls.length) return media.previewPhotos(urls, urls[Number(event.currentTarget.dataset.index) || 0])
+  },
+
+  async onChooseGalleryPhoto(event) {
+    if (this.data.galleryBusy || this.data.submitting) return
+    const replacing = event.currentTarget.dataset.index !== undefined
+    const index = Number(event.currentTarget.dataset.index)
+    if (replacing && !this.data.galleryDraft[index]) return
+    if (!replacing && this.data.galleryDraft.length >= 6) return
+    this.setData({ galleryBusy: true, galleryError: '' })
+    try {
+      await media.sameUser(this._galleryUserId)
+      const paths = await media.choosePhotos(replacing ? 1 : 6 - this.data.galleryDraft.length)
+      for (const filePath of paths) {
+        const uploaded = await media.uploadPhoto(filePath, this._galleryUserId, 'store')
+        await media.sameUser(this._galleryUserId)
+        const galleryDraft = this.data.galleryDraft.slice()
+        if (replacing) galleryDraft[index] = { ...galleryDraft[index], url: uploaded.fileId, defaultTitle: false }
+        else if (galleryDraft.length < 6) galleryDraft.push({ url: uploaded.fileId, title: '', defaultTitle: false })
+        this.setData({ galleryDraft })
+        if (replacing) break
+      }
+    } catch (error) {
+      if (!media.cancelled(error)) this.setData({ galleryError: getUserMessage(error, '图片上传未完成，请重新选择图片') })
+    } finally { this.setData({ galleryBusy: false }) }
+  },
+
+  async onSaveGallery() {
+    if (this.data.galleryBusy || this.data.submitting || !this.data.galleryStoreId) return
+    this.setData({ galleryBusy: true, galleryError: '' })
+    try {
+      const runtime = await media.sameUser(this._galleryUserId)
+      if (runtime.role !== 'admin') throw new Error('只有管理员可以更换门店图片')
+      const result = await businessApi.updateStoreGallery({ targetStoreId: this.data.galleryStoreId, version: this.data.galleryVersion, gallery: this.data.galleryDraft.map(item => ({ url: item.url, title: item.title })) })
+      const stores = this.data.pageData.stores.map(store => store.id === this.data.galleryStoreId ? { ...store, gallery: result.gallery, galleryVersion: result.version } : store)
+      this.setData({ pageData: { ...this.data.pageData, stores }, showGalleryPopup: false, galleryStoreId: '', galleryDraft: [] })
+      showFeedback({ title: '门店图片已保存', icon: 'success' })
+      await this.refreshStoreState()
+    } catch (error) {
+      this.setData({ galleryError: getUserMessage(error, '门店图片保存未完成，请稍后重试') })
+    } finally { this.setData({ galleryBusy: false }) }
+  },
 
   onOpenCreatePopup() {
     this.setData({

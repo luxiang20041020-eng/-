@@ -417,11 +417,7 @@ const HOME_NOTICES = [
   '新手友好体验时段持续开放，首次到店可申请动作评估。',
 ]
 
-const HOME_GALLERY = [
-  '拳台训练区',
-  '力量与体能区',
-  '沙袋训练区',
-]
+const { galleryView } = require('./store-gallery')
 
 const COACH_QUICK_ACTIONS = [
   { id: 'distribute', title: '权益派发', desc: '线下收款后给学员加权益，并形成审计流水。' },
@@ -907,6 +903,8 @@ function buildAdminPackageManageItem(packageDoc) {
 
 function buildAdminStoreManageItem(store, userCount = 0, scheduleCount = 0) {
   return {
+    gallery: galleryView(store),
+    galleryVersion: Number(store.gallery_version || 0),
     id: store._id,
     name: store.name || '未命名门店',
     address: store.address || '',
@@ -1099,7 +1097,7 @@ async function getHomeViewData(event) {
       currentStore: buildStoreView(stores.find((item) => item._id === payload.storeId) || stores[0]),
       stores: stores.map(buildStoreView),
       notices: ['预约开课前 2 小时可免费取消，已扣权益自动退回。', '团体训练与专属训练，按自己的节奏安排。'],
-      galleryList: HOME_GALLERY.slice(),
+      galleryList: galleryView(stores.find((item) => item._id === payload.storeId) || stores[0]),
       packages: packages.map((item) => ({
         id: item._id,
         name: item.name,
@@ -2663,6 +2661,7 @@ const privateBooking = require('./private-booking')({ db, collections: COLLECTIO
 const reports = require('./reports')({ collections: COLLECTIONS, listAllCollection, buildSuccess, buildFail })
 
 const coachProfiles = require('./coach-profile')({ db, collections: COLLECTIONS, cloud, getDocById, runBusinessTransaction, buildSuccess, buildFail, buildUserSession })
+const updateStoreGallery = require('./store-gallery')({ db, collections: COLLECTIONS, cloud, getDocById, runBusinessTransaction, buildSuccess, buildFail })
 
 exports.main = async (event = {}) => {
   try {
@@ -2684,6 +2683,7 @@ exports.main = async (event = {}) => {
     case 'getMediaUploadData':
     case 'updateUserAvatar':
     case 'updateCoachProfile': return coachProfiles[event.action](event)
+    case 'updateStoreGallery': return updateStoreGallery(event)
     case 'createPrivateBooking': return privateBooking.createPrivateBooking(event)
     case 'getCustomerFollowUpData':
     case 'getBusinessReportData':

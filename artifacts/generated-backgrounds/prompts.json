@@ -1,0 +1,17 @@
+{
+  "generator": "built-in image_gen",
+  "prompts": [
+    {
+      "asset": "space",
+      "prompt": "Use case: photorealistic-natural. Asset type: wide mobile app header background for a premium Muay Thai and boxing training club. Create one realistic editorial photograph, landscape 3:2. A clean contemporary boxing gym in charcoal, warm ivory, muted olive and subtle terracotta accents, empty heavy bags and a boxing ring on the RIGHT TWO THIRDS, warm natural side light, believable functional training space. LEFT THIRD is an uncluttered dark wall with softly graduated shadows, reserved for a UI title added later. Wide architectural framing, understated high-end sports photography, no people needed, not aggressively red, no neon, no HDR. Main gym details concentrated in the central horizontal band so it remains recognizable when cropped to a shallow wide banner. No text, letters, signage, logos, watermark, graphic overlays or borders."
+    },
+    {
+      "asset": "group",
+      "prompt": "Use case: photorealistic-natural. Asset type: wide background for group training booking module in a Muay Thai club mobile app. Create one photorealistic editorial sports photograph in landscape 3:2. A small mixed group of FOUR adult amateur members, varied ethnic backgrounds, women and men, practising basic boxing/Muay Thai punches together in an organized beginner group session inside a clean contemporary boxing gym. All dressed in modest plain sportswear and boxing gloves, natural athletic physiques, realistic safe training stance, each has clear personal space; focused but welcoming, no combat or injury. Arrange people mainly CENTER and RIGHT, leave the LEFT THIRD naturally uncluttered with a soft dark wall/shadow for UI text. Medium-wide eye-level camera, complete plausible anatomy and equipment, warm side lighting, charcoal walls, muted olive, warm ivory and a subtle terracotta detail. Keep heads and torsos in the middle horizontal band, suitable for cropping to an ultra-wide shallow mobile banner. The group must be immediately recognizable. No text, logos, branding, letters, watermarks, collages, or UI."
+    },
+    {
+      "asset": "private",
+      "prompt": "Use case: photorealistic-natural. Asset type: wide background for one-to-one private training booking in a Muay Thai club mobile app. Create one realistic editorial sports photograph in landscape 3:2. EXACTLY TWO adults: an experienced adult female Muay Thai coach holding focus mitts and an adult male beginner trainee wearing boxing gloves, engaged in calm professional one-to-one pad instruction inside a clean contemporary boxing gym. They are facing one another, coach's two mitts and trainee's two gloved hands clearly distinguishable, natural bodies and limbs, technically plausible relaxed stance, modest unbranded sportswear. Neither fighting nor sparring, no aggression or injuries. People together on the CENTER-RIGHT, leave LEFT THIRD as uncluttered soft dark wall for UI text to be added by code. Wide editorial framing at eye level, warm side lighting, charcoal, warm ivory, muted olive and restrained terracotta accents. Heads and torsos concentrated in middle horizontal band for use in a shallow wide mobile banner. Clear individual coaching relationship, not a class. No text, letters, signage, logos, watermark, borders, collage or graphic overlays."
+    }
+  ]
+}

@@ -109,6 +109,7 @@ function loadFunction(state, env = {}, context = { OPENID: 'real-openid', ENV: '
       if (name === 'wx-server-sdk') return cloud
       if (name === 'crypto') return require('node:crypto')
       if (name === './coach-profile') return require('../coach-profile')
+      if (name === './store-gallery') return require('../store-gallery')
       if (name === './reports') return require('../reports')
       if (name === './entitlements') return require('../entitlements')
       if (name === './private-booking') return require('../private-booking')

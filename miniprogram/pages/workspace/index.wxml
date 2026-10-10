@@ -2,9 +2,11 @@
 <view class="page-shell locale-page locale-{{language}}">
   <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
 
-  <view class="page-header">
+  <view class="page-header art-header">
+    <image class="art-header-photo" src="/images/backgrounds/gym-header.jpg" mode="aspectFill" aria-hidden="true"></image><view class="art-header-shade"></view><view class="art-header-content">
     <view class="eyebrow">{{i18n.f('今日训练运营', [], language)}}</view>
     <view class="page-title">{{i18n.f('训练工作台', [], language)}}</view>
+    </view>
   </view>
 
   <view wx:if="{{!hasPermission}}" class="card">

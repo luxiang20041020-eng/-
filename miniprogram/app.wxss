@@ -474,4 +474,14 @@ input, textarea { font-weight: 400; }
 .locale-page .menu-item > text:first-child { min-width: 0; }
 .locale-page .menu-arrow { flex-shrink: 0; max-width: 48%; text-align: right; }
 .locale-page .page-title { overflow-wrap: anywhere; }
+/* 主页面图片作为装饰层，布局和点击区域由文字层决定。 */
+.page-header.art-header{position:relative;isolation:isolate;overflow:hidden;border-radius:26rpx;padding:0;min-height:230rpx;background:#29362d;margin-bottom:24rpx}
+.art-header-photo,.art-header-shade{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+.art-header-shade{background:linear-gradient(90deg,rgba(20,29,22,.9) 0%,rgba(20,29,22,.66) 50%,rgba(20,29,22,.25) 100%)}
+.art-header-content{position:relative;z-index:1;padding:34rpx 28rpx;min-height:230rpx;display:flex;flex-direction:column;justify-content:center}
+.art-header .eyebrow{font-size:23rpx;line-height:1.5;color:#dedecf;letter-spacing:1rpx;padding:0}
+.art-header .page-title{color:#fff;font-size:44rpx;line-height:1.35;margin-top:10rpx;min-width:0}
+.art-header .page-subtitle{color:#e0e2d5;font-size:22rpx;line-height:1.6;margin-top:14rpx;overflow-wrap:anywhere}
+.art-header .headline-row{align-items:center;gap:16rpx}.art-header .headline-row .page-title{flex:1}
+.art-header .store-badge{color:#fff;background:rgba(14,24,16,.54);border-color:rgba(255,255,255,.3);max-width:45%;height:auto;padding:10rpx 14rpx;white-space:normal;overflow-wrap:anywhere;font-size:20rpx;line-height:1.5;text-align:center;flex-shrink:0}
 .locale-page .role-badge { white-space: normal; text-align: center; }

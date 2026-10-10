@@ -46,11 +46,24 @@ test('微信原生 WXS 运行时完整显示七种语言的静态文本、参数
   }
 })
 
+test('门店实景图片编辑操作及失败原因在六种外语中有完整译文', () => {
+  const rows = fs.readFileSync(path.join(root, 'miniprogram/locales/store-gallery.tsv'), 'utf8').trim().split(/\r?\n/)
+  for (const row of rows) {
+    const [source, ...translations] = row.split('|')
+    assert.equal(translations.length, 6)
+    for (const [index, language] of languages.slice(1).entries()) assert.equal(text.translate(source, language), translations[index], source + ' ' + language)
+  }
+  const wxml = fs.readFileSync(path.join(root, 'miniprogram/pages/admin/stores/index.wxml'), 'utf8')
+  for (const match of wxml.matchAll(/i18n\.(?:f|t)\('([^']+)'/g)) for (const language of languages.slice(1)) {
+    assert.notEqual(text.translate(match[1], language), match[1], match[1] + ' ' + language)
+  }
+})
+
 test('所有页面的实际微信编译渲染在七种语言及表单状态下不发生文字渲染异常', { skip: !fs.existsSync(wcc) }, () => {
   const files = pageNames.map(page => 'miniprogram/pages/' + page + '/index.wxml')
   files.push('miniprogram/utils/i18n.wxs')
   const { context, errors } = compiledRuntime(files, root)
-  for (const page of pageNames) for (const language of languages) for (const query of ['', 'popup=1&expanded=1&invite=form', 'state=guest', 'popup=assets', 'mode=records', 'mode=records&popup=1', 'state=cancelled', 'mode=report', 'mode=report&state=empty', 'type=private&coach=coach&unlimited=1', 'type=private&state=pending', 'popup=1&unlimited=1&step=3', 'section=intro', 'section=photos&photos=1', 'type=private&many=1&expanded=1']) {
+  for (const page of pageNames) for (const language of languages) for (const query of ['', 'popup=1&expanded=1&invite=form', 'state=guest', 'popup=assets', 'mode=records', 'mode=records&popup=1', 'state=cancelled', 'mode=report', 'mode=report&state=empty', 'type=private&coach=coach&unlimited=1', 'type=private&state=pending', 'popup=1&unlimited=1&step=3', 'section=intro', 'section=photos&photos=1', 'type=private&many=1&expanded=1', 'popup=gallery', 'popup=gallery&state=empty', 'popup=gallery&state=error']) {
     const data = fixtures(page, new URLSearchParams(query))
     data.language = language
     context.input = JSON.stringify(data)

@@ -12,6 +12,19 @@ const languageCodes = ['zh', 'en', 'fr', 'th', 'de', 'ja', 'hi']
 const i18n = { t: localizedText.translate, f: localizedText.format, list: localizedText.list }
 const pageNames = ['coach', 'coach/edit', 'home', 'booking', 'profile', 'points', 'login', 'workspace', 'admin', 'admin/users', 'admin/packages', 'admin/stores', 'admin/reports', 'workspace/distribute', 'workspace/schedule', 'workspace/class', 'workspace/manual', 'workspace/adjust']
 const escape = (value) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
+const imageCache = new Map()
+function previewImageSource(source) {
+  if (!source.startsWith('/images/')) return source
+  if (imageCache.has(source)) return imageCache.get(source)
+  const folder = path.resolve(mini, 'images'), file = path.resolve(mini, '.' + source)
+  if (!file.startsWith(folder + path.sep) || !fs.existsSync(file)) return source
+  const types = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml' }
+  const mime = types[path.extname(file)]
+  if (!mime) return source
+  const result = 'data:' + mime + ';base64,' + fs.readFileSync(file).toString('base64')
+  imageCache.set(source, result)
+  return result
+}
 
 function parse(source) {
   const document = { tag: 'block', attrs: {}, children: [] }
@@ -76,7 +89,7 @@ function renderNode(node, data) {
   const renderAttrs = { ...node.attrs }
   if (node.tag === 'button') renderAttrs.class = (renderAttrs.class || '') + (renderAttrs.size === 'mini' ? ' wx-button-size-mini' : ' wx-button-size-normal')
   const attrs = Object.entries(renderAttrs).filter(([key]) => ['class', 'style', 'id', 'src', 'placeholder', 'maxlength', 'value', 'size'].includes(key))
-    .map(([key, value]) => `${key}="${escape(bind(value, data))}"`).join(' ')
+    .map(([key, value]) => `${key}="${escape(key === 'src' ? previewImageSource(bind(value, data)) : bind(value, data))}"`).join(' ')
   const disabled = node.attrs.disabled && expression(node.attrs.disabled, data) ? ' disabled' : ''
   const handler = node.attrs.bindtap || node.attrs.catchtap || ''
   const dataset = Object.entries(node.attrs).filter(([key]) => key.startsWith('data-')).map(([key, value]) => `${key}="${escape(bind(value, data))}"`).join(' ')
@@ -119,6 +132,17 @@ function fixtures(page, search) {
     if (search.get('state') === 'guest' && page === 'coach/edit') { data.canEdit = false; data.ready = false }
     if (search.get('state') === 'uploading') data.uploading = true
   }
+  if (page === 'home') data.pageData.galleryList = require('../miniprogram/utils/store-gallery').defaultGallery()
+  if (page === 'admin/stores') {
+    const gallery = require('../miniprogram/utils/store-gallery').defaultGallery()
+    data.pageData.stores = stores.map(store => ({ ...store, status: 1, statusLabel: '营业中', userCount: 48, scheduleCount: 16, longitude: '', latitude: '', gallery, galleryVersion: 0 }))
+    if (search.get('popup') === 'gallery') {
+      data.showStorePopup = false; data.showGalleryPopup = true; data.galleryStoreName = stores[0].name; data.galleryStoreId = stores[0].id
+      data.galleryDraft = search.get('state') === 'empty' ? [] : gallery
+      if (search.get('state') === 'error') data.galleryError = '照片上传失败，请检查网络后重试'
+      if (search.get('state') === 'uploading') data.galleryBusy = true
+    }
+  }
   if (page === 'points') {
     data.pageData = { balance: 200, inviteCode: 'ON12AB34CD56EF', bound: true, boundCode: 'ON98AB76CD54EF', records: [{ id: '1', amount: 100, title: '邀请好友奖励', dateLabel: '2026-10-09' }, { id: '2', amount: 100, title: '填写邀请码奖励', dateLabel: '2026-10-09' }] }
     if (search.get('state') === 'empty') data.pageData = { ...data.pageData, balance: 0, records: [] }
@@ -142,7 +166,7 @@ function fixtures(page, search) {
   }
   if (search.get('state') === 'empty' && page !== 'points') { for (const key of ['schedules', 'myBookings', 'todayClasses', 'members', 'plans', 'roster']) data.pageData[key] = []; data.pageData.resultCount = 0 }
   if (search.get('state') === 'error') data.pageError = '服务暂时无法连接，请检查网络后重试'
-  if (search.get('popup')) { data.showCreatePopup = true; data.showStorePopup = true; data.showNicknameEditor = true }
+  if (search.get('popup') && search.get('popup') !== 'gallery') { data.showCreatePopup = true; data.showStorePopup = true; data.showNicknameEditor = true }
   if (search.get('expanded')) { data.pricingExpanded = true; data.filtersExpanded = true; data.auditLogsExpanded = true; data.coachPickerVisible = true }
   if (page === 'booking') {
     const state = search.get('state')
@@ -284,7 +308,7 @@ function html(page, search = new URLSearchParams()) {
   const wxml = parseWxml(fs.readFileSync(path.join(mini, 'pages', page, 'index.wxml'), 'utf8'))
   const styles = ['app.wxss', 'components/app-tabbar/index.wxss', 'components/page-feedback/index.wxss', 'components/language-setting/index.wxss', 'components/media-privacy/index.wxss', `pages/${page}/index.wxss`].map((file) => readStyles(path.join(mini, file))).join('\n').replace(/(-?\d+(?:\.\d+)?)rpx/g, 'calc($1 * var(--unit))').replace(/(?<![\w.-])page\s*\{/g, 'body {').replace(/(?<![\w-])view(?![\w-])/g, 'div').replace(/(?<![\w-])text(?![\w-])/g, 'span').replace(/(?<![\w-])image(?![\w-])/g, 'img')
   const menu = pageNames.map((name) => `<a href="/preview/${name}">${name}</a>`).join('')
-  return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ONE · ${escape(page)} 布局预览</title><style>:root{--unit:calc(min(100vw,430px) / 750)}body{margin:0}main{max-width:430px;margin:auto}button{cursor:pointer;font-family:inherit}img{object-fit:cover}a{text-decoration:none;color:inherit}input,textarea{font-family:inherit}input{outline:none}nav{display:none}${nativeButtonStyles}${styles}\n.tabbar-wrap{width:min(100vw,430px);right:auto;left:50%;transform:translateX(-50%)}.scroll-row,.facility-scroll{overflow-x:auto}.sheet-scroll{overflow-y:auto}.home-hero-cta{width:fit-content} [data-preview-action]{cursor:pointer}</style></head><body><nav>${menu}</nav><main>${renderChildren(wxml.children, data)}</main><script>document.addEventListener('click',function(event){const el=event.target.closest('[data-preview-action]');if(!el)return;const a=el.dataset.previewAction;const routes={goPoints:'/preview/points',goBooking:'/preview/booking?type='+(el.dataset.type||'group'),goMySchedule:'/preview/profile',goIdentityQr:'/preview/profile',goLogin:'/preview/login',goBrowse:'/preview/home',onOpenUserManage:'/preview/admin/users',onOpenPackageManage:'/preview/admin/packages',onOpenStoreManage:'/preview/admin/stores',onOpenOperations:'/preview/workspace',goClassDetail:'/preview/workspace/class'};if(routes[a])location.href=routes[a];else if(a==='onTap')location.href='/preview/'+el.dataset.path.replace('/pages/','').replace('/index','');else if(a==='onTapAction')location.href='/preview/workspace/'+el.dataset.actionId;else if(['onTogglePricing','onToggleFilters','onOpenCoachPicker','onToggleAuditLogs'].includes(a))location.search='?expanded=1';else if(['onOpenCreatePopup','onOpenCreate','onOpenCreateStore','onOpenCreatePopup','openNicknameEditor'].includes(a))location.search='?popup=1';else if(['onCloseCreatePopup','onCloseStorePopup','closeNicknameEditor','onCloseCoachPicker'].includes(a))location.search='';else if(a==='onToggleInvite')location.search='?invite=form';else if(a==='onViewAssets')location.search='?popup=assets';else if(a==='onCloseAssets')location.search='';else if(a==='onBook')alert('这是布局预览，不会提交真实预约。');});</script></body></html>`
+  return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ONE · ${escape(page)} 布局预览</title><style>:root{--unit:calc(min(100vw,430px) / 750)}body{margin:0}main{max-width:430px;margin:auto}button{cursor:pointer;font-family:inherit}img{object-fit:cover}a{text-decoration:none;color:inherit}input,textarea{font-family:inherit}input{outline:none}nav{display:none}${nativeButtonStyles}${styles}\n.tabbar-wrap{width:min(100vw,430px);right:auto;left:50%;transform:translateX(-50%)}.scroll-row,.facility-scroll{overflow-x:auto}.sheet-scroll{overflow-y:auto}.home-hero-cta{width:fit-content} [data-preview-action]{cursor:pointer}</style></head><body><nav>${menu}</nav><main>${renderChildren(wxml.children, data)}</main><script>document.addEventListener('click',function(event){const el=event.target.closest('[data-preview-action]');if(!el)return;const a=el.dataset.previewAction;const routes={goPoints:'/preview/points',goBooking:'/preview/booking?type='+(el.dataset.type||'group'),goMySchedule:'/preview/profile',goIdentityQr:'/preview/profile',goLogin:'/preview/login',goBrowse:'/preview/home',onOpenUserManage:'/preview/admin/users',onOpenPackageManage:'/preview/admin/packages',onOpenStoreManage:'/preview/admin/stores',onOpenOperations:'/preview/workspace',goClassDetail:'/preview/workspace/class'};if(routes[a])location.href=routes[a];else if(a==='onTap')location.href='/preview/'+el.dataset.path.replace('/pages/','').replace('/index','');else if(a==='onTapAction')location.href='/preview/workspace/'+el.dataset.actionId;else if(['onTogglePricing','onToggleFilters','onOpenCoachPicker','onToggleAuditLogs'].includes(a))location.search='?expanded=1';else if(['onOpenCreatePopup','onOpenCreate','onOpenCreateStore','onOpenCreatePopup','openNicknameEditor'].includes(a))location.search='?popup=1';else if(['onCloseCreatePopup','onCloseStorePopup','closeNicknameEditor','onCloseCoachPicker'].includes(a))location.search='';else if(a==='onOpenGallery')location.search='?popup=gallery';else if(a==='onCloseGallery')location.search='';else if(a==='onToggleInvite')location.search='?invite=form';else if(a==='onViewAssets')location.search='?popup=assets';else if(a==='onCloseAssets')location.search='';else if(a==='onBook')alert('这是布局预览，不会提交真实预约。');});</script></body></html>`
 }
 
 if (require.main === module) {

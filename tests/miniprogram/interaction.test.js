@@ -1267,6 +1267,78 @@ function photoAPIs(f, options = {}) {
   f.wx.cloud.uploadFile = async o => { f.calls.upload = o; return { fileID: 'cloud://test.bucket/' + o.cloudPath } }
 }
 
+function storeGalleryPage(api = {}) {
+  const f = harness('pages/admin/stores/index.js', api)
+  f.page.data.runtime = { isAuthenticated: true, role: 'admin', userProfile: { id: 'user' } }
+  f.app.getRuntimeSnapshotAsync = async () => f.page.data.runtime
+  f.page.data.pageData.stores = [{ id: 's1', name: '门店一', galleryVersion: 0 }, { id: 's2', name: '门店二', gallery: [], galleryVersion: 2 }]
+  f.page.onOpenGallery({ currentTarget: { dataset: { storeId: 's1' } } })
+  f.page.refreshStoreState = async () => { f.app.removeViewCacheByPrefix('home:') }
+  return f
+}
+
+test('门店图片草稿与原数据隔离，可更改说明删除和恢复默认，空相册不补默认', () => {
+  const f = storeGalleryPage(), p = f.page
+  assert.equal(p.data.galleryDraft.length, 3)
+  p.onGalleryTitleInput({ currentTarget: { dataset: { index: 0 } }, detail: { value: '自填说明' } })
+  assert.equal(p.data.galleryDraft[0].title, '自填说明'); assert.equal(p.data.pageData.stores[0].gallery, undefined)
+  p.onRemoveGalleryPhoto({ currentTarget: { dataset: { index: 1 } } }); assert.equal(p.data.galleryDraft.length, 2)
+  p.onResetGallery(); assert.equal(p.data.galleryDraft.length, 3)
+  p.onCloseGallery(); p.onOpenGallery({ currentTarget: { dataset: { storeId: 's2' } } }); assert.equal(p.data.galleryDraft.length, 0)
+})
+
+test('门店照片上传成功仅修改草稿，保存失败保留，成功提交门店版本并更新首页缓存', async () => {
+  let fail = true, payload, writes = 0
+  const f = storeGalleryPage({ getMediaUploadData: async () => ({ userId: 'user', prefix: 'profile-media/owner/' }), updateStoreGallery: async value => { writes++; payload = value; if (fail) throw new Error('门店图片已被其他管理员更新，请重新打开图片管理'); return { gallery: value.gallery, version: 1 } } })
+  photoAPIs(f)
+  await f.page.onChooseGalleryPhoto({ currentTarget: { dataset: { index: 0 } } })
+  assert.match(f.page.data.galleryDraft[0].url, /^cloud:/); assert.equal(writes, 0)
+  assert.equal(f.calls.compressed.compressedWidth, 1600); assert.match(f.calls.upload.cloudPath, /\/store_/)
+  await f.page.onSaveGallery(); assert.equal(f.page.data.showGalleryPopup, true); assert.match(f.page.data.galleryError, /其他管理员/); assert.equal(f.page.data.galleryDraft.length, 3)
+  fail = false; await f.page.onSaveGallery()
+  assert.equal(payload.targetStoreId, 's1'); assert.equal(payload.version, 0); assert.equal(payload.gallery[0].defaultTitle, undefined)
+  assert.equal(f.page.data.showGalleryPopup, false); assert.equal(f.page.data.pageData.stores[0].galleryVersion, 1); assert.ok(f.calls.invalidations.includes('home:'))
+})
+
+test('上传网络失败与取消不破坏门店图片；账号变化阻止提交', async () => {
+  let writes = 0
+  const f = storeGalleryPage({ getMediaUploadData: async () => ({ userId: 'user', prefix: 'profile-media/owner/' }), updateStoreGallery: async () => { writes++ } })
+  photoAPIs(f); const original = JSON.stringify(f.page.data.galleryDraft)
+  f.wx.cloud.uploadFile = async () => { throw new Error('network disconnected') }
+  await f.page.onChooseGalleryPhoto({ currentTarget: { dataset: { index: 1 } } })
+  assert.equal(JSON.stringify(f.page.data.galleryDraft), original); assert.match(f.page.data.galleryError, /网络/)
+  f.wx.chooseMedia = options => options.fail({ errMsg: 'chooseMedia:fail cancel' })
+  await f.page.onChooseGalleryPhoto({ currentTarget: { dataset: {} } }); assert.equal(f.page.data.galleryError, '')
+  f.app.getRuntimeSnapshotAsync = async () => ({ isAuthenticated: true, role: 'admin', userProfile: { id: 'other' } })
+  await f.page.onSaveGallery(); assert.equal(writes, 0); assert.match(f.page.data.galleryError, /登录状态/)
+})
+
+test('图片保存进行中阻止关闭、更换、删除、改说明和重复提交', async () => {
+  let finish, writes = 0
+  const f = storeGalleryPage({ updateStoreGallery: value => { writes++; return new Promise(resolve => { finish = () => resolve({ gallery: value.gallery, version: 1 }) }) } })
+  const save = f.page.onSaveGallery(); for (let i = 0; i < 5; i++) await Promise.resolve()
+  f.page.onCloseGallery(); f.page.onRemoveGalleryPhoto({ currentTarget: { dataset: { index: 0 } } })
+  f.page.onGalleryTitleInput({ currentTarget: { dataset: { index: 0 } }, detail: { value: '错误覆盖' } })
+  await f.page.onSaveGallery(); assert.equal(writes, 1); assert.equal(f.page.data.showGalleryPopup, true); assert.equal(f.page.data.galleryDraft.length, 3); assert.equal(f.page.data.galleryDraft[0].title, '拳台训练区')
+  finish(); await save
+})
+
+test('首页展示服务端当前门店照片，预览转换实际云文件，读取失败保留缓存的照片', async () => {
+  let fail = false, preview
+  const gallery = [{ url: 'cloud://test.bucket/photo.jpg', title: '用户自填的训练区', defaultTitle: false }]
+  const f = harness('pages/home/index.js', { getHomeViewData: async () => { if (fail) throw new Error('网络连接中断'); return { currentStore: { id: 's1' }, stores: [{ id: 's1' }], galleryList: gallery } } })
+  const cache = new Map(), runtime = { currentStore: { id: 's1' }, stores: [{ id: 's1' }] }
+  f.app.getRuntimeSnapshot = () => runtime; f.app.getRuntimeSnapshotAsync = async () => runtime
+  f.app.getViewCache = key => cache.get(key); f.app.setViewCache = (key, value) => cache.set(key, value)
+  f.app.getHomePageData = () => ({ currentStore: runtime.currentStore, galleryList: ['拳台训练区'] }); f.app.switchStore = () => {}
+  f.page.selectComponent = () => null
+  f.wx.cloud.getTempFileURL = async ({ fileList }) => ({ fileList: fileList.map(fileID => ({ fileID, status: 0, tempFileURL: 'https://example.test/real-photo.jpg' })) })
+  f.wx.previewImage = options => { preview = options }
+  await f.page.syncPageData(); assert.equal(f.page.data.pageData.galleryList[0].url, gallery[0].url)
+  await f.page.onPreviewGallery({ currentTarget: { dataset: { index: 0 } } }); assert.equal(preview.current, 'https://example.test/real-photo.jpg')
+  fail = true; await f.page.syncPageData(); assert.equal(f.page.data.pageData.galleryList[0].url, gallery[0].url)
+})
+
 test('点击教练卡片打开介绍，直接选择按钮仍选择教练和刷新时段', () => {
   const f = privatePage(); f.page.onOpenCoachProfile({ currentTarget: { dataset: { coachId: '教练 A' } } })
   assert.equal(f.calls.routes[0], '/pages/coach/index?coachId=' + encodeURIComponent('教练 A'))

@@ -1,4 +1,5 @@
 <wxs module="i18n" src="../../../utils/i18n.wxs" />
+<media-privacy id="mediaPrivacy" language="{{language}}"></media-privacy>
 <view class="page-shell locale-page locale-{{language}}">
   <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
   <view class="page-header">
@@ -77,6 +78,11 @@
 
         <view wx:if="{{item.longitude !== '' && item.latitude !== ''}}" class="store-coordinate">{{i18n.f('坐标 {0}, {1}', [item.longitude, item.latitude], language)}}</view>
 
+        <view class="store-gallery-entry" data-store-id="{{item.id}}" bindtap="onOpenGallery" hover-class="tap-feedback">
+          <image wx:if="{{item.gallery.length}}" class="store-gallery-cover" src="{{item.gallery[0].url}}" mode="aspectFill"></image>
+          <view class="store-gallery-copy"><view class="field-label">{{i18n.f('首页实景图片', [], language)}}</view><view class="card-desc">{{i18n.f('添加、更换图片与说明', [], language)}}</view></view><text>›</text>
+        </view>
+
         <view class="button-row store-actions">
           <button class="secondary-button" data-store-id="{{item.id}}" bindtap="onOpenEditPopup" disabled="{{submitting}}">{{i18n.f('编辑资料', [], language)}}</button>
           <button
@@ -134,6 +140,24 @@
         <button class="secondary-button" bindtap="onCloseStorePopup" disabled="{{submitting}}">{{i18n.f('取消', [], language)}}</button>
         <button class="primary-button" bindtap="onSubmitStore" loading="{{submitting}}">{{i18n.t(editingStoreId ? '保存修改' : '确认创建', language)}}</button>
       </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showGalleryPopup}}" class="modal-mask gallery-mask" bindtap="onCloseGallery">
+    <view class="modal-panel gallery-panel" catchtap="noop">
+      <view class="headline-row"><view class="modal-heading"><view class="section-title">{{galleryStoreName}}</view><view class="modal-title">{{i18n.f('首页实景图片', [], language)}}</view></view><button class="modal-close gallery-close" bindtap="onCloseGallery" disabled="{{galleryBusy}}">×</button></view>
+      <view class="gallery-hint">{{i18n.f('最多6张，按列表顺序展示；保存后更新首页。', [], language)}}</view>
+      <scroll-view class="gallery-scroll" scroll-y="true">
+        <view wx:for="{{galleryDraft}}" wx:key="url" class="gallery-photo-card">
+          <image class="gallery-photo" src="{{item.url}}" mode="aspectFill" data-index="{{index}}" bindtap="onPreviewGalleryPhoto"></image>
+          <view class="gallery-photo-body"><view class="gallery-photo-number">{{i18n.f('图片 {0}', [index + 1], language)}}</view><input class="form-input gallery-caption-input" value="{{item.title}}" maxlength="40" placeholder="{{i18n.f('图片说明（可选）', [], language)}}" placeholder-class="input-placeholder" data-index="{{index}}" bindinput="onGalleryTitleInput" disabled="{{galleryBusy}}" /><view class="button-row gallery-photo-actions"><button class="secondary-button" data-index="{{index}}" bindtap="onChooseGalleryPhoto" disabled="{{galleryBusy}}">{{i18n.f('更换图片', [], language)}}</button><button class="secondary-button gallery-remove" data-index="{{index}}" bindtap="onRemoveGalleryPhoto" disabled="{{galleryBusy}}">{{i18n.f('删除', [], language)}}</button></view></view>
+        </view>
+        <view wx:if="{{!galleryDraft.length}}" class="gallery-empty">{{i18n.f('暂无图片，保存后首页将隐藏实景模块。', [], language)}}</view>
+        <button wx:if="{{galleryDraft.length < 6}}" class="secondary-button gallery-add" bindtap="onChooseGalleryPhoto" disabled="{{galleryBusy}}">{{i18n.f('添加场馆图片', [], language)}}</button>
+        <button class="gallery-reset" bindtap="onResetGallery" disabled="{{galleryBusy}}">{{i18n.f('恢复默认图片', [], language)}}</button>
+      </scroll-view>
+      <view wx:if="{{galleryError}}" class="gallery-error">{{i18n.t(galleryError, language)}}</view>
+      <button class="primary-button gallery-save" bindtap="onSaveGallery" loading="{{galleryBusy}}" disabled="{{galleryBusy}}">{{i18n.t(galleryBusy ? '正在处理图片…' : '保存门店图片', language)}}</button>
     </view>
   </view>
 

@@ -179,6 +179,7 @@ async function updatePackageStatus(payload) {
 }
 
 module.exports = {
+  updateStoreGallery: async payload => unwrapResult(await callBusinessCore('updateStoreGallery', payload)),
   getCoachProfile: async payload => unwrapResult(await callBusinessCore('getCoachProfile', payload)),
   getOwnCoachProfile: async payload => unwrapResult(await callBusinessCore('getOwnCoachProfile', payload)),
   getMediaUploadData: async payload => unwrapResult(await callBusinessCore('getMediaUploadData', payload)),

@@ -1,12 +1,15 @@
 const { showModal } = require('../../utils/interaction')
-const { showFeedback, redirectTo, setClipboardData, previewImage, openLocation, showActionSheet } = require('../../utils/interaction')
+const { showFeedback, redirectTo, setClipboardData, openLocation, showActionSheet } = require('../../utils/interaction')
 const { getUserMessage } = require('../../utils/user-feedback')
 const withPageState = require('../../utils/page-state')
 const businessApi = require('../../utils/business-api')
+const media = require('../../utils/profile-media')
+const { normalizeGallery } = require('../../utils/store-gallery')
 
 function decorateHomePageData(pageData) {
   const safeData = pageData || {}
   return Object.assign({}, safeData, {
+    galleryList: normalizeGallery(safeData.galleryList),
     heroNotice: safeData.notices && safeData.notices.length ? safeData.notices[0] : '安排下一次训练，从选择适合的场次开始。',
   })
 }
@@ -79,7 +82,7 @@ Page(withPageState({
       const runtime = app.getRuntimeSnapshot()
       this.setData({
         runtime,
-        pageData: decorateHomePageData(app.getHomePageData()),
+        pageData: decorateHomePageData(app.getViewCache(buildHomeCacheKey(runtime)) || app.getHomePageData()),
       })
     } finally {
       this.setData({ pageLoading: false })
@@ -148,8 +151,8 @@ Page(withPageState({
   },
 
   onPreviewGallery(event) {
-    const urls = [1, 2, 3].map((index) => '/images/gym-interior-' + index + '.jpg')
-    previewImage({ current: urls[Number(event.currentTarget.dataset.index) || 0], urls })
+    const urls = (this.data.pageData.galleryList || []).map(item => item.url)
+    if (urls.length) return media.previewPhotos(urls, urls[Number(event.currentTarget.dataset.index) || 0])
   },
 
   onOpenLocation() {
