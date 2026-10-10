@@ -1,6 +1,6 @@
 const cloud = require('wx-server-sdk')
 const crypto = require('crypto')
-const { unlimitedAt, chargeFor, refundCount } = require('./entitlements')
+const { unlimitedAt, chargeFor, refundCount, refundPlan } = require('./entitlements')
 const { getUserMessage } = require('./user-feedback')
 const { PUBLIC_ACTIONS, authorizeRequest, parseBusinessTime, businessDate, canCancel } = require('./request-policy')
 
@@ -437,6 +437,14 @@ async function runBusinessTransaction(callback) {
   const response = await db.runTransaction(callback)
   // 兼容 SDK 直接返回回调值和 { result, errMsg } 两种事务结果。
   return response && response.errMsg && Object.prototype.hasOwnProperty.call(response, 'result') ? response.result : response
+}
+
+async function lockReservationTimeline(tx) {
+  // 隐藏控制记录序列化预约与调课，避免跨教练、跨门店的客户冲突检查竞态。
+  const id = '_reservation_timeline_guard'
+  const guard = (await getDocById(COLLECTIONS.USER_ASSET_LOG, id, tx)).data
+  if (guard) await tx.collection(COLLECTIONS.USER_ASSET_LOG).doc(id).update({ data: { revision: _.inc(1) } })
+  else await tx.collection(COLLECTIONS.USER_ASSET_LOG).doc(id).set({ data: { revision: 1, internal_lock: true, is_deleted: true } })
 }
 
 function buildFail(message, code = 'BUSINESS_FAIL') {
@@ -2225,8 +2233,10 @@ async function createAssetDistribution(event) {
       const assetData = (await getDocById(COLLECTIONS.USER_ASSET, assetDocId, transaction)).data
 
       const beforeAsset = { unlimited_start_date: assetData && assetData.unlimited_start_date || '', unlimited_expiry_date: assetData && assetData.unlimited_expiry_date || '', unlimited_usage_version: Number(assetData && assetData.unlimited_usage_version || 0), balance: Number(assetData && assetData.balance || 0), total_earned: Number(assetData && assetData.total_earned || 0), expiry_date: assetData && assetData.expiry_date || '', is_deleted: Boolean(assetData && assetData.is_deleted), exists: Boolean(assetData) }
+      beforeAsset.count_generation = assetData && assetData.count_generation || ''
       const balanceReset = !unlimited && Boolean(assetData && (assetData.is_deleted || (assetData.expiry_date && assetData.expiry_date < businessDate())))
       const afterAsset = { balance: !assetData || balanceReset ? lessonCount : beforeAsset.balance + lessonCount, total_earned: beforeAsset.total_earned + lessonCount, expiry_date: unlimited ? beforeAsset.expiry_date : beforeAsset.expiry_date > expiryDate ? beforeAsset.expiry_date : expiryDate, unlimited_start_date: unlimited ? (unlimitedAt(assetData) ? beforeAsset.unlimited_start_date : businessDate()) : beforeAsset.unlimited_start_date, unlimited_expiry_date: unlimited ? (beforeAsset.unlimited_expiry_date > expiryDate ? beforeAsset.unlimited_expiry_date : expiryDate) : beforeAsset.unlimited_expiry_date, unlimited_usage_version: beforeAsset.unlimited_usage_version, is_deleted: false, exists: true }
+      afterAsset.count_generation = balanceReset ? distributionId : beforeAsset.count_generation
       if (!assetData) {
         await transaction.collection(COLLECTIONS.USER_ASSET).add({
           data: {
@@ -2234,6 +2244,7 @@ async function createAssetDistribution(event) {
             user_id: payload.userId,
             asset_type: packageData.asset_type,
             balance: lessonCount,
+            count_generation: afterAsset.count_generation,
             last_distribution_id: distributionId,
             total_earned: lessonCount,
             expiry_date: afterAsset.expiry_date, unlimited_start_date: afterAsset.unlimited_start_date, unlimited_expiry_date: afterAsset.unlimited_expiry_date, last_unlimited_distribution_id: unlimited ? distributionId : '', unlimited_usage_version: 0,
@@ -2246,6 +2257,7 @@ async function createAssetDistribution(event) {
         await transaction.collection(COLLECTIONS.USER_ASSET).doc(assetDocId).update({
           data: {
             balance: afterAsset.balance,
+            count_generation: afterAsset.count_generation,
             last_distribution_id: distributionId,
             total_earned: _.inc(lessonCount),
             expiry_date: afterAsset.expiry_date, unlimited_start_date: afterAsset.unlimited_start_date, unlimited_expiry_date: afterAsset.unlimited_expiry_date, ...(unlimited ? { last_unlimited_distribution_id: distributionId } : {}),
@@ -2303,6 +2315,7 @@ async function createClientBooking(event) {
 
   try {
     const result = await runBusinessTransaction(async (transaction) => {
+      await lockReservationTimeline(transaction)
       const scheduleRes = await getDocById(COLLECTIONS.CLASS_SCHEDULE, payload.scheduleId, transaction)
       const scheduleData = scheduleRes.data
       if (!scheduleData) {
@@ -2311,6 +2324,8 @@ async function createClientBooking(event) {
       if (scheduleData.direct_private) throw new Error('请通过选择教练和时间预约专属训练')
       if (scheduleData.is_deleted) throw new Error('该场次已移除，请选择其他场次')
       if (!Number.isFinite(parseBusinessTime(scheduleData.start_time))) throw new Error('该场次尚未设置有效的开课时间，请联系场馆')
+      if (!Number.isFinite(parseBusinessTime(scheduleData.end_time)) || parseBusinessTime(scheduleData.end_time) <= parseBusinessTime(scheduleData.start_time)) throw new Error('场次结束时间异常，请联系场馆核对')
+      if (![1, 2].includes(Number(scheduleData.class_type)) || !Number.isSafeInteger(Number(scheduleData.max_capacity)) || Number(scheduleData.max_capacity) < 1 || !Number.isSafeInteger(Number(scheduleData.booked_count)) || Number(scheduleData.booked_count) < 0) throw new Error('场次人数配置异常，请联系场馆核对')
       if (parseBusinessTime(scheduleData.start_time) <= Date.now()) throw new Error('该场次已开始，请选择尚未开课的场次')
       const store = (await getDocById(COLLECTIONS.STORE, scheduleData.store_id, transaction)).data
       if (!store || store.is_deleted || Number(store.status) !== 1) throw new Error('门店已暂停营业，请选择其他门店')
@@ -2410,13 +2425,13 @@ async function cancelClientBooking(event) {
       const assetDocId = buildAssetDocId(bookingData.user_id, mapClassTypeToAssetType(scheduleData.class_type))
       const asset = (await getDocById(COLLECTIONS.USER_ASSET, assetDocId, transaction)).data
       if (!asset) throw new Error('权益记录不存在，请联系场馆')
-      const refund = refundCount(bookingData)
+      const plan = refundPlan(bookingData, asset), refund = plan.balance
       const nextBookedCount = Math.max(0, Number(scheduleData.booked_count) - 1)
       await transaction.collection(COLLECTIONS.BOOKING).doc(payload.bookingId).update({
         data: { status: BOOKING_STATUS.CLIENT_CANCELLED, updated_at: db.serverDate() },
       })
       await transaction.collection(COLLECTIONS.USER_ASSET).doc(assetDocId).update({
-        data: { balance: _.inc(refund), updated_at: db.serverDate() },
+        data: { balance: _.inc(refund), expired_refund_count: _.inc(plan.expired), updated_at: db.serverDate() },
       })
       await transaction.collection(COLLECTIONS.CLASS_SCHEDULE).doc(bookingData.schedule_id).update({
         data: { booked_count: nextBookedCount, booking_revision: _.inc(1), status: scheduleData.direct_private ? SCHEDULE_STATUS.COACH_CANCELLED : scheduleData.status === SCHEDULE_STATUS.FULL ? SCHEDULE_STATUS.OPEN : scheduleData.status, updated_at: db.serverDate() },
@@ -2425,10 +2440,11 @@ async function cancelClientBooking(event) {
         user_id: bookingData.user_id, operate_type: OPERATE_TYPE.CLIENT_CANCEL, amount: refund, charge_mode: bookingData.charge_mode || 'count',
         operator_id: event.operator._id, ref_biz_id: bookingData.schedule_id,
         remark: '客户取消预约退课', created_at: db.serverDate(), updated_at: db.serverDate(), is_deleted: false,
+        expired_refund_count: plan.expired, booking_id: payload.bookingId, before_balance: Number(asset.balance || 0), after_balance: Number(asset.balance || 0) + refund,
       } })
-      return { assetDocId, nextBookedCount, refund }
+      return { assetDocId, nextBookedCount, refund, expiredRefund: plan.expired }
     })
-    return buildSuccess({ message: result.refund ? '预约已取消，1 次权益已退回' : '预约已取消，无限次权益保持不变', ...result })
+    return buildSuccess({ message: result.expiredRefund ? '预约已取消，退回课时仍受原有效期限制' : result.refund ? '预约已取消，1 次权益已退回' : '预约已取消，无限次权益保持不变', ...result })
   } catch (error) {
     return buildFail(error.errMsg || error.message || '取消失败，请重试', 'CANCEL_BOOKING_ERROR')
   }
@@ -2694,9 +2710,9 @@ async function bindInviteCode(event) {
   } catch (error) { return buildFail(error.message || error.errMsg, 'BIND_INVITE_ERROR') }
 }
 
-const adjustments = require('./adjustments')({ db, collections: COLLECTIONS, getDocById, listAllCollection, runBusinessTransaction, buildSuccess, buildFail })
+const adjustments = require('./adjustments')({ db, collections: COLLECTIONS, getDocById, listAllCollection, runBusinessTransaction, lockReservationTimeline, buildSuccess, buildFail })
 
-const privateBooking = require('./private-booking')({ db, collections: COLLECTIONS, getDocById, listAllCollection, runBusinessTransaction, buildSuccess, buildFail })
+const privateBooking = require('./private-booking')({ db, collections: COLLECTIONS, getDocById, listAllCollection, runBusinessTransaction, lockReservationTimeline, buildSuccess, buildFail })
 
 const reports = require('./reports')({ collections: COLLECTIONS, listAllCollection, buildSuccess, buildFail })
 

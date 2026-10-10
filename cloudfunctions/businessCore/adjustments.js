@@ -1,8 +1,8 @@
 const crypto = require('crypto')
 const { parseBusinessTime, businessDate } = require('./request-policy')
-const { refundCount } = require('./entitlements')
+const { refundCount, refundPlan } = require('./entitlements')
 
-module.exports = function createAdjustments({ db, collections: C, getDocById, listAllCollection, runBusinessTransaction, buildSuccess, buildFail }) {
+module.exports = function createAdjustments({ db, collections: C, getDocById, listAllCollection, runBusinessTransaction, lockReservationTimeline, buildSuccess, buildFail }) {
   const doc = async (name, id, database = db) => (await getDocById(name, id, database)).data
   const id = value => crypto.createHash('sha256').update(value).digest('hex')
   const auditId = value => 'adjust_' + id(value)
@@ -42,6 +42,7 @@ module.exports = function createAdjustments({ db, collections: C, getDocById, li
       if (!Number.isFinite(start) || !Number.isFinite(end) || start <= Date.now() || end <= start) throw new Error('请选择未来的训练时间，结束时间应晚于开始时间')
       if (!Number.isInteger(capacity) || capacity < 1 || capacity > 100) throw new Error('预约人数应为 1 至 100 的整数')
       const result = await runBusinessTransaction(async tx => {
+        await lockReservationTimeline(tx)
         const s = await doc(C.CLASS_SCHEDULE, p.classId, tx)
         assertSchedule(s, event.operator)
         const receipt = await doc(C.USER_ASSET_LOG, auditId('schedule:' + s._id + ':' + p.version), tx)
@@ -60,6 +61,11 @@ module.exports = function createAdjustments({ db, collections: C, getDocById, li
         if (capacity < rows.length) throw new Error('人数上限不能小于当前预约人数')
         const newDay = businessDate(p.startTime)
         if (rows.some(b => (b.entitlement_start_date && newDay < b.entitlement_start_date) || (b.entitlement_expiry_date && newDay > b.entitlement_expiry_date))) throw new Error('调整后的训练日期超出客户预约权益期限，请先核对套餐')
+        const allSchedules = await listAllCollection(C.CLASS_SCHEDULE, { is_deleted: false })
+        const affectedUsers = new Set(rows.map(b => b.user_id))
+        const bookings = await listAllCollection(C.BOOKING, { is_deleted: false })
+        const otherIds = new Set(bookings.filter(b => affectedUsers.has(b.user_id) && b.schedule_id !== s._id && [1, 2, 5].includes(Number(b.status))).map(b => b.schedule_id))
+        if (allSchedules.some(o => otherIds.has(o._id) && !o.manual_only && Number(o.status) !== 4 && parseBusinessTime(o.start_time) < end && parseBusinessTime(o.end_time) > start)) throw new Error('调整后与已预约客户的其他训练时间重叠，请调整时间')
         const other = await listAllCollection(C.CLASS_SCHEDULE, { coach_id: p.coachId, is_deleted: false })
         if (other.some(o => o._id !== s._id && !o.manual_only && Number(o.status) !== 4 && parseBusinessTime(o.start_time) < end && parseBusinessTime(o.end_time) > start)) throw new Error('与该教练已有排课时间重叠，请调整时间')
         await tx.collection(C.USER).doc(p.coachId).update({ data: { schedule_revision: db.command.inc(1) } })
@@ -97,10 +103,10 @@ module.exports = function createAdjustments({ db, collections: C, getDocById, li
           const assetId = b.user_id + '_' + Number(s.class_type)
           const a = await doc(C.USER_ASSET, assetId, tx)
           if (!a || a.is_deleted) throw new Error('客户权益记录不可用，退课未完成，请联系管理员')
-          const refund = refundCount(b), after = Number(a.balance || 0) + refund
-          await tx.collection(C.USER_ASSET).doc(assetId).update({ data: { balance: after, updated_at: stamp() } })
+          const plan = refundPlan(b, a), refund = plan.balance, after = Number(a.balance || 0) + refund
+          await tx.collection(C.USER_ASSET).doc(assetId).update({ data: { balance: after, expired_refund_count: db.command.inc(plan.expired), updated_at: stamp() } })
           await tx.collection(C.BOOKING).doc(b._id).update({ data: { status: 4, cancel_reason: s.cancel_reason, updated_at: stamp() } })
-          await tx.collection(C.USER_ASSET_LOG).doc(auditId('refund:' + b._id)).set({ data: { operate_type: 4, user_id: b.user_id, asset_type: Number(s.class_type), amount: refund, charge_mode: b.charge_mode || 'count', before_balance: Number(a.balance || 0), after_balance: after, operator_id: s.cancel_operator_id, ref_biz_id: s._id, booking_id: b._id, store_id: s.store_id, reason: s.cancel_reason, remark: '场馆取消退课', created_at: stamp(), is_deleted: false } })
+          await tx.collection(C.USER_ASSET_LOG).doc(auditId('refund:' + b._id)).set({ data: { operate_type: 4, user_id: b.user_id, asset_type: Number(s.class_type), amount: refund, expired_refund_count: plan.expired, charge_mode: b.charge_mode || 'count', before_balance: Number(a.balance || 0), after_balance: after, operator_id: s.cancel_operator_id, ref_biz_id: s._id, booking_id: b._id, store_id: s.store_id, reason: s.cancel_reason, remark: '场馆取消退课', created_at: stamp(), is_deleted: false } })
         }
         const remaining = pending.slice(10)
         await tx.collection(C.CLASS_SCHEDULE).doc(s._id).update({ data: { cancel_pending_ids: remaining, booked_count: remaining.length, booking_revision: db.command.inc(1), updated_at: stamp() } })
@@ -147,6 +153,8 @@ module.exports = function createAdjustments({ db, collections: C, getDocById, li
         const assetId = userId + '_' + assetType, a = await doc(C.USER_ASSET, assetId, tx)
         if (!a || a.is_deleted) throw new Error('客户权益记录不可用，请先核对客户档案')
         const beforeBalance = Number(a.balance || 0)
+        const refund = p.kind === 'writeoff' && target.source === 'manual' ? refundPlan(target, a) : { balance: 0, expired: 0 }
+        if (p.kind === 'writeoff' && target.source === 'manual') delta = refund.balance
         let afterBalance = beforeBalance + delta, expiry = a.expiry_date || '', earned = Number(a.total_earned || 0), deleted = Boolean(a.is_deleted), unlimitedExpiry = a.unlimited_expiry_date || ''
         if (afterBalance < 0) throw new Error('当前课时不足以撤销本次派发，请先核对已使用课时')
         if (p.kind === 'distribution') {
@@ -176,11 +184,12 @@ module.exports = function createAdjustments({ db, collections: C, getDocById, li
           const removed = target.source === 'manual' ? 1 : 0
           await tx.collection(C.CLASS_SCHEDULE).doc(s._id).update({ data: { booked_count: Math.max(0, Number(s.booked_count || 0) - removed), booking_revision: db.command.inc(1), status: s.manual_only ? 4 : removed && Number(s.status) === 2 ? 1 : s.status, updated_at: stamp() } })
         }
-        await tx.collection(C.USER_ASSET).doc(assetId).update({ data: { balance: afterBalance, expiry_date: expiry, unlimited_expiry_date: unlimitedExpiry, total_earned: earned, is_deleted: deleted, ...(p.kind === 'distribution' && target.usage_mode === 'unlimited' ? { unlimited_start_date: target.before_asset.unlimited_start_date || '', last_unlimited_distribution_id: target.previous_unlimited_distribution_id || '' } : {}), ...(p.kind === 'distribution' && a.last_distribution_id === target._id ? { last_distribution_id: target.previous_distribution_id || '' } : {}), updated_at: stamp() } })
+        await tx.collection(C.USER_ASSET).doc(assetId).update({ data: { balance: afterBalance, expired_refund_count: db.command.inc(refund.expired), expiry_date: expiry, unlimited_expiry_date: unlimitedExpiry, total_earned: earned, is_deleted: deleted, ...(p.kind === 'distribution' && target.balance_reset ? { count_generation: target.before_asset.count_generation || '' } : {}), ...(p.kind === 'distribution' && target.usage_mode === 'unlimited' ? { unlimited_start_date: target.before_asset.unlimited_start_date || '', last_unlimited_distribution_id: target.previous_unlimited_distribution_id || '' } : {}), ...(p.kind === 'distribution' && a.last_distribution_id === target._id ? { last_distribution_id: target.previous_distribution_id || '' } : {}), updated_at: stamp() } })
         await tx.collection(C.USER_ASSET_LOG).doc(receiptId).set({ data: { operate_type: 6, correction_kind: p.kind, user_id: userId, asset_type: assetType, amount: afterBalance - beforeBalance, before_balance: beforeBalance, after_balance: afterBalance, before_asset: assetSnapshot(a), after_asset: { ...assetSnapshot(a), unlimited_start_date: p.kind === 'distribution' && target.usage_mode === 'unlimited' ? target.before_asset.unlimited_start_date || '' : a.unlimited_start_date || '', unlimited_expiry_date: unlimitedExpiry, balance: afterBalance, expiry_date: expiry, total_earned: earned, is_deleted: deleted }, before_status: beforeStatus || 0, after_status: afterStatus || 0, operator_id: event.operator._id, store_id: s ? s.store_id : target.store_id, ref_biz_id: p.id, reason, created_at: stamp(), is_deleted: false } })
-        return { beforeBalance, afterBalance }
+        await tx.collection(C.USER_ASSET_LOG).doc(receiptId).update({ data: { expired_refund_count: refund.expired } })
+        return { beforeBalance, afterBalance, expiredRefund: refund.expired }
       })
-      return buildSuccess({ ...result, message: '操作已撤销，余额与审计记录已更新' })
+      return buildSuccess({ ...result, message: result.expiredRefund ? '旧核销已撤销，退回课时仍受原有效期限制' : '操作已撤销，余额与审计记录已更新' })
     } catch (e) { return buildFail(e.message, 'REVERSE_OPERATION_ERROR') }
   }
   return { getScheduleAdjustmentData: view, updateCoachSchedule: update, cancelCoachSchedule: cancel, getCorrectionRecords: records, reverseOperation: reverse }

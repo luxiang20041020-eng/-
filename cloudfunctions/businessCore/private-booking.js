@@ -9,7 +9,7 @@ function intervalFor(date, start, end) {
   if (end <= start || parseBusinessTime(startTime) <= Date.now()) throw new Error('请选择未来时间，结束时间须晚于开始时间')
   return { startTime, endTime }
 }
-module.exports = function createPrivateBooking({ db, collections: C, getDocById, listAllCollection: list, runBusinessTransaction, buildSuccess, buildFail }) {
+module.exports = function createPrivateBooking({ db, collections: C, getDocById, listAllCollection: list, runBusinessTransaction, lockReservationTimeline, buildSuccess, buildFail }) {
   const doc = async (c, id, tx = db) => (await getDocById(c, id, tx)).data
   async function create(event) {
     const p = event.payload
@@ -23,6 +23,7 @@ module.exports = function createPrivateBooking({ db, collections: C, getDocById,
           if (previous.request_fingerprint !== fingerprint) throw new Error('待确认预约参数已变化，请核对原预约')
           return { bookingId, repeated: true, status: Number(previous.status) }
         }
+        await lockReservationTimeline(tx)
         const store = await doc(C.STORE, p.storeId, tx), coach = await doc(C.USER, p.coachId, tx), client = await doc(C.USER, event.operator._id, tx)
         if (!store || store.is_deleted || Number(store.status) !== 1) throw new Error('门店已暂停营业，请选择其他门店')
         if (!coach || coach.is_deleted || Number(coach.status) !== 1 || ![2, 3].includes(Number(coach.role))) throw new Error('教练已停用或身份已变化，请重新选择')

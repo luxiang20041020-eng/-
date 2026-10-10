@@ -1,0 +1,30 @@
+TAP version 13
+# Subtest: 取消预约失败保留当前记录，并释放提交状态
+ok 1 - 取消预约失败保留当前记录，并释放提交状态
+  ---
+  duration_ms: 19.0404
+  ...
+# Subtest: 退出确认或请求期间不能再发起取消预约
+ok 2 - 退出确认或请求期间不能再发起取消预约
+  ---
+  duration_ms: 12.9514
+  ...
+# Subtest: 未登录不查询个人预约，历史预约不可取消
+ok 3 - 未登录不查询个人预约，历史预约不可取消
+  ---
+  duration_ms: 9.8645
+  ...
+# Subtest: 全部预约取消成功后清除摘要缓存并重新读取记录
+ok 4 - 全部预约取消成功后清除摘要缓存并重新读取记录
+  ---
+  duration_ms: 8.5998
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 153.7601

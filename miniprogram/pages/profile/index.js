@@ -468,7 +468,7 @@ Page(withPageState({
     if (!booking || !booking.canCancel) return
     this.setData({ cancellingBookingId: bookingId })
     try {
-      if (!await confirmAction({ title: '取消这次训练？', contentParts: [booking.title, '\n' + booking.dateLabel + ' ' + booking.timeRange + '\n', { text: '取消后将退回 1 次训练权益。' }], confirmText: '确认取消' })) return
+      if (!await confirmAction({ title: '取消这次训练？', contentParts: [booking.title, '\n' + booking.dateLabel + ' ' + booking.timeRange], confirmText: '确认取消' })) return
       const result = await businessApi.cancelBooking({ bookingId })
       const app = getApp()
       app.removeViewCacheByPrefix('booking:')
