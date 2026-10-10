@@ -149,3 +149,11 @@ test('全部页面接入WXS并传递语言，语言设置对游客可用，登�
   assert.ok(profile.indexOf('<language-setting') < profile.indexOf('runtime.isAuthenticated'))
   assert.doesNotMatch(fs.readFileSync(path.join(root, 'pages/login/index.wxml'), 'utf8'), /invite-input|onBindInvite/)
 })
+
+test('教练资料及图片操作的全部新文案在六种外语中均完整翻译', () => {
+  const rows = fs.readFileSync(path.join(root, 'locales/coach-profile.tsv'), 'utf8').trim().split(/\r?\n/).filter(Boolean)
+  for (const row of rows) { const [source] = row.split('|'); for (const language of languages.slice(1)) {
+    assert.notEqual(text.translate(source, language), source, source + ' ' + language)
+    if (language !== 'ja') assert.doesNotMatch(text.translate(source, language), /[\u3400-\u9fff]/, source + ' ' + language)
+  } }
+})

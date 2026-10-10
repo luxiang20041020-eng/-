@@ -366,3 +366,5 @@
 .invite-bound { margin-top: 20rpx; color: #55714b; font-size: 25rpx; line-height: 1.7; overflow-wrap: anywhere; }
 .locale-page .profile-name-row { flex-wrap: wrap; }
 .locale-page button.profile-edit-button { flex: 0 1 auto; width: auto; min-width: 72rpx; max-width: 180rpx; padding: 10rpx 14rpx; line-height: 1.4; letter-spacing: 0; }
+
+.profile-avatar-block{width:116rpx;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:12rpx}.profile-avatar-block .avatar-square{width:88rpx;height:88rpx;flex-shrink:0}.locale-page .avatar-upload-button{width:100%;height:auto;min-height:48rpx;margin:0;padding:8rpx 0;line-height:1.5;color:#b3442b;font-size:20rpx;white-space:normal;text-align:center}.coach-profile-entry .menu-item{gap:20rpx}.coach-profile-entry .section-heading{margin-bottom:8rpx}

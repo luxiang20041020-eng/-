@@ -1,5 +1,6 @@
 const { showModal } = require('../../utils/interaction')
 const { getUserMessage } = require('../../utils/user-feedback')
+const media = require('../../utils/profile-media')
 const withPageState = require('../../utils/page-state')
 const businessApi = require('../../utils/business-api')
 const { confirmAction, showFeedback, navigateTo, redirectTo, reLaunch } = require('../../utils/interaction')
@@ -52,7 +53,7 @@ Page(withPageState({
     runtime: {},
     pageData: {},
     dynamicCode: '',
-    avatarText: '',
+    avatarText: '', avatarUploading: false,
     qrCodeImageSrc: '',
     qrCodeLoading: false,
     qrCodeError: '',
@@ -306,6 +307,21 @@ Page(withPageState({
   onShowNotices() { redirectTo({ url: '/pages/home/index' }) },
   onShowHelp() { showModal({ title: '需要帮助？', contentParts: [{ text: '预约、购买权益或临时调整训练，请到当前门店咨询场馆人员。' }, '\n\n', { text: '当前门店：' }, this.data.runtime.currentStore.name || '', '\n', this.data.runtime.currentStore.address || ''], showCancel: false, confirmText: '知道了' }) },
 
+  goCoachEditor() { navigateTo({ url: '/pages/coach/edit/index' }) },
+  async onUploadAvatar() {
+    if (!this.data.runtime.isAuthenticated || this.data.avatarUploading || this.data.loggingOut || this.data.nicknameSubmitting) return
+    const userId = this.data.runtime.userProfile.id
+    this.setData({ avatarUploading: true })
+    try {
+      const result = await media.updateAvatar(userId)
+      if (result) {
+        this.setData({ runtime: getApp().getRuntimeSnapshot() })
+        showFeedback({ title: '头像已更新', icon: 'success' })
+      }
+    } catch (error) { showFeedback({ title: getUserMessage(error, '头像上传未完成，请重试'), icon: 'none' }) }
+    finally { this.setData({ avatarUploading: false }) }
+  },
+
   openNicknameEditor() {
     if (this.data.loggingOut) return
     const runtime = this.data.runtime || {}
@@ -336,7 +352,7 @@ Page(withPageState({
   },
 
   async submitNicknameChange() {
-    if (this.data.nicknameSubmitting || this.data.loggingOut) {
+    if (this.data.nicknameSubmitting || this.data.loggingOut || this.data.avatarUploading) {
       return
     }
 
@@ -411,7 +427,7 @@ Page(withPageState({
     if (this.data.loggingOut) return
     const app = getApp()
     if (app.isLogoutInProgress()) return
-    if (this.data.nicknameSubmitting || this.data.cancellingBookingId || this.data.inviteSubmitting) {
+    if (this.data.avatarUploading || this.data.nicknameSubmitting || this.data.cancellingBookingId || this.data.inviteSubmitting) {
       showFeedback({ title: '请等待当前操作完成后退出', icon: 'none' })
       return
     }

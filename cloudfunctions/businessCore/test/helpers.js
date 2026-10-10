@@ -91,6 +91,7 @@ function loadFunction(state, env = {}, context = { OPENID: 'real-openid', ENV: '
     init() {},
     database: () => state.db,
     getWXContext: () => context,
+    getTempFileURL: async ({ fileList }) => ({ fileList: fileList.map(fileID => ({ fileID, status: state.fileError ? -1 : 0, tempFileURL: state.fileError ? '' : 'https://example.test/photo.jpg' })) }),
     openapi: {
       phonenumber: {
         getPhoneNumber: async ({ code }) => {
@@ -107,7 +108,10 @@ function loadFunction(state, env = {}, context = { OPENID: 'real-openid', ENV: '
     require(name) {
       if (name === 'wx-server-sdk') return cloud
       if (name === 'crypto') return require('node:crypto')
+      if (name === './coach-profile') return require('../coach-profile')
       if (name === './reports') return require('../reports')
+      if (name === './entitlements') return require('../entitlements')
+      if (name === './private-booking') return require('../private-booking')
       if (name === './adjustments') return require('../adjustments')
       if (name === './request-policy') return require('../request-policy')
       if (name === './user-feedback') return require('../user-feedback')

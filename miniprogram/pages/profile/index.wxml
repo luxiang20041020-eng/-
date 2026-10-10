@@ -1,4 +1,5 @@
 <wxs module="i18n" src="../../utils/i18n.wxs" />
+<media-privacy id="mediaPrivacy" language="{{language}}"></media-privacy>
 <view class="page-shell locale-page locale-{{language}}">
   <language-setting bindchange="onLanguageChange"></language-setting>
   <page-feedback language="{{language}}" loading="{{pageBusy}}" error="{{pageError}}" bindretry="onRetry"></page-feedback>
@@ -14,7 +15,7 @@
   </view>
 
   <view wx:if="{{runtime.isAuthenticated}}" class="card profile-hero">
-    <view class="avatar-square">{{avatarText}}</view>
+    <view class="profile-avatar-block"><image wx:if="{{runtime.userProfile.avatarUrl}}" class="avatar-square" src="{{runtime.userProfile.avatarUrl}}" mode="aspectFill"></image><view wx:else class="avatar-square">{{avatarText}}</view><button class="avatar-upload-button" bindtap="onUploadAvatar" loading="{{avatarUploading}}" disabled="{{avatarUploading || loggingOut || nicknameSubmitting}}">{{i18n.f('上传头像', [], language)}}</button></view>
     <view class="profile-hero-main">
       <view class="profile-name-row">
         <view class="profile-name">{{runtime.userProfile.nickname}}</view>
@@ -64,6 +65,7 @@
   </view>
 
   <block wx:if="{{runtime.isAuthenticated}}">
+  <view wx:if="{{runtime.role === 'coach' || runtime.role === 'admin'}}" class="card coach-profile-entry"><view class="menu-item" bindtap="goCoachEditor" hover-class="tap-feedback"><view><view class="section-heading">{{i18n.f('我的教练资料', [], language)}}</view><view class="page-caption">{{i18n.f('完善介绍、荣誉和照片', [], language)}}</view></view><text class="menu-arrow">›</text></view></view>
   <view class="card invite-card">
     <view class="menu-item" bindtap="goPoints" hover-class="tap-feedback"><text>{{i18n.f('我的积分', [], language)}}</text><text class="menu-arrow">{{i18n.f('查看余额与明细 ›', [], language)}}</text></view>
     <view class="menu-item" bindtap="onToggleInvite" hover-class="tap-feedback"><text>{{i18n.f('填写邀请码领积分', [], language)}}</text><text class="menu-arrow">{{i18n.t(inviteExpanded ? '收起' : '展开', language)}}</text></view>
@@ -84,18 +86,18 @@
     <view class="metric-grid">
       <view class="metric-item">
         <view class="metric-label">{{i18n.f('专属训练', [], language)}}</view>
-        <view class="metric-value">{{pageData.assets.privateCount}}<text class="metric-unit">{{i18n.f('次', [], language)}}</text></view>
-        <view class="metric-note">{{i18n.f('专属权益', [], language)}}</view>
-        <view class="metric-expiry {{pageData.assets.privateExpiry ? '' : 'metric-expiry-none'}}">
-          {{i18n.t(pageData.assets.privateExpiry ? pageData.assets.privateExpiry + ' 到期' : '无到期限制', language)}}
+        <view class="metric-value">{{pageData.assets.privateUnlimited ? i18n.t('无限', language) : pageData.assets.privateCount}}<text class="metric-unit">{{i18n.f('次', [], language)}}</text></view>
+        <view class="metric-note">{{i18n.f('专属权益', [], language)}}</view><view wx:if="{{pageData.assets.privateUnlimited}}" class="metric-note">{{i18n.f('次数余额 {0} 次', [pageData.assets.privateCount], language)}}</view>
+        <view class="metric-expiry {{(pageData.assets.privateUnlimited ? pageData.assets.privateUnlimitedExpiry : pageData.assets.privateExpiry) ? '' : 'metric-expiry-none'}}">
+          {{i18n.t((pageData.assets.privateUnlimited ? pageData.assets.privateUnlimitedExpiry : pageData.assets.privateExpiry) ? (pageData.assets.privateUnlimited ? pageData.assets.privateUnlimitedExpiry : pageData.assets.privateExpiry) + ' 到期' : '无到期限制', language)}}
         </view>
       </view>
       <view class="metric-item">
         <view class="metric-label">{{i18n.f('团体训练', [], language)}}</view>
-        <view class="metric-value">{{pageData.assets.groupCount}}<text class="metric-unit">{{i18n.f('次', [], language)}}</text></view>
-        <view class="metric-note">{{i18n.f('团体权益', [], language)}}</view>
-        <view class="metric-expiry {{pageData.assets.groupExpiry ? '' : 'metric-expiry-none'}}">
-          {{i18n.t(pageData.assets.groupExpiry ? pageData.assets.groupExpiry + ' 到期' : '无到期限制', language)}}
+        <view class="metric-value">{{pageData.assets.groupUnlimited ? i18n.t('无限', language) : pageData.assets.groupCount}}<text class="metric-unit">{{i18n.f('次', [], language)}}</text></view>
+        <view class="metric-note">{{i18n.f('团体权益', [], language)}}</view><view wx:if="{{pageData.assets.groupUnlimited}}" class="metric-note">{{i18n.f('次数余额 {0} 次', [pageData.assets.groupCount], language)}}</view>
+        <view class="metric-expiry {{(pageData.assets.groupUnlimited ? pageData.assets.groupUnlimitedExpiry : pageData.assets.groupExpiry) ? '' : 'metric-expiry-none'}}">
+          {{i18n.t((pageData.assets.groupUnlimited ? pageData.assets.groupUnlimitedExpiry : pageData.assets.groupExpiry) ? (pageData.assets.groupUnlimited ? pageData.assets.groupUnlimitedExpiry : pageData.assets.groupExpiry) + ' 到期' : '无到期限制', language)}}
         </view>
       </view>
     </view>

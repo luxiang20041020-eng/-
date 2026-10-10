@@ -1,4 +1,5 @@
 const { parseBusinessTime, businessDate } = require('./request-policy')
+const { unlimitedAt } = require('./entitlements')
 const DAY = 86400000
 function validDate(value) {
   return /^\d{4}-\d{2}-\d{2}$/.test(String(value || '')) && businessDate(value + ' 00:00:00') === value
@@ -45,15 +46,18 @@ module.exports = function createReports({ collections: C, listAllCollection: lis
         let expiring = false, low = false
         const types = [1, 2].map(type => {
           const asset = assets.get(u._id + '_' + type)
-          const owned = Boolean(asset && (asset.total_earned === undefined || Number(asset.total_earned) > 0 || Number(asset.balance) > 0))
+          const unlimited = unlimitedAt(asset)
+          const owned = Boolean(asset && (asset.total_earned === undefined || Number(asset.total_earned) > 0 || Number(asset.balance) > 0 || asset.unlimited_expiry_date))
           const expiry = asset && validDate(asset.expiry_date) ? asset.expiry_date : ''
           const daysLeft = expiry ? dayNumber(expiry) - todayNumber : null
           const expired = daysLeft !== null && daysLeft < 0
           const balance = Number(asset && asset.balance || 0), available = expired ? 0 : balance
-          const expiresSoon = owned && balance > 0 && daysLeft !== null && daysLeft >= 0 && daysLeft <= expiryDays
-          const isLow = owned && !expired && available <= lowBalance
+          const unlimitedExpiry = asset && asset.unlimited_expiry_date || ''
+          const unlimitedDaysLeft = unlimitedExpiry ? dayNumber(unlimitedExpiry) - todayNumber : null
+          const expiresSoon = (owned && balance > 0 && daysLeft !== null && daysLeft >= 0 && daysLeft <= expiryDays) || (unlimited && unlimitedDaysLeft <= expiryDays)
+          const isLow = owned && !unlimited && !expired && available <= lowBalance
           expiring ||= expiresSoon; low ||= isLow
-          return { type, label: type === 1 ? '团课' : '私教', owned, balance: available, expiry, daysLeft, expiring: expiresSoon, low: isLow, expired }
+          return { unlimited, unlimitedExpiry, type, label: type === 1 ? '团课' : '私教', owned, balance: available, expiry, daysLeft, expiring: expiresSoon, low: isLow, expired }
         })
         const last = lastVisits.get(u._id), joined = businessDate(u.created_at)
         const baseline = last ? businessDate(last) : joined
@@ -95,7 +99,7 @@ module.exports = function createReports({ collections: C, listAllCollection: lis
         day.incomeCents += cents; day.payments++; paidCustomers.add(l.user_id)
         if (renewal) { day.renewals++; day.renewalCents += cents; renewalCustomers.add(l.user_id) }
         payments.push({ id: l._id, date, timestamp: parseBusinessTime(l.created_at), userName: users.get(l.user_id)?.real_name || '学员', userId: l.user_id, operatorName: users.get(l.operator_id)?.real_name || '场馆人员',
-          packageName: l.package_name || packages.get(l.ref_biz_id)?.name || '历史套餐', type: type === 1 ? '团课' : type === 2 ? '私教' : '未记录', amountText: money(cents), lessons: Number(l.amount || 0), payType: l.pay_type || '未记录', renewal, purchaseLabel: renewal ? '续费' : uncertain ? '历史顺序未确认' : '首次购课' })
+          packageName: l.package_name || packages.get(l.ref_biz_id)?.name || '历史套餐', type: type === 1 ? '团课' : type === 2 ? '私教' : '未记录', amountText: money(cents), unlimited: l.usage_mode === 'unlimited', lessons: Number(l.amount || 0), payType: l.pay_type || '未记录', renewal, purchaseLabel: renewal ? '续费' : uncertain ? '历史顺序未确认' : '首次购课' })
       }
       const coaches = new Map()
       function coachFor(id) {

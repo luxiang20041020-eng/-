@@ -1,0 +1,27 @@
+.%%HERESUFFIX%%coach-page{padding:%%?32rpx?%% %%?28rpx?%% calc(%%?48rpx?%% + env(safe-area-inset-bottom))}
+.%%HERESUFFIX%%coach-page .%%HERESUFFIX%%card{margin-top:%%?22rpx?%%;border-radius:%%?24rpx?%%}
+.%%HERESUFFIX%%coach-page .%%HERESUFFIX%%coach-hero{display:flex;align-items:center;gap:%%?26rpx?%%;margin-top:0;padding:%%?32rpx?%% %%?28rpx?%%}
+.%%HERESUFFIX%%coach-avatar{display:block;width:%%?136rpx?%%;height:%%?136rpx?%%;flex-shrink:0;border-radius:%%?22rpx?%%;background:#29362d}
+.%%HERESUFFIX%%coach-avatar-fallback{display:flex;align-items:center;justify-content:center;font-size:%%?56rpx?%%;color:#fff}
+.%%HERESUFFIX%%coach-hero-main{flex:1;min-width:0;overflow-wrap:anywhere}
+.%%HERESUFFIX%%coach-kicker{font-size:%%?22rpx?%%;line-height:1.5;color:#858c7d}
+.%%HERESUFFIX%%coach-name{font-size:%%?42rpx?%%;line-height:1.4;font-weight:700;margin:%%?8rpx?%% 0}
+.%%HERESUFFIX%%coach-title{font-size:%%?26rpx?%%;line-height:1.6;color:#4b5544}
+.%%HERESUFFIX%%coach-level{font-size:%%?23rpx?%%;line-height:1.6;color:#858c7d;margin-top:%%?6rpx?%%}
+.%%HERESUFFIX%%coach-page .%%HERESUFFIX%%coach-section{padding:%%?28rpx?%%}
+.%%HERESUFFIX%%coach-section-title{font-size:%%?26rpx?%%;font-weight:600;line-height:1.5;color:#444e40;margin-bottom:%%?20rpx?%%;overflow-wrap:anywhere}
+.%%HERESUFFIX%%coach-tags{display:flex;gap:%%?12rpx?%%;flex-wrap:wrap}
+.%%HERESUFFIX%%coach-tags wx-text{display:inline-block;background:#f5eee7;color:#685e51;border-radius:%%?12rpx?%%;padding:%%?10rpx?%% %%?18rpx?%%;font-size:%%?24rpx?%%;line-height:1.5;max-width:100%;overflow-wrap:anywhere}
+.%%HERESUFFIX%%coach-body{white-space:pre-wrap;line-height:1.8;font-size:%%?28rpx?%%;color:#4b5544;overflow-wrap:anywhere}
+.%%HERESUFFIX%%coach-honor{display:flex;align-items:flex-start;gap:%%?16rpx?%%;line-height:1.7;font-size:%%?26rpx?%%}
+.%%HERESUFFIX%%coach-honor+.%%HERESUFFIX%%coach-honor{margin-top:%%?18rpx?%%}
+.%%HERESUFFIX%%coach-honor-text{flex:1;min-width:0;color:#4b5544;white-space:pre-wrap;overflow-wrap:anywhere}
+.%%HERESUFFIX%%honor-mark{color:#b3442a;flex-shrink:0;line-height:1.7}
+.%%HERESUFFIX%%coach-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:%%?16rpx?%%}
+.%%HERESUFFIX%%coach-photo{min-width:0;border-radius:%%?14rpx?%%;background:#f3f4ee;padding:%%?8rpx?%%}
+.%%HERESUFFIX%%coach-gallery wx-image{display:block;width:100%;height:%%?254rpx?%%;object-fit:contain;border-radius:%%?10rpx?%%}
+.%%HERESUFFIX%%coach-gallery-single{grid-template-columns:minmax(0,1fr)}
+.%%HERESUFFIX%%coach-gallery-single wx-image{height:%%?360rpx?%%}
+.%%HERESUFFIX%%coach-photo-caption{margin-top:%%?18rpx?%%;font-size:%%?22rpx?%%;line-height:1.6;color:#858c7d;overflow-wrap:anywhere}
+.%%HERESUFFIX%%coach-note{margin:%%?28rpx?%% %%?4rpx?%% %%?20rpx?%%;line-height:1.7}
+.%%HERESUFFIX%%locale-page wx-button.%%HERESUFFIX%%coach-choose{width:100%;margin:0;min-height:%%?88rpx?%%;height:auto;padding:%%?22rpx?%%;white-space:normal;line-height:1.5;text-align:center;border-radius:%%?18rpx?%%;display:flex;align-items:center;justify-content:center}

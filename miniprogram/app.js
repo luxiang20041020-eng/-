@@ -39,6 +39,7 @@ function normalizeCloudUserProfile(profile) {
   }
   return {
     id: profile.id || '',
+    avatarUrl: profile.avatarUrl || '', avatarVersion: Number(profile.avatarVersion || 0),
     nickname: profile.nickname || '未命名用户',
     phone: profile.phone || '',
     levelText: profile.levelText || '综合格斗会员',

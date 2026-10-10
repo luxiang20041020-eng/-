@@ -13,7 +13,7 @@ function followupRows(data) {
   return [headers(['客户跟进', '门店', '统计日期']), ['', data.store.name, data.today],
     headers(['到期提醒天数', '课时不足阈值', '未到店提醒天数']), [data.thresholds.expiryDays, data.thresholds.lowBalance, data.thresholds.inactiveDays], [],
     headers(['姓名', '手机号', '团课余额', '团课到期日', '私教余额', '私教到期日', '最近到店', '距到店或建档天数', '即将到期', '课时不足', '长期未到店']),
-    ...data.customers.map(c => [c.name, c.phone, c.types[0].balance, c.types[0].expiry, c.types[1].balance, c.types[1].expiry, c.lastVisit || t('未到店'), c.daysInactive, t(c.expiring ? '是' : '否'), t(c.low ? '是' : '否'), t(c.inactive ? '是' : '否')])]
+    ...data.customers.map(c => [c.name, c.phone, c.types[0].unlimited ? t('期限内无限次') : c.types[0].balance, c.types[0].unlimited ? c.types[0].unlimitedExpiry : c.types[0].expiry, c.types[1].unlimited ? t('期限内无限次') : c.types[1].balance, c.types[1].unlimited ? c.types[1].unlimitedExpiry : c.types[1].expiry, c.lastVisit || t('未到店'), c.daysInactive, t(c.expiring ? '是' : '否'), t(c.low ? '是' : '否'), t(c.inactive ? '是' : '否')])]
 }
 function reportRows(data) {
   const s = data.summary
@@ -26,7 +26,7 @@ function reportRows(data) {
     [t('教练上课情况')], headers(['教练', '排课场次', '取消场次', '已完成场次', '到场人次', '缺席人次', '人工核销人次', '排课授课分钟']),
     ...data.coaches.map(c => [c.name, c.scheduled, c.cancelled, c.taught, c.checkins, c.absences, c.manualCheckins, c.minutes]), [],
     [t('收款明细')], headers(['日期', '姓名', '套餐', '课程类型', '课时', '登记实收', '收款方式', '购课类别', '操作人']),
-    ...data.payments.map(p => [p.date, p.userName, p.packageName, t(p.type), p.lessons, p.amountText, t(p.payType), t(p.purchaseLabel), p.operatorName])]
+    ...data.payments.map(p => [p.date, p.userName, p.packageName, t(p.type), p.unlimited ? t('期限内无限次') : p.lessons, p.amountText, t(p.payType), t(p.purchaseLabel), p.operatorName])]
 }
 async function exportCsv(rows, kind) {
   if (!wx.getFileSystemManager || !wx.env || !wx.env.USER_DATA_PATH) throw new Error('当前设备无法生成文件，请复制表格或使用手机微信导出')

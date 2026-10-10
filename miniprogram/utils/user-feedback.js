@@ -31,6 +31,8 @@ const CODE_MESSAGES = {
   INVALID_CREATE_PACKAGE_PAYLOAD: '请核对套餐名称、类型、课时、金额和上架状态',
 }
 const OPERATION_MESSAGES = {
+  COACH_PROFILE_ERROR: '资料保存未完成，请刷新后核对',
+  CREATE_PRIVATE_BOOKING_ERROR: '专属预约未完成，请刷新后核对教练和时间',
   CUSTOMER_FOLLOWUP_ERROR: '跟进与报表资料暂时无法读取，请稍后重试',
   BUSINESS_REPORT_ERROR: '跟进与报表资料暂时无法读取，请稍后重试',
   SCHEDULE_ADJUST_VIEW_ERROR: '操作资料暂时无法读取，请刷新后重试',
@@ -94,7 +96,7 @@ function transportError(error, action) {
   const write = /^(bind|create|update|distribute|cancel|writeOff|manualWriteOff|logout)/.test(action)
   const outcomeUnknown = write && !unavailable
   let message = getUserMessage(error, '服务暂时无法连接，请检查网络后重试')
-  if (outcomeUnknown) message += action === 'createUser' || action === 'manualWriteOff'
+  if (outcomeUnknown) message += action === 'createUser' || action === 'manualWriteOff' || action === 'createPrivateBooking'
     ? '；结果尚未确认，请用原请求重试核对'
     : '；结果尚未确认，请先刷新记录核对，勿重复提交'
   return Object.assign(new Error(message), { code: unavailable ? 'SERVICE_UNAVAILABLE' : timeout ? 'REQUEST_TIMEOUT' : 'NETWORK_ERROR', outcomeUnknown })

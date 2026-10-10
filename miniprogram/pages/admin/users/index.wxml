@@ -13,7 +13,7 @@
       <view class="card-description">{{i18n.t(item.permissionSummary, language)}}</view>
       <button wx:if="{{item.role === 1}}" class="customer-asset-entry" data-user-id="{{item.id}}" disabled="{{creatingUser || submittingUserId}}" bindtap="onViewAssets">
         <view class="asset-entry-heading"><text>{{i18n.f('剩余套餐', [], language)}}</text><text class="change-link">{{i18n.f('查看详情 ›', [], language)}}</text></view>
-        <view wx:if="{{item.assets}}" class="asset-entry-counts"><view>{{i18n.f('团课', [], language)}}<text>{{item.assets.groupCount}}</text>{{i18n.f('次', [], language)}}</view><view>{{i18n.f('私教', [], language)}}<text>{{item.assets.privateCount}}</text>{{i18n.f('次', [], language)}}</view></view>
+        <view wx:if="{{item.assets}}" class="asset-entry-counts"><view>{{i18n.f('团课', [], language)}}<text>{{item.assets.groupUnlimited ? i18n.t('无限', language) : item.assets.groupCount}}</text>{{i18n.f('次', [], language)}}</view><view>{{i18n.f('私教', [], language)}}<text>{{item.assets.privateUnlimited ? i18n.t('无限', language) : item.assets.privateCount}}</text>{{i18n.f('次', [], language)}}</view></view>
         <view wx:else class="muted">{{i18n.f('查看剩余课时与有效期', [], language)}}</view>
       </button>
       <view class="card-footer"><view class="muted">{{i18n.t(item.id === pageData.currentUserId ? '当前账号的管理员权限已保护' : '调整身份与可用功能', language)}}</view><button wx:if="{{item.id !== pageData.currentUserId}}" class="card-action" data-user-id="{{item.id}}" loading="{{submittingUserId === item.id}}" disabled="{{submittingUserId || pageBusy || pageError}}" bindtap="onChangeRole">{{i18n.f('调整权限 ›', [], language)}}</button></view>
@@ -46,16 +46,16 @@
             <view wx:if="{{assetsUser.status !== 1}}" class="create-user-error">{{i18n.f('此客户账号已停用，课时记录保留；当前无法预约或核销。', [], language)}}</view>
             <view class="customer-balance-grid">
               <view wx:for="{{assetsDetail.balances}}" wx:key="type" class="customer-balance-card {{item.expired ? 'expired' : ''}}">
-                <view class="asset-entry-heading"><view class="section-title">{{i18n.t(item.label, language)}}</view><text class="status-label {{item.available > 0 ? '' : 'inactive'}}">{{i18n.t(item.statusLabel, language)}}</text></view>
-                <view class="customer-balance-value">{{item.available}}<text>{{i18n.f('次可用', [], language)}}</text></view>
-                <view class="muted">{{i18n.t(item.expiry ? '有效期至 ' + item.expiry : item.expiryLabel, language)}}</view>
-                <view wx:if="{{item.expired && item.recordedBalance > 0}}" class="expired-balance">{{i18n.f('另有 {0} 次已过期，无法使用。', [item.recordedBalance], language)}}</view>
+                <view class="asset-entry-heading"><view class="section-title">{{i18n.t(item.label, language)}}</view><text class="status-label {{item.unlimited || item.available > 0 ? '' : 'inactive'}}">{{i18n.t(item.statusLabel, language)}}</text></view>
+                <view wx:if="{{item.unlimited}}" class="customer-balance-value">{{i18n.t('无限', language)}}</view><view wx:else class="customer-balance-value">{{item.available}}<text>{{i18n.f('次可用', [], language)}}</text></view>
+                <view class="muted">{{i18n.t(item.unlimited ? '有效期至 ' + item.unlimitedExpiry : item.expiry ? '有效期至 ' + item.expiry : item.expiryLabel, language)}}</view>
+                <view wx:if="{{item.unlimited}}" class="muted">{{i18n.f('次数余额 {0} 次', [item.available], language)}}</view><view wx:if="{{item.expired && item.recordedBalance > 0}}" class="expired-balance">{{i18n.f('另有 {0} 次已过期，无法使用。', [item.recordedBalance], language)}}</view>
               </view>
             </view>
             <view class="muted customer-assets-note">{{i18n.t(assetsDetail.note, language)}}</view>
             <view class="list-heading"><view class="section-title">{{i18n.f('套餐派发记录', [], language)}}</view><text class="muted">{{i18n.f('最近 {0} 笔', [assetsDetail.records.length], language)}}</text></view>
             <view wx:if="{{!assetsDetail.records.length}}" class="manage-empty"><view class="section-title">{{i18n.f('暂无套餐派发记录', [], language)}}</view><view class="muted">{{i18n.f('已建档客户可前往工作台派发权益。', [], language)}}</view></view>
-            <view wx:for="{{assetsDetail.records}}" wx:key="id" class="customer-package-record"><view class="asset-entry-heading"><view class="section-title">{{item.packageName}}</view><text class="change-link">{{i18n.f('＋{0} 次', [item.lessons], language)}}</text></view><view class="muted">{{i18n.t(item.typeLabel, language)}} · {{i18n.t(item.time || '日期未记录', language)}}</view><view class="muted">{{i18n.f('实收 ¥{0} · {1}', [item.amount, i18n.t(item.payType, language)], language)}}</view><view class="muted">{{i18n.t(item.expiry ? '本次派发有效期至 ' + item.expiry : '本次派发有效期未记录', language)}}</view></view>
+            <view wx:for="{{assetsDetail.records}}" wx:key="id" class="customer-package-record"><view class="asset-entry-heading"><view class="section-title">{{item.packageName}}</view><text class="change-link">{{item.unlimited ? i18n.t('期限内无限次', language) : i18n.f('＋{0} 次', [item.lessons], language)}}</text></view><view class="muted">{{i18n.t(item.typeLabel, language)}} · {{i18n.t(item.time || '日期未记录', language)}}</view><view class="muted">{{i18n.f('实收 ¥{0} · {1}', [item.amount, i18n.t(item.payType, language)], language)}}</view><view class="muted">{{i18n.t(item.expiry ? '本次派发有效期至 ' + item.expiry : '本次派发有效期未记录', language)}}</view></view>
           </block>
         </view>
       </scroll-view>

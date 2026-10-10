@@ -170,7 +170,7 @@ function harness(relative, api = {}, storage = new Map()) {
     if (cache.has(file)) return cache.get(file).exports
     const module = { exports: {} }
     cache.set(file, module)
-    const sandbox = { module, exports: module.exports, wx, getApp: () => app, Page: (value) => { definition = value }, App: (value) => { definition = value },
+    const sandbox = { module, exports: module.exports, wx, getApp: () => app, getCurrentPages: () => app.pages || [], Page: (value) => { definition = value }, App: (value) => { definition = value },
       setInterval, clearInterval, setTimeout, clearTimeout, console,
       require: (name) => name.endsWith('business-api') && relative !== 'utils/business-api.js' ? api : load(path.resolve(path.dirname(file), name)),
     }
@@ -181,6 +181,43 @@ function harness(relative, api = {}, storage = new Map()) {
   const page = definition ? { ...definition, data: JSON.parse(JSON.stringify(definition.data || {})), setData(patch, callback) { Object.assign(this.data, patch); if (callback) callback() } } : null
   return { page, exported, app, wx, calls, storage }
 }
+
+function privatePage(api = {}, storage) {
+  const f = harness('pages/booking/index.js', api, storage)
+  Object.assign(f.page.data, { runtime: { isAuthenticated: true, userProfile: { id: 'user' }, currentStore: { id: 'gaoxin', name: '门店' } }, filters: { type: 'private', coachId: 'coach', dateKey: '2099-01-01' }, pageData: { assets: {}, coaches: [{ id: 'coach', name: '教练' }] } })
+  f.page.syncPageData = async () => {}
+  f.app.getRuntimeSnapshotAsync = async () => f.page.data.runtime
+  return f
+}
+test('专属自选起止时间提交给后台，未选教练或逆序时间不写入', async () => {
+  const writes = [], f = privatePage({ createPrivateBooking: async p => { writes.push(p); return { message: '预约成功' } } })
+  f.page.data.filters.coachId = 'all'; await f.page.onBookPrivate(); assert.equal(writes.length, 0)
+  f.page.data.filters.coachId = 'coach'; f.page.data.privateEnd = '09:00'; await f.page.onBookPrivate(); assert.equal(writes.length, 0)
+  f.page.data.privateStart = '10:15'; f.page.data.privateEnd = '11:45'; await f.page.onBookPrivate()
+  assert.equal(writes[0].start, '10:15'); assert.equal(writes[0].end, '11:45'); assert.equal(f.page.data.privatePending, null)
+})
+test('网络结果未知保存原专属预约请求，重进页面复用请求核对且冻结时间输入', async () => {
+  const storage = new Map(), writes = []
+  const f = privatePage({ createPrivateBooking: async p => { writes.push(p); throw Object.assign(new Error('网络结果未知'), { code: 'NETWORK_ERROR' }) } }, storage)
+  await f.page.onBookPrivate(); assert.ok(f.page.data.privatePending)
+  f.page.onPrivateTime({ currentTarget: { dataset: { field: 'privateStart' } }, detail: { value: '12:00' } }); assert.equal(f.page.data.privateStart, '10:00')
+  const second = privatePage({ createPrivateBooking: async p => { writes.push(p); return { message: '已核对' } } }, storage)
+  second.page.restorePrivatePending(second.page.data.runtime); await second.page.onBookPrivate()
+  assert.equal(writes[0].requestId, writes[1].requestId); assert.equal(storage.size, 0)
+})
+test('专属预约写入前保存请求失败时不调用后台，已确认业务失败释放原请求', async () => {
+  let writes = 0
+  const f = privatePage({ createPrivateBooking: async () => { writes++; throw Object.assign(new Error('教练时间冲突'), { code: 'CREATE_PRIVATE_BOOKING_ERROR' }) } })
+  f.wx.setStorageSync = () => { throw new Error('保存失败') }; await f.page.onBookPrivate(); assert.equal(writes, 0)
+  const second = privatePage({ createPrivateBooking: async () => { writes++; throw Object.assign(new Error('冲突'), { code: 'CREATE_PRIVATE_BOOKING_ERROR' }) } }); await second.page.onBookPrivate()
+  assert.equal(writes, 1); assert.equal(second.page.data.privatePending, null); assert.equal(second.page.data.privateSubmitting, false)
+})
+test('创建无限次套餐无需次数，仍校验价格与有效期', async () => {
+  const writes = [], f = harness('pages/admin/packages/index.js', { createPackage: async p => writes.push(p) })
+  f.page.data.hasPermission = true; f.page.data.createForm = { name: '30天畅练', type: 'group', usageMode: 'unlimited', lessons: '', price: '100', validDays: '30', status: 1 }; f.page.syncPageData = async () => {}
+  await f.page.onSubmitCreatePackage(); assert.equal(writes[0].usageMode, 'unlimited'); assert.equal(writes[0].lessons, 0)
+  f.page.data.createForm = { name: '错误期限', type: 'private', usageMode: 'unlimited', price: '100', validDays: '0', status: 1 }; await f.page.onSubmitCreatePackage(); assert.equal(writes.length, 1)
+})
 
 test('外语确认弹窗保留录入姓名和课程名，门店选择列表保持原文', () => {
   const { exported, calls, wx } = harness('utils/interaction.js', {}, new Map([['one.language', 'en']]))
@@ -1129,7 +1166,7 @@ test('全部数据页面在空缓存首次进入时可完成云端同步', async
     realApp.onLaunch()
     realApp.applyCloudSession({ loggedIn: true, userProfile: { id: 'admin', nickname: '管理员', role: 'admin' } })
     realApp.getRuntimeSnapshotAsync = async function () { return this.getRuntimeSnapshot() }
-    const response = { currentStore: realApp.getCurrentStore(), stores: realApp.globalData.stores, schedules: [], plans: [], users: [], customers: [], payments: [], packages: [], myBookings: [], todayClasses: [], members: [], packageOptions: [], classInfo: { id: 'class' }, roster: [] }
+    const response = { coach: { id: 'admin', name: '管理员', title: '', levelLabel: '', bio: '', honors: [], photos: [], specialties: [], version: 0 }, currentStore: realApp.getCurrentStore(), stores: realApp.globalData.stores, schedules: [], plans: [], users: [], customers: [], payments: [], packages: [], myBookings: [], todayClasses: [], members: [], packageOptions: [], classInfo: { id: 'class' }, roster: [] }
     const api = new Proxy({}, { get: () => async () => { reads += 1; return response } })
     const { page, app } = harness(name + '.js', api)
     Object.assign(app, realApp)
@@ -1169,4 +1206,143 @@ test('门店已保存后的刷新故障说明两个结果，不将保存误报�
   page.syncPageData = async () => page.setData({ pageError: '请求超时，请检查网络后重试' })
   await page.refreshStoreState()
   assert.match(page.data.pageError, /^门店变更已保存，但刷新未完成：请求超时/)
+})
+
+function coachEditor(api = {}) {
+  const f = harness('pages/coach/edit/index.js', api)
+  f.page.data.runtime = { isAuthenticated: true, role: 'coach', userProfile: { id: 'user' } }
+  f.page.data.canEdit = true; f.page.data.ready = true
+  f.page.data.coach = { id: 'user', name: '李教练', avatarUrl: '', title: '', levelLabel: '', bio: '', specialties: [], honors: [], photos: [], version: 0 }
+  f.app.getRuntimeSnapshotAsync = async () => f.page.data.runtime
+  f.app.getRuntimeSnapshot = () => f.page.data.runtime
+  f.app.applyCloudSession = result => { f.page.data.runtime.userProfile = result.userProfile }
+  return f
+}
+
+test('大量教练首页最多三行，选择面板分批显示且可搜索后重置', async () => {
+  const coaches = Array.from({ length: 85 }, (_, i) => ({ id: 'coach' + i, name: '教练' + i, title: i === 70 ? '专项拳击' : '泰拳教练', specialties: [], bio: '' }))
+  const f = harness('pages/booking/index.js', { getBookingViewData: async () => ({ coaches, schedules: [], assets: {}, privateBusyTimes: [] }) })
+  const runtime = { isAuthenticated: true, userProfile: { id: 'user' }, currentStore: { id: 'store' } }
+  f.app.getRuntimeSnapshot = () => runtime; f.app.getRuntimeSnapshotAsync = async () => runtime
+  f.app.getViewCache = () => null; f.app.setViewCache = () => {}; f.app.getBookingPageData = () => ({})
+  f.page.data.filters.type = 'private'
+  f.page.data.filters.coachId = 'all'
+  await f.page.syncPageData()
+  assert.equal(f.page.data.pageData.privateCoachPreview.length, 3)
+  assert.equal(f.page.data.pageData.selectedCoach, null)
+  f.page.onOpenCoachPicker(); assert.equal(f.page.data.pageData.visibleCoachOptions.length, 20)
+  f.page.onCoachListLower(); assert.equal(f.page.data.pageData.visibleCoachOptions.length, 40)
+  f.page.onCoachKeywordInput({ detail: { value: '专项拳击' } })
+  assert.equal(f.page.data.pageData.visibleCoachOptions.length, 1); assert.equal(f.page.data.pageData.visibleCoachOptions[0].id, 'coach70')
+  assert.equal(f.page.data.coachOptionsLimit, 20); assert.equal(f.page.data.pageData.hasMoreCoachOptions, false)
+  f.page.onCoachChange({ currentTarget: { dataset: { coachId: 'coach70' } } }); await f.page.syncPageData()
+  assert.equal(f.page.data.pageData.selectedCoach.id, 'coach70'); assert.equal(f.page.data.coachPickerVisible, false)
+  f.page.data.privatePending = { requestId: 'pending' }; f.page.onCoachChange({ currentTarget: { dataset: { coachId: 'coach1' } } }); f.page.onOpenCoachPicker()
+  assert.equal(f.page.data.filters.coachId, 'coach70'); assert.equal(f.page.data.coachPickerVisible, false)
+})
+
+test('选择面板的教练介绍与团课筛选正确分流，打开介绍时收起面板', () => {
+  const f = privatePage(); f.page.data.coachPickerVisible = true
+  f.page.onCoachOptionTap({ currentTarget: { dataset: { coachId: 'coach2' } } })
+  assert.equal(f.calls.routes[0], '/pages/coach/index?coachId=coach2'); assert.equal(f.page.data.coachPickerVisible, false)
+  f.page.data.filters.type = 'group'; f.page.onCoachOptionTap({ currentTarget: { dataset: { coachId: 'coach3' } } })
+  assert.equal(f.page.data.filters.coachId, 'coach3'); assert.equal(f.calls.routes.length, 1)
+})
+
+test('资料分区切换保留所有草稿和未保存状态', () => {
+  const f = coachEditor()
+  f.page.onInput({ currentTarget: { dataset: { field: 'title' } }, detail: { value: '泰拳教练' } })
+  f.page.onEditSection({ currentTarget: { dataset: { section: 'intro' } } })
+  f.page.onInput({ currentTarget: { dataset: { field: 'bio' } }, detail: { value: '训练介绍' } })
+  f.page.data.draft.photos = ['photo']
+  f.page.onEditSection({ currentTarget: { dataset: { section: 'photos' } } })
+  f.page.onEditSection({ currentTarget: { dataset: { section: 'basic' } } })
+  assert.equal(f.page.data.draft.title, '泰拳教练'); assert.equal(f.page.data.draft.bio, '训练介绍'); assert.equal(f.page.data.draft.photos[0], 'photo'); assert.equal(f.page.data.dirty, true)
+})
+function photoAPIs(f, options = {}) {
+  f.wx.chooseMedia = o => o.success({ tempFiles: [{ tempFilePath: '/photo.jpg' }] })
+  f.wx.getImageInfo = o => o.success({ type: options.type || 'jpeg', width: 2400, height: 1200 })
+  f.wx.compressImage = o => { f.calls.compressed = o; o.success({ tempFilePath: '/small.jpg' }) }
+  f.wx.getFileSystemManager = () => ({ getFileInfo: o => o.success({ size: options.size || 10000 }) })
+  f.wx.cloud.uploadFile = async o => { f.calls.upload = o; return { fileID: 'cloud://test.bucket/' + o.cloudPath } }
+}
+
+test('点击教练卡片打开介绍，直接选择按钮仍选择教练和刷新时段', () => {
+  const f = privatePage(); f.page.onOpenCoachProfile({ currentTarget: { dataset: { coachId: '教练 A' } } })
+  assert.equal(f.calls.routes[0], '/pages/coach/index?coachId=' + encodeURIComponent('教练 A'))
+  f.page.onCoachChange({ currentTarget: { dataset: { coachId: 'coach2' } } }); assert.equal(f.page.data.filters.coachId, 'coach2')
+  const wxml = fs.readFileSync(path.join(root, 'pages/booking/index.wxml'), 'utf8')
+  assert.match(wxml, /bindtap="onOpenCoachProfile"/); assert.match(wxml, /catchtap="onCoachChange"/)
+})
+test('介绍页选择教练返回预约并保留日期，原预约待核对时不覆盖选择', () => {
+  const f = harness('pages/coach/index.js'); f.page.data.coachId = 'coach2'; f.page.data.coach = { id: 'coach2' }
+  const previous = { route: 'pages/booking/index', data: { filters: { dateKey: '2099-01-01', type: 'group' } }, setData(patch) { Object.assign(this.data, patch) } }
+  f.app.pages = [previous, f.page]; let backs = 0; f.wx.navigateBack = () => backs++
+  f.page.onChooseCoach(); assert.equal(previous.data.filters.coachId, 'coach2'); assert.equal(previous.data.filters.dateKey, '2099-01-01'); assert.equal(backs, 1)
+  previous.data.privatePending = {}; f.page.onChooseCoach(); assert.equal(backs, 1)
+  f.page.data.pageError = '读取失败'; f.app.pages = []; f.page.onChooseCoach(); assert.equal(f.calls.routes.length, 0)
+})
+test('外部打开介绍页可携带教练进入专属预约，入口参数不丢失', () => {
+  const f = harness('pages/coach/index.js'); f.page.data.coachId = 'coach'; f.page.data.coach = { id: 'coach' }; f.page.onChooseCoach()
+  assert.equal(f.calls.routes[0], '/pages/booking/index?type=private&coachId=coach')
+  const booking = privatePage(); booking.page.onLoad({ type: 'private', coachId: 'coach2' }); assert.equal(booking.page.data.filters.coachId, 'coach2')
+})
+test('教练表单按行整理擅长荣誉，保存失败保留草稿，成功更新版本', async () => {
+  let writes = 0, payload, fail = true
+  const f = coachEditor({ updateCoachProfile: async value => { writes++; payload = value; if (fail) throw new Error('资料保存未完成'); return { coach: { ...f.page.data.coach, ...value, version: 1 } } } })
+  f.page.onInput({ currentTarget: { dataset: { field: 'honors' } }, detail: { value: '冠军\n\n认证' } })
+  await f.page.onSave(); assert.equal(f.page.data.dirty, true); assert.equal(f.page.data.draft.honors, '冠军\n\n认证'); assert.equal(f.page.data.saving, false)
+  fail = false; await f.page.onSave(); assert.deepEqual(Array.from(payload.honors), ['冠军', '认证']); assert.equal(f.page.data.coach.version, 1); assert.equal(f.page.data.dirty, false); assert.equal(writes, 2)
+})
+test('荣誉数量限制和切换账号阻止保存，提交中不能更改或移除照片', async () => {
+  let writes = 0; const f = coachEditor({ updateCoachProfile: async () => { writes++ } })
+  f.page.data.draft.honors = Array(11).fill('奖项').join('\n'); await f.page.onSave(); assert.equal(writes, 0)
+  f.page.data.draft.honors = ''; f.app.getRuntimeSnapshotAsync = async () => ({ isAuthenticated: true, userProfile: { id: 'other' } }); await f.page.onSave(); assert.equal(writes, 0)
+  f.page.data.saving = true; f.page.data.draft.photos = ['photo']; f.page.onRemovePhoto({ currentTarget: { dataset: { url: 'photo' } } }); assert.equal(f.page.data.draft.photos.length, 1)
+})
+test('离页后的旧读取不覆盖表单，客户和游客没有教练编辑权限', async () => {
+  let resolve; const f = coachEditor({ getOwnCoachProfile: () => new Promise(r => { resolve = r }) })
+  const read = f.page.syncPageData(); await Promise.resolve(); await Promise.resolve(); await Promise.resolve()
+  f.page.onHide(); resolve({ coach: { ...f.page.data.coach, name: '旧结果' } }); await read; assert.equal(f.page.data.ready, false)
+  f.app.getRuntimeSnapshotAsync = async () => ({ isAuthenticated: true, role: 'client', userProfile: { id: 'user' } }); await f.page.syncPageData(); assert.equal(f.page.data.canEdit, false)
+})
+test('照片先压缩后上传、只用服务端目录；头像成功后更新会话与预约缓存', async () => {
+  let saved; const f = coachEditor({ getMediaUploadData: async () => ({ prefix: 'profile-media/owner/', userId: 'user', avatarVersion: 3 }), updateUserAvatar: async p => { saved = p; return { userProfile: { id: 'user', avatarUrl: p.avatarUrl } } } })
+  photoAPIs(f); await f.page.onUploadAvatar()
+  assert.equal(f.calls.compressed.compressedWidth, 800); assert.equal(f.calls.compressed.compressedHeight, 400)
+  assert.equal(f.calls.upload.filePath, '/small.jpg'); assert.match(f.calls.upload.cloudPath, /^profile-media\/owner\/avatar_/)
+  assert.equal(saved.version, 3); assert.equal(f.page.data.coach.avatarUrl, saved.avatarUrl); assert.ok(f.calls.invalidations.includes('booking:'))
+})
+test('取消选择不报错，照片过大、权限或网络失败不更新头像', async () => {
+  let writes = 0; const api = { getMediaUploadData: async () => ({ prefix: 'profile-media/owner/', userId: 'user', avatarVersion: 0 }), updateUserAvatar: async () => { writes++ } }
+  const f = coachEditor(api); photoAPIs(f)
+  f.wx.chooseMedia = o => o.fail({ errMsg: 'chooseMedia:fail cancel' }); await f.page.onUploadAvatar(); assert.equal(f.page.data.formError, '')
+  photoAPIs(f, { size: 3 * 1024 * 1024 }); await f.page.onUploadAvatar(); assert.match(f.page.data.formError, /2MB/); assert.equal(writes, 0)
+  photoAPIs(f); f.wx.cloud.uploadFile = async () => { throw new Error('permission denied SDK') }; await f.page.onUploadAvatar(); assert.match(f.page.data.formError, /授权/); assert.doesNotMatch(f.page.data.formError, /SDK/); assert.equal(writes, 0)
+})
+test('多张照片部分失败保留成功图片草稿，上限6张，移除只影响草稿', async () => {
+  const f = coachEditor({ getMediaUploadData: async () => ({ prefix: 'profile-media/owner/', userId: 'user' }) }); photoAPIs(f)
+  f.wx.chooseMedia = o => o.success({ tempFiles: [{ tempFilePath: '/p1.jpg' }, { tempFilePath: '/p2.jpg' }] })
+  let uploads = 0; f.wx.cloud.uploadFile = async () => { if (++uploads === 2) throw new Error('network'); return { fileID: 'cloud://test/photo.jpg' } }
+  await f.page.onAddPhotos(); assert.equal(f.page.data.draft.photos.length, 1); assert.equal(f.page.data.dirty, true); assert.match(f.page.data.formError, /网络/)
+  f.page.onRemovePhoto({ currentTarget: { dataset: { url: 'cloud://test/photo.jpg' } } }); assert.equal(f.page.data.draft.photos.length, 0)
+  f.page.data.draft.photos = Array(6).fill('photo'); await f.page.onAddPhotos(); assert.equal(uploads, 2)
+})
+
+test('照片上传隐私授权拒绝时不打开相册，同意后继续上传', async () => {
+  const f = coachEditor({ getMediaUploadData: async () => ({ prefix: 'profile-media/owner/', userId: 'user' }) }); photoAPIs(f)
+  f.wx.getPrivacySetting = o => o.success({ needAuthorization: true, privacyContractName: '微信协议原名' })
+  f.app.pages = [f.page]; let allows = false, settings, chooses = 0
+  f.page.selectComponent = () => ({ authorize: async value => { settings = value; if (!allows) throw new Error('cancel') } })
+  f.wx.chooseMedia = o => { chooses++; o.success({ tempFiles: [{ tempFilePath: '/p.jpg' }] }) }
+  await f.page.onAddPhotos(); assert.equal(chooses, 0); assert.equal(f.page.data.formError, '')
+  allows = true; await f.page.onAddPhotos(); assert.equal(chooses, 1); assert.equal(settings.privacyContractName, '微信协议原名'); assert.equal(f.page.data.draft.photos.length, 1)
+})
+test('相册大图使用云文件临时地址，读取失败只显示具体图片响应', async () => {
+  const f = harness('pages/coach/index.js'); f.page.data.coach = { photos: ['cloud://env/photo.jpg'] }
+  f.wx.cloud.getTempFileURL = async () => ({ fileList: [{ fileID: 'cloud://env/photo.jpg', status: 0, tempFileURL: 'https://photo.test/image.jpg' }] })
+  let preview; f.wx.previewImage = o => { preview = o }
+  await f.page.onPreviewPhoto({ currentTarget: { dataset: { url: 'cloud://env/photo.jpg' } } }); assert.equal(preview.current, 'https://photo.test/image.jpg')
+  f.wx.cloud.getTempFileURL = async () => { throw new Error('database SDK fail') }
+  await f.page.onPreviewPhoto({ currentTarget: { dataset: { url: 'cloud://env/photo.jpg' } } }); assert.doesNotMatch(f.calls.modals.at(-1).content, /SDK|database/)
 })

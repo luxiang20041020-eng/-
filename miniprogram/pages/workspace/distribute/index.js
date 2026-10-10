@@ -171,13 +171,13 @@ Page(withPageState({
     const member = this.data.selectedMember
     const pack = this.data.selectedPackage
     const previousCount = member && pack ? Number(pack.type === 'group' ? member.groupCount : member.privateCount) || 0 : 0
-    const previousExpiry = member && pack ? (pack.type === 'group' ? member.groupExpiry : member.privateExpiry) : ''
+    const previousExpiry = member && pack ? (pack.unlimited ? (pack.type === 'group' ? member.groupUnlimitedExpiry : member.privateUnlimitedExpiry) : (pack.type === 'group' ? member.groupExpiry : member.privateExpiry)) : ''
     const currentCount = previousExpiry && previousExpiry < todayStr() ? 0 : previousCount
     this.setData({
       visiblePackages: (this.data.pageData.packageOptions || []).filter((item) => this.data.packageType === 'all' || item.type === this.data.packageType),
       preview: {
         before: currentCount,
-        after: currentCount + (pack ? pack.lessons : 0),
+        unlimited: Boolean(pack && pack.unlimited), after: currentCount + (pack ? pack.lessons : 0),
         expiry: previousExpiry && previousExpiry > this.data.expiryDate ? previousExpiry : this.data.expiryDate,
         amount: Number.isFinite(Number(this.data.amount)) ? Number(this.data.amount).toFixed(2) : '—',
       },
@@ -303,7 +303,7 @@ Page(withPageState({
     const snapshot = { memberId: member.id || this.data.selectedMemberId, packageId: targetPackage.id || this.data.selectedPackageId, expiryDate: this.data.expiryDate, amount: Number(this.data.amount), payType: this.data.payType, remark: this.data.remark, storeId: this.data.pageData.currentStore && this.data.pageData.currentStore.id }
     this.setData({ submitting: true })
     try {
-        const confirmed = await confirmAction({ title: '确认派发', contentParts: [member.nickname + ' · ' + member.phone + '\n' + targetPackage.name + '\n', { text: '增加 {0} 节{1}，预计余额 {2} 节', values: [targetPackage.lessons, t(targetPackage.typeLabel), preview.after] }, '\n', { text: '到账有效期 {0}', values: [preview.expiry] }, '\n', { text: '实收 ¥{0} · {1}', values: [preview.amount, t(snapshot.payType)] }] })
+        const confirmed = await confirmAction({ title: '确认派发', contentParts: [member.nickname + ' · ' + member.phone + '\n' + targetPackage.name + '\n', targetPackage.unlimited ? { text: '派发期限内无限次权益，次数余额保持不变。' } : { text: '增加 {0} 节{1}，预计余额 {2} 节', values: [targetPackage.lessons, t(targetPackage.typeLabel), preview.after] }, '\n', { text: '到账有效期 {0}', values: [preview.expiry] }, '\n', { text: '实收 ¥{0} · {1}', values: [preview.amount, t(snapshot.payType)] }] })
         if (!confirmed) return
         const runtime = await app.getRuntimeSnapshotAsync({ force: true })
         if (!runtime.isAuthenticated) {
@@ -340,7 +340,7 @@ Page(withPageState({
           app.removeViewCacheByPrefix('admin:users')
           app.removeViewCacheByPrefix('profile:' + localPayload.memberId)
           this.setData({
-            receipt: { name: member.nickname, phone: member.phone, packageName: targetPackage.name, lessons: targetPackage.lessons, typeLabel: targetPackage.typeLabel, amount: preview.amount, expiry: result.expiry, payType: snapshot.payType },
+            receipt: { name: member.nickname, phone: member.phone, packageName: targetPackage.name, unlimited: targetPackage.unlimited, lessons: targetPackage.lessons, typeLabel: targetPackage.typeLabel, amount: preview.amount, expiry: result.expiry, payType: snapshot.payType },
             selectedMemberId: '',
             selectedMember: null,
             selectedPackageId: '',

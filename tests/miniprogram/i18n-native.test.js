@@ -50,7 +50,7 @@ test('所有页面的实际微信编译渲染在七种语言及表单状态下�
   const files = pageNames.map(page => 'miniprogram/pages/' + page + '/index.wxml')
   files.push('miniprogram/utils/i18n.wxs')
   const { context, errors } = compiledRuntime(files, root)
-  for (const page of pageNames) for (const language of languages) for (const query of ['', 'popup=1&expanded=1&invite=form', 'state=guest', 'popup=assets', 'mode=records', 'mode=records&popup=1', 'state=cancelled', 'mode=report', 'mode=report&state=empty']) {
+  for (const page of pageNames) for (const language of languages) for (const query of ['', 'popup=1&expanded=1&invite=form', 'state=guest', 'popup=assets', 'mode=records', 'mode=records&popup=1', 'state=cancelled', 'mode=report', 'mode=report&state=empty', 'type=private&coach=coach&unlimited=1', 'type=private&state=pending', 'popup=1&unlimited=1&step=3', 'section=intro', 'section=photos&photos=1', 'type=private&many=1&expanded=1']) {
     const data = fixtures(page, new URLSearchParams(query))
     data.language = language
     context.input = JSON.stringify(data)
@@ -66,5 +66,17 @@ test('报表页面、后台提示和导出表头在六种外语中都有译文',
   for (const match of sources.matchAll(/'([^'\n]*[\u4e00-\u9fff][^'\n]*)'/g)) {
     if (match[1].includes(" + ")) continue
     for (const language of languages.slice(1)) assert.notEqual(text.translate(match[1], language), match[1], language + ': ' + match[1])
+  }
+})
+
+test('上传隐私授权组件在微信原生编译器中以七种语言完整显示', { skip: !fs.existsSync(wcc) }, () => {
+  const files = ['miniprogram/components/media-privacy/index.wxml', 'miniprogram/utils/i18n.wxs']
+  const { context, errors } = compiledRuntime(files, root)
+  for (const language of languages) {
+    context.input = JSON.stringify({ visible: true, contractName: '用户隐私保护协议', language })
+    const tree = context.$gwx(files[0])(vm.runInContext('JSON.parse(input)', context), {})
+    assert.ok(contents(tree).includes(text.translate('选择照片前，请阅读并同意隐私保护协议。', language)))
+    assert.ok(contents(tree).includes(text.translate('同意并继续', language)))
+    assert.deepEqual(errors, [])
   }
 })

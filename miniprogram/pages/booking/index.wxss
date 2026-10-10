@@ -163,7 +163,7 @@
   z-index: 121;
   height: 74vh;
   padding: 28rpx 24rpx 34rpx;
-  border-radius: 16rpx 42rpx 0 0;
+  border-radius: 32rpx 32rpx 0 0;
   background: #ffffff;
   box-shadow: 0 -24rpx 80rpx rgba(32, 37, 31, 0.18);
 }
@@ -213,7 +213,10 @@
 }
 
 .coach-drawer-scroll {
-  height: calc(74vh - 182rpx);
+  flex: 1;
+  min-height: 0;
+  height: 0;
+  overflow-y: auto;
   margin-top: 18rpx;
 }
 
@@ -272,3 +275,5 @@
   line-height: 1.6;
   color: #7c8076;
 }
+
+.private-section-head{display:flex;align-items:baseline;justify-content:space-between;gap:16rpx;margin:28rpx 4rpx 18rpx}.private-section-count{font-size:22rpx;color:#93968c;flex-shrink:0}.private-coach-list{background:#fff;border:1rpx solid #e7e7df;border-radius:24rpx;overflow:hidden}.private-coach-row{display:flex;align-items:center;gap:20rpx;padding:24rpx;border-bottom:1rpx solid #f0f0ea}.private-coach-row:last-child{border-bottom:0}.private-coach-row.selected{background:#fffaf7}.private-coach-avatar{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:88rpx;height:100rpx;border-radius:18rpx;background:#ebece4;color:#666e5f;font-size:34rpx;font-weight:600}.private-coach-main{flex:1;min-width:0}.private-coach-name{font-size:30rpx;font-weight:600;line-height:1.4;overflow-wrap:anywhere}.private-coach-meta{font-size:23rpx;color:#858a7e;line-height:1.5;margin-top:6rpx;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.private-coach-link{font-size:20rpx;color:#9a9d93;line-height:1.5;margin-top:6rpx;overflow-wrap:anywhere}.private-selected-mark{font-size:24rpx;color:#c7452d}.locale-page button.private-coach-select{display:flex;align-items:center;justify-content:center;flex:0 0 112rpx;max-width:112rpx;min-height:64rpx;height:auto;padding:14rpx 8rpx;margin:0;border-radius:14rpx;background:#f9eee8;color:#b8442d;font-size:23rpx;line-height:1.4;text-align:center;white-space:normal;overflow-wrap:anywhere}.locale-page button.private-coach-select.change{background:transparent;border:1rpx solid #e5dcd4}.locale-page button.private-coach-all{display:flex;justify-content:center;align-items:center;gap:14rpx;width:100%;padding:24rpx 20rpx;margin:0;color:#69725f;font-size:24rpx;line-height:1.5;background:#fafaf6;white-space:normal}.private-coach-all text{color:#9ca28f}.coach-drawer{display:flex;flex-direction:column;padding-bottom:calc(34rpx + env(safe-area-inset-bottom))}.coach-drawer-header,.coach-search-input{flex-shrink:0}.coach-drawer-header>view:first-child{flex:1;min-width:0}.coach-drawer-close{flex-shrink:0;margin-left:16rpx}.coach-drawer .coach-option-item{align-items:center}.coach-option-avatar{flex-shrink:0}.coach-summary{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}.coach-more-hint{padding:24rpx;text-align:center;color:#93968c;font-size:22rpx;line-height:1.5}.private-time-card{margin-top:24rpx}.private-time-grid{display:flex;gap:20rpx;margin:24rpx 0}.private-time-grid .private-time-picker{flex:1;min-width:0;background:#f4f4ed;border-radius:16rpx;padding:20rpx}.private-time-value{font-size:40rpx;font-weight:600;margin-top:12rpx}.private-busy-list{display:flex;flex-wrap:wrap;gap:12rpx;margin:20rpx 0}.private-busy-list text{padding:10rpx;background:#eff0e9;border-radius:8rpx;font-size:24rpx}.private-note{margin:20rpx 0;line-height:1.7}.locale-page .private-time-card button,.locale-page .private-pending button{width:100%;margin-top:24rpx}

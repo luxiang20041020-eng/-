@@ -1,6 +1,7 @@
 {
   "usingComponents": {
-    "app-tabbar": "/components/app-tabbar/index"
+    "app-tabbar": "/components/app-tabbar/index",
+    "media-privacy": "/components/media-privacy/index"
   },
   "navigationBarTitleText": "我的",
   "enablePullDownRefresh": true

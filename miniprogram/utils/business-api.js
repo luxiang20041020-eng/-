@@ -141,6 +141,8 @@ async function distributeAsset(payload) {
   return unwrapResult(response)
 }
 
+async function createPrivateBooking(payload) { return unwrapResult(await callBusinessCore('createPrivateBooking', payload)) }
+
 async function createBooking(payload) {
   const response = await callBusinessCore('createBooking', payload)
   return unwrapResult(response)
@@ -177,6 +179,12 @@ async function updatePackageStatus(payload) {
 }
 
 module.exports = {
+  getCoachProfile: async payload => unwrapResult(await callBusinessCore('getCoachProfile', payload)),
+  getOwnCoachProfile: async payload => unwrapResult(await callBusinessCore('getOwnCoachProfile', payload)),
+  getMediaUploadData: async payload => unwrapResult(await callBusinessCore('getMediaUploadData', payload)),
+  updateUserAvatar: async payload => unwrapResult(await callBusinessCore('updateUserAvatar', payload)),
+  updateCoachProfile: async payload => unwrapResult(await callBusinessCore('updateCoachProfile', payload)),
+
   getCustomerFollowUpData: async payload => unwrapResult(await callBusinessCore('getCustomerFollowUpData', payload)),
   getBusinessReportData: async payload => unwrapResult(await callBusinessCore('getBusinessReportData', payload)),
   getScheduleAdjustmentData: async payload => unwrapResult(await callBusinessCore('getScheduleAdjustmentData', payload)),
@@ -212,7 +220,7 @@ module.exports = {
   getCoachClassViewData,
   getCoachScheduleViewData,
   distributeAsset,
-  createBooking,
+  createBooking, createPrivateBooking,
   cancelBooking,
   writeOffBooking,
   createCoachSchedule,

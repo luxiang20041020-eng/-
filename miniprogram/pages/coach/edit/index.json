@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "编辑教练资料",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "media-privacy": "/components/media-privacy/index"
+  }
+}

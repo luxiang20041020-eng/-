@@ -10,7 +10,7 @@ const localizedText = require('../miniprogram/utils/i18n-text')
 const languageOptions = ['简体中文', 'English', 'Français', 'ไทย', 'Deutsch', '日本語', 'हिन्दी']
 const languageCodes = ['zh', 'en', 'fr', 'th', 'de', 'ja', 'hi']
 const i18n = { t: localizedText.translate, f: localizedText.format, list: localizedText.list }
-const pageNames = ['home', 'booking', 'profile', 'points', 'login', 'workspace', 'admin', 'admin/users', 'admin/packages', 'admin/stores', 'admin/reports', 'workspace/distribute', 'workspace/schedule', 'workspace/class', 'workspace/manual', 'workspace/adjust']
+const pageNames = ['coach', 'coach/edit', 'home', 'booking', 'profile', 'points', 'login', 'workspace', 'admin', 'admin/users', 'admin/packages', 'admin/stores', 'admin/reports', 'workspace/distribute', 'workspace/schedule', 'workspace/class', 'workspace/manual', 'workspace/adjust']
 const escape = (value) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 
 function parse(source) {
@@ -57,6 +57,7 @@ function renderChildren(children, data) {
 
 function renderNode(node, data) {
   if (node.tag === 'wxs') return ''
+  if (node.tag === 'media-privacy') return renderChildren(parseWxml(fs.readFileSync(path.join(mini, 'components/media-privacy/index.wxml'), 'utf8')).children, { i18n, language: data.language, visible: data.mediaPrivacyVisible, contractName: '用户隐私保护协议' })
   if (node.tag === 'block') return renderChildren(node.children, data)
   if (node.tag === 'language-setting') {
     return renderChildren(parseWxml(fs.readFileSync(path.join(mini, 'components/language-setting/index.wxml'), 'utf8')).children, { i18n, language: data.language, options: languageOptions, index: Math.max(0, languageCodes.indexOf(data.language)) })
@@ -81,7 +82,7 @@ function renderNode(node, data) {
   const dataset = Object.entries(node.attrs).filter(([key]) => key.startsWith('data-')).map(([key, value]) => `${key}="${escape(bind(value, data))}"`).join(' ')
   const event = handler ? ` data-preview-action="${handler}" ${dataset}` : ''
   const switchType = node.tag === 'switch' ? ' type="checkbox"' + (expression(node.attrs.checked, data) ? ' checked' : '') : ''
-  return `<${tag} ${attrs}${disabled}${event}${switchType}>` + (['img', 'input'].includes(tag) ? '' : renderChildren(node.children, data) + `</${tag}>`)
+  return `<${tag} ${attrs}${disabled}${event}${switchType}>` + (['img', 'input'].includes(tag) ? '' : (node.tag === 'textarea' ? escape(bind(node.attrs.value, data)) : renderChildren(node.children, data)) + `</${tag}>`)
 }
 
 function parseWxml(source) {
@@ -91,20 +92,33 @@ function parseWxml(source) {
 
 function fixtures(page, search) {
   const stores = [{ id: 'gaoxin', name: '高新旗舰店', address: '高新区唐延路 88 号' }, { id: 'jingkai', name: '经开实战店', address: '经开区凤城八路 18 号' }]
-  const roles = page.startsWith('admin') || (page === 'workspace/adjust' && search.get('mode') === 'records') || search.get('role') === 'admin' ? 'admin' : page.startsWith('workspace') ? 'coach' : 'client'
+  const roles = page.startsWith('admin') || (page === 'workspace/adjust' && search.get('mode') === 'records') || search.get('role') === 'admin' ? 'admin' : (search.get('role') === 'coach' || page === 'coach/edit') ? 'coach' : page.startsWith('workspace') ? 'coach' : 'client'
   const tabs = [{ key: 'home', label: '首页', path: '/pages/home/index' }, { key: 'booking', label: '预约', path: '/pages/booking/index' }, ...(roles === 'coach' ? [{ key: 'workspace', label: '工作台', path: '/pages/workspace/index' }] : roles === 'admin' ? [{ key: 'admin', label: '看板', path: '/pages/admin/index' }] : []), { key: 'profile', label: '我的', path: '/pages/profile/index' }]
   const runtime = { isAuthenticated: search.get('state') !== 'guest', role: roles, roleLabel: roles === 'admin' ? '管理员' : roles === 'coach' ? '场馆人员' : '会员', userProfile: { id: 'sample-user', nickname: '陈一', phone: '13812345678', levelText: '每一次坚持，都算数。' }, currentStore: stores[0], stores, tabItems: tabs }
   let config
   const file = path.join(mini, 'pages', page, 'index.js')
   vm.runInNewContext(fs.readFileSync(file, 'utf8'), { require: createRequire(file), Page: (value) => { config = value }, wx: { env: { USER_DATA_PATH: '' } }, setInterval, clearInterval })
-  const assets = { groupCount: 8, privateCount: 12, groupExpiry: '2027-03-30', privateExpiry: '2027-09-30' }
+  const assets = { ...(search.has('unlimited') ? { groupUnlimited: true, privateUnlimited: true, groupUnlimitedExpiry: '2027-03-30', privateUnlimitedExpiry: '2027-09-30' } : {}), groupCount: 8, privateCount: 12, groupExpiry: '2027-03-30', privateExpiry: '2027-09-30' }
   const packages = [{ id: 'p1', name: '30 次专属训练', type: 'private', typeLabel: '专属训练', lessons: 30, price: 6000, priceText: '6000.00', status: 1, statusLabel: '已上架', actionText: '下架套餐' }, { id: 'p2', name: '新人体验训练', type: 'private', typeLabel: '专属训练', lessons: 1, price: 99, priceText: '99.00', status: 1, statusLabel: '已上架', actionText: '下架套餐' }]
   const today = new Date()
   const dateKey = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0')
   const schedules = [{ id: 's1', title: '泰拳基础 · 步法与发力', type: 'group', typeLabel: '团体训练', coachName: '李教练', venue: stores[0].name, timeStart: '19:00', timeEnd: '20:30', timeRange: '19:00 - 20:30', dateLabel: '09/30', bookedCount: 6, capacity: 12, progressText: '6 / 12 人', progressPercent: 50, checkedCount: 2, absentCount: 0 }, { id: 's2', title: '拳腿衔接 · 进阶训练', type: 'group', typeLabel: '团体训练', coachName: '王教练', venue: stores[0].name, timeStart: '20:30', timeEnd: '22:00', timeRange: '20:30 - 22:00', dateLabel: '09/30', bookedCount: 12, capacity: 12, progressText: '12 / 12 人', progressPercent: 100, isFull: true }]
   const dates = Array.from({ length: 7 }, (_, index) => ({ key: index ? 'day' + index : dateKey, displayWeekday: ['今日', '周四', '周五', '周六', '周日', '周一', '周二'][index], displayMonthDay: index ? '10/' + String(index).padStart(2, '0') : '09/30' }))
-  const data = { ...config.data, runtime, hasPermission: true, avatarText: '陈', maskedPhone: '138****5678', checkingSession: false, identityExpanded: false, selectedStoreName: stores[0].name, selectedStoreAddress: stores[0].address, visibleUsers: [{ id: 'u1', name: '陈一', avatarText: '陈', roleLabel: '客户', phone: '138****5678', statusLabel: '正常', homeStoreName: stores[0].name }], visiblePackages: packages }
+  const data = { ...config.data, runtime, mediaPrivacyVisible: search.has('privacy'), hasPermission: true, avatarText: '陈', maskedPhone: '138****5678', checkingSession: false, identityExpanded: false, selectedStoreName: stores[0].name, selectedStoreAddress: stores[0].address, visibleUsers: [{ id: 'u1', name: '陈一', avatarText: '陈', roleLabel: '客户', phone: '138****5678', statusLabel: '正常', homeStoreName: stores[0].name }], visiblePackages: packages }
   data.pageData = { ...data.pageData, currentStore: stores[0], stores, heroNotice: '开课前 2 小时可取消，权益自动退回。', notices: ['训练预约须知'], galleryList: ['拳台训练区', '力量与体能区', '沙袋训练区'], packages, assets, schedules, dates, selectedCoachName: '全部人员', resultCount: 2, filters: { type: search.get('type') || 'group', coachId: 'all', dateKey }, myBookings: [{ id: 'b1', title: '泰拳基础 · 步法与发力', dateDay: '30', dateText: '09/30', timeRange: '19:00 - 20:30', status: '待到店', canCancel: true }], trainingStats: { monthLessons: 6, streakDays: 18, totalLessons: 24 }, todayClasses: [schedules[0]], summary: { bookedCount: 6, pendingCount: 4 }, quickActions: [{ id: 'distribute', title: '权益派发', desc: '记录收款，为学员补充权益' }, { id: 'class', title: '到场核销', desc: '确认学员出勤与缺席' }, { id: 'schedule', title: '训练排课', desc: '安排下一次训练' }], dateLabel: dateKey, auditOverview: { incomeText: '￥1,280.00', writeOffCount: 12, addedPrivateLessons: 8, addedGroupLessons: 24 }, auditLogs: [], stats: { total: 2, activeCount: 2, inactiveCount: 0 }, users: data.visibleUsers, members: [{ id: 'u1', nickname: '陈一', avatarText: '陈', phone: '138****5678', groupCount: 8, privateCount: 12 }], packageOptions: packages, plans: [{ id: 's1', title: schedules[0].title, weekLabel: '周三', dateLabel: '09/30', timeRange: '19:00 - 20:30', venue: stores[0].name, status: '已发布', type: 'group' }], classInfo: { ...schedules[0], dateLabel: '09/30' }, roster: [{ bookingId: 'b1', userName: '陈一', phone: '138****5678', status: '待核销' }] }
+  if (page === 'coach' || page === 'coach/edit') {
+    data.coach = { id: 'coach', name: '李教练', title: '泰拳与体能教练', levelLabel: '十年执教经验', avatarUrl: '', version: 0, specialties: ['泰拳', '拳击', '体能训练'], bio: '用扎实的基础，建立属于你的训练节奏。\n擅长拳腿衔接与实战步法，针对不同训练阶段制定教学计划。', honors: ['全国泰拳公开赛冠军', '专业体能训练认证'], photos: [] }
+    if (search.has('photos')) { const image = 'data:image/jpeg;base64,' + fs.readFileSync('miniprogram/images/gym-interior-1.jpg').toString('base64'); data.coach.avatarUrl = image; data.coach.photos = [image, image] }
+    if (search.get('photos') === 'single') data.coach.photos = data.coach.photos.slice(0, 1)
+    if (search.get('state') === 'short') { data.coach.name = '卢翔'; data.coach.title = '测试'; data.coach.levelLabel = '测试'; data.coach.bio = '测试'; data.coach.specialties = ['测试']; data.coach.honors = ['测试'] }
+    if (search.get('state') === 'long') { data.coach.name = 'Alexandre · International Muay Thai Coach'; data.coach.title = '专项拳击、泰拳与体能训练教练'; data.coach.levelLabel = '十年以上教学经验与综合体能训练认证'; data.coach.specialties = ['拳击与泰拳实战训练', '步法移动与拳腿组合', '核心力量与综合体能']; data.coach.bio = (data.coach.bio + '\n').repeat(8); data.coach.honors = ['全国泰拳公开赛冠军与最佳技术奖，专项教学及综合体能训练认证'.repeat(2), '专业训练认证'] }
+    data.avatarText = data.coach.name.slice(0, 1); data.ready = true; data.canEdit = true
+    data.editSection = search.get('section') || (search.has('photos') ? 'photos' : 'basic')
+    data.draft = { ...data.coach, specialties: data.coach.specialties.join('\n'), honors: data.coach.honors.join('\n') }
+    if (search.get('state') === 'empty') { data.coach.bio = ''; data.coach.honors = []; data.coach.specialties = [] }
+    if (search.get('state') === 'guest' && page === 'coach/edit') { data.canEdit = false; data.ready = false }
+    if (search.get('state') === 'uploading') data.uploading = true
+  }
   if (page === 'points') {
     data.pageData = { balance: 200, inviteCode: 'ON12AB34CD56EF', bound: true, boundCode: 'ON98AB76CD54EF', records: [{ id: '1', amount: 100, title: '邀请好友奖励', dateLabel: '2026-10-09' }, { id: '2', amount: 100, title: '填写邀请码奖励', dateLabel: '2026-10-09' }] }
     if (search.get('state') === 'empty') data.pageData = { ...data.pageData, balance: 0, records: [] }
@@ -132,6 +146,19 @@ function fixtures(page, search) {
   if (search.get('expanded')) { data.pricingExpanded = true; data.filtersExpanded = true; data.auditLogsExpanded = true; data.coachPickerVisible = true }
   if (page === 'booking') {
     const state = search.get('state')
+    data.filters = { ...data.filters, type: search.get('type') || 'group', coachId: search.get('coach') || 'all', dateKey }
+    data.pageData.filters = data.filters
+    data.pageData.selectedCoachName = '李教练'
+    data.pageData.coaches = state === 'empty' ? [] : [{ id: 'coach', name: '李教练', title: '教练', avatarText: '李', summaryText: '泰拳 · 体能' }, { id: 'coach2', name: '王教练', title: '教练', avatarText: '王', summaryText: '拳击 · 步法' }]
+    if (search.has('many')) data.pageData.coaches = Array.from({ length: 80 }, (_, index) => ({ id: index ? 'coach' + (index + 1) : 'coach', name: ['李教练', '王教练', '陈教练', '张教练'][index % 4] + (index > 3 ? ' ' + (index + 1) : ''), title: index % 2 ? '拳击与专项体能教练' : '泰拳与体能教练', avatarText: ['李', '王', '陈', '张'][index % 4], summaryText: '泰拳 · 体能 · 步法' }))
+    data.pageData.privateCoachPreview = data.pageData.coaches.slice(0, 3)
+    data.pageData.selectedCoach = data.pageData.coaches.find(coach => coach.id === data.filters.coachId) || null
+    data.pageData.filteredCoachOptions = data.pageData.coaches
+    data.pageData.visibleCoachOptions = data.pageData.coaches.slice(0, 20)
+    data.pageData.hasMoreCoachOptions = data.pageData.coaches.length > 20
+    data.pageData.privateBusyTimes = [{ id: 'busy', timeRange: '14:00 - 15:30' }]
+    if (search.has('unlimited')) data.pageData.assets = { ...assets, groupUnlimited: true, privateUnlimited: true, groupUnlimitedExpiry: '2027-03-30', privateUnlimitedExpiry: '2027-09-30' }
+    if (state === 'pending') data.privatePending = { requestId: 'pending-private', date: dateKey, start: '10:15', end: '11:45' }
     data.pageData.schedules = data.pageData.schedules.map((item) => ({ ...item,
       type: search.get('type') === 'private' ? 'private' : 'group',
       typeLabel: search.get('type') === 'private' ? '专属训练' : '团体训练',
@@ -212,7 +239,13 @@ function fixtures(page, search) {
   }
   if (page === 'admin/packages') {
     data.visiblePackages = search.get('state') === 'empty' ? [] : packages.map((item, i) => ({ ...item, validDays: i ? 90 : 365, status: i ? 0 : 1, statusLabel: i ? '已下架' : '已上架', actionText: i ? '重新上架' : '下架套餐', actionMode: i ? 'on' : 'off' }))
-    if (search.get('popup')) data.createForm = { name: '12 节私教入门卡', type: 'private', lessons: '12', price: '2400', validDays: '180', status: search.get('active') ? 1 : 0 }
+    if (search.get('popup')) data.createForm = { name: '12 节私教入门卡', type: 'private', usageMode: 'count', lessons: '12', price: '2400', validDays: '180', status: search.get('active') ? 1 : 0 }
+    if (search.has('unlimited')) { data.createForm = { ...data.createForm, usageMode: 'unlimited', name: '30天专属畅练卡' }; data.visiblePackages[0] = { ...data.visiblePackages[0], unlimited: true } }
+  }
+  if (page === 'workspace/distribute' && search.has('unlimited')) {
+    data.visiblePackages = data.visiblePackages.map(p => ({ ...p, unlimited: true }))
+    if (data.selectedPackage) data.selectedPackage = { ...data.selectedPackage, unlimited: true }
+    if (data.receipt) data.receipt = { ...data.receipt, unlimited: true }
   }
   if (page === 'workspace/adjust') {
     const cancelled = search.get('state') === 'cancelled'
@@ -233,6 +266,7 @@ function fixtures(page, search) {
     if (search.get('state') === 'empty') { data.followup.customers = []; data.followup.total = 0; data.report.coaches = []; data.report.payments = [] }
     data.visibleCustomers = data.followup.customers; data.visiblePayments = data.report.payments
   }
+  if (search.has('unlimited') && data.assetsDetail) data.assetsDetail.balances = data.assetsDetail.balances.map(a => ({ ...a, unlimited: true, unlimitedExpiry: '2027-03-30' }))
   return data
 }
 
@@ -248,7 +282,7 @@ function html(page, search = new URLSearchParams()) {
   data.language = languageCodes.includes(search.get('lang')) ? search.get('lang') : 'zh'
   data.i18n = i18n
   const wxml = parseWxml(fs.readFileSync(path.join(mini, 'pages', page, 'index.wxml'), 'utf8'))
-  const styles = ['app.wxss', 'components/app-tabbar/index.wxss', 'components/page-feedback/index.wxss', 'components/language-setting/index.wxss', `pages/${page}/index.wxss`].map((file) => readStyles(path.join(mini, file))).join('\n').replace(/(-?\d+(?:\.\d+)?)rpx/g, 'calc($1 * var(--unit))').replace(/\bpage\s*\{/g, 'body {').replace(/(?<![\w-])view(?![\w-])/g, 'div').replace(/(?<![\w-])text(?![\w-])/g, 'span')
+  const styles = ['app.wxss', 'components/app-tabbar/index.wxss', 'components/page-feedback/index.wxss', 'components/language-setting/index.wxss', 'components/media-privacy/index.wxss', `pages/${page}/index.wxss`].map((file) => readStyles(path.join(mini, file))).join('\n').replace(/(-?\d+(?:\.\d+)?)rpx/g, 'calc($1 * var(--unit))').replace(/(?<![\w.-])page\s*\{/g, 'body {').replace(/(?<![\w-])view(?![\w-])/g, 'div').replace(/(?<![\w-])text(?![\w-])/g, 'span').replace(/(?<![\w-])image(?![\w-])/g, 'img')
   const menu = pageNames.map((name) => `<a href="/preview/${name}">${name}</a>`).join('')
   return `<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ONE · ${escape(page)} 布局预览</title><style>:root{--unit:calc(min(100vw,430px) / 750)}body{margin:0}main{max-width:430px;margin:auto}button{cursor:pointer;font-family:inherit}img{object-fit:cover}a{text-decoration:none;color:inherit}input,textarea{font-family:inherit}input{outline:none}nav{display:none}${nativeButtonStyles}${styles}\n.tabbar-wrap{width:min(100vw,430px);right:auto;left:50%;transform:translateX(-50%)}.scroll-row,.facility-scroll{overflow-x:auto}.sheet-scroll{overflow-y:auto}.home-hero-cta{width:fit-content} [data-preview-action]{cursor:pointer}</style></head><body><nav>${menu}</nav><main>${renderChildren(wxml.children, data)}</main><script>document.addEventListener('click',function(event){const el=event.target.closest('[data-preview-action]');if(!el)return;const a=el.dataset.previewAction;const routes={goPoints:'/preview/points',goBooking:'/preview/booking?type='+(el.dataset.type||'group'),goMySchedule:'/preview/profile',goIdentityQr:'/preview/profile',goLogin:'/preview/login',goBrowse:'/preview/home',onOpenUserManage:'/preview/admin/users',onOpenPackageManage:'/preview/admin/packages',onOpenStoreManage:'/preview/admin/stores',onOpenOperations:'/preview/workspace',goClassDetail:'/preview/workspace/class'};if(routes[a])location.href=routes[a];else if(a==='onTap')location.href='/preview/'+el.dataset.path.replace('/pages/','').replace('/index','');else if(a==='onTapAction')location.href='/preview/workspace/'+el.dataset.actionId;else if(['onTogglePricing','onToggleFilters','onOpenCoachPicker','onToggleAuditLogs'].includes(a))location.search='?expanded=1';else if(['onOpenCreatePopup','onOpenCreate','onOpenCreateStore','onOpenCreatePopup','openNicknameEditor'].includes(a))location.search='?popup=1';else if(['onCloseCreatePopup','onCloseStorePopup','closeNicknameEditor','onCloseCoachPicker'].includes(a))location.search='';else if(a==='onToggleInvite')location.search='?invite=form';else if(a==='onViewAssets')location.search='?popup=assets';else if(a==='onCloseAssets')location.search='';else if(a==='onBook')alert('这是布局预览，不会提交真实预约。');});</script></body></html>`
 }

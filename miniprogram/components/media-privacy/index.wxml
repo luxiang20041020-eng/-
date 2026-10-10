@@ -1,0 +1,9 @@
+<wxs module="i18n" src="../../utils/i18n.wxs" />
+<view wx:if="{{visible}}" class="media-privacy-mask">
+  <view class="media-privacy-panel">
+    <view class="media-privacy-title">{{i18n.f('ONE 隐私保护提示', [], language)}}</view>
+    <view class="media-privacy-text">{{i18n.f('选择照片前，请阅读并同意隐私保护协议。', [], language)}}</view>
+    <view class="media-privacy-link" bindtap="onOpenContract">《{{contractName === '用户隐私保护协议' ? i18n.t(contractName, language) : contractName}}》</view>
+    <view class="media-privacy-actions"><button bindtap="onCancel">{{i18n.f('暂不使用', [], language)}}</button><button id="mediaPrivacyAgreeButton" class="media-privacy-agree" open-type="agreePrivacyAuthorization" bindagreeprivacyauthorization="onAgree">{{i18n.f('同意并继续', [], language)}}</button></view>
+  </view>
+</view>

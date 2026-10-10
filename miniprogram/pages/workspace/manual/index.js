@@ -73,7 +73,7 @@ Page(withPageState({
         const typeName = this.data.classType === 1 ? '团课' : '私教课'
         const confirmed = await confirmAction({ title: '确认人工核销', contentParts: [member.nickname + ' · ' + member.phone + '\n',
           (info ? info.title + ' · ' + info.dateLabel + ' ' + info.timeRange : runtime.currentStore.name + ' · ' + this.data.date + ' ' + this.data.time + ' · ' + t(typeName)), '\n',
-          info ? { text: '无预约将扣减 1 课时；已有待核销预约则不重复扣课。' } : { text: '将扣减 1 节{0}课时并记录到场。', values: [t(typeName)] }] })
+          { text: '有效期内优先使用无限次权益；否则扣减 1 课时，已有预约不重复扣课。' }] })
         if (!confirmed) return
         this._pendingPayload = { userId: member.id, classId: this.data.classId, classType: this.data.classType,
           storeId: runtime.currentStore.id, trainingTime: this.data.date + ' ' + this.data.time + ':00', remark: this.data.remark.trim(),

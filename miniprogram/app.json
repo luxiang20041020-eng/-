@@ -15,7 +15,9 @@
     "pages/admin/packages/index",
     "pages/admin/stores/index",
     "pages/workspace/adjust/index",
-    "pages/admin/reports/index"
+    "pages/admin/reports/index",
+    "pages/coach/index",
+    "pages/coach/edit/index"
   ],
   "window": {
     "backgroundColor": "#f5f4ef",
